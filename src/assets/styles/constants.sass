@@ -1,0 +1,51 @@
+@charset "UTF-8"
+
+$color-brand: #0ea1eb
+$color-brand-black: #354052
+
+//功能色或状态色，用于提示、反馈提醒、校验等场景，单纯的文字提示使用深色，可运用浅色作为背景层
+$color-status-normal: #09aef5
+$color-status-normal-light: #e9f7ed
+$color-status-warning: #e07800
+$color-status-warning-light: #fff7e6
+$color-status-danger: #f55858
+$color-status-danger-light: #ffd7d7
+$color-status-success: #29bd76
+$color-status-success-light: #d1ffe8
+$color-status-disable: #e1e3e6
+
+//字体颜色
+$color-font-title: #404245
+$color-font-content: #75787d
+$color-font-tip: #bcbec2
+$color-font-icon: #c8cacc
+
+//边框颜色
+$color-border: #dadada
+
+//背景色
+$color-bg-dark: #e6e8eb
+$color-bg-system: #eef0f3
+$color-bg-light: #fafafa
+$color-bg-normal: #ffffff
+
+//字体大小
+$size-font-mark: 12px
+$size-font-content-small: 13px
+$size-font-content-medium: 14px
+$size-font-subtitle-small: 16px
+$size-font-subtitle-large: 18px
+$size-font-title-small: 20px
+$size-font-title-large: 24px
+$size-font-max: 36px
+//--------------------其它
+$border-radius: 3px
+$basePath: ''
+$font-family: 'PingFang SC', Arial, 'Microsoft YaHei', sans-serif
+$shadow-normal: 0 1px 4px rgba(53, 64, 82, .5)
+$zindex-max: 999999999
+
+@mixin prefix($property, $value)
+  @each $prefix in (webkit moz)
+    #{'-' + $prefix + '-' + $property}: $value
+  #{$property}: $value
