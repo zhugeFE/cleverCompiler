@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '../modules/Home.vue'
-import About from '../modules/About.vue'
+import login from '../modules/login/index'
+import layout from '../modules/layout/index'
+
+import configs from '../modules/configs/index'
 
 Vue.use(Router)
 
@@ -11,18 +13,28 @@ export default new Router({
     {
       path: '/',
       redirect: {
-        name: 'home'
+        name: 'app'
       }
     },
     {
-      path: '/home',
-      name: 'home',
-      component: Home
+      path: '/app',
+      name: 'app',
+      component: layout,
+      redirect: {
+        name: 'configs'
+      },
+      children: [
+        {
+          path: 'configs/list',
+          name: 'configs',
+          component: configs
+        }
+      ]
     },
     {
-      path: '/about',
-      name: 'about',
-      component: About
+      path: '/login',
+      name: 'login',
+      component: login
     }
   ],
   mode: 'history'
