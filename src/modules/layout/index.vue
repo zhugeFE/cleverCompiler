@@ -9,7 +9,7 @@
 </template>
 
 <script>
-  import leftMenu from './leftMenu.vue'
+  import leftMenu from './panels/leftMenu.vue'
   export default {
     name: 'indexPage',
     components: {
@@ -31,16 +31,5 @@
 </script>
 
 <style lang="sass">
-.main,.left-guide,.content
-  height: 100%
-.main
-  display: flex
-  flex-direction: row
-  .left-guide
-    width: 96px
-    flex: none
-  .content
-    flex: 1
-    overflow: auto
-    background: #fff
+@import "styles/index"
 </style>

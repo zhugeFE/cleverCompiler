@@ -3,7 +3,10 @@ import Router from 'vue-router'
 import login from '../modules/login/index'
 import layout from '../modules/layout/index'
 
-import configs from '../modules/configs/index'
+import sources from '../modules/sources/index'
+import sourcesDetail from '../modules/sources/detail'
+import config from '../modules/config/index'
+import configDetail from '../modules/config/detail'
 
 Vue.use(Router)
 
@@ -21,13 +24,28 @@ export default new Router({
       name: 'app',
       component: layout,
       redirect: {
-        name: 'configs'
+        name: 'sources'
       },
       children: [
         {
-          path: 'configs/list',
-          name: 'configs',
-          component: configs
+          path: 'sources/list',
+          name: 'sources',
+          component: sources
+        },
+        {
+          path: 'sources/:id/detail',
+          name: 'sourcesDetail',
+          component: sourcesDetail
+        },
+        {
+          path: 'config/list',
+          name: 'config',
+          component: config
+        },
+        {
+          path: 'config/:id/detail',
+          name: 'configDetail',
+          component: configDetail
         }
       ]
     },
