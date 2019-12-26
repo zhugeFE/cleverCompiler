@@ -19,18 +19,23 @@
       <label class="title">编译命令组</label>
       <cmd-list :compileCmd="cmdList"></cmd-list>
     </div>
-
+    <div class="line">
+      <label class="title">版本记录</label>
+      <version-record></version-record>
+    </div>
   </div>
 </template>
 
 <script>
   import regexList from './panels/regexList'
   import cmdList from './panels/cmdList'
+  import versionRecord from './panels/versionRecord'
   export default {
     name: 'sourcesDetail',
     components: {
       regexList,
-      cmdList
+      cmdList,
+      versionRecord
     },
     props: {
     },
