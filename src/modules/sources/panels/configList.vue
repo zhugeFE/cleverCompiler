@@ -1,5 +1,5 @@
 <template>
-  <div class="sources-regex-list content">
+  <div class="sources-config-list content">
     <el-table
         :data="dataList"
         border
@@ -50,7 +50,7 @@
 
 <script>
   export default {
-    name: 'sourcesRegexList',
+    name: 'sourcesConfigList',
     props: {
       dataList: {
         type: Array,

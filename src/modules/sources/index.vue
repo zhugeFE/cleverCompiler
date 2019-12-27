@@ -3,7 +3,7 @@
     <c-data-grid :store="sourceList">
       <c-grid-column title="选择" field="-" fix="left">
         <template v-slot="{ data }">
-          <c-checkbox v-model="idMap[data.id]"></c-checkbox>
+          <c-checkbox v-model="idCheckMap[data.id]"></c-checkbox>
         </template>
       </c-grid-column>
       <c-grid-column title="项目名" field="name" fix="left">
@@ -47,7 +47,7 @@
     name: 'sourcesIndex',
     data() {
       return {
-        idMap: {},
+        idCheckMap: {},
         chosenIds: [],
         checkAll: false
       }
@@ -63,7 +63,7 @@
       sourceList() {
         this.initIdMap()
       },
-      idMap: {
+      idCheckMap: {
         handler() {
           this.getChosenIds()
         },
@@ -79,21 +79,21 @@
     methods: {
       initIdMap() {
         this.sourceList.forEach(item => {
-          Vue.set(this.idMap, item.id, false)
+          Vue.set(this.idCheckMap, item.id, false)
         })
       },
       getChosenIds() {
         this.chosenIds = []
-        for (let key in this.idMap) {
-          if (this.idMap[key]) {
+        for (let key in this.idCheckMap) {
+          if (this.idCheckMap[key]) {
             this.chosenIds.push(key)
           }
         }
       },
       onChosenAll() {
         this.checkAll = !this.checkAll
-        for (let key in this.idMap) {
-          this.idMap[key] = this.checkAll
+        for (let key in this.idCheckMap) {
+          this.idCheckMap[key] = this.checkAll
         }
       },
       onApply() {
