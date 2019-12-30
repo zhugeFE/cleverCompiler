@@ -13,17 +13,17 @@
       </c-grid-column>
       <c-grid-column title="最新版本" field="version">
         <template v-slot="{ data }">
-          <span class="version" :title="data.version">{{data.version}}</span>
+          <span class="version" :title="data.latestVersion ? data.latestVersion.name : '-'">{{data.latestVersion ? data.latestVersion.name : '-'}}</span>
         </template>
       </c-grid-column>
       <c-grid-column title="使用文档" field="readmeUrl">
         <template v-slot="{ data }">
-          <span class="underline">README.md</span>
+          <span class="underline" @click="updateDialogContent(data.latestVersion, 'README')">README.md</span>
         </template>
       </c-grid-column>
       <c-grid-column title="部署文档" field="buildUrl">
         <template v-slot="{ data }">
-          <span class="underline">BUILD.md</span>
+          <span class="underline" @click="updateDialogContent(data.latestVersion, 'BUILD')">BUILD.md</span>
         </template>
       </c-grid-column>
       <c-grid-column title="操作" field="-">
@@ -36,6 +36,13 @@
       <c-button @click="onChosenAll">全选/取消全选</c-button>
       <c-button @click="onApply" :disable="!chosenIds.length">应用</c-button>
     </div>
+    <el-dialog
+        :visible.sync="dialog.show"
+        :modal="false"
+        class="is-full-screen-dialog"
+        :fullscreen="true">
+      <div>{{ dialog.content}}</div>
+    </el-dialog>
   </div>
 </template>
 
@@ -49,7 +56,11 @@
       return {
         idCheckMap: {},
         chosenIds: [],
-        checkAll: false
+        checkAll: false,
+        dialog: {
+          show: false,
+          content: ''
+        }
       }
     },
     computed: {
@@ -81,6 +92,14 @@
         this.sourceList.forEach(item => {
           Vue.set(this.idCheckMap, item.id, false)
         })
+      },
+      updateDialogContent(data, key) {
+        if (data) {
+          this.dialog.content = data[key]
+        } else {
+          this.dialog.content = ''
+        }
+        this.dialog.show = true
       },
       getChosenIds() {
         this.chosenIds = []

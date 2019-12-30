@@ -28,12 +28,12 @@ export default new Router({
       },
       children: [
         {
-          path: 'sources/list',
+          path: 'sources',
           name: 'sources',
           component: sources
         },
         {
-          path: 'sources/:id/detail',
+          path: 'sources/:id',
           name: 'sourcesDetail',
           component: sourcesDetail
         },

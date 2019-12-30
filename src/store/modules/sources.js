@@ -1,5 +1,6 @@
 import Store from '../Store'
-import { actions, mutations } from '../constants'
+import {ajax, util} from '../../utils'
+import { actions, mutations, apis } from '../constants'
 
 let store = new Store({
   state: {
@@ -31,24 +32,24 @@ let store = new Store({
             let item = {}
             let versions = []
             for (let n = 0; n < 20; n++) {
-              versions.push({
+              let version = {
                 name: '10.' + n,
                 date: '2019.02.18',
-                readme: 'readme' + n,
-                build: 'build' + n,
-                update: 'update' + n
-              })
+                README: 'readme' + n,
+                BUILD: 'build' + n,
+                UPDATE: 'update' + n,
+                cmdList: [],
+                configList: []
+              }
+              versions.push(version)
             }
+            let latestVersion = versions[versions.length - 1]
             for (let j = 0; j < 5; j++) {
               item['id'] = Math.random()
               item['name'] = `name-${i}`
               item['gitUrl'] = `git-${i}`
-              item['version'] = `version-${i}`
-              item['readmeUrl'] = `readmeUrl-${i}`
-              item['buildUrl'] = `buildUrl-${i}`
+              item['latestVersion'] = latestVersion
               item['versionList'] = versions
-              item['cmdList'] = []
-              item['configList'] = []
             }
             list.push(item)
             idMap[item.id] = item
@@ -62,6 +63,18 @@ let store = new Store({
         }catch (e) {
           reject()
         }
+      })
+    },
+    [actions.sources.queryProjectTree](context, params) {
+      return new Promise((resolve, reject) => {
+        ajax({
+          url: util.strReplace(apis.sources.queryProjectTree, {name: params.name}),
+          method: 'get'
+        }).then((res) => {
+          resolve(res)
+        }).catch((error) => {
+          reject(error)
+        })
       })
     }
   }

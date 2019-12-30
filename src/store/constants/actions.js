@@ -1,7 +1,8 @@
 import { util } from '../../utils'
 const actions = {
   sources: {
-    querySourceList: ''
+    querySourceList: '',
+    queryProjectTree: ''
   }
 }
 util.initializeConstants(actions, 'action')

@@ -1,5 +1,6 @@
 <template>
   <div class="sources-config-list content">
+    <config-edit :show="showConfigDialog" @onClose="showConfigDialog = false"></config-edit>
     <el-table
         :data="dataList"
         border
@@ -44,19 +45,28 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-button type="primary" style="margin-top: 20px;"><i class="el-icon-plus"></i> 添加配置项</el-button>
+    <el-button @click="showConfigDialog = true" type="primary" style="margin-top: 20px;"><i class="el-icon-plus"></i> 添加配置项</el-button>
   </div>
 </template>
 
 <script>
+  import configEdit from './configEdit'
   export default {
     name: 'sourcesConfigList',
+    components: {
+      configEdit
+    },
     props: {
       dataList: {
         type: Array,
         default() {
           return []
         }
+      }
+    },
+    data() {
+      return {
+        showConfigDialog: false
       }
     },
     methods: {

@@ -1,6 +1,6 @@
 <template>
   <div class="sources-text-tabs content">
-    <el-tabs v-model="active" @tab-click="handleClick" :tab-position="tabPosition" type="card">
+    <el-tabs v-model="active" @tab-click="handleClick" tab-position="bottom" type="card">
       <el-tab-pane v-for="item in list" :key="item.name" :label="item.name" :name="item.name">
         <el-input
             type="textarea"
@@ -16,10 +16,17 @@
 <script>
   export default {
     name: 'sourcesTextTabs',
+    props: {
+      value: {
+        type: Object,
+        default() {
+          return {}
+        }
+      }
+    },
     data() {
       return {
         active: 'README',
-        tabPosition: 'bottom',
         list: [{
           name: 'README',
           value: ''
@@ -32,7 +39,25 @@
         }]
       }
     },
+    watch: {
+      value: {
+        handler: function() {
+          this.initData()
+        },
+        deep: true
+      }
+    },
+    created() {
+      this.initData()
+    },
     methods: {
+      initData() {
+        if (this.value) {
+          this.list.forEach(item => {
+            item.value = this.value[item.name]
+          })
+        }
+      },
       handleClick(data) {
         console.log(data)
       }

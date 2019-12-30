@@ -116,6 +116,7 @@
     display: inline-block
     .draggable-line
       margin-top: 5px
+      display: inline-block
     .el-tag
       margin-right: 10px
       cursor: pointer
