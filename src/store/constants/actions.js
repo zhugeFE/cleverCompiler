@@ -3,6 +3,9 @@ const actions = {
   sources: {
     querySourceList: '',
     queryProjectTree: ''
+  },
+  config: {
+    queryConfigList: ''
   }
 }
 util.initializeConstants(actions, 'action')

@@ -14,15 +14,26 @@
     </div>
     <div class="line">
       <label class="title">配置</label>
-      <config-list :data-list="chosenVersion.configList" @addConfig="showConfigDialog = true"></config-list>
+      <div v-if="!haveChosenVersion()" class="content empty">
+        <li></li>
+        <li></li>
+      </div>
+      <config-list v-else :data-list="chosenVersion.configList" @addConfig="showConfigDialog = true"></config-list>
     </div>
     <div class="line">
       <label class="title">编译命令组</label>
-      <cmd-list :compileCmd="chosenVersion.cmdList"></cmd-list>
+      <div v-if="!haveChosenVersion()" class="content empty">
+        <li></li>
+      </div>
+      <cmd-list v-else :compileCmd="chosenVersion.cmdList"></cmd-list>
     </div>
     <div class="line">
       <label class="title"></label>
-      <text-tabs v-model="chosenVersion"></text-tabs>
+      <div v-if="!haveChosenVersion()" class="content empty">
+        <li></li>
+        <li></li>
+      </div>
+      <text-tabs v-else v-model="chosenVersion"></text-tabs>
     </div>
     <div class="footer-action">
       <el-button @click="onsubmit" type="primary">更新</el-button>
@@ -79,6 +90,10 @@
       }
     },
     methods: {
+      haveChosenVersion() {
+        console.log(this.chosenVersion, 'aaaa')
+        return this.chosenVersion && this.chosenVersion.name
+      },
       onsubmit() {
 
       },

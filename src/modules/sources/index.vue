@@ -35,6 +35,7 @@
     <div class="footer">
       <c-button @click="onChosenAll">全选/取消全选</c-button>
       <c-button @click="onApply" :disable="!chosenIds.length">应用</c-button>
+      <c-button @click="onCreate">创建</c-button>
     </div>
     <el-dialog
         :visible.sync="dialog.show"
@@ -118,6 +119,14 @@
       onApply() {
         // todo
         console.log('chosenIds:', this.chosenIds)
+      },
+      onCreate() {
+        this.$router.replace({
+          name: 'sourcesDetail',
+          params: {
+            id: 0
+          }
+        })
       },
       onDetail(data) {
         this.$router.replace({
