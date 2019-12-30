@@ -60,17 +60,26 @@
     watch: {
       list () {
         this.change()
+      },
+      compileCmd: {
+        handler: function() {
+          this.initData()
+        },
+        deep: true
       }
     },
     created () {
-      this.list = this.compileCmd.map(item => {
-        return {
-          value: item,
-          edit: false
-        }
-      })
+      this.initData()
     },
     methods: {
+      initData() {
+        this.list = this.compileCmd.map(item => {
+          return {
+            value: item,
+            edit: false
+          }
+        })
+      },
       onLineClick (index) {
         this.list[index].edit = true
         this.$nextTick(() => {

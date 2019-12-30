@@ -38,7 +38,7 @@ let store = new Store({
                 README: 'readme' + n,
                 BUILD: 'build' + n,
                 UPDATE: 'update' + n,
-                cmdList: [],
+                cmdList: ['yarn' + n, 'npm run build' + n],
                 configList: []
               }
               versions.push(version)
