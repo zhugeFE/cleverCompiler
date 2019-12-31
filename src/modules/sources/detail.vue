@@ -55,7 +55,7 @@
       configList,
       cmdList,
       versionList,
-      textTabs,
+      textTabs
     },
     data() {
       return {

@@ -29,10 +29,10 @@ let store = new Store({
           let list = []
           let idMap = {}
           for (let i = 0; i < 3; i++) {
-            let item = {}
             let versions = []
             for (let n = 0; n < 20; n++) {
               let version = {
+                id: n,
                 name: '10.' + n,
                 date: '2019.02.18',
                 README: 'readme' + n,
@@ -44,12 +44,13 @@ let store = new Store({
               versions.push(version)
             }
             let latestVersion = versions[versions.length - 1]
-            for (let j = 0; j < 5; j++) {
-              item['id'] = Math.random()
-              item['name'] = `name-${i}`
-              item['gitUrl'] = `git-${i}`
-              item['latestVersion'] = latestVersion
-              item['versionList'] = versions
+
+            let item = {
+              id: i,
+              name: '项目' + i,
+              gitUrl: 'git-' + i,
+              latestVersion: latestVersion,
+              versionList: versions
             }
             list.push(item)
             idMap[item.id] = item

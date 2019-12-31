@@ -38,12 +38,12 @@ export default new Router({
           component: sourcesDetail
         },
         {
-          path: 'config/list',
+          path: 'config',
           name: 'config',
           component: config
         },
         {
-          path: 'config/:id/detail',
+          path: 'config/:id',
           name: 'configDetail',
           component: configDetail
         }

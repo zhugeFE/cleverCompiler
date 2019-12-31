@@ -28,32 +28,36 @@ let store = new Store({
           let list = []
           let idMap = {}
           for (let i = 0; i < 3; i++) {
-            let item = {}
             let versions = []
             for (let n = 0; n < 20; n++) {
               let version = {
-                name: '10.' + n,
-                date: '2019.02.18',
+                id: n,
+                name: '12.' + n,
+                date: '2019.12.30',
                 README: 'readme' + n,
                 BUILD: 'build' + n,
                 UPDATE: 'update' + n,
-                cmdList: ['yarn' + n, 'npm run build' + n],
-                configList: []
+                globalConfig: [],
+                projects: [{
+                  id: n,
+                  version_id: n,
+                  buildMod: 'downLoad'
+                }]
               }
               versions.push(version)
             }
             let latestVersion = versions[versions.length - 1]
-            for (let j = 0; j < 5; j++) {
-              item['id'] = Math.random()
-              item['name'] = `name-${i}`
-              item['gitUrl'] = `git-${i}`
-              item['latestVersion'] = latestVersion
-              item['versionList'] = versions
+
+            let item = {
+              id: i,
+              name: '私有部署-' + i,
+              latestVersion: latestVersion,
+              versionList: versions
             }
             list.push(item)
             idMap[item.id] = item
           }
-          context.commit(mutations.sources.updateList, {
+          context.commit(mutations.config.updateList, {
             list,
             idMap
           })
