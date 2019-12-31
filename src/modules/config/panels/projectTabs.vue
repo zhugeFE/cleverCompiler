@@ -1,15 +1,15 @@
 <template>
   <div class="config-project-tabs content">
     <el-tabs v-model="active" @tab-click="onChosen" @tab-remove="onDelete" @tab-add="onAdd" tab-position="bottom" type="card" :closable="true" :addable="true">
-      <el-tab-pane v-for="item in list" :key="item.name" :label="item.name" :name="item.name">
-        <el-input
-            type="textarea"
-            :rows="10"
-            placeholder="请输入内容"
-            v-model="item.value">
-        </el-input>
+      <el-tab-pane v-for="item in list" :key="item.id" :label="item.name" :name="item.name">
+        <div class="project-content">
+          这是项目配置
+        </div>
       </el-tab-pane>
     </el-tabs>
+    <el-dialog :visible.sync="showDialog">
+      <div>选择项目</div>
+    </el-dialog>
   </div>
 </template>
 
@@ -28,7 +28,8 @@
     data() {
       return {
         active: '',
-        list: []
+        list: [],
+        showDialog: false
       }
     },
     computed: {
@@ -46,26 +47,31 @@
         deep: true
       }
     },
-    created() {
+    mounted() {
       this.initData()
     },
     methods: {
       initData() {
         this.list = []
+        this.active = ''
         this.value.forEach(project => {
           let source = this.idMap[project.id]
           this.list.push({
-            originData: source,
-            ...project
+            id: source.id,
+            name: source.name,
+            version_id: project.version_id,
+            buildMod: project.buildMod
           })
         })
-        this.active = this.list[0] || ''
-        console.log('list:', this.list)
+        if (this.list.length) {
+          this.active = this.list[0].name
+        }
       },
       onChosen(data) {
         console.log('chosen: ', data)
       },
       onAdd(data) {
+        this.showDialog = true
         console.log('add: ', data)
       },
       onDelete(data) {
@@ -79,6 +85,11 @@
   .config-project-tabs
     .el-tabs
       width: 80%
+      .project-content
+        width: 100%
+        min-height: 200px
+        border: 1px solid #E4E7ED
+        border-top: none
     .el-tabs--card
       >.el-tabs__header
         padding: 0

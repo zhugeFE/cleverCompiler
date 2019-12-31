@@ -70,6 +70,7 @@
     },
     beforeCreate() {
       this.$store.dispatch(actions.config.queryConfigList)
+      this.$store.dispatch(actions.sources.querySourceList)
     },
     created() {
     },

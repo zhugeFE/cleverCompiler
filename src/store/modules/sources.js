@@ -28,7 +28,7 @@ let store = new Store({
         try {
           let list = []
           let idMap = {}
-          for (let i = 0; i < 3; i++) {
+          for (let i = 0; i < 20; i++) {
             let versions = []
             for (let n = 0; n < 20; n++) {
               let version = {
