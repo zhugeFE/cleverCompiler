@@ -6,6 +6,9 @@ const actions = {
   },
   config: {
     queryConfigList: ''
+  },
+  compile: {
+    queryCompileList: ''
   }
 }
 util.initializeConstants(actions, 'action')

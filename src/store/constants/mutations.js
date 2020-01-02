@@ -5,6 +5,9 @@ const mutations = {
   },
   config: {
     updateList: ''
+  },
+  compile: {
+    updateList: ''
   }
 }
 util.initializeConstants(mutations, 'mutation')

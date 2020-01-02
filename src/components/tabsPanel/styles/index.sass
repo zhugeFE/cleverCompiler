@@ -1,0 +1,40 @@
+.tabs-panel
+  background: #FFF
+  .tabs-header
+    .tabs-item
+      background-color: #F5F7FA
+      border: 1px solid #DCDFE6
+      color: #909399
+      padding: 0 20px
+      height: 40px
+      line-height: 40px
+      display: inline-block
+      font-size: 14px
+      font-weight: 500
+      position: relative
+      margin-left: -1px
+      margin-bottom: -1px
+      cursor: pointer
+      &:hover
+        color: #409eff
+    .tabs-item.active
+      background-color: #ffffff
+      border-bottom: none
+      color: #409eff
+  .tabs-content
+    border: 1px solid #DCDFE6
+    padding: 15px
+    margin-left: -1px
+.tabs-panel.left
+  display: flex
+  width: 100%
+  .tabs-header
+    flex: none
+    padding: 20px 0
+    .tabs-item
+      display: block
+      border-bottom: 1px solid #DCDFE6
+    .tabs-item.active
+      border-right: none
+  .tabs-content
+    flex: 1

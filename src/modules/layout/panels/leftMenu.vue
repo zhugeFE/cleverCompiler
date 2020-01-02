@@ -34,6 +34,10 @@ export default {
         name: 'sources',
         label: '源',
         icon: 'icon-line'
+      }, {
+        name: 'compile',
+        label: '编译',
+        icon: 'icon-line'
       }]
     }
   },

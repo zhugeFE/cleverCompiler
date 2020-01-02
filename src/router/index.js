@@ -7,6 +7,7 @@ import sources from '../modules/sources/index'
 import sourcesDetail from '../modules/sources/detail'
 import config from '../modules/config/index'
 import configDetail from '../modules/config/detail'
+import compile from '../modules/compile/index'
 
 Vue.use(Router)
 
@@ -46,6 +47,11 @@ export default new Router({
           path: 'config/:id',
           name: 'configDetail',
           component: configDetail
+        },
+        {
+          path: 'compile',
+          name: 'compile',
+          component: compile
         }
       ]
     },
