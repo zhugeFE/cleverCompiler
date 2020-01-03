@@ -1,5 +1,5 @@
 <template>
-  <div class="config-detail">
+  <div class="configs-info">
     <div class="line">
       <label class="title">名称</label>
       <el-input v-model="currentConfig.name"></el-input>
@@ -40,14 +40,15 @@
 </template>
 
 <script>
-  import configList from '../sources/panels/configList'
-  import versionList from '../sources/panels/versionList'
+  import configList from '../project/panels/configList'
+  import versionList from '../project/panels/versionList'
   import projectTabs from './panels/projectTabs'
-  import textTabs from '../sources/panels/textTabs'
+  import textTabs from '../project/panels/textTabs'
   import { util } from '../../utils'
   import { mapState } from 'vuex'
+  import { routes } from '../../router/constants'
   export default {
-    name: 'configDetail',
+    name: 'configsInfo',
     components: {
       configList,
       versionList,
@@ -62,7 +63,7 @@
     computed: {
       ...mapState({
         idMap(state) {
-          return state.config.idMap || {}
+          return state.configs.idMap || {}
         }
       }),
       configId() {
@@ -96,7 +97,7 @@
       },
       oncancel() {
         this.$router.replace({
-          name: 'config'
+          name: routes.configs.list
         })
       }
     }
@@ -104,5 +105,5 @@
 </script>
 
 <style lang="sass">
-@import "./styles/detail"
+@import "./styles/info"
 </style>

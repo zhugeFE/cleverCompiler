@@ -21,23 +21,24 @@
   </div>
 </template>
 <script>
+import { routes } from '../../../router/constants'
 export default {
   name: 'mainPage',
   data () {
     return {
       showSetting: false,
       menusData: [{
-        name: 'config',
-        label: '套件',
-        icon: 'icon-line'
-      },{
-        name: 'sources',
-        label: '源',
-        icon: 'icon-line'
+        name: routes.project.list,
+        label: '源'
       }, {
-        name: 'compile',
-        label: '编译',
-        icon: 'icon-line'
+        name: routes.configs.list,
+        label: '套件'
+      }, {
+        name: routes.compile.list,
+        label: '管理'
+      }, {
+        name: routes.compile.action,
+        label: '编译'
       }]
     }
   },

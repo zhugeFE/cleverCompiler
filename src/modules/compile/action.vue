@@ -1,12 +1,12 @@
 <template>
-  <div class="compile-create">
-
+  <div class="compile-action">
+    编译
   </div>
 </template>
 
 <script>
   export default {
-    name: 'create'
+    name: 'compileAction'
   }
 </script>
 

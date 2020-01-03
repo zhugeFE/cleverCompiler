@@ -81,6 +81,7 @@
 <script>
   import { mapState } from 'vuex'
   import { actions } from '../../store/constants'
+  import { routes } from '../../router/constants'
   export default {
     name: 'compileList',
     data() {
@@ -103,9 +104,18 @@
     },
     methods: {
       onAdd() {
-
+        this.$router.replace({
+          name: routes.compile.create
+        })
       },
-      onEdit() {},
+      onEdit(data) {
+        this.$router.replace({
+          name: routes.compile.info,
+          params: {
+            id: data.id
+          }
+        })
+      },
       onDel() {},
       onCompile() {}
     }

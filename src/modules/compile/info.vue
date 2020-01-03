@@ -37,12 +37,12 @@
     computed: {
       ...mapState({
         configList(state) {
-          return state.config.list || []
+          return state.configs.list || []
         }
       })
     },
     beforeCreate() {
-      this.$store.dispatch(actions.config.queryConfigList)
+      this.$store.dispatch(actions.configs.queryConfigList)
     },
   }
 </script>

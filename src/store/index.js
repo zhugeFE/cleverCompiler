@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import sources from './modules/sources'
-import config from './modules/config'
+import project from './modules/project'
+import configs from './modules/configs'
 import compile from './modules/compile'
 
 Vue.use(Vuex)
@@ -11,8 +11,8 @@ const debug = process.env.NODE_ENV !== 'production'
 
 export default new Vuex.Store({
   modules: {
-    sources,
-    config,
+    project,
+    configs,
     compile
   },
   strict: debug,

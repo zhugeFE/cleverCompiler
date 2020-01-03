@@ -1,5 +1,5 @@
 const apis = {
-  sources: {
+  project: {
     queryProjectTree: '/api/oem/getProjectTree/{name}'
   }
 }

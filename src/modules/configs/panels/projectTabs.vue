@@ -1,5 +1,5 @@
 <template>
-  <div class="config-project-tabs content">
+  <div class="configs-project-tabs content">
     <el-tabs v-model="active" @tab-click="onChosen" @tab-remove="onDelete" @tab-add="onAdd" tab-position="bottom" type="card" :closable="true" :addable="true">
       <el-tab-pane v-for="item in list" :key="item.id" :label="item.name" :name="item.name">
         <div class="project-content">
@@ -17,7 +17,7 @@
 <script>
   import { mapState } from 'vuex'
   export default {
-    name: 'configProjectTabs',
+    name: 'configsProjectTabs',
     props: {
       value: {
         type: Array,
@@ -36,7 +36,7 @@
     computed: {
       ...mapState({
         idMap(state) {
-          return state.sources.idMap || {}
+          return state.project.idMap || {}
         }
       })
     },
@@ -93,7 +93,7 @@
 </script>
 
 <style lang="sass">
-  .config-project-tabs
+  .configs-project-tabs
     .el-tabs
       width: 80%
       .project-content

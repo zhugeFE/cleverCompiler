@@ -1,9 +1,9 @@
 import { util } from '../../utils'
 const mutations = {
-  sources: {
+  project: {
     updateList: ''
   },
-  config: {
+  configs: {
     updateList: ''
   },
   compile: {

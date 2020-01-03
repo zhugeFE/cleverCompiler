@@ -13,7 +13,7 @@
 
 <script>
   export default {
-    name: 'sourcesConfigEdit',
+    name: 'projectConfigEdit',
     props: {
       show: {
         type: Boolean,

@@ -1,5 +1,5 @@
 <template>
-  <div class="sources-cmd-list content">
+  <div class="project-cmd-list content">
     <draggable :list="list" class="draggable-warp">
       <div class="draggable-line" v-for="(obj, index) in list" :key="index" @click="onLineClick(index)">
         <el-tag
@@ -38,7 +38,7 @@
 <script>
   import draggable from 'vuedraggable'
   export default {
-    name: 'sourcesCmdList',
+    name: 'projectCmdList',
     components: {
       draggable
     },
@@ -120,7 +120,7 @@
 </script>
 
 <style lang="sass">
-.sources-cmd-list
+.project-cmd-list
   .draggable-warp
     display: inline-block
     .draggable-line

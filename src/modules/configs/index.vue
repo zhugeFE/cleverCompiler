@@ -1,5 +1,5 @@
 <template>
-  <div class="config">
+  <div class="configs">
     <c-data-grid :store="list">
       <c-grid-column title="名称" field="name" fix="left">
         <template v-slot="{ data }">
@@ -28,7 +28,7 @@
       </c-grid-column>
       <c-grid-column title="操作" field="-">
         <template v-slot="{ data }">
-          <span class="underline" @click="onDetail(data)">编辑</span>&nbsp;&nbsp;
+          <span class="underline" @click="onInfo(data)">编辑</span>&nbsp;&nbsp;
           <span class="underline" @click="onDelete(data)">删除</span>
         </template>
       </c-grid-column>
@@ -49,8 +49,9 @@
 <script>
   import { mapState } from 'vuex'
   import { actions } from '../../store/constants'
+  import { routes } from '../../router/constants'
   export default {
-    name: 'configIndex',
+    name: 'configsIndex',
     data () {
       return {
         dialog: {
@@ -62,15 +63,15 @@
     computed: {
       ...mapState({
         list(state) {
-          return state.config.list || []
+          return state.configs.list || []
         }
       })
     },
     watch: {
     },
     beforeCreate() {
-      this.$store.dispatch(actions.config.queryConfigList)
-      this.$store.dispatch(actions.sources.querySourceList)
+      this.$store.dispatch(actions.configs.queryConfigList)
+      this.$store.dispatch(actions.project.querySourceList)
     },
     created() {
     },
@@ -85,15 +86,12 @@
       },
       onCreate() {
         this.$router.replace({
-          name: 'configDetail',
-          params: {
-            id: 0
-          }
+          name: routes.configs.create
         })
       },
-      onDetail(data) {
+      onInfo(data) {
         this.$router.replace({
-          name: 'configDetail',
+          name: routes.configs.info,
           params: {
             id: data.id
           }

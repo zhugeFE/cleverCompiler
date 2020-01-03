@@ -1,5 +1,5 @@
 <template>
-  <div class="sources">
+  <div class="project">
     <c-data-grid :store="sourceList">
       <c-grid-column title="选择" field="-" fix="left">
         <template v-slot="{ data }">
@@ -28,7 +28,7 @@
       </c-grid-column>
       <c-grid-column title="操作" field="-">
         <template v-slot="{ data }">
-          <span class="underline" @click="onDetail(data)">编辑</span>
+          <span class="underline" @click="onInfo(data)">编辑</span>
         </template>
       </c-grid-column>
     </c-data-grid>
@@ -51,8 +51,9 @@
   import Vue from 'vue'
   import { mapState } from 'vuex'
   import { actions } from '../../store/constants'
+  import { routes } from '../../router/constants'
   export default {
-    name: 'sourcesIndex',
+    name: 'projectIndex',
     data() {
       return {
         idCheckMap: {},
@@ -67,7 +68,7 @@
     computed: {
       ...mapState({
         sourceList(state) {
-          return state.sources.list || []
+          return state.project.list || []
         }
       })
     },
@@ -83,7 +84,7 @@
       }
     },
     beforeCreate() {
-      this.$store.dispatch(actions.sources.querySourceList)
+      this.$store.dispatch(actions.project.querySourceList)
     },
     created() {
       this.initIdMap()
@@ -122,15 +123,12 @@
       },
       onCreate() {
         this.$router.replace({
-          name: 'sourcesDetail',
-          params: {
-            id: 0
-          }
+          name: routes.project.create
         })
       },
-      onDetail(data) {
+      onInfo(data) {
         this.$router.replace({
-          name: 'sourcesDetail',
+          name: routes.project.info,
           params: {
             id: data.id
           }

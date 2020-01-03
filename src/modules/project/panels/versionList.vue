@@ -1,5 +1,5 @@
 <template>
-  <div class="sources-version-list content">
+  <div class="project-version-list content">
     <div class="version-panel">
       <div :class="{'item': true, 'active': version.name === value.name}" v-for="version in versionList" :key="version.name">
         <div class="header">{{version.name}}</div>
@@ -36,7 +36,7 @@
 
 <script>
   export default {
-    name: 'sourcesVersionList',
+    name: 'projectVersionList',
     props: {
       value: {
         type: Object,

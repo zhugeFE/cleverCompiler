@@ -3,11 +3,17 @@ import Router from 'vue-router'
 import login from '../modules/login/index'
 import layout from '../modules/layout/index'
 
-import sources from '../modules/sources/index'
-import sourcesDetail from '../modules/sources/detail'
-import config from '../modules/config/index'
-import configDetail from '../modules/config/detail'
-import compile from '../modules/compile/index'
+import projectList from '../modules/project/index'
+import projectInfo from '../modules/project/info'
+
+import configs from '../modules/configs/index'
+import configInfo from '../modules/configs/info'
+
+import compile from '../modules/compile/action'
+import compileList from '../modules/compile/list'
+import compileInfo from '../modules/compile/info'
+
+import { routes } from './constants'
 
 Vue.use(Router)
 
@@ -25,33 +31,58 @@ export default new Router({
       name: 'app',
       component: layout,
       redirect: {
-        name: 'sources'
+        name: routes.project.list
       },
       children: [
         {
-          path: 'sources',
-          name: 'sources',
-          component: sources
+          path: 'project/list',
+          name: routes.project.list,
+          component: projectList
         },
         {
-          path: 'sources/:id',
-          name: 'sourcesDetail',
-          component: sourcesDetail
+          path: 'project/create',
+          name: routes.project.create,
+          component: projectInfo
         },
         {
-          path: 'config',
-          name: 'config',
-          component: config
+          path: 'project/:id/info',
+          name: routes.project.info,
+          component: projectInfo
         },
         {
-          path: 'config/:id',
-          name: 'configDetail',
-          component: configDetail
+          path: 'configs/list',
+          name: routes.configs.list,
+          component: configs
+        },
+        {
+          path: 'configs/create',
+          name: routes.configs.create,
+          component: configInfo
+        },
+        {
+          path: 'configs/:id/info',
+          name: routes.configs.info,
+          component: configInfo
         },
         {
           path: 'compile',
-          name: 'compile',
+          name: routes.compile.action,
           component: compile
+        },
+        {
+          path: 'compile/list',
+          name: routes.compile.list,
+          component: compileList
+        },
+        {
+          path: 'compile/create',
+          name: routes.compile.create,
+          component: compileInfo
+        },
+        {
+          path: 'compile/:id/info',
+          name: routes.compile.info,
+          component: compileInfo
         }
       ]
     },

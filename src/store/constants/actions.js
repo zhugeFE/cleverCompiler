@@ -1,10 +1,10 @@
 import { util } from '../../utils'
 const actions = {
-  sources: {
+  project: {
     querySourceList: '',
     queryProjectTree: ''
   },
-  config: {
+  configs: {
     queryConfigList: ''
   },
   compile: {

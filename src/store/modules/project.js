@@ -1,5 +1,6 @@
 import Store from '../Store'
-import { actions, mutations } from '../constants'
+import {ajax, util} from '../../utils'
+import { actions, mutations, apis } from '../constants'
 
 let store = new Store({
   state: {
@@ -7,7 +8,7 @@ let store = new Store({
     idMap: {}
   },
   mutations: {
-    [mutations.config.updateList](state, obj) {
+    [mutations.project.updateList](state, obj) {
       state.list = obj.list
       state.idMap = obj.idMap
     }
@@ -16,7 +17,7 @@ let store = new Store({
 
   },
   actions: {
-    [actions.config.queryConfigList](context, force) {
+    [actions.project.querySourceList](context, force) {
       return new Promise((resolve, reject) => {
         if (context.state.ready.list && !force) {
           resolve()
@@ -27,22 +28,18 @@ let store = new Store({
         try {
           let list = []
           let idMap = {}
-          for (let i = 0; i < 3; i++) {
+          for (let i = 0; i < 20; i++) {
             let versions = []
             for (let n = 0; n < 20; n++) {
               let version = {
                 id: n,
-                name: '12.' + n,
-                date: '2019.12.30',
+                name: '10.' + n,
+                date: '2019.02.18',
                 README: 'readme' + n,
                 BUILD: 'build' + n,
                 UPDATE: 'update' + n,
-                globalConfig: [],
-                projects: [{
-                  id: n,
-                  version_id: n,
-                  buildMod: 'downLoad'
-                }]
+                cmdList: ['yarn' + n, 'npm run build' + n],
+                configList: []
               }
               versions.push(version)
             }
@@ -50,14 +47,15 @@ let store = new Store({
 
             let item = {
               id: i,
-              name: '私有部署-' + i,
+              name: '项目' + i,
+              gitUrl: 'git-' + i,
               latestVersion: latestVersion,
               versionList: versions
             }
             list.push(item)
             idMap[item.id] = item
           }
-          context.commit(mutations.config.updateList, {
+          context.commit(mutations.project.updateList, {
             list,
             idMap
           })
@@ -66,6 +64,18 @@ let store = new Store({
         }catch (e) {
           reject()
         }
+      })
+    },
+    [actions.project.queryProjectTree](context, params) {
+      return new Promise((resolve, reject) => {
+        ajax({
+          url: util.strReplace(apis.project.queryProjectTree, {name: params.name}),
+          method: 'get'
+        }).then((res) => {
+          resolve(res)
+        }).catch((error) => {
+          reject(error)
+        })
       })
     }
   }

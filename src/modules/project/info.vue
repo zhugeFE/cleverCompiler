@@ -1,5 +1,5 @@
 <template>
-  <div class="sources-detail">
+  <div class="project-info">
     <div class="line">
       <label class="title">名称</label>
       <el-input v-model="currentSource.name"></el-input>
@@ -49,8 +49,9 @@
   import textTabs from './panels/textTabs'
   import { util } from '../../utils'
   import { mapState } from 'vuex'
+  import { routes } from '../../router/constants'
   export default {
-    name: 'sourcesDetail',
+    name: 'projectInfo',
     components: {
       configList,
       cmdList,
@@ -65,7 +66,7 @@
     computed: {
       ...mapState({
         idMap(state) {
-          return state.sources.idMap || {}
+          return state.project.idMap || {}
         }
       }),
       sourceId() {
@@ -99,7 +100,7 @@
       },
       oncancel() {
         this.$router.replace({
-          name: 'sources'
+          name: routes.project.list
         })
       }
     }
@@ -107,5 +108,5 @@
 </script>
 
 <style lang="sass">
-@import "./styles/detail"
+@import "./styles/info"
 </style>

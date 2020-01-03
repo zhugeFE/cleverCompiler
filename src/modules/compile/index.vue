@@ -33,7 +33,7 @@
       }
     },
     beforeCreate() {
-      this.$store.dispatch(actions.config.queryConfigList)
+      this.$store.dispatch(actions.configs.queryConfigList)
       this.$store.dispatch(actions.compile.queryCompileList)
     },
     methods: {
