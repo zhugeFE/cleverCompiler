@@ -30,7 +30,8 @@ module.exports = {
         'lodash',
         'vuex',
         'axios',
-        'vue-router'
+        'vue-router',
+        'element-ui'
       ],
       open: true,
       output: {

@@ -24,7 +24,7 @@
         active: 'config',
         tabs: [{
           value: 'config',
-          label: '配置列表',
+          label: '配置',
         }, {
           value: 'compile',
           label: '编译'

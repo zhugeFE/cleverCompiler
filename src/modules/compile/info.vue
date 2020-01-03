@@ -9,16 +9,13 @@
     <div class="line">
       <label class="title">模版</label>
       <div class="content">
-        <el-select v-model="publicType">
-          <el-option v-for="item in publicTypeList" :key="item.id" :label="item.name" :value="item.id"></el-option>
-        </el-select>
-      </div>
-    </div>
-    <div class="line">
-      <label class="title">模版</label>
-      <div class="content">
-        <el-select v-model="publicType">
-          <el-option v-for="item in publicTypeList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+        <el-select v-model="config" filterable placeholder="请选择">
+          <el-option
+              v-for="item in configList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+          </el-option>
         </el-select>
       </div>
     </div>
@@ -33,6 +30,7 @@
     data() {
       return {
         name: '',
+        config: null
 
       }
     },

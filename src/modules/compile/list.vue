@@ -1,7 +1,25 @@
 <template>
   <div class="compile-list">
     <div class="header">
-      <div class="left"></div>
+      <div class="left">
+        <span>按条件筛选：</span>
+        <el-select v-model="searchName" filterable clearable allow-create placeholder="请选择名称">
+          <el-option
+              v-for="item in compileList"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name">
+          </el-option>
+        </el-select>
+        <el-select v-model="searchType" filterable clearable placeholder="请选择编译类型" style="margin-left: 10px;">
+          <el-option
+              v-for="item in publicTypes"
+              :key="item"
+              :label="item"
+              :value="item">
+          </el-option>
+        </el-select>
+      </div>
       <div class="right">
         <el-button type="primary" @click="onAdd"><i class="el-icon-plus"></i>  新增配置</el-button>
       </div>
@@ -67,7 +85,10 @@
     name: 'compileList',
     data() {
       return {
-
+        searchName: '',
+        searchSource: '',
+        searchType: '',
+        publicTypes: ['私有部署', '常规迭代', '发布测试']
       }
     },
     computed: {
