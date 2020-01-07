@@ -1,5 +1,5 @@
 <template>
-  <div class="compile-info">
+  <div class="compile-configs-info">
     <div class="line">
       <label class="title">名称</label>
       <div class="content">
@@ -100,7 +100,7 @@
   import { actions } from '../../store/constants'
   import { routes } from '../../router/constants'
   export default {
-    name: 'compileInfo',
+    name: 'compileConfigsInfo',
     data() {
       return {
         name: '',
@@ -144,5 +144,5 @@
 </script>
 
 <style lang="sass">
-@import "./styles/info"
+@import "styles/info"
 </style>

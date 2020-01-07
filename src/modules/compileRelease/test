@@ -10,7 +10,7 @@
 <script>
   import tabsPanel from '../../components/tabsPanel'
   import compileConfig from './list'
-  import compile from './info'
+  import compile from '../compileConfigs/info'
   import { actions } from '../../store/constants'
   export default {
     name: 'compileIndex',

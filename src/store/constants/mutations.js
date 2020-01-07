@@ -1,7 +1,9 @@
 import { util } from '../../utils'
 const mutations = {
   project: {
-    updateList: ''
+    updateList: '',
+    addProject: '',
+    editProject: ''
   },
   configs: {
     updateList: ''

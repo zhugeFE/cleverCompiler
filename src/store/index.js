@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import project from './modules/project'
 import configs from './modules/configs'
 import compile from './modules/compile'
+import common from './modules/common'
 
 Vue.use(Vuex)
 
@@ -13,7 +14,8 @@ export default new Vuex.Store({
   modules: {
     project,
     configs,
-    compile
+    compile,
+    common
   },
   strict: debug,
   devtools: process.env.NODE_ENV !== 'production'

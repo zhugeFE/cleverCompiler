@@ -1,0 +1,59 @@
+@import "../../../assets/styles/constants"
+.layout-main
+  width: 100%
+  display: flex
+  flex: 1
+  flex-direction: row
+  min-height: 0
+  .layout-content
+    height: 100%
+    flex: 1 1 100%
+    background: $color-bg-system
+    padding: 30px 20px
+    min-height: 0
+    overflow-x: hidden
+    overflow-y: auto
+  .left-navbar
+    position: relative
+    flex: 0 0 122px
+    order: -1
+    background: $color-bg-system
+    overflow-x: hidden
+    overflow-y: auto
+    height: 100%
+    .left-navbar-warp
+      background: $color-bg-normal
+      box-shadow: 0 1px 2px 0 rgba(53,64,82,0.30)
+      border-radius: 3px
+      margin-top: 30px
+      width: 112px
+      float: right
+      margin-bottom: 20px
+      li:first-child a
+        border-top-left-radius: 3px
+        border-top-right-radius: 3px
+      li:last-child a
+        border-bottom-left-radius: 3px
+        border-bottom-right-radius: 3px
+    .left-navbar-menu
+      cursor: pointer
+      min-height: 48px
+      line-height: 48px
+      font-size: $size-font-content-medium
+      a
+        color: $color-font-content
+        position: relative
+        display: block
+        padding-left: 15px
+        text-decoration: none
+        text-overflow: ellipsis
+        overflow: hidden
+        white-space: nowrap
+        border: 1px solid $color-bg-normal
+        &:hover
+          color: $color-brand
+          border: 1px solid $color-brand
+        &.active
+          background: #F0FAFF
+          color: $color-brand
+          border: 1px solid $color-brand

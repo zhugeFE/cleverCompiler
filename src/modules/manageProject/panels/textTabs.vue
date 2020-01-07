@@ -1,5 +1,5 @@
 <template>
-  <div class="project-text-tabs content">
+  <div class="manage-project-text-tabs content">
     <el-tabs v-model="active" @tab-click="handleClick" tab-position="bottom" type="card">
       <el-tab-pane v-for="item in list" :key="item.name" :label="item.name" :name="item.name">
         <el-input
@@ -15,7 +15,7 @@
 
 <script>
   export default {
-    name: 'projectTextTabs',
+    name: 'manageProjectTextTabs',
     props: {
       value: {
         type: Object,
@@ -66,7 +66,7 @@
 </script>
 
 <style lang="sass">
-.project-text-tabs
+.manage-project-text-tabs
   .el-tabs
     width: 80%
   .el-tabs--card

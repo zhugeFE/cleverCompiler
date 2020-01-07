@@ -1,4 +1,4 @@
-// babel.configs.js
+// babel.manageGroup.js
 module.exports = {
   presets: [
     [

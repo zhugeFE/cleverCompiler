@@ -1,20 +1,26 @@
 import { util } from '../../utils'
 const constants = {
-  project: {
-    list: '',
-    create: '',
-    info: ''
-  },
-  configs: {
-    list: '',
-    create: '',
-    info: ''
+  manage: {
+    layout: '',
+    project: {
+      list: '',
+      create: '',
+      info: ''
+    },
+    group: {
+      list: '',
+      create: '',
+      info: ''
+    }
   },
   compile: {
-    list: '',
-    create: '',
-    info: '',
-    action: ''
+    layout: '',
+    configs: {
+      list: '',
+      create: '',
+      info: ''
+    },
+    release: ''
   }
 }
 util.initializeConstants(constants, 'router')

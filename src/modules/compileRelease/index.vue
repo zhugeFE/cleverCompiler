@@ -1,5 +1,5 @@
 <template>
-  <div class="compile-action">
+  <div class="compile-release-box">
     <div class="line">
       <label class="title">名称</label>
       <div class="content">
@@ -49,7 +49,7 @@
 
 <script>
   export default {
-    name: 'compileAction',
+    name: 'compileReleaseIndex',
     data() {
       return {
         name: '',
@@ -67,5 +67,5 @@
 </script>
 
 <style lang="sass">
-@import "./styles/action"
+  @import "./styles/index"
 </style>

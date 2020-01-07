@@ -1,6 +1,13 @@
 import { util } from '../../utils'
 const actions = {
+  common: {
+    queryVersions: '',
+    queryBranches: '',
+    queryTags: ''
+  },
   project: {
+    addProject: '',
+    editProject: '',
     querySourceList: '',
     queryProjectTree: ''
   },

@@ -1,5 +1,5 @@
 <template>
-  <div class="project-config-list content">
+  <div class="manage-project-config-list content">
     <config-edit :show="showConfigDialog" @onClose="showConfigDialog = false"></config-edit>
     <el-table
         :data="dataList"
@@ -52,7 +52,7 @@
 <script>
   import configEdit from './configEdit'
   export default {
-    name: 'projectConfigList',
+    name: 'manageProjectConfigList',
     components: {
       configEdit
     },

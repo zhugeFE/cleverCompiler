@@ -1,0 +1,29 @@
+{
+  "code": 10001,
+  "data": [
+    {
+      "name": "节点1",
+      "message": "",
+      "commit": {},
+      "release": null
+    },
+    {
+      "name": "节点2",
+      "message": "",
+      "commit": {},
+      "release": null
+    },
+    {
+      "name": "节点3",
+      "message": "",
+      "commit": {},
+      "release": null
+    },
+    {
+      "name": "节点4",
+      "message": "",
+      "commit": {},
+      "release": null
+    }
+  ]
+}

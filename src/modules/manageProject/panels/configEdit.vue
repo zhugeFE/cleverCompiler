@@ -13,7 +13,7 @@
 
 <script>
   export default {
-    name: 'projectConfigEdit',
+    name: 'manageProjectConfigEdit',
     props: {
       show: {
         type: Boolean,

@@ -1,0 +1,63 @@
+@import "../../../assets/styles/constants"
+.top-navbar
+  position: relative
+  min-height: 50px
+  .top-navbar-content
+    position: relative
+    background: $color-brand-black
+    height: 50px
+    text-align: center
+    .navbar-left
+      position: absolute
+      left: 0
+      .navbar-logo-warp
+        height: 50px
+        width: 77px
+        display: inline-block
+        float: left
+        border-right: 1px solid $color-brand-black
+        .navbar-logo
+          display: block
+          width: 62px
+          height: 50px
+          margin-left: 18px
+          background: url(../../../assets/images/logo.png) no-repeat 0
+          background-size: 56px 33px
+    .navbar-menu
+      height: 100%
+      display: inline-block
+      .navbar-menu-li
+        float: left
+        height: 50px
+        cursor: pointer
+        text-align: center
+        font-size: $size-font-subtitle-small
+        font-weight: 400
+        text-decoration: none
+        color: #A5A7A8
+        user-select: none
+        .active-bar
+          height: 4px
+        .navbar-menu-content
+          height: 46px
+          padding: 10px 20px
+          line-height: 20px
+        .navbar-menu-icon
+          display: inline-block
+          width: 20px
+          height: 20px
+          font-size: $size-font-content-medium
+          margin-right: 5px
+        &:hover
+          color: $color-bg-normal
+          background: rgba(255,255,255,0.04)
+        &.active
+          color: $color-bg-normal
+          background: rgba(255,255,255,0.1)
+          .navbar-menu-icon
+            background: $color-bg-normal
+            border-radius: 50%
+            font-size: $size-font-mark
+            color: $color-brand-black
+          .active-bar
+            background: $color-brand

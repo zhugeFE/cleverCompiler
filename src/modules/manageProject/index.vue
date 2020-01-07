@@ -1,5 +1,10 @@
 <template>
-  <div class="project">
+  <div class="manage-project">
+    <div class="header">
+      <c-button @click="onChosenAll">全选/取消全选</c-button>
+      <c-button @click="onApply" :disable="!chosenIds.length">应用</c-button>
+      <c-button @click="onCreate">创建</c-button>
+    </div>
     <c-data-grid :store="sourceList">
       <c-grid-column title="选择" field="-" fix="left">
         <template v-slot="{ data }">
@@ -32,11 +37,6 @@
         </template>
       </c-grid-column>
     </c-data-grid>
-    <div class="footer">
-      <c-button @click="onChosenAll">全选/取消全选</c-button>
-      <c-button @click="onApply" :disable="!chosenIds.length">应用</c-button>
-      <c-button @click="onCreate">创建</c-button>
-    </div>
     <el-dialog
         :visible.sync="dialog.show"
         :modal="false"
@@ -53,7 +53,7 @@
   import { actions } from '../../store/constants'
   import { routes } from '../../router/constants'
   export default {
-    name: 'projectIndex',
+    name: 'manageProjectIndex',
     data() {
       return {
         idCheckMap: {},
@@ -123,12 +123,12 @@
       },
       onCreate() {
         this.$router.replace({
-          name: routes.project.create
+          name: routes.manage.project.create
         })
       },
       onInfo(data) {
         this.$router.replace({
-          name: routes.project.info,
+          name: routes.manage.project.info,
           params: {
             id: data.id
           }

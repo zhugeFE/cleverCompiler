@@ -2,16 +2,18 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import login from '../modules/login/index'
 import layout from '../modules/layout/index'
+import manageLayout from '../modules/layout/manage'
+import compileLayout from '../modules/layout/compile'
 
-import projectList from '../modules/project/index'
-import projectInfo from '../modules/project/info'
+import projectList from '../modules/manageProject/index'
+import projectInfo from '../modules/manageProject/info'
+import groupList from '../modules/manageGroup/index'
+import groupInfo from '../modules/manageGroup/info'
 
-import configs from '../modules/configs/index'
-import configInfo from '../modules/configs/info'
+import compileList from '../modules/compileConfigs/index'
+import compileInfo from '../modules/compileConfigs/info'
+import compileRelease from '../modules/compileRelease/index'
 
-import compile from '../modules/compile/action'
-import compileList from '../modules/compile/list'
-import compileInfo from '../modules/compile/info'
 
 import { routes } from './constants'
 
@@ -31,58 +33,79 @@ export default new Router({
       name: 'app',
       component: layout,
       redirect: {
-        name: routes.project.list
+        name: routes.manage.project.list
       },
       children: [
         {
-          path: 'project/list',
-          name: routes.project.list,
-          component: projectList
-        },
-        {
-          path: 'project/create',
-          name: routes.project.create,
-          component: projectInfo
-        },
-        {
-          path: 'project/:id/info',
-          name: routes.project.info,
-          component: projectInfo
-        },
-        {
-          path: 'configs/list',
-          name: routes.configs.list,
-          component: configs
-        },
-        {
-          path: 'configs/create',
-          name: routes.configs.create,
-          component: configInfo
-        },
-        {
-          path: 'configs/:id/info',
-          name: routes.configs.info,
-          component: configInfo
+          path: 'manage',
+          name: routes.manage.layout,
+          component: manageLayout,
+          redirect: {
+            name: routes.manage.project.list
+          },
+          children: [
+            {
+              path: 'project/list',
+              name: routes.manage.project.list,
+              component: projectList
+            },
+            {
+              path: 'project/create',
+              name: routes.manage.project.create,
+              component: projectInfo
+            },
+            {
+              path: 'project/:id/info',
+              name: routes.manage.project.info,
+              component: projectInfo
+            },
+            {
+              path: 'group/list',
+              name: routes.manage.group.list,
+              component: groupList
+            },
+            {
+              path: 'group/create',
+              name: routes.manage.group.create,
+              component: groupInfo
+            },
+            {
+              path: 'group/:id/info',
+              name: routes.manage.group.info,
+              component: groupInfo
+            }
+          ]
         },
         {
           path: 'compile',
-          name: routes.compile.action,
-          component: compile
-        },
-        {
-          path: 'compile/list',
-          name: routes.compile.list,
-          component: compileList
-        },
-        {
-          path: 'compile/create',
-          name: routes.compile.create,
-          component: compileInfo
-        },
-        {
-          path: 'compile/:id/info',
-          name: routes.compile.info,
-          component: compileInfo
+          name: routes.compile.layout,
+          component: compileLayout,
+          redirect: {
+            name: routes.compile.configs.list
+          },
+          children: [
+            {
+              path: 'release',
+              name: routes.compile.release,
+              component: compileRelease
+            },
+            {
+              path: 'configs/list',
+              name: routes.compile.configs.list,
+              component: compileList
+            },
+            {
+              path: 'configs/create',
+              name: routes.compile.configs.create,
+              component: compileInfo
+            },
+            {
+              path: 'configs/:id/info',
+              name: routes.compile.configs.info,
+              component: compileInfo
+            }
+          ]
+
         }
       ]
     },

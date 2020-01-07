@@ -2,18 +2,18 @@
   <div class="main">
     <zg-loading v-if="loading"></zg-loading>
     <template v-else>
-      <left-menu></left-menu>
+      <top-menu></top-menu>
       <router-view class="content"></router-view>
     </template>
   </div>
 </template>
 
 <script>
-  import leftMenu from './panels/leftMenu.vue'
+  import topMenu from './panels/topNavbar'
   export default {
     name: 'indexPage',
     components: {
-      leftMenu
+      topMenu
     },
     data () {
       return {
