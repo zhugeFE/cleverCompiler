@@ -1,2 +1,5 @@
-let a = 'xxx'
-console.warn('>>>>>>', a)
+function test (num : number = 333) {
+  console.warn('>>>>>>>', num)
+}
+test()
+test(111)
