@@ -4,16 +4,16 @@ import * as fs from 'fs'
 const configPath: string = path.resolve(__dirname, '../.config')
 
 interface Database {
-  connectionLimit?: number,
-  host: string,
-  port: number,
-  user: string,
-  password: string,
-  database: string
+  connectionLimit?: number;
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+  database: string;
 }
 interface ServerConfig{
-  database: Database,
-  port: number
+  database: Database;
+  port: number;
 }
 
 let config: ServerConfig = {
