@@ -3,6 +3,10 @@ enum ConfigType {
   file,
   json
 }
+enum SysStatus {
+  notReady,
+  inited
+}
 enum RoleType {
   yunwei,
   supportor,
@@ -11,5 +15,6 @@ enum RoleType {
 }
 export {
   ConfigType,
-  RoleType
+  RoleType,
+  SysStatus
 }

@@ -7,7 +7,6 @@ router.get('/status', async (req, res) => {
   res.json(result)
 })
 router.post('/init', async (req, res) => {
-  console.log('>>>>>>', req.body)
   const result = await sysService.init(req.body)
   res.json(result)
 })

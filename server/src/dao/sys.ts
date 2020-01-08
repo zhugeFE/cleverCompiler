@@ -1,6 +1,5 @@
 import pool from './pool'
 import { PoolConnection } from 'mysql'
-import { ConfigType } from '../constants'
 
 const dao = {
   /**
@@ -14,11 +13,16 @@ const dao = {
   },
   async init (param: InitParam): Promise<void> {
     const connect = await pool.beginTransaction()
-    // 初始化系统状态及git配置信息
-    await this.initSys(connect, param)
-    // 初始化系统基础数据: 配置项类型、内置用户角色类型
-    await this.initConfigTypes(connect)
-    await this.initRole(connect)
+    try {
+      // 初始化系统状态及git配置信息
+      await this.initSys(connect, param)
+      // 初始化系统基础数据: 配置项类型、内置用户角色类型
+      await this.initConfigTypes(connect)
+      await this.initRole(connect)
+      await pool.commit(connect)
+    } catch (e) {
+      pool.rollback(connect)
+    }
   },
   /**
    * 初始化系统信息
@@ -37,12 +41,12 @@ const dao = {
   async initConfigTypes (conn: PoolConnection): Promise<void> {
     const sql = 'insert into config_type(id, label) values(?,?)'
     const types = [
-      'str',
-      'file',
-      'json'
+      '文本',
+      '文件替换',
+      'JSON'
     ]
-    await Promise.all(types.map(type => {
-      const params = [type, ConfigType[type]]
+    await Promise.all(types.map((type, i) => {
+      const params = [i, type]
       return pool.queryInTransaction(conn, sql, params)
     }))
   },
