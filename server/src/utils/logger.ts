@@ -13,6 +13,5 @@ log4js.configure({
     }
   }
 })
-export default (): log4js.Logger => {
-  return log4js.getLogger()
-}
+const logger = log4js.getLogger()
+export default logger

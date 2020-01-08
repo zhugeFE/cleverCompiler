@@ -1,8 +1,7 @@
 import * as mysql from 'mysql'
 import config from '../config'
-import log4js from '../utils/logger'
+import logger from '../utils/logger'
 import util from '../utils/util'
-const logger = log4js()
 
 const pool: mysql.Pool = mysql.createPool({
   ...config.database
@@ -32,7 +31,7 @@ const out = {
       })
     })
   },
-  beginTransaction (): Promise<any> {
+  beginTransaction (): Promise<mysql.PoolConnection> {
     return new Promise((resolve, reject) => {
       pool.getConnection((err, connection: mysql.PoolConnection) => {
         if (err) {
@@ -51,7 +50,7 @@ const out = {
       })
     })
   },
-  queryInTransaction (connect: mysql.PoolConnection, sql: string, params: [any]): Promise<any> {
+  queryInTransaction (connect: mysql.PoolConnection, sql: string, params?: Array<string|number>): Promise<any> {
     return new Promise((resolve, reject) => {
       connect.query(sql, params, (err, results) => {
         if (err) {
@@ -63,7 +62,7 @@ const out = {
       })
     })
   },
-  commit (connection: mysql.PoolConnection): Promise<any> {
+  commit (connection: mysql.PoolConnection): Promise<void> {
     return new Promise((resolve, reject) => {
       connection.commit(err => {
         if (err) {
