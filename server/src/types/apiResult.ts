@@ -4,11 +4,9 @@ enum ResponseStatus {
 }
 class ApiResult{
   status: number
-  msg: string
   data: any
-  constructor (status: ResponseStatus, msg: string, data: any) {
+  constructor (status: ResponseStatus, data: object) {
     this.status = status
-    this.msg = msg
     this.data = data
   }
 }

@@ -1,8 +1,12 @@
 import { ApiResult, ResponseStatus } from "../types/apiResult"
+import sysDao from '../dao/sys'
 
 const service = {
-  checkStatus (): ApiResult {
-    return new ApiResult(ResponseStatus.success, '', null)
+  async getStatus (): Promise<any> {
+    const inited = await sysDao.getStatus()
+    return new ApiResult(ResponseStatus.success, {
+      inited
+    })
   }
 }
 

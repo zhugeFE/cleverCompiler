@@ -7,6 +7,7 @@ const logger = log4js()
 const pool: mysql.Pool = mysql.createPool({
   ...config.database
 })
+
 function formatRes (sql: string, res: any): any {
   if (/^select/.test(sql)) {
     const list: any[] = []
@@ -19,7 +20,7 @@ function formatRes (sql: string, res: any): any {
   }
 }
 const out = {
-  query: (sql: string, params: any[]): Promise<any> => {
+  query (sql: string, params?: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
       pool.query(sql, params, (err, result) => {
         if (err) {
@@ -31,7 +32,7 @@ const out = {
       })
     })
   },
-  beginTransaction: (): Promise<any> => {
+  beginTransaction (): Promise<any> {
     return new Promise((resolve, reject) => {
       pool.getConnection((err, connection: mysql.PoolConnection) => {
         if (err) {
