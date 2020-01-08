@@ -19,11 +19,12 @@ interface ServerConfig{
 let config: ServerConfig = {
   port: 3000,
   database: {
-    host: '111.231.195.117',
+    host: '127.0.0.1',
     port: 3306,
     user: 'root',
     password: 'dongyongqiang',
-    database: 'clever_mock'
+    database: 'compile_deploy_sys',
+    connectionLimit: 20
   }
 }
 try {

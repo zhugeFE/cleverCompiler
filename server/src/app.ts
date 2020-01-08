@@ -1,6 +1,6 @@
 import * as express from 'express'
 import config from './config'
-
+import './dao/pool'
 const app = express()
 
 app.listen(config.port, () => {
