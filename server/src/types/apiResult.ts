@@ -1,6 +1,6 @@
 enum ResponseStatus {
-  success = 100,
-  fail
+  success = 200,
+  fail = 500,
 }
 class ApiResult{
   status: number
