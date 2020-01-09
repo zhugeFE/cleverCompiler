@@ -4,7 +4,7 @@ const webpack = require('webpack')
 module.exports = {
   mode: 'development',
   entry: {
-    index: path.resolve(__dirname, '../src/index.js')
+    index: path.resolve(__dirname, '../src/index.tsx')
   },
   output: {
     path: path.join(__dirname, '../dist'),
@@ -12,9 +12,14 @@ module.exports = {
     filename: "bundle.js",
     chunkFilename: '[name].js'
   },
-  resolve: { extensions: ["*", ".js", ".jsx"] },
+  resolve: { extensions: ['.tsx', '.ts', ".js", ".jsx"] },
   module: {
     rules: [
+      {
+        test: /\.(tsx|ts)?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
       {
         test: /\.(js|jsx)$/,
         exclude: /(node_modules)/,
@@ -33,8 +38,7 @@ module.exports = {
     ]
   },
   devServer: {
-    port: 8080,
-    hotOnly: true
+    port: 8080
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
