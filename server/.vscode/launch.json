@@ -12,6 +12,9 @@
         "<node_internals>/**"
       ],
       "preLaunchTask": "build",
+      "env": {
+        "NODE_ENV": "production"
+      },
       "program": "${workspaceFolder}/dist/app.js"
     }
   ]
