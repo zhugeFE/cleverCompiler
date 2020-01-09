@@ -6,13 +6,6 @@ interface SysStatus{
   inited: boolean;
 }
 const service = {
-  async getStatus (): Promise<ApiResult> {
-    const inited = await sysDao.getStatus()
-    const data: SysStatus = {
-      inited
-    }
-    return new ApiResult(ResponseStatus.success, data)
-  },
   async init (param: InitParam): Promise<ApiResult> {
     try{
       await sysDao.init(param)
