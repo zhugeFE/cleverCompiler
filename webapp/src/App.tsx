@@ -3,7 +3,7 @@ import './app.less'
 class App extends React.Component{
   render () {
     return (
-      <div>hello react>>>3ii3jfie</div>
+      <div>hello react</div>
     )
   }
 }
