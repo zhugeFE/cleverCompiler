@@ -1,11 +1,13 @@
 import * as React from 'react'
 import * as ReactDom from 'react-dom'
 import App from './App'
-import { BrowserRouter, Route, Switch} from 'react-router-dom'
+import { Route, Switch} from 'react-router-dom'
 import InitGuide from './modules/initGuide/guide';
 import './index.less'
+import { Router } from 'react-router';
+import history from './utils/history';
 ReactDom.render((
-  <BrowserRouter>
+  <Router history={history}>
     <Switch>
       <Route path="/init">
         <InitGuide></InitGuide>
@@ -14,5 +16,5 @@ ReactDom.render((
         <App></App>
       </Route>
     </Switch>
-  </BrowserRouter>
+  </Router>
 ), document.getElementById('root'))

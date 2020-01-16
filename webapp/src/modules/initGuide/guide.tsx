@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {Form, Button, Input, Checkbox} from 'antd'
 import './guide.less'
+import history from '../../utils/history'
 interface ValidateCallback {
   (err: Error, values: any): void
 }
@@ -27,6 +28,7 @@ class InitForm extends React.Component<FormProps, any>{
     this.props.form.validateFields((err, values) => {
       console.log('>>>>>', err, values)
     })
+    history.replace('/')
   }
   render () {
     const {getFieldDecorator} = this.props.form
