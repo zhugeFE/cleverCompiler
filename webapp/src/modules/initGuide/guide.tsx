@@ -2,17 +2,12 @@ import * as React from 'react'
 import {Form, Button, Input, Checkbox} from 'antd'
 import './guide.less'
 import history from '../../utils/history'
-interface ValidateCallback {
-  (err: Error, values: any): void
+import { FormProps } from '../../types/antd'
+interface Props {
+  form: FormProps
 }
-interface FormProps {
-  form: {
-    getFieldDecorator: Function,
-    validateFields (callback: ValidateCallback): void
-  }
-}
-class InitForm extends React.Component<FormProps, any>{
-  constructor (props: FormProps) {
+class InitForm extends React.Component<Props, any>{
+  constructor (props: Props) {
     super(props)
     this.onSubmit = this.onSubmit.bind(this)
   }
@@ -28,7 +23,7 @@ class InitForm extends React.Component<FormProps, any>{
     this.props.form.validateFields((err, values) => {
       console.log('>>>>>', err, values)
     })
-    history.replace('/')
+    history.replace('/login')
   }
   render () {
     const {getFieldDecorator} = this.props.form
