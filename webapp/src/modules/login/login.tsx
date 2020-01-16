@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Form, Icon, Input, Button, Checkbox } from 'antd'
 import { FormProps } from '../../types/antd'
 import './login.less'
+import history from '../../utils/history'
 interface LoginProps {
   form: FormProps
 }
@@ -16,6 +17,7 @@ class NormalLoginForm extends React.Component<LoginProps, any> {
       if (!err) {
         console.log('Received values of form: ', values)
       }
+      history.replace('/')
     })
   }
 
