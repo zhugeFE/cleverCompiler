@@ -12,8 +12,7 @@ const { Header, Sider, Content } = Layout
 
 interface AppState {
   collapsed: boolean,
-  path: string,
-  selectedKeys: string[]
+  path: string
 }
 class App extends React.Component<any, AppState> {
   constructor (props: null, state: AppState) {
@@ -21,8 +20,7 @@ class App extends React.Component<any, AppState> {
     const path = this.props.location.pathname
     this.state = {
       collapsed: false,
-      path,
-      selectedKeys: [/project/.test(path) ? 'project' : 'compile']
+      path
     }
     this.toggle = this.toggle.bind(this)
     this.onClickTopMenu = this.onClickTopMenu.bind(this)
@@ -39,17 +37,9 @@ class App extends React.Component<any, AppState> {
     }
     history.push(path)
   }
-  componentWillUpdate (nextProps: any) {
-    if (nextProps && this.props.location.pathname !== nextProps.location.pathname) {
-      const path = nextProps.location.pathname
-      this.setState({
-        path,
-        selectedKeys: [/project/.test(path) ? 'project' : 'compile']
-      })
-    }
-  }
 
   render () {
+    const { location } = this.props
     return (
       <Layout className="app-layout">
         <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
@@ -79,7 +69,7 @@ class App extends React.Component<any, AppState> {
             <Menu className="top-menu"
               theme="dark"
               mode="horizontal"
-              selectedKeys={this.state.selectedKeys}
+              selectedKeys={[/project/.test(location.pathname) ? 'project' : 'compile']}
               onClick={this.onClickTopMenu}
               style={{ lineHeight: '64px' }}
             >
