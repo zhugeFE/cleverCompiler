@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
-
+import MenuItem from "antd/lib/menu/MenuItem";
+// ------------form------------------
 export interface FormFieldRule {
   enum?: string,
   len?: number,
@@ -25,4 +26,12 @@ export interface ValidateCallback {
 export interface FormProps {
   getFieldDecorator ?(id: string, options: FieldDecoratorOptions): Function,
   validateFields ?(callback: ValidateCallback): void
+}
+
+// ------------menu------------------
+export interface MenuClickArg {
+  key: string,
+  keyPath: string[],
+  item: MenuItem,
+  domEvent: Event
 }
