@@ -40,23 +40,32 @@ class App extends React.Component<any, AppState> {
 
   render () {
     const { location } = this.props
+    let configMenus = [
+      {key: 'template', label: '模板', path: '/project/template/list'},
+      {key: 'git', label: 'git源', path: '/project/git/list'}
+    ]
+    let compileMenus = [
+      {key: 'project', label: '项目', path: '/compile/list'},
+      {key: 'compile', label: '编译', path: '/compile'}
+    ]
+    const menus = /^\/compile/.test(location.pathname) ? compileMenus : configMenus
+    let selectedKeys: string[] = []
+    menus.forEach(menu => {
+      if (location.pathname === menu.path) selectedKeys.push(menu.key)
+    })
     return (
       <Layout className="app-layout">
         <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
           <div className="logo">COMPILER</div>
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-            <Menu.Item key="1">
-              <Icon type="user" />
-              <span>nav 1</span>
-            </Menu.Item>
-            <Menu.Item key="2">
-              <Icon type="video-camera" />
-              <span>nav 2</span>
-            </Menu.Item>
-            <Menu.Item key="3">
-              <Icon type="upload" />
-              <span>nav 3</span>
-            </Menu.Item>
+          <Menu theme="dark" mode="inline" selectedKeys={selectedKeys}>
+            {menus.map(menu => {
+              return (
+                <Menu.Item key={menu.key}>
+                  <Icon type="user"/>
+                  {menu.label}
+                </Menu.Item>
+              )
+            })}
           </Menu>
         </Sider>
         <Layout>
@@ -74,7 +83,7 @@ class App extends React.Component<any, AppState> {
               style={{ lineHeight: '64px' }}
             >
               <Menu.Item key="compile">编译管理</Menu.Item>
-              <Menu.Item key="project">项目管理</Menu.Item>
+              <Menu.Item key="project">配置管理</Menu.Item>
             </Menu>
           </Header>
           <Content
