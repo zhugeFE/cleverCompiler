@@ -53,11 +53,18 @@ class App extends React.Component<any, AppState> {
     menus.forEach(menu => {
       if (location.pathname === menu.path) selectedKeys.push(menu.key)
     })
+    
+    function onClickSubMenu (param: MenuClickArg) {
+      const chosenMenu = menus.find(menu => {
+        return menu.key === param.key
+      })
+      history.push(chosenMenu.path)
+    }
     return (
       <Layout className="app-layout">
         <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
           <div className="logo">COMPILER</div>
-          <Menu theme="dark" mode="inline" selectedKeys={selectedKeys}>
+          <Menu theme="dark" mode="inline" selectedKeys={selectedKeys} onClick={onClickSubMenu}>
             {menus.map(menu => {
               return (
                 <Menu.Item key={menu.key}>
