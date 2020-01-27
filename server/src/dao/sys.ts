@@ -64,5 +64,4 @@ const dao = {
     }))
   }
 }
-dao.getStatus()
 export default dao
