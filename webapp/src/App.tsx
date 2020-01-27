@@ -63,13 +63,13 @@ class App extends React.Component<any, AppState> {
     return (
       <Layout className="app-layout">
         <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
-          <div className="logo">COMPILER</div>
+          <div className="logo">{this.state.collapsed ? 'C' : 'COMPILER'}</div>
           <Menu theme="dark" mode="inline" selectedKeys={selectedKeys} onClick={onClickSubMenu}>
             {menus.map(menu => {
               return (
                 <Menu.Item key={menu.key}>
                   <Icon type="user"/>
-                  {menu.label}
+                  {this.state.collapsed ? '' : menu.label}
                 </Menu.Item>
               )
             })}
