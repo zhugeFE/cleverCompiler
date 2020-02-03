@@ -1,5 +1,5 @@
 import * as React from 'react'
-// import './styles/templateList.less'
+import './styles/compileList.less'
 import { Table, Button } from 'antd'
 import { ColumnProps, TableRowSelection } from 'antd/lib/table'
 import { compileType } from '../../constants/index';
@@ -117,6 +117,7 @@ class CompileList extends React.Component<Props, State> {
           return (
             <div className="to-handle">
               <a>编辑</a>
+              <a>查看记录</a>
               <a className="btn-del">删除</a>
             </div>
           )
@@ -124,7 +125,7 @@ class CompileList extends React.Component<Props, State> {
       }
     ]
     return (
-      <div className="template-source-list">
+      <div className="compile-list">
         <Table columns={columns} dataSource={this.state.store}></Table>
       </div>
     )

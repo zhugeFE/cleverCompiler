@@ -2,6 +2,7 @@ import * as React from 'react'
 import './styles/gitList.less'
 import { Table, Button } from 'antd'
 import { ColumnProps, TableRowSelection } from 'antd/lib/table'
+import history from '../../utils/history'
 interface Props {
 
 }
@@ -32,7 +33,12 @@ class GitSourceList extends React.Component<Props, State> {
       }
     }
   }
+  onClickEdit (record: Record) {
+    console.log('on click git eidt button', record, this)
+    history.push(`/project/git/${record.key}`)
+  }
   render () {
+    const that = this
     const columns: ColumnProps<Record>[] = [
       {
         title: '项目名称',
@@ -73,10 +79,10 @@ class GitSourceList extends React.Component<Props, State> {
       {
         title: '操作',
         dataIndex: 'handle',
-        render () {
+        render (text, record: Record) {
           return (
             <div className="to-handle">
-              <a>编辑</a>
+              <a onClick={that.onClickEdit.bind(that, record)}>编辑</a>
               <a>禁用</a>
             </div>
           )

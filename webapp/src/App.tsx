@@ -1,13 +1,14 @@
 import { Layout, Menu, Icon } from 'antd'
 import * as React from 'react'
 import './app.less'
-import { Route, Switch, withRouter } from 'react-router-dom';
+import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import CompileList from './modules/compile/compileList';
 import Compile from './modules/compile/compile';
 import history from './utils/history';
 import GitSourceList from './modules/projectManage/gitSourceList';
 import TemplateList from './modules/projectManage/templateList';
 import { MenuClickArg } from './types/antd';
+import GitEditPanel from './modules/projectManage/gitEdit';
 const { Header, Sider, Content } = Layout
 
 interface AppState {
@@ -41,24 +42,24 @@ class App extends React.Component<any, AppState> {
   render () {
     const { location } = this.props
     let configMenus = [
-      {key: 'template', label: '模板', path: '/project/template/list'},
-      {key: 'git', label: 'git源', path: '/project/git/list'}
+      {key: 'template', label: '模板', reg: /^\/project\/template\/\S*/, root: '/project/template/list'},
+    {key: 'git', label: 'git源', reg: /^\/project\/git\/\S*/, root: '/project/git/list'}
     ]
     let compileMenus = [
-      {key: 'project', label: '项目', path: '/compile/list'},
-      {key: 'compile', label: '编译', path: '/compile'}
+    {key: 'project', label: '项目', reg: /^\/compile\/\S*/, root: '/compile/list'},
+      {key: 'compile', label: '编译', reg: /^\/compile$/, root: '/compile'}
     ]
     const menus = /^\/compile/.test(location.pathname) ? compileMenus : configMenus
     let selectedKeys: string[] = []
     menus.forEach(menu => {
-      if (location.pathname === menu.path) selectedKeys.push(menu.key)
+      if (menu.reg.test(location.pathname)) selectedKeys.push(menu.key)
     })
     
     function onClickSubMenu (param: MenuClickArg) {
       const chosenMenu = menus.find(menu => {
         return menu.key === param.key
       })
-      history.push(chosenMenu.path)
+      history.push(chosenMenu.root)
     }
     return (
       <Layout className="app-layout">
@@ -111,8 +112,14 @@ class App extends React.Component<any, AppState> {
               <Route path="/project/git/list">
                 <GitSourceList></GitSourceList>
               </Route>
+              <Route path="/project/git/:id">
+                <GitEditPanel></GitEditPanel>
+              </Route>
               <Route path="/project/template/list">
                 <TemplateList></TemplateList>
+              </Route>
+              <Route path="/">
+                <Redirect to="/project/git/list"></Redirect>
               </Route>
             </Switch>
           </Content>
