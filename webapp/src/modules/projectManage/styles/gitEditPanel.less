@@ -1,0 +1,25 @@
+@import "../../../assets/styles/constants.less";
+.git-edit-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .git-panel-top {
+    font-size: 12px;
+    flex: none;
+  }
+  .git-panel-center {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    .time-line-panel {
+      flex: none;
+      overflow: auto;
+    }
+    .git-detail {
+      flex: 1;
+      overflow: auto;
+      border: 1px solid blue;
+    }
+  }
+}

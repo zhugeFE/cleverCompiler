@@ -1,0 +1,27 @@
+@import "../../assets/styles/constants.less";
+.markdown {
+  position: relative;
+  .markdown-handles {
+    position: absolute;
+    right: 20px;
+    top: 0;
+    font-size: 18px;
+    z-index: 10;
+    i {
+      margin-left: 5px;
+    }
+  }
+  // .markdown-preview {
+
+  // }
+  .markdown-editor {
+    border: none;
+    resize: none;
+    outline: none !important;
+    -webkit-appearance: none;
+    :active,:focus {
+      outline: none !important;
+      -webkit-appearance: none;
+    }
+  }
+}

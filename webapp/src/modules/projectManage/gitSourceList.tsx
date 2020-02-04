@@ -34,7 +34,6 @@ class GitSourceList extends React.Component<Props, State> {
     }
   }
   onClickEdit (record: Record) {
-    console.log('on click git eidt button', record, this)
     history.push(`/project/git/${record.key}`)
   }
   render () {
