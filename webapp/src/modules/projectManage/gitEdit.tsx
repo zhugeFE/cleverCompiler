@@ -1,38 +1,46 @@
 import * as React from 'react'
-import { Icon, Button, Tabs } from 'antd'
+import { Icon, Button, Tabs, Input, Tag } from 'antd'
 import TimeLinePanel from '../../components/timeline/timeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'
 import GitConfigPanel from './edit/config'
 import Markdown from '../../components/markdown/markdown'
+import history from '../../utils/history'
+import Commands from './edit/commands'
 
 interface Props {
 
 }
 interface State {
-
+  tags: string[]
 }
 class GitEditPanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
+    this.state = {
+      tags: []
+    }
   }
   render () {
     const source = '# Live demo\nChanges are automatically rendered as you type.\n## Table of Contents\n* Implements [GitHub Flavored Markdown](https://github.github.com/gfm/)\n* Renders actual, "native" React DOM elements\n* Allows you to escape or skip HTML (try toggling the checkboxes above)\n## HTML block below'
+    const labelWidth = 75
     return (
       <div className="git-edit-panel">
         <div className="git-panel-top">
-          <a><Icon type="left" />返回</a>
+          <a onClick={() => {history.goBack()}}><Icon type="left" />返回</a>
         </div>
         <div className="git-panel-center">
           <TimeLinePanel></TimeLinePanel>
           <div className="git-detail">
-            <Description label="名称">webapp</Description>
-            <Description label="git地址">http://gl.zhugeio.com/dongyongqiang/webapp</Description>
-            <Description label="配置" display="flex">
+            <Description label="名称" labelWidth={labelWidth}>webapp</Description>
+            <Description label="git地址" labelWidth={labelWidth} className="git-addr">http://gl.zhugeio.com/dongyongqiang/webapp</Description>
+            <Description label="配置" labelWidth={labelWidth} display="flex" className="git-configs">
               <GitConfigPanel store={[]}></GitConfigPanel>
-              <Button>添加配置项</Button>
+              <Button className="btn-add-config-item">添加配置项</Button>
             </Description>
-            <Description label="编译命令"></Description>
+            <Description label="编译命令" display="flex" labelWidth={labelWidth}>
+              <Commands tags={this.state.tags}></Commands>
+            </Description>
             <Tabs defaultActiveKey="readme">
               <Tabs.TabPane tab="使用文档" key="readme">
                 <Markdown content={source}></Markdown>

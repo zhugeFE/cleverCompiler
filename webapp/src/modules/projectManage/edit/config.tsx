@@ -36,7 +36,7 @@ class GitConfigPanel extends React.Component<Props, State> {
   render () {
     return (
       <div className="git-config-panel">
-        <Table columns={this.state.columns} dataSource={this.props.store}></Table>
+        <Table bordered columns={this.state.columns} dataSource={this.props.store}></Table>
       </div>
     )
   }

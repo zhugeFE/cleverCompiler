@@ -19,7 +19,7 @@ class Markdown extends React.Component<Props, State> {
     super(props, state)
     this.state = {
       content: this.props.content,
-      mode: Mode.edit
+      mode: Mode.preview
     }
   }
   onTogleMode () {
