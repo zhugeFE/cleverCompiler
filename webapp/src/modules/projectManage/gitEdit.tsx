@@ -45,8 +45,12 @@ class GitEditPanel extends React.Component<Props, State> {
               <Tabs.TabPane tab="使用文档" key="readme">
                 <Markdown content={source}></Markdown>
               </Tabs.TabPane>
-              <Tabs.TabPane tab="部署文档" key="build"></Tabs.TabPane>
-              <Tabs.TabPane tab="更新内容" key="update"></Tabs.TabPane>
+              <Tabs.TabPane tab="部署文档" key="build">
+                <Markdown content="部署文档"></Markdown>
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="更新内容" key="update">
+                <Markdown content="更新内容"></Markdown>
+              </Tabs.TabPane>
             </Tabs>
           </div>
         </div>

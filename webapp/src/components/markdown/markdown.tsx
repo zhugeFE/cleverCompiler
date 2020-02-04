@@ -21,10 +21,16 @@ class Markdown extends React.Component<Props, State> {
       content: this.props.content,
       mode: Mode.preview
     }
+    this.onChange = this.onChange.bind(this)
   }
   onTogleMode () {
     this.setState({
       mode: this.state.mode === Mode.preview ? Mode.edit : Mode.preview
+    })
+  }
+  onChange (e: {target: {value: string}}) {
+    this.setState({
+      content: e.target.value
     })
   }
   render () {
@@ -41,7 +47,7 @@ class Markdown extends React.Component<Props, State> {
             <Input.TextArea 
               className="markdown-editor" 
               autoSize={{maxRows: 30, minRows: 10}}
-              value={this.state.content}></Input.TextArea>
+              value={this.state.content} onChange={this.onChange}></Input.TextArea>
           )
         } else {
           return (
