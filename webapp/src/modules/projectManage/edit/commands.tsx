@@ -65,7 +65,7 @@ class Commands extends React.Component<Props, State> {
         {
           this.state.tags.map((tag, i) => {
             return (
-              <Tag key={`${tag}_${i}`} closable onClose={this.onDel.bind(this, i)}>{tag}</Tag>
+              <Tag key={`${tag}_${i}`} color="blue" closable onClose={this.onDel.bind(this, i)}>{tag}</Tag>
             )
           })
         }
