@@ -32,7 +32,7 @@ class GitEditPanel extends React.Component<Props, State> {
         <div className="git-panel-center">
           <TimeLinePanel></TimeLinePanel>
           <div className="git-detail">
-            <Description label="项目名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.0.0</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
+            <Description label="项目名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
             <Description label="git地址" labelWidth={labelWidth} className="git-addr"><a>http://gl.zhugeio.com/dongyongqiang/webapp</a></Description>
             <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
               <GitConfigPanel store={[]}></GitConfigPanel>
