@@ -2,6 +2,7 @@ import * as React from 'react'
 import './timeLine.less'
 import { Timeline, Tag, Icon, Button } from 'antd'
 import TimelineItem from 'antd/lib/timeline/TimelineItem'
+import Search from 'antd/lib/input/Search'
 
 interface Props {
 
@@ -16,6 +17,12 @@ class TimeLinePanel extends React.Component<Props, State> {
   render () {
     return (
       <div className="time-line-panel">
+        <Search
+          className="version-search"
+          size="small"
+          placeholder="search version"
+          onSearch={value => console.log(value)}
+        />
         <Timeline mode="alternate">
           <TimelineItem dot={
             <a><Icon type="plus"></Icon></a>
