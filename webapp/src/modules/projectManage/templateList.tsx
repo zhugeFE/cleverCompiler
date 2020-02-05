@@ -2,6 +2,7 @@ import * as React from 'react'
 import './styles/templateList.less'
 import { Table, Button } from 'antd'
 import { ColumnProps, TableRowSelection } from 'antd/lib/table'
+import history from '../../utils/history'
 interface Props {
 
 }
@@ -100,10 +101,11 @@ class TemplateList extends React.Component<Props, State> {
       {
         title: '操作',
         dataIndex: 'handle',
-        render () {
+        render (text, record: Record) {
           return (
             <div className="to-handle">
-              <a>编辑</a>
+              <a onClick={() => {history.push(`/project/template/${record.key}`)}}>编辑</a>
+              <a style={{marginLeft: 5}}>版本记录</a>
               <a className="btn-del">删除</a>
             </div>
           )

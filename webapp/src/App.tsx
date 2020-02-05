@@ -9,6 +9,7 @@ import GitSourceList from './modules/projectManage/gitSourceList';
 import TemplateList from './modules/projectManage/templateList';
 import { MenuClickArg } from './types/antd';
 import GitEditPanel from './modules/projectManage/gitEdit';
+import TemplateEdit from './modules/projectManage/templateEdit';
 const { Header, Sider, Content } = Layout
 
 interface AppState {
@@ -117,6 +118,9 @@ class App extends React.Component<any, AppState> {
               </Route>
               <Route path="/project/template/list">
                 <TemplateList></TemplateList>
+              </Route>
+              <Route path="/project/template/:id">
+                <TemplateEdit></TemplateEdit>
               </Route>
               <Route path="/">
                 <Redirect to="/project/git/list"></Redirect>

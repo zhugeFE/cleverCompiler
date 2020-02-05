@@ -1,0 +1,34 @@
+@import "../../../assets/styles/constants.less";
+.template-edit-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .template-panel-top {
+    font-size: 12px;
+    flex: none;
+  }
+  .template-panel-center {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    .time-line-panel {
+      flex: none;
+      overflow: auto;
+    }
+    .template-detail {
+      flex: 1;
+      overflow: auto;
+      padding: 0 10px;
+      .template-configs {
+        margin: 10px 0;
+      }
+      .btn-add-config-item {
+        margin-top: 10px;
+      }
+      .template-addr {
+        margin-left: 20px;
+      }
+    }
+  }
+}
