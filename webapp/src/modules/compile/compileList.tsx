@@ -117,7 +117,7 @@ class CompileList extends React.Component<Props, State> {
           return (
             <div className="to-handle">
               <a>编辑</a>
-              <a>查看记录</a>
+              <a>版本记录</a>
               <a className="btn-del">删除</a>
             </div>
           )

@@ -82,6 +82,7 @@ class GitSourceList extends React.Component<Props, State> {
           return (
             <div className="to-handle">
               <a onClick={that.onClickEdit.bind(that, record)}>编辑</a>
+              <a style={{marginRight: 5}}>版本记录</a>
               <a>禁用</a>
             </div>
           )

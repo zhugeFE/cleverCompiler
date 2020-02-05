@@ -1,5 +1,7 @@
 import * as React from 'react'
 import './timeLine.less'
+import { Timeline, Tag } from 'antd'
+import TimelineItem from 'antd/lib/timeline/TimelineItem'
 
 interface Props {
 
@@ -13,7 +15,14 @@ class TimeLinePanel extends React.Component<Props, State> {
   }
   render () {
     return (
-      <div className="time-line-panel">time line panel</div>
+      <div className="time-line-panel">
+        <Timeline mode="alternate">
+          <TimelineItem><Tag color="#2db7f5">1.0.0</Tag></TimelineItem>
+          <TimelineItem>1.1.0</TimelineItem>
+          <TimelineItem>1.1.1</TimelineItem>
+          <TimelineItem>1.2.0</TimelineItem>
+        </Timeline>
+      </div>
     )
   }
 }

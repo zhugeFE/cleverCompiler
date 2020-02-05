@@ -32,16 +32,16 @@ class GitEditPanel extends React.Component<Props, State> {
         <div className="git-panel-center">
           <TimeLinePanel></TimeLinePanel>
           <div className="git-detail">
-            <Description label="名称" labelWidth={labelWidth}>webapp</Description>
-            <Description label="git地址" labelWidth={labelWidth} className="git-addr">http://gl.zhugeio.com/dongyongqiang/webapp</Description>
-            <Description label="配置" labelWidth={labelWidth} display="flex" className="git-configs">
+            <Description label="项目名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.0.0</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
+            <Description label="git地址" labelWidth={labelWidth} className="git-addr"><a>http://gl.zhugeio.com/dongyongqiang/webapp</a></Description>
+            <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
               <GitConfigPanel store={[]}></GitConfigPanel>
               <Button className="btn-add-config-item">添加配置项</Button>
             </Description>
             <Description label="编译命令" display="flex" labelWidth={labelWidth}>
               <Commands tags={this.state.tags}></Commands>
             </Description>
-            <Tabs defaultActiveKey="readme">
+            <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
               <Tabs.TabPane tab="使用文档" key="readme">
                 <Markdown content={source}></Markdown>
               </Tabs.TabPane>
