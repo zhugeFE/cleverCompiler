@@ -3,16 +3,28 @@ import './timeLine.less'
 import { Timeline, Tag, Icon, Button } from 'antd'
 import TimelineItem from 'antd/lib/timeline/TimelineItem'
 import Search from 'antd/lib/input/Search'
+import { Version } from '../../types/common.d';
 
 interface Props {
-
+  onAddVersion: () => void,
+  versionList: Version[],
+  onChange?: (version: Version) => void
 }
 interface State {
-
+  currentVersion: Version
 }
 class TimeLinePanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
+    this.state = {
+      currentVersion: this.props.versionList[0]
+    }
+  }
+  onChooseVersion (version: Version) {
+    this.setState({
+      currentVersion: version
+    })
+    if (this.props.onChange) this.props.onChange(version)
   }
   render () {
     return (
@@ -25,12 +37,29 @@ class TimeLinePanel extends React.Component<Props, State> {
         />
         <Timeline mode="alternate">
           <TimelineItem dot={
-            <a><Icon type="plus"></Icon></a>
+            <a onClick={this.props.onAddVersion}><Icon type="plus"></Icon></a>
           }></TimelineItem>
-          <TimelineItem><Tag color="#2db7f5">1.2.1</Tag></TimelineItem>
-          <TimelineItem color="gray"><a className="disabled">1.1.0</a></TimelineItem>
-          <TimelineItem><a>1.0.1</a></TimelineItem>
-          <TimelineItem><a>1.0.0</a></TimelineItem>
+          {
+            this.props.versionList.map(version => {
+              if (version === this.state.currentVersion) {
+                return (
+                  <TimelineItem key={version.id} color={version.disabled ? 'gray' : 'blue'}>
+                    <a 
+                      className={version.disabled ? 'disabled' : null} 
+                      onClick={this.onChooseVersion.bind(this, version)}>
+                      <Tag color="blue">{version.version}</Tag>
+                    </a>
+                  </TimelineItem>
+                )
+              } else {
+                return (
+                  <TimelineItem key={version.id} color={version.disabled ? 'gray' : 'blue'}>
+                    <a className={version.disabled ? 'disabled' : null} onClick={this.onChooseVersion.bind(this, version)}>{version.version}</a>
+                  </TimelineItem>
+                )
+              }
+            })
+          }
         </Timeline>
       </div>
     )

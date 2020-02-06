@@ -7,19 +7,29 @@ import GitConfigPanel from './edit/config'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
 import Commands from './edit/commands'
+import { Version } from '../../types/common.d';
 
 interface Props {
 
 }
 interface State {
-  tags: string[]
+  tags: string[],
+  versionList: Version[]
 }
 class GitEditPanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
-      tags: []
+      tags: [],
+      versionList: [
+        {id: '1', version: '1.0.0', createTime: new Date(), updateTime: new Date(), disabled: false},
+        {id: '2', version: '1.1.0', createTime: new Date(), updateTime: new Date(), disabled: true},
+        {id: '3', version: '1.2.0', createTime: new Date(), updateTime: new Date(), disabled: false}
+      ].reverse()
     }
+  }
+  onAddVersion () {
+
   }
   render () {
     const source = '# Live demo\nChanges are automatically rendered as you type.\n## Table of Contents\n* Implements [GitHub Flavored Markdown](https://github.github.com/gfm/)\n* Renders actual, "native" React DOM elements\n* Allows you to escape or skip HTML (try toggling the checkboxes above)\n## HTML block below'
@@ -30,7 +40,7 @@ class GitEditPanel extends React.Component<Props, State> {
           <a onClick={() => {history.goBack()}}><Icon type="left" />返回</a>
         </div>
         <div className="git-panel-center">
-          <TimeLinePanel></TimeLinePanel>
+          <TimeLinePanel versionList={this.state.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
           <div className="git-detail">
             <Description label="项目名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
             <Description label="git地址" labelWidth={labelWidth} className="git-addr"><a>http://gl.zhugeio.com/dongyongqiang/webapp</a></Description>

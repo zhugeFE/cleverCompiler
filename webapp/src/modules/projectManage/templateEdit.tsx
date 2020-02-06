@@ -7,17 +7,28 @@ import { Button, Tabs, Tag, Icon, Radio } from 'antd'
 import Commands from './edit/commands'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
+import { Version } from '../../types/common.d';
 
 interface Props {
 
 }
 interface State {
-
+  versionList: Version[]
 }
 class TemplateEdit extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
-    this.state = {}
+    this.state = {
+      versionList: [
+        {id: '1', version: '1.0.0', createTime: new Date(), updateTime: new Date(), disabled: false},
+        {id: '2', version: '1.1.0', createTime: new Date(), updateTime: new Date(), disabled: false},
+        {id: '3', version: '1.2.0', createTime: new Date(), updateTime: new Date(), disabled: true}
+      ].reverse()
+    }
+    this.onAddVersion = this.onAddVersion.bind(this)
+  }
+  onAddVersion () {
+    console.log('add new version')
   }
   render () {
     const source = '# Live demo\nChanges are automatically rendered as you type.\n## Table of Contents\n* Implements [GitHub Flavored Markdown](https://github.github.com/gfm/)\n* Renders actual, "native" React DOM elements\n* Allows you to escape or skip HTML (try toggling the checkboxes above)\n## HTML block below'
@@ -28,7 +39,7 @@ class TemplateEdit extends React.Component<Props, State> {
           <a onClick={() => {history.goBack()}}><Icon type="left" />返回</a>
         </div>
         <div className="template-panel-center">
-          <TimeLinePanel></TimeLinePanel>
+          <TimeLinePanel versionList={this.state.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
           <div className="template-detail">
             <Description label="模板名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
             <Description label="全局配置" labelWidth={labelWidth} display="flex" className="template-configs">
@@ -38,6 +49,7 @@ class TemplateEdit extends React.Component<Props, State> {
             <Description label="项目列表" display="flex">
               <Tabs type="editable-card">
                 <Tabs.TabPane tab="webapp" key="webapp">
+                  <Description label="版本" style={{marginBottom: 5}} display="flex">1.2.9</Description>
                   <GitConfigPanel store={[]}></GitConfigPanel>
                   <Description label="发布方式" display="flex" style={{marginTop: 10}}>
                     <Radio.Group value="git">
@@ -47,6 +59,7 @@ class TemplateEdit extends React.Component<Props, State> {
                   </Description>
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="sdkv" key="sdkv">
+                  <Description label="版本">1.2.9</Description>
                   <GitConfigPanel store={[]}></GitConfigPanel>
                 </Tabs.TabPane>
               </Tabs>
