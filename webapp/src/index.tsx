@@ -7,18 +7,22 @@ import './index.less'
 import { Router } from 'react-router';
 import history from './utils/history';
 import Login from './modules/login/login';
+import { Provider } from 'react-redux';
+import store from './store/store';
 ReactDom.render((
-  <Router history={history}>
-    <Switch>
-      <Route path="/init">
-        <InitGuide></InitGuide>
-      </Route>
-      <Route path="/login">
-        <Login></Login>
-      </Route>
-      <Route path="/">
-        <App></App>
-      </Route>
-    </Switch>
-  </Router>
+  <Provider store={store}>
+    <Router history={history}>
+      <Switch>
+        <Route path="/init">
+          <InitGuide></InitGuide>
+        </Route>
+        <Route path="/login">
+          <Login></Login>
+        </Route>
+        <Route path="/">
+          <App></App>
+        </Route>
+      </Switch>
+    </Router>
+  </Provider>
 ), document.getElementById('root'))

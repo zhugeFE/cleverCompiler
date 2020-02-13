@@ -10,14 +10,19 @@ import TemplateList from './modules/projectManage/templateList';
 import { MenuClickArg } from './types/antd';
 import GitEditPanel from './modules/projectManage/gitEdit';
 import TemplateEdit from './modules/projectManage/templateEdit';
+import { connect } from 'react-redux';
+import store from './store/store';
+import { userActions } from './store/reducer/user';
 const { Header, Sider, Content } = Layout
 
 interface AppState {
   collapsed: boolean,
   path: string
 }
+interface Props {
+}
 class App extends React.Component<any, AppState> {
-  constructor (props: null, state: AppState) {
+  constructor (props: Props, state: AppState) {
     super(props, state)
     const path = this.props.location.pathname
     this.state = {
@@ -26,6 +31,12 @@ class App extends React.Component<any, AppState> {
     }
     this.toggle = this.toggle.bind(this)
     this.onClickTopMenu = this.onClickTopMenu.bind(this)
+    setTimeout(() => {
+      store.dispatch({
+        type: userActions.updateCurrent
+      })
+      console.log(store.getState())
+    }, 5000)
   }
   toggle () {
     this.setState({
@@ -92,7 +103,7 @@ class App extends React.Component<any, AppState> {
               style={{ lineHeight: '64px' }}
             >
               <Menu.Item key="compile">编译管理</Menu.Item>
-              <Menu.Item key="project">配置管理</Menu.Item>
+              <Menu.Item key="project">配置管理{this.props.currentUser.name}</Menu.Item>
             </Menu>
           </Header>
           <Content
@@ -132,5 +143,11 @@ class App extends React.Component<any, AppState> {
     )
   }
 }
-
-export default withRouter(App)
+const mapStateToProps = (state: { user: { current: any; }; }) => {
+  return {
+    currentUser: state.user.current
+  }
+}
+export default withRouter(connect(
+  mapStateToProps
+)(App))
