@@ -1,8 +1,17 @@
-interface User {
-
+export interface UserState {
+  id: string,
+  name: string,
+  email: string,
+  roleId: string,
+  roleName: string
 }
-interface State {
+export interface SysState {
+  isInited: boolean,
+  logged: boolean
+}
+export interface RootState {
+  sys: SysState,
   user: {
-    current: string
+    current: UserState
   }
 }

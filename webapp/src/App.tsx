@@ -1,18 +1,21 @@
 import { Layout, Menu, Icon } from 'antd'
 import * as React from 'react'
 import './app.less'
-import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
-import CompileList from './modules/compile/compileList';
-import Compile from './modules/compile/compile';
-import history from './utils/history';
-import GitSourceList from './modules/projectManage/gitSourceList';
-import TemplateList from './modules/projectManage/templateList';
-import { MenuClickArg } from './types/antd';
-import GitEditPanel from './modules/projectManage/gitEdit';
-import TemplateEdit from './modules/projectManage/templateEdit';
-import { connect } from 'react-redux';
-import store from './store/store';
-import { userActions } from './store/reducer/user';
+import { Route, Switch, withRouter, Redirect } from 'react-router-dom'
+import CompileList from './modules/compile/compileList'
+import Compile from './modules/compile/compile'
+import history from './utils/history'
+import GitSourceList from './modules/projectManage/gitSourceList'
+import TemplateList from './modules/projectManage/templateList'
+import { MenuClickArg } from './types/antd'
+import GitEditPanel from './modules/projectManage/gitEdit'
+import TemplateEdit from './modules/projectManage/templateEdit'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
+import { userActions } from './store/actionTypes'
+import { RootState, UserState, SysState } from './store/state';
+import ajax from './utils/ajax'
+import api from './store/api'
 const { Header, Sider, Content } = Layout
 
 interface AppState {
@@ -20,6 +23,8 @@ interface AppState {
   path: string
 }
 interface Props {
+  currentUser: UserState,
+  sys: SysState
 }
 class App extends React.Component<any, AppState> {
   constructor (props: Props, state: AppState) {
@@ -31,12 +36,9 @@ class App extends React.Component<any, AppState> {
     }
     this.toggle = this.toggle.bind(this)
     this.onClickTopMenu = this.onClickTopMenu.bind(this)
-    setTimeout(() => {
-      store.dispatch({
-        type: userActions.updateCurrent
-      })
-      console.log(store.getState())
-    }, 5000)
+  }
+  componentDidMount () {
+    this.props.getCurrentUser()
   }
   toggle () {
     this.setState({
@@ -103,7 +105,7 @@ class App extends React.Component<any, AppState> {
               style={{ lineHeight: '64px' }}
             >
               <Menu.Item key="compile">编译管理</Menu.Item>
-              <Menu.Item key="project">配置管理{this.props.currentUser.name}</Menu.Item>
+              <Menu.Item key="project">配置管理</Menu.Item>
             </Menu>
           </Header>
           <Content
@@ -143,11 +145,27 @@ class App extends React.Component<any, AppState> {
     )
   }
 }
-const mapStateToProps = (state: { user: { current: any; }; }) => {
+const mapStateToProps = (state: RootState) => {
   return {
-    currentUser: state.user.current
+    currentUser: state.user.current,
+    sys: state.sys
+  }
+}
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    getCurrentUser: () => {
+      ajax({
+        url: api.user.getCurrent
+      }).then(res => {
+        console.log('>>>>>>', res)
+        dispatch({
+          type: userActions.UPDATE_CURRENT
+        })
+      })
+    }
   }
 }
 export default withRouter(connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(App))

@@ -1,5 +1,6 @@
 import pool from './pool'
 import { PoolConnection } from 'mysql'
+import { InitParam } from '../types/sys';
 
 const dao = {
   /**

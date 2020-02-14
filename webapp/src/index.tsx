@@ -9,6 +9,7 @@ import history from './utils/history';
 import Login from './modules/login/login';
 import { Provider } from 'react-redux';
 import store from './store/store';
+
 ReactDom.render((
   <Provider store={store}>
     <Router history={history}>

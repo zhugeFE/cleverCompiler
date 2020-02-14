@@ -10,9 +10,10 @@ class ApiResult{
   status: ResponseStatus
   data: object | null
   msg?: string
-  constructor (status: ResponseStatus, data?: object | null) {
+  constructor (status: ResponseStatus, data?: object | null, message?: string) {
     this.status = status
     this.data = data
+    this.msg = message
   }
 }
 export {
