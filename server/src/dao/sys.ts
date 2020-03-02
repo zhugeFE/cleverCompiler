@@ -1,6 +1,7 @@
 import pool from './pool'
 import { PoolConnection } from 'mysql'
 import { InitParam } from '../types/sys';
+import userDao from './user';
 
 const dao = {
   /**
@@ -19,6 +20,7 @@ const dao = {
       await this.initSys(connect, param)
       // 初始化系统基础数据: 配置项类型、内置用户角色类型
       await this.initConfigTypes(connect)
+      await userDao.createUser(connect, param)
       await this.initRole(connect)
       await pool.commit(connect)
     } catch (e) {
@@ -31,8 +33,8 @@ const dao = {
    * @param param 
    */
   async initSys (conn: PoolConnection, param: InitParam): Promise<void> {
-    const sql = `insert into sys(git_token, git_account, inited) values(?,?,?)`
-    const params = [param.gitToken, param.gitAccount, 1]
+    const sql = `insert into sys(git_token, git_account, git_ssh, inited) values(?,?,?,?)`
+    const params = [param.gitToken, param.gitAccount, param.gitSsh, 1]
     await pool.queryInTransaction(conn, sql, params)
   },
   /**

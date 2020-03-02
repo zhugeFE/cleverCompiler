@@ -157,7 +157,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       ajax({
         url: api.user.getCurrent
       }).then(res => {
-        console.log('>>>>>>', res)
+        console.log('>>>>>>1111', res)
         dispatch({
           type: userActions.UPDATE_CURRENT
         })

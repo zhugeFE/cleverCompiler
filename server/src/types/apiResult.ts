@@ -1,7 +1,8 @@
 enum ResponseStatus {
   success = 200,
   fail = 500,
-  sysNotInit
+  sysNotInit,
+  sysInited
 }
 /**
  * 接口返回json统一结构

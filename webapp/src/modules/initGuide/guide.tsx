@@ -1,10 +1,20 @@
 import * as React from 'react'
-import {Form, Button, Input, Checkbox} from 'antd'
+import {Form, Button, Input, Checkbox, message} from 'antd'
 import './guide.less'
 import history from '../../utils/history'
 import { FormProps } from '../../types/antd'
+import { WrappedFormUtils, ValidationRule } from 'antd/lib/form/Form'
+import ajax from '../../utils/ajax'
+import api from '../../store/api'
 interface Props {
-  form: FormProps
+  form: WrappedFormUtils<{
+    token: string,
+    sshToken: string,
+    account: string,
+    email: string,
+    password: string,
+    rePassword: string
+  }>
 }
 class InitForm extends React.Component<Props, any>{
   constructor (props: Props) {
@@ -12,18 +22,31 @@ class InitForm extends React.Component<Props, any>{
     this.onSubmit = this.onSubmit.bind(this)
   }
   state: {
-    form: {
-      token: '',
-      account: '',
-      userName: ''
-    }
+    form: null
   }
   onSubmit (e: React.FormEvent) {
     e.preventDefault()
-    this.props.form.validateFields((err, values) => {
-      console.log('>>>>>', err, values)
+    this.props.form.validateFields((err, props) => {
+      if (err) {
+        console.error('校验失败', err)
+      } else {
+        ajax({
+          url: api.sys.init,
+          method: 'POST',
+          data: {
+            gitToken: props.token,
+            gitSsh: props.sshToken,
+            gitAccount: props.account,
+            email: props.email,
+            password: props.password
+          }
+        }).then(() => {
+          history.replace('/login')
+        }).catch(err => {
+          message.error(err.message)
+        })
+      }
     })
-    history.replace('/login')
   }
   render () {
     const {getFieldDecorator} = this.props.form
@@ -43,7 +66,7 @@ class InitForm extends React.Component<Props, any>{
           </div>
           <Form.Item label="git token">
             {getFieldDecorator('token', {
-              rules: [{ required: true, message: '请输入git token' }],
+              rules: [{ required: true, message: '请输入private token' }],
             })(
               <Input placeholder="token"/>,
             )}
@@ -81,7 +104,20 @@ class InitForm extends React.Component<Props, any>{
           </Form.Item>
           <Form.Item label="确认密码">
             {getFieldDecorator('rePassword', {
-              rules: [{required: true, message: '请确认管理员密码!'}]
+              rules: [{
+                required: true, 
+                message: '请确认管理员密码!',
+                validator: (rule: ValidationRule, value: any, callback: any) => {
+                  if (!value) {
+                    callback(rule)
+                  } else if (value !== this.props.form.getFieldValue('password')) {
+                    rule.message = '确认密码与密码不一致'
+                    callback(rule)
+                  } else {
+                    callback()
+                  }
+                }
+              }]
             })(
               <Input placeholder="确认密码" type="password"/>
             )}

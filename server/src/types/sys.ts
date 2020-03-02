@@ -1,5 +1,7 @@
 export interface InitParam{
   gitToken: string;
+  gitSsh: string;
   gitAccount: string;
-  inited?: boolean;
+  email: string;
+  password: string;
 }

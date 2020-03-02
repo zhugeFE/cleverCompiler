@@ -103,6 +103,11 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
+"@types/uuid@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.npm.taobao.org/@types/uuid/download/@types/uuid-7.0.0.tgz#9f6993ccc8210efa90bda7e1afabbb06a9f860cd"
+  integrity sha1-n2mTzMghDvqQvafhr6u7Bqn4YM0=
+
 "@typescript-eslint/eslint-plugin@^2.14.0":
   version "2.14.0"
   resolved "https://registry.npm.taobao.org/@typescript-eslint/eslint-plugin/download/@typescript-eslint/eslint-plugin-2.14.0.tgz#c74447400537d4eb7aae1e31879ab43e6c662a8a"
@@ -1445,6 +1450,11 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.npm.taobao.org/utils-merge/download/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
+
+uuid@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.npm.taobao.org/uuid/download/uuid-7.0.1.tgz#95ed6ff3d8c881cbf85f0f05cc3915ef994818ef"
+  integrity sha1-le1v89jIgcv4Xw8FzDkV75lIGO8=
 
 v8-compile-cache@^2.0.3:
   version "2.1.0"
