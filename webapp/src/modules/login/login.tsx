@@ -1,8 +1,7 @@
 import * as React from 'react'
-import { Form, Icon, Input, Button, Checkbox } from 'antd'
+import { Form, Icon, Input, Button, Checkbox, message } from 'antd'
 import { FormProps } from '../../types/antd'
 import './login.less'
-import history from '../../utils/history'
 interface LoginProps {
   form: FormProps
 }
@@ -14,10 +13,8 @@ class NormalLoginForm extends React.Component<LoginProps, any> {
   onSubmit(e: React.FormEvent) {
     e.preventDefault()
     this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log('Received values of form: ', values)
-      }
-      history.replace('/')
+      if (err) return
+      console.log('login form values', values)
     })
   }
 

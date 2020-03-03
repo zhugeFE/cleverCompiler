@@ -15,3 +15,14 @@ export interface RootState {
     current: UserState
   }
 }
+const defaultState: RootState = {
+  sys: {
+    isInited: false,
+    logged: false
+  },
+  user: {
+    current: null
+  }
+}
+
+export default defaultState

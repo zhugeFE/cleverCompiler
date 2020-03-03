@@ -1,21 +1,8 @@
-import ajax from "../../utils/ajax";
 import { Action } from "redux";
 import { userActions } from '../actionTypes'
+import defaultState, { RootState } from '../state'
 
-interface UserState {
-  current: object
-}
-const defaultState: UserState = {
-  current: {
-    name: 'zhangsan'
-  }
-}
-// const User = {
-//   login () {
-
-//   }
-// }
-const user = function (state: UserState = defaultState, action: Action) {
+const user = function (state: RootState = defaultState, action: Action) {
   switch (action.type) {
     case userActions.UPDATE_CURRENT:
       return {
@@ -28,6 +15,5 @@ const user = function (state: UserState = defaultState, action: Action) {
   }
 }
 export {
-  user,
-  userActions
+  user
 }

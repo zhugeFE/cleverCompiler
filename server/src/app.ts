@@ -7,9 +7,13 @@ import * as bodyParser from 'body-parser'
 import * as session from 'express-session'
 import errorHandle from './middleware/errorHandle'
 import sys from './middleware/sys'
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express()
 app.use(session({
+  genid () {
+    return uuidv4()
+  },
   secret: 'compile'
 }))
 app.use(auth)

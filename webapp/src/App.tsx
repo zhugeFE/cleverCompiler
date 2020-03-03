@@ -1,4 +1,4 @@
-import { Layout, Menu, Icon } from 'antd'
+import { Layout, Menu, Icon, Spin } from 'antd'
 import * as React from 'react'
 import './app.less'
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom'
