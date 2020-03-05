@@ -23,8 +23,7 @@ interface AppState {
   path: string
 }
 interface Props {
-  currentUser: UserState,
-  sys: SysState
+  currentUser: UserState
 }
 class App extends React.Component<any, AppState> {
   constructor (props: Props, state: AppState) {
@@ -38,7 +37,7 @@ class App extends React.Component<any, AppState> {
     this.onClickTopMenu = this.onClickTopMenu.bind(this)
   }
   componentDidMount () {
-    this.props.getCurrentUser()
+    if (!this.props.currentUser) this.props.getCurrentUser()
   }
   toggle () {
     this.setState({

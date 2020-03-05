@@ -7,9 +7,11 @@ import apis from '../../store/api'
 import { userActions } from '../../store/actionTypes';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux'
+import history from '../../utils/history'
 interface LoginProps {
   form: FormProps,
-  login (param: any): void
+  login (param: any): void,
+  dispatch: Dispatch
 }
 class NormalLoginForm extends React.Component<LoginProps, any> {
   constructor (props: LoginProps) {
@@ -79,9 +81,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
         }
       }).then(res => {
         dispatch({
-          type: userActions.LOGIN,
+          type: userActions.UPDATE_CURRENT,
           value: res.data
         })
+        history.replace('/')
       }).catch(err => {
         message.error('用户名或密码错误')
         console.error('登录失败', err)
@@ -91,5 +94,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 }
 const WrappedNormalLoginForm = Form.create({ name: 'normal_login' })(NormalLoginForm)
 export default connect(
+  null,
   mapDispatchToProps
 )(WrappedNormalLoginForm)

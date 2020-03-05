@@ -1,6 +1,5 @@
 export enum userActions {
-  UPDATE_CURRENT = 'UPDATE_CURRENT',
-  LOGIN = 'LOGIN'
+  UPDATE_CURRENT = 'UPDATE_CURRENT'
 }
 export interface Action<T> {
   type: string,
