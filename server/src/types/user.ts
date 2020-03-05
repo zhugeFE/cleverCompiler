@@ -5,3 +5,7 @@ export interface User {
   roleId: string;
   roleName: string;
 }
+export interface LoginParam {
+  username: string;
+  password: string;
+}

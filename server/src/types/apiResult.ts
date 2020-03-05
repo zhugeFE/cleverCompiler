@@ -3,7 +3,8 @@ enum ResponseStatus {
   fail = 500,
   sysNotInit,
   sysInited,
-  notLoggin
+  notLoggin,
+  paramError
 }
 /**
  * 接口返回json统一结构

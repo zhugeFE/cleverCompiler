@@ -2,6 +2,8 @@ import * as React from 'react'
 import { Form, Icon, Input, Button, Checkbox, message } from 'antd'
 import { FormProps } from '../../types/antd'
 import './login.less'
+import ajax from '../../utils/ajax'
+import apis from '../../store/api'
 interface LoginProps {
   form: FormProps
 }
@@ -14,7 +16,19 @@ class NormalLoginForm extends React.Component<LoginProps, any> {
     e.preventDefault()
     this.props.form.validateFields((err, values) => {
       if (err) return
-      console.log('login form values', values)
+      ajax({
+        url: apis.user.login,
+        method: 'POST',
+        data: {
+          username: values.username,
+          password: values.password
+        }
+      }).then(res => {
+        console.log('login result:', res)
+      }).catch(err => {
+        message.error('用户名或密码错误')
+        console.error('登录失败', err)
+      })
     })
   }
 

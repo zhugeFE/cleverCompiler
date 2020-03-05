@@ -8,7 +8,8 @@ export enum ResponseStatus {
   fail = 500,
   sysNotInit,
   sysInited,
-  notLoggin
+  notLoggin,
+  paramError
 }
 /**
  * 接口返回json统一结构
@@ -29,14 +30,13 @@ export default function (options: AxiosRequestConfig): Promise<any> {
           resolve(res.data)
           break
         case ResponseStatus.fail:
+        case ResponseStatus.sysInited:
+        case ResponseStatus.paramError:
           err.message = res.data.msg
           throw err
         case ResponseStatus.sysNotInit:
           history.push('/init')
           break
-        case ResponseStatus.sysInited:
-          err.message = res.data.msg
-          throw err
         case ResponseStatus.notLoggin:
           history.push('/login')
           break

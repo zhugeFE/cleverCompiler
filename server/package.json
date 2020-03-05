@@ -11,8 +11,10 @@
   "author": "dongyongqiang@zhugeio.com",
   "license": "ISC",
   "devDependencies": {
+    "@hapi/joi": "^17.1.0",
     "@types/express": "^4.17.2",
     "@types/express-session": "^1.15.16",
+    "@types/hapi__joi": "^16.0.12",
     "@types/lodash": "^4.14.149",
     "@types/mysql": "^2.15.8",
     "@types/uuid": "^7.0.0",

@@ -1,17 +1,20 @@
 import { ApiResult, ResponseStatus } from "../types/apiResult"
-import { User } from '../types/user';
+import { User, LoginParam } from '../types/user';
 import userDao from "../dao/user";
 import logger from '../utils/logger';
 
 const userService = {
-  async getCurrent (): Promise<ApiResult> {
+  async login (param: LoginParam): Promise<ApiResult> {
     try {
-      const user: User = await userDao.getUser('xxx')
-      const result = new ApiResult(ResponseStatus.success, user)
-      return result
+      const users: [User] = await userDao.login(param)
+      if (users.length) {
+        return new ApiResult(ResponseStatus.success, users[0])
+      } else {
+        return new ApiResult(ResponseStatus.fail, null, '用户名或密码错误')
+      }
     } catch (e) {
-      const result = new ApiResult(ResponseStatus.fail)
-      logger.error('获取当前用户信息失败')
+      const result = new ApiResult(ResponseStatus.fail, null, '用户名或密码错误')
+      logger.error('登录失败', param)
       return result
     }
   }

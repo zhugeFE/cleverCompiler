@@ -18,6 +18,46 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
+"@hapi/address@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.npm.taobao.org/@hapi/address/download/@hapi/address-4.0.0.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40hapi%2Faddress%2Fdownload%2F%40hapi%2Faddress-4.0.0.tgz#36affb4509b5a6adc628bcc394450f2a7d51d111"
+  integrity sha1-Nq/7RQm1pq3GKLzDlEUPKn1R0RE=
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
+"@hapi/formula@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npm.taobao.org/@hapi/formula/download/@hapi/formula-2.0.0.tgz#edade0619ed58c8e4f164f233cda70211e787128"
+  integrity sha1-7a3gYZ7VjI5PFk8jPNpwIR54cSg=
+
+"@hapi/hoek@^9.0.0":
+  version "9.0.3"
+  resolved "https://registry.npm.taobao.org/@hapi/hoek/download/@hapi/hoek-9.0.3.tgz#e49e637d5de8faa4f0d313c2590b455d7c00afd7"
+  integrity sha1-5J5jfV3o+qTw0xPCWQtFXXwAr9c=
+
+"@hapi/joi@^17.1.0":
+  version "17.1.0"
+  resolved "https://registry.npm.taobao.org/@hapi/joi/download/@hapi/joi-17.1.0.tgz#cc4000b6c928a6a39b9bef092151b6bdee10ce55"
+  integrity sha1-zEAAtskopqObm+8JIVG2ve4QzlU=
+  dependencies:
+    "@hapi/address" "^4.0.0"
+    "@hapi/formula" "^2.0.0"
+    "@hapi/hoek" "^9.0.0"
+    "@hapi/pinpoint" "^2.0.0"
+    "@hapi/topo" "^5.0.0"
+
+"@hapi/pinpoint@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npm.taobao.org/@hapi/pinpoint/download/@hapi/pinpoint-2.0.0.tgz#805b40d4dbec04fc116a73089494e00f073de8df"
+  integrity sha1-gFtA1NvsBPwRanMIlJTgDwc96N8=
+
+"@hapi/topo@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.npm.taobao.org/@hapi/topo/download/@hapi/topo-5.0.0.tgz#c19af8577fa393a06e9c77b60995af959be721e7"
+  integrity sha1-wZr4V3+jk6BunHe2CZWvlZvnIec=
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
 "@types/body-parser@*":
   version "1.17.1"
   resolved "https://registry.npm.taobao.org/@types/body-parser/download/@types/body-parser-1.17.1.tgz#18fcf61768fb5c30ccc508c21d6fd2e8b3bf7897"
@@ -62,6 +102,11 @@
     "@types/body-parser" "*"
     "@types/express-serve-static-core" "*"
     "@types/serve-static" "*"
+
+"@types/hapi__joi@^16.0.12":
+  version "16.0.12"
+  resolved "https://registry.npm.taobao.org/@types/hapi__joi/download/@types/hapi__joi-16.0.12.tgz?cache=0&sync_timestamp=1582590948801&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fhapi__joi%2Fdownload%2F%40types%2Fhapi__joi-16.0.12.tgz#fb9113f17cf5764d6b3586ae9817d1606cc7c90c"
+  integrity sha1-+5ET8Xz1dk1rNYaumBfRYGzHyQw=
 
 "@types/json-schema@^7.0.3":
   version "7.0.4"
