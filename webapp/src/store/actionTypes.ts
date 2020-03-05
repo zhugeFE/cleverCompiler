@@ -1,8 +1,8 @@
 export enum userActions {
   UPDATE_CURRENT = 'UPDATE_CURRENT',
-  LOGGIN = 'LOGGIN'
+  LOGIN = 'LOGIN'
 }
-export interface Action {
+export interface Action<T> {
   type: string,
-  value: any
+  value: T
 }

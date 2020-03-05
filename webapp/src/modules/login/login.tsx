@@ -4,8 +4,12 @@ import { FormProps } from '../../types/antd'
 import './login.less'
 import ajax from '../../utils/ajax'
 import apis from '../../store/api'
+import { userActions } from '../../store/actionTypes';
+import { Dispatch } from 'redux';
+import { connect } from 'react-redux'
 interface LoginProps {
-  form: FormProps
+  form: FormProps,
+  login (param: any): void
 }
 class NormalLoginForm extends React.Component<LoginProps, any> {
   constructor (props: LoginProps) {
@@ -16,19 +20,7 @@ class NormalLoginForm extends React.Component<LoginProps, any> {
     e.preventDefault()
     this.props.form.validateFields((err, values) => {
       if (err) return
-      ajax({
-        url: apis.user.login,
-        method: 'POST',
-        data: {
-          username: values.username,
-          password: values.password
-        }
-      }).then(res => {
-        console.log('login result:', res)
-      }).catch(err => {
-        message.error('用户名或密码错误')
-        console.error('登录失败', err)
-      })
+      this.props.login(values)
     })
   }
 
@@ -75,6 +67,29 @@ class NormalLoginForm extends React.Component<LoginProps, any> {
   }
 }
 
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    login: (param: any) => {
+      ajax({
+        url: apis.user.login,
+        method: 'POST',
+        data: {
+          username: param.username,
+          password: param.password
+        }
+      }).then(res => {
+        dispatch({
+          type: userActions.LOGIN,
+          value: res.data
+        })
+      }).catch(err => {
+        message.error('用户名或密码错误')
+        console.error('登录失败', err)
+      })
+    }
+  }
+}
 const WrappedNormalLoginForm = Form.create({ name: 'normal_login' })(NormalLoginForm)
-
-export default WrappedNormalLoginForm
+export default connect(
+  mapDispatchToProps
+)(WrappedNormalLoginForm)

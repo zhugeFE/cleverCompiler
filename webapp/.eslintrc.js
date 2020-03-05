@@ -19,6 +19,7 @@ module.exports = {
         "react"
     ],
     "rules": {
-        "no-prototype-builtins": "off"
+        "no-prototype-builtins": "off",
+        "no-debugger": "off"
     }
 };

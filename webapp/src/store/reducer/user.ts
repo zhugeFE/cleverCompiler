@@ -1,21 +1,13 @@
-import { Action } from "../actionTypes";
-import { userActions } from '../actionTypes'
-import defaultState, { RootState } from '../state'
+import { Action, userActions } from '../actionTypes'
+import defaultState, { UserState, User } from '../state'
 
-const user = function (state: RootState = defaultState, action: Action) {
-  let userState = Object.assign(defaultState.user)
+const user = function (state: UserState = defaultState.user, action: Action<User>) {
   switch (action.type) {
     case userActions.UPDATE_CURRENT:
-      return {
-        current: {
-          name: '李四'
-        }
-      }
-    case userActions.LOGGIN:
-      userState = Object.assign({
-        currentUser: action.value
-      }, userState)
-      return Object.assign(userState, defaultState)
+      const res = Object.assign(state, {
+        current: action.value
+      })
+      return res
     default:
       return state
   }

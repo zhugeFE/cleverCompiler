@@ -1,9 +1,12 @@
-export interface UserState {
+export interface User {
   id: string,
   name: string,
   email: string,
   roleId: string,
   roleName: string
+}
+export interface UserState {
+  current: User
 }
 export interface SysState {
   isInited: boolean,
@@ -11,9 +14,7 @@ export interface SysState {
 }
 export interface RootState {
   sys: SysState,
-  user: {
-    current: UserState
-  }
+  user: UserState
 }
 const defaultState: RootState = {
   sys: {

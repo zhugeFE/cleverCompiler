@@ -154,6 +154,7 @@ class App extends React.Component<any, AppState> {
   }
 }
 const mapStateToProps = (state: RootState) => {
+  console.log('>>>>>>props map', state, state.user.current)
   return {
     currentUser: state.user.current,
     sys: state.sys
@@ -165,9 +166,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       ajax({
         url: api.user.getCurrent
       }).then(res => {
-        console.log('>>>>>>1111', res)
         dispatch({
-          type: userActions.UPDATE_CURRENT
+          type: userActions.UPDATE_CURRENT,
+          value: res.data
         })
       })
     }
