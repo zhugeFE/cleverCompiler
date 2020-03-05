@@ -154,10 +154,8 @@ class App extends React.Component<any, AppState> {
   }
 }
 const mapStateToProps = (state: RootState) => {
-  console.log('>>>>>>props map', state, state.user.current)
   return {
-    currentUser: state.user.current,
-    sys: state.sys
+    currentUser: state.user.current
   }
 }
 const mapDispatchToProps = (dispatch: Dispatch) => {

@@ -1,13 +1,13 @@
 import { Action, userActions } from '../actionTypes'
 import defaultState, { UserState, User } from '../state'
+import * as _ from 'lodash'
 
 const user = function (state: UserState = defaultState.user, action: Action<User>) {
   switch (action.type) {
     case userActions.UPDATE_CURRENT:
-      const res = Object.assign(state, {
+      return _.assign(_.cloneDeep(state), {
         current: action.value
       })
-      return res
     default:
       return state
   }
