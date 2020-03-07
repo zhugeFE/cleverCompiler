@@ -3,6 +3,10 @@ import './styles/gitList.less'
 import { Table, Button } from 'antd'
 import { ColumnProps, TableRowSelection } from 'antd/lib/table'
 import history from '../../utils/history'
+import { RootState } from '../../store/state';
+import { Dispatch } from 'redux';
+import { gitActions } from '../../store/actionTypes'
+import { connect } from 'react-redux'
 interface Props {
 
 }
@@ -99,4 +103,21 @@ class GitSourceList extends React.Component<Props, State> {
     )
   }
 }
-export default GitSourceList
+const mapStateToProps = (state: RootState) => {
+  return {
+    gitList: state.git.list
+  }
+}
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    getGitSourceList: () => {
+      dispatch({
+        type: gitActions.UPDATE_LIST
+      })
+    }
+  }
+}
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(GitSourceList)

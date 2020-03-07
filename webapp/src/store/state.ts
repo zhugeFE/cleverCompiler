@@ -12,9 +12,16 @@ export interface SysState {
   isInited: boolean,
   logged: boolean
 }
+export interface GitInstance {
+
+}
+export interface GitState {
+  list: GitInstance[]
+}
 export interface RootState {
   sys: SysState,
-  user: UserState
+  user: UserState,
+  git: GitState
 }
 const defaultState: RootState = {
   sys: {
@@ -23,6 +30,9 @@ const defaultState: RootState = {
   },
   user: {
     current: null
+  },
+  git: {
+    list: []
   }
 }
 

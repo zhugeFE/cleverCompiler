@@ -30,12 +30,11 @@ router.post('/login', (req: Request, res: Response, next: NextFunction) => {
     return
   }
   userService.login(param)
-    .then(data => {
-      if (data.status === ResponseStatus.success) {
-        req.session.ccu = param.username
-        req.session.ccp = param.password
+    .then(result => {
+      if (result.status === ResponseStatus.success) {
+        req.session.currentUser = result.data
       }
-      res.json(data)
+      res.json(result)
     }).catch(next)
 })
 export default router

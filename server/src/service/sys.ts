@@ -3,9 +3,6 @@ import sysDao from '../dao/sys'
 import logger from "../utils/logger"
 import { InitParam } from "../types/sys"
 
-interface SysStatus{
-  inited: boolean;
-}
 const service = {
   async init (param: InitParam): Promise<ApiResult> {
     try{
