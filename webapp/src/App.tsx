@@ -1,7 +1,7 @@
 import { Layout, Menu, Icon, Spin } from 'antd'
 import * as React from 'react'
 import './app.less'
-import { Route, Switch, withRouter, Redirect } from 'react-router-dom'
+import { Route, Switch, withRouter, Redirect, RouteComponentProps } from 'react-router-dom'
 import CompileList from './modules/compile/compileList'
 import Compile from './modules/compile/compile'
 import history from './utils/history'
@@ -22,10 +22,10 @@ interface AppState {
   collapsed: boolean,
   path: string
 }
-interface Props {
+interface Props extends RouteComponentProps{
   currentUser: UserState
 }
-class App extends React.Component<any, AppState> {
+class App extends React.Component<Props, AppState> {
   constructor (props: Props, state: AppState) {
     super(props, state)
     const path = this.props.location.pathname
