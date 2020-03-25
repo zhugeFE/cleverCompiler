@@ -5,16 +5,9 @@ import { LoginParam } from '../types/user';
 import * as Joi from '@hapi/joi'
 const router = Router()
 
-router.get('/getCurrent', (req: Request, res: Response, next: NextFunction) => {
-  if (req.session.ccu && req.session.ccp) {
-    const param: LoginParam = {
-      username: req.session.ccu,
-      password: req.session.ccp
-    }
-    userService.login(param)
-      .then(data => {
-        res.json(data)
-      }).catch(next)
+router.get('/getCurrent', (req: Request, res: Response) => {
+  if (req.session.currentUser) {
+    res.json(new ApiResult(ResponseStatus.success, req.session.currentUser))
   } else {
     res.json(new ApiResult(ResponseStatus.notLoggin, null, '系统未登录'))
   }

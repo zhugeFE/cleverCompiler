@@ -13,7 +13,7 @@ import TemplateEdit from './modules/projectManage/templateEdit'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import { userActions } from './store/actionTypes'
-import { RootState, UserState, SysState } from './store/state';
+import { RootState, SysState, User } from './store/state';
 import ajax from './utils/ajax'
 import api from './store/api'
 const { Header, Sider, Content } = Layout
@@ -23,7 +23,8 @@ interface AppState {
   path: string
 }
 interface Props extends RouteComponentProps{
-  currentUser: UserState
+  currentUser: User,
+  getCurrentUser ():void
 }
 class App extends React.Component<Props, AppState> {
   constructor (props: Props, state: AppState) {
