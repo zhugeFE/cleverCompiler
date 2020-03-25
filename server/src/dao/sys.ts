@@ -1,30 +1,45 @@
 import pool from './pool'
 import { PoolConnection } from 'mysql'
-import { InitParam } from '../types/sys';
+import { SysInfo } from '../types/sys';
 import userDao from './user';
+import logger from '../utils/logger';
 
 const dao = {
+  async getSysInfo (): Promise<SysInfo> {
+    const sql = 'select * from sys'
+    const res = await pool.query(sql) as SysInfo[]
+    if (res.length) {
+      return res[0]
+    } else {
+      return null
+    }
+  },
   /**
    * 检查系统状态：是否已初始化
    * @returns boolean
    */
   async getStatus (): Promise<boolean> {
-    const sql = `select * from sys;`
-    const result = await pool.query(sql)
-    return result.length > 0
+    const sysInfo = await this.getSysInfo()
+    return Boolean(sysInfo)
   },
-  async init (param: InitParam): Promise<void> {
+  async init (param: SysInfo): Promise<void> {
     const connect = await pool.beginTransaction()
     try {
       // 初始化系统状态及git配置信息
+      logger.info('初始化系统信息')
       await this.initSys(connect, param)
       // 初始化系统基础数据: 配置项类型、内置用户角色类型
+      logger.info('初始化配置类型元数据')
       await this.initConfigTypes(connect)
+      logger.info('创建初始账号')
       await userDao.createUser(connect, param)
+      logger.info('初始化角色元数据')
       await this.initRole(connect)
+      logger.info('git库数据同步')
       await pool.commit(connect)
     } catch (e) {
       pool.rollback(connect)
+      throw e
     }
   },
   /**
@@ -32,9 +47,9 @@ const dao = {
    * @param conn 
    * @param param 
    */
-  async initSys (conn: PoolConnection, param: InitParam): Promise<void> {
-    const sql = `insert into sys(git_token, git_account, git_ssh, inited) values(?,?,?,?)`
-    const params = [param.gitToken, param.gitAccount, param.gitSsh, 1]
+  async initSys (conn: PoolConnection, param: SysInfo): Promise<void> {
+    const sql = `insert into sys(git_host, git_token, git_account, git_ssh, inited) values(?, ?,?,?,?)`
+    const params = [param.gitHost, param.gitToken, param.gitAccount, param.gitSsh, 1]
     await pool.queryInTransaction(conn, sql, params)
   },
   /**

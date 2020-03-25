@@ -8,6 +8,7 @@ import * as session from 'express-session'
 import errorHandle from './middleware/errorHandle'
 import sys from './middleware/sys'
 import { v4 as uuidv4 } from 'uuid';
+import logger from './utils/logger';
 
 const app = express()
 app.use(session({
@@ -26,5 +27,5 @@ app.use('/api', api)
 app.use(errorHandle)
 
 app.listen(config.port, () => {
-  console.warn(`listen on port ${config.port};\nclick http://localhost:${config.port} to visit server;`)
+  logger.info(`listen on port ${config.port};\nclick http://localhost:${config.port} to visit server;`)
 })

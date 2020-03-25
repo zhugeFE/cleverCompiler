@@ -6,12 +6,12 @@ import logger from '../utils/logger';
 export default function (req: Request, res: Response, next: NextFunction): void {
   sysDao.getStatus()
   .then(inited => {
-    if (!inited && req.path !== '/api/sys/init') {
-      res.json(new ApiResult(ResponseStatus.sysNotInit, null, '系统未初始化'))
-    } else if (req.path === '/api/sys/init') {
-      res.json(new ApiResult(ResponseStatus.sysInited, null, '系统已初始化'))
-    } else {
+    if (inited || req.path === '/api/sys/init') {
+      logger.info('系统已初始化', req.path)
       next()
+    } else {
+      logger.info('系统未初始化')
+      res.json(new ApiResult(ResponseStatus.sysNotInit, null, '系统未初始化'))
     }
   })
   .catch(e => {

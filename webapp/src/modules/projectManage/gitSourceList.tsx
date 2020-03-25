@@ -1,14 +1,15 @@
 import * as React from 'react'
 import './styles/gitList.less'
-import { Table, Button } from 'antd'
+import { Table, message } from 'antd'
 import { ColumnProps, TableRowSelection } from 'antd/lib/table'
 import history from '../../utils/history'
 import { RootState } from '../../store/state';
 import { Dispatch } from 'redux';
 import { gitActions } from '../../store/actionTypes'
 import { connect } from 'react-redux'
+import ajax from '../../utils/ajax'
 interface Props {
-
+  getGitSourceList (): void;
 }
 interface Record {
   key: string,
@@ -39,6 +40,9 @@ class GitSourceList extends React.Component<Props, State> {
   }
   onClickEdit (record: Record) {
     history.push(`/project/git/${record.key}`)
+  }
+  componentDidMount () {
+    this.props.getGitSourceList()
   }
   render () {
     const that = this
@@ -98,6 +102,13 @@ class GitSourceList extends React.Component<Props, State> {
     }
     return (
       <div className="git-source-list">
+        <ul>
+          <li>名称过滤</li>
+          <li>版本选择</li>
+          <li>批量禁用</li>
+          <li>批量启用</li>
+          <li>git库同步</li>
+        </ul>
         <Table rowSelection={rowSelection} columns={columns} dataSource={this.state.store}></Table>
       </div>
     )
@@ -111,8 +122,15 @@ const mapStateToProps = (state: RootState) => {
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     getGitSourceList: () => {
-      dispatch({
-        type: gitActions.UPDATE_LIST
+      ajax({
+        url: '/api/git/list',
+        method: 'post'
+      }).then(() => {
+        dispatch({
+          type: gitActions.UPDATE_LIST
+        })
+      }).catch(err => {
+        message.error(err.message)
       })
     }
   }

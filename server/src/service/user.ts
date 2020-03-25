@@ -6,7 +6,7 @@ import logger from '../utils/logger';
 const userService = {
   async login (param: LoginParam): Promise<ApiResult> {
     try {
-      const users: [User] = await userDao.login(param)
+      const users: User[] = await userDao.login(param)
       if (users.length) {
         return new ApiResult(ResponseStatus.success, users[0])
       } else {

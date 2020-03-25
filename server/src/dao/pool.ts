@@ -7,9 +7,9 @@ const pool: mysql.Pool = mysql.createPool({
   ...config.database
 })
 
-function formatRes (sql: string, res: any): any {
+function formatRes <T>(sql: string, res: any): T | T[] {
   if (/^select/.test(sql)) {
-    const list: any[] = []
+    const list = []
     res.forEach((item: object) => {
       list.push(util.toCamelObj(item))
     })
@@ -19,14 +19,14 @@ function formatRes (sql: string, res: any): any {
   }
 }
 const out = {
-  query (sql: string, params?: any[]): Promise<any> {
+  query<T> (sql: string, params?: any[]): Promise<T | T[]> {
     return new Promise((resolve, reject) => {
       pool.query(sql, params, (err, result) => {
         if (err) {
           logger.error('执行sql错误', err)
           reject(err)
         } else {
-          resolve(formatRes(sql, result))
+          resolve(formatRes<T>(sql, result))
         }
       })
     })
@@ -54,7 +54,7 @@ const out = {
     return new Promise((resolve, reject) => {
       connect.query(sql, params, (err, results) => {
         if (err) {
-          logger.error('事务中执行sql失败', err)
+          logger.error('事务中执行sql失败', err.sql)
           reject(err)
         } else {
           resolve(formatRes(sql, results))

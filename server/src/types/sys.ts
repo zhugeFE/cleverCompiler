@@ -1,4 +1,5 @@
-export interface InitParam{
+export interface SysInfo{
+  gitHost: string;
   gitToken: string;
   gitSsh: string;
   gitAccount: string;

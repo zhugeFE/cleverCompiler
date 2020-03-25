@@ -1,11 +1,11 @@
 import pool from './pool'
 import { User, LoginParam } from '../types/user';
 import { PoolConnection } from 'mysql';
-import { InitParam } from '../types/sys';
-import { v4 as uuidv4 } from 'uuid'
+import { SysInfo } from '../types/sys';
+import util from '../utils/util';
 
 const userDao = {
-  async getUserById (userId: string): Promise<[User]> {
+  async getUserById (userId: string): Promise<User[]> {
     const sql = `select user.id, 
         user.name, 
         user.email, 
@@ -17,14 +17,14 @@ const userDao = {
         left join role 
           on user_role.role_id = role.id
         where user.id = ?`
-    const users: [User] = await pool.query(sql, [userId])
+    const users = await pool.query<User>(sql, [userId]) as User[]
     return users
   },
-  async createUser (conn: PoolConnection, param: InitParam): Promise<void> {
+  async createUser (conn: PoolConnection, param: SysInfo): Promise<void> {
     const sql = `insert into user(id, email, password) values(?,?,?)`
-    await pool.queryInTransaction(conn, sql, [uuidv4(), param.email, param.password])
+    await pool.queryInTransaction(conn, sql, [util.uuid(), param.email, param.password])
   },
-  async login (param: LoginParam): Promise<[User]> {
+  async login (param: LoginParam): Promise<User[]> {
     const sql = `select user.id,
       user.name,
       user.email,
@@ -38,7 +38,7 @@ const userDao = {
       where 
         user.email = ? 
         and password = ?`
-    const users: [User] = await pool.query(sql, [param.username, param.password])
+    const users = await pool.query<User>(sql, [param.username, param.password]) as User[]
     return users
   }
 }

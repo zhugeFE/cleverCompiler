@@ -8,6 +8,7 @@ import ajax from '../../utils/ajax'
 import api from '../../store/api'
 interface Props {
   form: WrappedFormUtils<{
+    host: string,
     token: string,
     sshToken: string,
     account: string,
@@ -34,6 +35,7 @@ class InitForm extends React.Component<Props, any>{
           url: api.sys.init,
           method: 'POST',
           data: {
+            gitHost: props.host,
             gitToken: props.token,
             gitSsh: props.sshToken,
             gitAccount: props.account,
@@ -64,6 +66,13 @@ class InitForm extends React.Component<Props, any>{
           <div className="form-line">
           git绑定信息
           </div>
+          <Form.Item label="git host">
+            {getFieldDecorator('host', {
+              rules: [{required: true, message: '请输入git库host'}]
+            })(
+              <Input placeholder="http://gl.zhugeio.com"/>
+            )}
+          </Form.Item>
           <Form.Item label="git token">
             {getFieldDecorator('token', {
               rules: [{ required: true, message: '请输入private token' }],
