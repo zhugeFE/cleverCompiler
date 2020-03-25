@@ -6,6 +6,7 @@ const git = (state: GitState = defaultState.git, action: Action<GitInstance|GitI
   const resState = _.cloneDeep(state)
   switch (action.type) {
     case gitActions.UPDATE_LIST:
+      resState.list = action.value as GitInstance[]
       return resState
     default:
       return resState
