@@ -6,4 +6,7 @@ export interface GitInstance {
   enable: boolean;
   lastVersionId: string;
   description: string;
+  lastVersion: string;
+  readmeDoc: string;
+  buildDoc: string;
 }

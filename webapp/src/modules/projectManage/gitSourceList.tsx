@@ -102,13 +102,6 @@ class GitSourceList extends React.Component<Props, State> {
     }
     return (
       <div className="git-source-list">
-        <ul>
-          <li>名称过滤</li>
-          <li>版本选择</li>
-          <li>批量禁用</li>
-          <li>批量启用</li>
-          <li>git库同步</li>
-        </ul>
         <Table rowSelection={rowSelection} columns={columns} dataSource={this.state.store}></Table>
       </div>
     )
