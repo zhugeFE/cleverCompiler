@@ -1,6 +1,6 @@
 import * as React from 'react'
 import './styles/gitList.less'
-import { Table, message } from 'antd'
+import { Table, message, Form, Input } from 'antd'
 import { ColumnProps, TableRowSelection } from 'antd/lib/table'
 import history from '../../utils/history'
 import { RootState, GitInstance } from '../../store/state';
@@ -8,12 +8,19 @@ import { Dispatch } from 'redux';
 import { gitActions } from '../../store/actionTypes'
 import { connect } from 'react-redux'
 import ajax from '../../utils/ajax'
+import { WrappedFormUtils } from 'antd/lib/form/Form'
+import * as _ from 'lodash'
 interface Props {
   getGitSourceList (): void;
   gitList: GitInstance[];
+  form: WrappedFormUtils
 }
 interface State {
-  rowSelection: TableRowSelection<GitInstance>
+  rowSelection: TableRowSelection<GitInstance>,
+  form: {
+    name: string,
+    version: string
+  }
 }
 class GitSourceList extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
@@ -24,14 +31,27 @@ class GitSourceList extends React.Component<Props, State> {
           disabled: record.name === 'Disabled User', // Column configuration not to be checked
           name: record.name,
         })
+      },
+      form: {
+        name: '',
+        version: ''
       }
     }
+    this.onSearch = this.onSearch.bind(this)
   }
   onClickEdit (record: GitInstance) {
     history.push(`/project/git/${record.id}`)
   }
   componentDidMount () {
     this.props.getGitSourceList()
+  }
+  onSearch () {
+    this.setState({
+      form: this.props.form.getFieldsValue() as {
+        name: string,
+        version: string
+      }
+    })
   }
   render () {
     const that = this
@@ -104,13 +124,36 @@ class GitSourceList extends React.Component<Props, State> {
     const rowSelection: TableRowSelection<GitInstance> = {
 
     }
+    const {getFieldDecorator} = this.props.form
+    const formData = this.state.form
+    const showList = this.props.gitList.filter(item => {
+      return new RegExp(formData.name).test(item.name) && new RegExp(formData.version).test(item.lastVersion)
+    })
     return (
       <div className="git-source-list">
+        <div className="git-filter-panel">
+          <Form layout="inline" ref="form" onChange={this.onSearch}>
+            <Form.Item label="项目名称">
+              {
+                getFieldDecorator('name')(
+                  <Input/>
+                )
+              }
+            </Form.Item>
+            <Form.Item label="版本">
+              {
+                getFieldDecorator('version')(
+                  <Input/>
+                )
+              }
+            </Form.Item>
+          </Form>
+        </div>
         <Table 
           rowSelection={rowSelection} 
           rowKey="id"
           columns={columns} 
-          dataSource={this.props.gitList}
+          dataSource={showList}
           pagination={{pageSize: 5, showTotal(totle: number) {
             return (
               `总记录数${totle}`
@@ -146,4 +189,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(GitSourceList)
+)(Form.create()(GitSourceList))

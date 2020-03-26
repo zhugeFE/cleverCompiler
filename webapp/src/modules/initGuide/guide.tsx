@@ -139,13 +139,5 @@ class InitForm extends React.Component<Props, any>{
     )
   }
 }
-const GuidForm = Form.create()(InitForm)
-class InitGuide extends React.Component {
-  render () {
-    return (
-      <GuidForm></GuidForm>
-    )
-  }
-}
 
-export default InitGuide
+export default Form.create()(InitForm)

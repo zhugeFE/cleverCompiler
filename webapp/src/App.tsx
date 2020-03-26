@@ -115,6 +115,7 @@ class App extends React.Component<Props, AppState> {
                 padding: 24,
                 background: '#fff',
                 minHeight: 280,
+                overflow: 'auto'
               }}
             >
               <Switch>
