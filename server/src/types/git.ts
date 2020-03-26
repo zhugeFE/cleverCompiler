@@ -19,8 +19,4 @@ export interface GitInfo {
   gitRepo: string;
   configs: Config[];
   versionList: Version[];
-  compileOrders: string[];
-  readmeDoc: string;
-  buildDoc: string;
-  updateDoc: string;
 }
