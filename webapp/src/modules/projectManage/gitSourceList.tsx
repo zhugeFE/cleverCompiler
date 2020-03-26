@@ -1,6 +1,6 @@
 import * as React from 'react'
 import './styles/gitList.less'
-import { Table, message, Form, Input } from 'antd'
+import { Table, message, Form, Input, Button } from 'antd'
 import { ColumnProps, TableRowSelection } from 'antd/lib/table'
 import history from '../../utils/history'
 import { RootState, GitInstance } from '../../store/state';
@@ -146,6 +146,12 @@ class GitSourceList extends React.Component<Props, State> {
                   <Input/>
                 )
               }
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary">批量启用</Button>
+            </Form.Item>
+            <Form.Item>
+              <Button type="danger">批量禁用</Button>
             </Form.Item>
           </Form>
         </div>
