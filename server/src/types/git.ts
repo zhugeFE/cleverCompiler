@@ -1,3 +1,5 @@
+import { Version, Config } from "./common";
+
 export interface GitInstance {
   id: string;
   gitId: string;
@@ -9,4 +11,16 @@ export interface GitInstance {
   lastVersion: string;
   readmeDoc: string;
   buildDoc: string;
+}
+
+export interface GitInfo {
+  id: string;
+  name: string;
+  gitRepo: string;
+  configs: Config[];
+  versionList: Version[];
+  compileOrders: string[];
+  readmeDoc: string;
+  buildDoc: string;
+  updateDoc: string;
 }

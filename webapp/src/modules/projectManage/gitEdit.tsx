@@ -62,6 +62,7 @@ class GitEditPanel extends React.Component<Props, State> {
                 <Markdown content="更新内容"></Markdown>
               </Tabs.TabPane>
             </Tabs>
+            <Button type="primary">保存</Button>
           </div>
         </div>
       </div>
