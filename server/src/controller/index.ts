@@ -1,7 +1,7 @@
 import sys from './sys'
 import user from './user'
 import git from './git'
-import { Router } from 'express';
+import { Router } from 'express'
 const router = Router()
 
 router.use('/sys', sys)

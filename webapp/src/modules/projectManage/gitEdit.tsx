@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Icon, Button, Tabs, Input, Tag } from 'antd'
+import { Icon, Button, Tabs, Input, Tag, message } from 'antd'
 import TimeLinePanel from '../../components/timeline/timeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'
@@ -7,20 +7,27 @@ import GitConfigPanel from './edit/config'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
 import Commands from './edit/commands'
-import { Version } from '../../types/common.d';
+import { Version } from '../../types/common.d'
+import { GitInfo } from '../../store/state/git'
+import ajax from '../../utils/ajax'
+import { withRouter, RouteComponentProps } from 'react-router-dom'
 
-interface Props {
+interface Props extends RouteComponentProps<{
+  id: string
+}>{
 
 }
 interface State {
   tags: string[],
-  versionList: Version[]
+  versionList: Version[],
+  gitInfo: GitInfo
 }
 class GitEditPanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
       tags: [],
+      gitInfo: null,
       versionList: [
         {id: '1', version: '1.0.0', createTime: new Date(), updateTime: new Date(), disabled: false},
         {id: '2', version: '1.1.0', createTime: new Date(), updateTime: new Date(), disabled: true},
@@ -30,6 +37,22 @@ class GitEditPanel extends React.Component<Props, State> {
   }
   onAddVersion () {
 
+  }
+  componentDidMount () {
+    this.getInfo()
+  }
+  getInfo () {
+    ajax({
+      url: `/api/git/info/${this.props.match.params.id}`,
+      method: 'GET'
+    })
+    .then(res => {
+      console.log(res)
+    })
+    .catch(err => {
+      console.log('>>>>>', err)
+      message.error('xxx')
+    })
   }
   render () {
     const source = '# Live demo\nChanges are automatically rendered as you type.\n## Table of Contents\n* Implements [GitHub Flavored Markdown](https://github.github.com/gfm/)\n* Renders actual, "native" React DOM elements\n* Allows you to escape or skip HTML (try toggling the checkboxes above)\n## HTML block below'
@@ -69,4 +92,4 @@ class GitEditPanel extends React.Component<Props, State> {
     )
   }
 }
-export default GitEditPanel
+export default withRouter(GitEditPanel)
