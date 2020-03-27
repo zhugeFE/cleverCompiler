@@ -2,7 +2,6 @@ import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import { GitInstance, GitInfo } from '../types/git';
-import logger from '../utils/logger';
 const router = Router()
 
 router.post('/list', (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +14,6 @@ router.post('/list', (req: Request, res: Response, next: NextFunction) => {
   })
 })
 router.get('/info/:id', (req: Request, res: Response, next: NextFunction) => {
-  logger.info('查询git详情: ', req.params.id)
   gitService.getInfoById(req.params.id)
   .then((gitInfo: GitInfo) => {
     if (!gitInfo) {
