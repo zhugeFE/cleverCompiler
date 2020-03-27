@@ -1,6 +1,7 @@
-import defaultState, { GitState, GitInstance } from '../state';
+import defaultState from '../state';
 import { Action, gitActions } from '../actionTypes';
 import * as _ from 'lodash';
+import { GitState, GitInstance } from '../state/git';
 
 const git = (state: GitState = defaultState.git, action: Action<GitInstance|GitInstance[]>) => {
   const resState = _.cloneDeep(state)

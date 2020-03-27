@@ -13,9 +13,10 @@ import TemplateEdit from './modules/projectManage/templateEdit'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import { userActions } from './store/actionTypes'
-import { RootState, SysState, User } from './store/state';
+import { RootState } from './store/state';
 import ajax from './utils/ajax'
 import api from './store/api'
+import { User } from './store/state/user';
 const { Header, Sider, Content } = Layout
 
 interface AppState {

@@ -1,7 +1,7 @@
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance } from '../types/git';
+import { GitInstance, GitInfo } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
 interface Repo {
@@ -10,7 +10,7 @@ interface Repo {
   'ssh_url_to_repo': string;
   description: string;
 }
-const gitDao = {
+class GitDao {
   /**
    * 同步git库数据
    */
@@ -57,11 +57,16 @@ const gitDao = {
       throw e
     }
     return repoList
-  },
+  }
   async query (): Promise<GitInstance[]> {
     const sql = `select * from git_source`
     return await pool.query<GitInstance>(sql) as GitInstance[]
   }
+  async getInfo (id: string): Promise<GitInfo> {
+    const infoSql = 'select source.id,source.name,source.git as git_repo from git_source as source where source.id = ?'
+    const infoList = await pool.query<GitInfo>(infoSql, [id]) as GitInfo[]
+    return infoList.length ? infoList[0] : null
+  }
 }
 
-export default gitDao
+export default new GitDao()

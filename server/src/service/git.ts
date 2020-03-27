@@ -1,7 +1,7 @@
 import gitDao from '../dao/git'
-import { GitInstance } from '../types/git';
+import { GitInstance, GitInfo } from '../types/git';
 
-const service = {
+class GitService {
   async query (): Promise<GitInstance[]> {
     let gitList = await gitDao.query()
     if (!gitList.length) { // 如果一个库都没查到，则默认同步一下git数据
@@ -10,6 +10,9 @@ const service = {
     }
     return gitList
   }
+  async getInfoById (id: string): Promise<GitInfo> {
+    return await gitDao.getInfo(id)
+  }
 }
 
-export default service
+export default new GitService()

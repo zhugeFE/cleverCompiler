@@ -1,6 +1,8 @@
 import { Action, userActions } from '../actionTypes'
-import defaultState, { UserState, User } from '../state'
+import defaultState from '../state'
 import * as _ from 'lodash'
+import { UserState, User } from '../state/user';
+
 
 const user = function (state: UserState = defaultState.user, action: Action<User>) {
   switch (action.type) {

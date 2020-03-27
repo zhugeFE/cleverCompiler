@@ -4,7 +4,7 @@ import { PoolConnection } from 'mysql';
 import { SysInfo } from '../types/sys';
 import util from '../utils/util';
 
-const userDao = {
+class UserDao {
   async getUserById (userId: string): Promise<User[]> {
     const sql = `select user.id, 
         user.name, 
@@ -19,11 +19,11 @@ const userDao = {
         where user.id = ?`
     const users = await pool.query<User>(sql, [userId]) as User[]
     return users
-  },
+  }
   async createUser (conn: PoolConnection, param: SysInfo): Promise<void> {
     const sql = `insert into user(id, email, password) values(?,?,?)`
     await pool.queryInTransaction(conn, sql, [util.uuid(), param.email, param.password])
-  },
+  }
   async login (param: LoginParam): Promise<User[]> {
     const sql = `select user.id,
       user.name,
@@ -42,4 +42,4 @@ const userDao = {
     return users
   }
 }
-export default userDao
+export default new UserDao()

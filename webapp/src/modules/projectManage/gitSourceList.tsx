@@ -3,13 +3,14 @@ import './styles/gitList.less'
 import { Table, message, Form, Input, Button } from 'antd'
 import { ColumnProps, TableRowSelection } from 'antd/lib/table'
 import history from '../../utils/history'
-import { RootState, GitInstance } from '../../store/state';
+import { RootState } from '../../store/state';
 import { Dispatch } from 'redux';
 import { gitActions } from '../../store/actionTypes'
 import { connect } from 'react-redux'
 import ajax from '../../utils/ajax'
 import { WrappedFormUtils } from 'antd/lib/form/Form'
 import * as _ from 'lodash'
+import { GitInstance } from '../../store/state/git';
 interface Props {
   getGitSourceList (): void;
   gitList: GitInstance[];

@@ -18,7 +18,7 @@ function formatRes <T>(sql: string, res: any): T | T[] {
     return res
   }
 }
-const out = {
+class PoolUtil {
   query<T> (sql: string, params?: any[]): Promise<T | T[]> {
     return new Promise((resolve, reject) => {
       pool.query(sql, params, (err, result) => {
@@ -30,7 +30,7 @@ const out = {
         }
       })
     })
-  },
+  }
   beginTransaction (): Promise<mysql.PoolConnection> {
     return new Promise((resolve, reject) => {
       pool.getConnection((err, connection: mysql.PoolConnection) => {
@@ -49,7 +49,7 @@ const out = {
         })
       })
     })
-  },
+  }
   queryInTransaction (connect: mysql.PoolConnection, sql: string, params?: Array<string|number>): Promise<any> {
     return new Promise((resolve, reject) => {
       connect.query(sql, params, (err, results) => {
@@ -61,7 +61,7 @@ const out = {
         }
       })
     })
-  },
+  }
   commit (connection: mysql.PoolConnection): Promise<void> {
     return new Promise((resolve, reject) => {
       connection.commit(err => {
@@ -73,11 +73,11 @@ const out = {
         }
       })
     })
-  },
+  }
   rollback (connection: mysql.PoolConnection): void {
     connection.rollback(() => {
       connection.release()
     })
   }
 }
-export default out
+export default new PoolUtil()

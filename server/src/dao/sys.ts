@@ -4,7 +4,7 @@ import { SysInfo } from '../types/sys';
 import userDao from './user';
 import logger from '../utils/logger';
 
-const dao = {
+class SysDao {
   async getSysInfo (): Promise<SysInfo> {
     const sql = 'select * from sys'
     const res = await pool.query(sql) as SysInfo[]
@@ -13,7 +13,7 @@ const dao = {
     } else {
       return null
     }
-  },
+  }
   /**
    * 检查系统状态：是否已初始化
    * @returns boolean
@@ -21,7 +21,7 @@ const dao = {
   async getStatus (): Promise<boolean> {
     const sysInfo = await this.getSysInfo()
     return Boolean(sysInfo)
-  },
+  }
   async init (param: SysInfo): Promise<void> {
     const connect = await pool.beginTransaction()
     try {
@@ -41,7 +41,7 @@ const dao = {
       pool.rollback(connect)
       throw e
     }
-  },
+  }
   /**
    * 初始化系统信息
    * @param conn 
@@ -51,7 +51,7 @@ const dao = {
     const sql = `insert into sys(git_host, git_token, git_account, git_ssh, inited) values(?, ?,?,?,?)`
     const params = [param.gitHost, param.gitToken, param.gitAccount, param.gitSsh, 1]
     await pool.queryInTransaction(conn, sql, params)
-  },
+  }
   /**
    * 初始化配置项类型基础数据
    * @param conn 
@@ -67,7 +67,7 @@ const dao = {
       const params = [i, type]
       return pool.queryInTransaction(conn, sql, params)
     }))
-  },
+  }
   async initRole (conn: PoolConnection): Promise<void> {
     const sql = 'insert into role(id, name) values(?,?)'
     const roles = [
@@ -82,4 +82,4 @@ const dao = {
     }))
   }
 }
-export default dao
+export default new SysDao()
