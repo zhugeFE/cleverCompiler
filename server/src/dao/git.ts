@@ -4,6 +4,7 @@ import axios from 'axios'
 import { GitInstance, GitInfo } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
+import { Version, Config } from '../types/common';
 interface Repo {
   id: string;
   name: string;
@@ -65,7 +66,15 @@ class GitDao {
   async getInfo (id: string): Promise<GitInfo> {
     const infoSql = 'select source.id,source.name,source.git as git_repo from git_source as source where source.id = ?'
     const infoList = await pool.query<GitInfo>(infoSql, [id]) as GitInfo[]
-    return infoList.length ? infoList[0] : null
+    const gitInfo = infoList.length ? infoList[0] : null
+    const versionSql = `select 
+        version.*, 
+        version.version as name,
+      from source_version as version where version.source_id = ?`
+    gitInfo.versionList = await pool.query<Version>(versionSql, [id]) as Version[]
+    const configSql = `select * from source_config where source_id = ?`
+    gitInfo.configs = await pool.query<Config>(configSql, [id]) as Config[]
+    return gitInfo
   }
 }
 
