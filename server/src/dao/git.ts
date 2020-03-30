@@ -59,12 +59,24 @@ class GitDao {
     }
     return repoList
   }
+  async getBranchsById (id: string | number): Promise<void> {
+    const sysInfo = await sysDao.getSysInfo()
+    const res = await axios({
+      url: `/projects/${id}/repository/branches`,
+      method: 'GET',
+      baseURL: sysInfo.gitHost,
+      headers: {
+        'PRIVATE-TOKEN': sysInfo.gitToken
+      }
+    })
+    console.log('>>>>>>>', res.data)
+  }
   async query (): Promise<GitInstance[]> {
     const sql = `select * from git_source`
     return await pool.query<GitInstance>(sql) as GitInstance[]
   }
   async getInfo (id: string): Promise<GitInfo> {
-    const infoSql = 'select source.id,source.name,source.git as git_repo from git_source as source where source.id = ?'
+    const infoSql = 'select source.id,source.git_id,source.name,source.git as git_repo from git_source as source where source.id = ?'
     const infoList = await pool.query<GitInfo>(infoSql, [id]) as GitInfo[]
     const gitInfo = infoList.length ? infoList[0] : null
     const versionSql = `select 

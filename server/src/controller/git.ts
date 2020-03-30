@@ -27,4 +27,11 @@ router.get('/info/:id', (req: Request, res: Response, next: NextFunction) => {
     next(err)
   })
 })
+router.get('/branchs/:id', (req: Request, res: Response, next: NextFunction) => {
+  gitService.getBranchsById(req.params.id)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success, null))
+  })
+  .catch(next)
+})
 export default router

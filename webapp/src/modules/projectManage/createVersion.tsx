@@ -9,7 +9,8 @@ interface FormData {
   value: string;
 }
 interface Props {
-  form: WrappedFormUtils<FormData>
+  form: WrappedFormUtils<FormData>;
+  gitId: string;
 }
 interface States {
   show: boolean;
@@ -114,4 +115,4 @@ class CreateVersion extends React.Component<Props, States> {
     )
   }
 }
-export default Form.create()(CreateVersion)
+export default Form.create<Props>()(CreateVersion)

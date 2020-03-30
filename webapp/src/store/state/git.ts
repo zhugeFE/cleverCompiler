@@ -15,6 +15,7 @@ export interface GitInstance {
 }
 export interface GitInfo {
   id: string;
+  gitId: string;
   name: string;
   gitRepo: string;
   configs: Config[];

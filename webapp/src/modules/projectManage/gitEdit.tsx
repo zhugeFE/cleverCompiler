@@ -95,7 +95,7 @@ class GitEditPanel extends React.Component<Props, State> {
           ) : (
             <div className="git-panel-center">
               暂无版本，新建版本
-              <CreateVersion></CreateVersion>
+              <CreateVersion gitId={this.state.gitInfo?.gitId}></CreateVersion>
             </div>
           )
         }

@@ -13,6 +13,9 @@ class GitService {
   async getInfoById (id: string): Promise<GitInfo> {
     return await gitDao.getInfo(id)
   }
+  async getBranchsById (id: string | number): Promise<void> {
+    await gitDao.getBranchsById(id)
+  }
 }
 
 export default new GitService()
