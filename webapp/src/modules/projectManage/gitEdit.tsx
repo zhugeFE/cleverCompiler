@@ -11,6 +11,7 @@ import { Version } from '../../types/common.d'
 import { GitInfo } from '../../store/state/git'
 import ajax from '../../utils/ajax'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
+import CreateVersion from './createVersion'
 
 interface Props extends RouteComponentProps<{
   id: string
@@ -47,11 +48,12 @@ class GitEditPanel extends React.Component<Props, State> {
       method: 'GET'
     })
     .then(res => {
-      console.log(res)
+      this.setState({
+        gitInfo: res.data
+      })
     })
     .catch(err => {
-      console.log('>>>>>', err)
-      message.error('xxx')
+      message.error(err.message)
     })
   }
   render () {
@@ -62,32 +64,41 @@ class GitEditPanel extends React.Component<Props, State> {
         <div className="git-panel-top">
           <a onClick={() => {history.goBack()}}><Icon type="left" />返回</a>
         </div>
-        <div className="git-panel-center">
-          <TimeLinePanel versionList={this.state.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
-          <div className="git-detail">
-            <Description label="项目名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
-            <Description label="git地址" labelWidth={labelWidth} className="git-addr"><a>http://gl.zhugeio.com/dongyongqiang/webapp</a></Description>
-            <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
-              <GitConfigPanel store={[]}></GitConfigPanel>
-              <Button className="btn-add-config-item">添加配置项</Button>
-            </Description>
-            <Description label="编译命令" display="flex" labelWidth={labelWidth}>
-              <Commands tags={this.state.tags}></Commands>
-            </Description>
-            <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
-              <Tabs.TabPane tab="使用文档" key="readme">
-                <Markdown content={source}></Markdown>
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="部署文档" key="build">
-                <Markdown content="部署文档"></Markdown>
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="更新内容" key="update">
-                <Markdown content="更新内容"></Markdown>
-              </Tabs.TabPane>
-            </Tabs>
-            <Button type="primary">保存</Button>
-          </div>
-        </div>
+        {
+          this.state.gitInfo?.versionList.length ? (
+            <div className="git-panel-center">
+              <TimeLinePanel versionList={this.state.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
+              <div className="git-detail">
+                <Description label="项目名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
+                <Description label="git地址" labelWidth={labelWidth} className="git-addr"><a>http://gl.zhugeio.com/dongyongqiang/webapp</a></Description>
+                <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
+                  <GitConfigPanel store={[]}></GitConfigPanel>
+                  <Button className="btn-add-config-item">添加配置项</Button>
+                </Description>
+                <Description label="编译命令" display="flex" labelWidth={labelWidth}>
+                  <Commands tags={this.state.tags}></Commands>
+                </Description>
+                <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
+                  <Tabs.TabPane tab="使用文档" key="readme">
+                    <Markdown content={source}></Markdown>
+                  </Tabs.TabPane>
+                  <Tabs.TabPane tab="部署文档" key="build">
+                    <Markdown content="部署文档"></Markdown>
+                  </Tabs.TabPane>
+                  <Tabs.TabPane tab="更新内容" key="update">
+                    <Markdown content="更新内容"></Markdown>
+                  </Tabs.TabPane>
+                </Tabs>
+                <Button type="primary">保存</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="git-panel-center">
+              暂无版本，新建版本
+              <CreateVersion></CreateVersion>
+            </div>
+          )
+        }
       </div>
     )
   }

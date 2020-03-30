@@ -69,7 +69,7 @@ class GitDao {
     const gitInfo = infoList.length ? infoList[0] : null
     const versionSql = `select 
         version.*, 
-        version.version as name,
+        version.version as name
       from source_version as version where version.source_id = ?`
     gitInfo.versionList = await pool.query<Version>(versionSql, [id]) as Version[]
     const configSql = `select * from source_config where source_id = ?`

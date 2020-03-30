@@ -21,6 +21,10 @@ router.get('/info/:id', (req: Request, res: Response, next: NextFunction) => {
     } else {
       res.json(new ApiResult(ResponseStatus.success, gitInfo))
     }
-  }).catch(next)
+  }).catch(() => {
+    const err = new Error()
+    err.message = '获取git详情失败'
+    next(err)
+  })
 })
 export default router
