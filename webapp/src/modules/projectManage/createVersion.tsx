@@ -5,6 +5,7 @@ import ajax from '../../utils/ajax';
 import { ApiResult } from '../../utils/ajax';
 import { GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../../store/state/git';
 // import { WrappedFormUtils } from 'antd/lib/form/Form';
+import { Version } from '../../store/state/common';
 
 interface FormData {
   source: string;
@@ -16,6 +17,8 @@ interface FormData {
 interface Props {
   gitId: string;
   repoId: string;
+  onCancel? (): void;
+  afterAdd? (version: Version): void;
 }
 interface States {
   show: boolean;

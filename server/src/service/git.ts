@@ -1,5 +1,6 @@
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../types/git';
+import { Version } from '../types/common';
 
 class GitService {
   async query (): Promise<GitInstance[]> {
@@ -22,8 +23,8 @@ class GitService {
   async getCommitsById (id: string | number): Promise<GitCommit[]> {
     return await gitDao.getCommitsById(id)
   }
-  async addVersion (param: GitCreateVersionParam): Promise<void> {
-    await gitDao.addVersion(param)
+  async addVersion (param: GitCreateVersionParam): Promise<Version> {
+    return await gitDao.addVersion(param)
   }
 }
 

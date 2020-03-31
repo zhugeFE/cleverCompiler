@@ -111,15 +111,16 @@ class GitDao {
     gitInfo.configs = await pool.query<Config>(configSql, [id]) as Config[]
     return gitInfo
   }
-  async addVersion (param: GitCreateVersionParam): Promise<void> {
+  async addVersion (param: GitCreateVersionParam): Promise<Version> {
     // todo 版本号重复校验
     const sql = `insert into source_version(
       id, source_id, version, publish_time, status, source_type, source_value
     ) values(
       ?,?,?,?,?,?,?
     )`
-    const res = await pool.query(sql, [
-      util.uuid(),
+    const id = util.uuid()
+    await pool.query(sql, [
+      id,
       param.gitId,
       param.version,
       new Date().getTime(),
@@ -127,7 +128,20 @@ class GitDao {
       param.source,
       param.value
     ])
-    console.log(res)
+    return await this.getVersionById(id)
+  }
+  async getVersionById (versionId: string): Promise<Version> {
+    const sql = `select 
+      v.id,
+      v.version as name,
+      v.status,
+      v.publish_time,
+      v.compile_orders,
+      v.readme_doc,
+      v.build_doc,
+      v.update_doc from source_version as v where v.id = ?`
+    const versionList = await pool.query<Version[]>(sql, [versionId]) as Version[]
+    return versionList[0]
   }
 }
 
