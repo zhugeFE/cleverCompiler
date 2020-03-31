@@ -37,12 +37,12 @@ class GitSourceList extends React.Component<Props, State> {
   componentDidMount () {
     this.props.getGitSourceList()
   }
-  onSearch () {
+  onSearch (changedValues: any, values: any) {
     this.setState({
-      // form: this.props.form.getFieldsValue() as {
-      //   name: string,
-      //   version: string
-      // }
+      form: {
+        ...this.state.form,
+        ...values
+      }
     })
   }
   render () {
@@ -120,7 +120,7 @@ class GitSourceList extends React.Component<Props, State> {
     return (
       <div className="git-source-list">
         <div className="git-filter-panel">
-          <Form layout="inline" onChange={this.onSearch}>
+          <Form layout="inline" onValuesChange={this.onSearch}>
             <Form.Item label="项目名称" name="name">
               <Input/>
             </Form.Item>
