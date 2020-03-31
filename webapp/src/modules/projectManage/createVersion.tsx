@@ -3,28 +3,30 @@ import { Modal, Form, Input, Radio, message, Select } from 'antd'
 import * as _ from 'lodash';
 import ajax from '../../utils/ajax';
 import { ApiResult } from '../../utils/ajax';
-import { GitBranch } from '../../store/state/git';
+import { GitBranch, GitTag, GitCommit } from '../../store/state/git';
 // import { WrappedFormUtils } from 'antd/lib/form/Form';
 
 interface FormData {
   source: string;
   version: string;
   branch: string;
-  /* tag: string;
-  commit: string; */
+  tag: string;
+  commit: string;
 }
 interface Props {
-  // form: WrappedFormUtils<FormData>;
   gitId: string;
-  onValuesChange?: (props: any, changedValues: any, allValues: any) => void;
 }
 interface States {
   show: boolean;
   form: FormData;
   branchList: GitBranch[];
-  refs: {
-    branch: Select
-  }
+  tags: GitTag[];
+  commits: GitCommit[];
+  ready: {
+    branch: boolean;
+    tag: boolean;
+    commit: boolean;
+  };
 }
 
 class CreateVersion extends React.Component<Props, States> {
@@ -35,24 +37,27 @@ class CreateVersion extends React.Component<Props, States> {
       form: {
         version: '',
         source: 'branch',
-        branch: ''/* ,
+        branch: '',
         tag: '',
-        commit: '' */
+        commit: ''
       },
       branchList: [],
-      refs: {
-        branch: null
+      tags: [],
+      commits: [],
+      ready: {
+        branch: false,
+        tag: false,
+        commit: false
       }
     }
     this.onCommit = this.onCommit.bind(this)
     this.onCancel = this.onCancel.bind(this)
     this.onChangeForm = this.onChangeForm.bind(this)
-    this.onInputVersion = this.onInputVersion.bind(this)
-    this.onChangeBranch = this.onChangeBranch.bind(this)
   }
   componentDidMount () {
-    // this.props.form.setFieldsValue(this.state.form)
     this.getBranchList()
+    this.getTags()
+    this.getCommits()
   }
   getBranchList () {
     ajax({
@@ -65,23 +70,45 @@ class CreateVersion extends React.Component<Props, States> {
       })
     })
     .catch(err => {
-      message.error('git分支列表获取失败')
-      console.error('git分支列表获取失败', err)
+      message.error('git分支列表查询失败')
+      console.error('git分支列表查询失败', err)
     })
   }
-  onChangeBranch (branch: string) {
-    this.setState({
-      form: {
-        ...this.state.form,
-        branch
-      }
+  getTags () {
+    ajax({
+      url: `/api/git/tags/${this.props.gitId}`,
+      method: 'GET'
+    })
+    .then((res: ApiResult) => {
+      this.setState({
+        tags: res.data as GitTag[]
+      })
+    })
+    .catch(err => {
+      message.error('git标签列表查询失败')
+      console.error('git标签列表查询失败', err)
     })
   }
-  onChangeForm () {
-    // console.log('form changed', this.props.form.getFieldsValue())
+  getCommits () {
+    ajax({
+      url: `/api/git/commits/${this.props.gitId}`,
+      method: 'GET'
+    })
+    .then((res: ApiResult) => {
+      this.setState({
+        commits: res.data as GitCommit[]
+      })
+    })
+    .catch(err => {
+      message.error('git提交记录查询失败')
+      console.error('git提交记录查询失败', err)
+    })
   }
-  onInputVersion () {
-    
+  onFilterCommit<GitCommit> (value: string, optionData: any): boolean {
+    return new RegExp(value.toLowerCase()).test(optionData.title.toLowerCase())
+  }
+  onChangeForm (chanedValue: any, values: FormData) {
+    console.log('form changed', values)
   }
   onCommit () {
     console.log('保存')
@@ -93,7 +120,6 @@ class CreateVersion extends React.Component<Props, States> {
     })
   }
   render () {
-    console.log(this.props)
     return (
       <Modal
         title="添加版本"
@@ -106,10 +132,11 @@ class CreateVersion extends React.Component<Props, States> {
         <Form 
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 14 }} 
+          initialValues={this.state.form}
           layout="horizontal"
           onValuesChange={this.onChangeForm}>
           <Form.Item label="版本号" name="version">
-            <Input addonBefore="v" placeholder="x.x.x" onChange={this.onInputVersion}/>
+            <Input addonBefore="v" placeholder="x.x.x"/>
           </Form.Item>
           <Form.Item label="来源" name="source">
             <Radio.Group>
@@ -119,17 +146,43 @@ class CreateVersion extends React.Component<Props, States> {
             </Radio.Group>
           </Form.Item>
           <Form.Item label="branch" name="branch">
-            <Select showSearch={true} onChange={this.onChangeBranch}>
+            <Select showSearch={true}>
               {
                 this.state.branchList.map(branch => {
                   return (
-                    <Select.Option value={branch.name} key={branch.name}>
+                    <Select.Option value={branch.name} key={branch.name} title={branch.name}>
                       {branch.name}
                     </Select.Option>
                   )
                 })
               }
-              </Select>
+            </Select>
+          </Form.Item>
+          <Form.Item label="tag" name="tag">
+            <Select showSearch={true}>
+            {
+              this.state.tags.map(tag => {
+                return (
+                  <Select.Option value={tag.name} key={tag.name} title={tag.name}>
+                    {tag.name}
+                  </Select.Option>
+                )
+              })
+            }
+            </Select>
+          </Form.Item>
+          <Form.Item label="commit" name="commit">
+            <Select showSearch={true} filterOption={this.onFilterCommit}>
+            {
+              this.state.commits.map(commit => {
+                return (
+                  <Select.Option value={commit.id} key={commit.id} title={commit.message}>
+                    {commit.message}
+                  </Select.Option>
+                )
+              })
+            }
+            </Select>
           </Form.Item>
         </Form>
       </Modal>

@@ -32,3 +32,7 @@ export interface GitBranch {
   name: string;
   commit: GitCommit;
 }
+export interface GitTag {
+  name: string;
+  commit: GitCommit;
+}

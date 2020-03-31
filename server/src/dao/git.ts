@@ -1,7 +1,7 @@
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance, GitInfo, GitBranch } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
 import { Version, Config } from '../types/common';
@@ -69,6 +69,28 @@ class GitDao {
           id: item.commit.id,
           message: item.commit.message
         }
+      }
+    })
+  }
+  async getTagsById (id: string | number): Promise<GitTag[]> {
+    const res = await gitUtil.ajax<GitTag[]>(`projects/${id}/repository/tags`, 'GET')
+    return res.map(item => {
+      return {
+        name: item.name,
+        message: item.message,
+        commit: {
+          id: item.commit.id,
+          message: item.commit.message
+        }
+      }
+    })
+  }
+  async getCommitsById (id: string | number): Promise<GitCommit[]> {
+    const res = await gitUtil.ajax<GitCommit[]>(`projects/${id}/repository/commits`, 'GET')
+    return res.map(item => {
+      return {
+        id: item.id,
+        message: item.message
       }
     })
   }
