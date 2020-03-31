@@ -24,3 +24,11 @@ export interface GitInfo {
 export interface GitState {
   list: GitInstance[]
 }
+export interface GitCommit {
+  id: string;
+  message: string;
+}
+export interface GitBranch {
+  name: string;
+  commit: GitCommit;
+}

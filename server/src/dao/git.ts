@@ -1,10 +1,11 @@
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance, GitInfo } from '../types/git';
+import { GitInstance, GitInfo, GitBranch } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
 import { Version, Config } from '../types/common';
+import gitUtil from '../utils/gitUtil';
 interface Repo {
   id: string;
   name: string;
@@ -59,17 +60,17 @@ class GitDao {
     }
     return repoList
   }
-  async getBranchsById (id: string | number): Promise<void> {
-    const sysInfo = await sysDao.getSysInfo()
-    const res = await axios({
-      url: `/projects/${id}/repository/branches`,
-      method: 'GET',
-      baseURL: sysInfo.gitHost,
-      headers: {
-        'PRIVATE-TOKEN': sysInfo.gitToken
+  async getBranchsById (id: string | number): Promise<GitBranch[]> {
+    const res = await gitUtil.ajax<GitBranch[]>(`projects/${id}/repository/branches`, 'GET')
+    return res.map(item => {
+      return {
+        name: item.name,
+        commit: {
+          id: item.commit.id,
+          message: item.commit.message
+        }
       }
     })
-    console.log('>>>>>>>', res.data)
   }
   async query (): Promise<GitInstance[]> {
     const sql = `select * from git_source`

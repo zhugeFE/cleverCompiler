@@ -1,12 +1,17 @@
 import * as React from 'react'
-import { Modal, Form, Input, Radio } from 'antd'
+import { Modal, Form, Input, Radio, message, Select } from 'antd'
 import { WrappedFormUtils } from 'antd/lib/form/Form'
 import * as _ from 'lodash';
+import ajax from '../../utils/ajax';
+import { ApiResult } from '../../utils/ajax';
+import { GitBranch } from '../../store/state/git';
 
 interface FormData {
   source: string;
   version: string;
-  value: string;
+  branch: string;
+  /* tag: string;
+  commit: string; */
 }
 interface Props {
   form: WrappedFormUtils<FormData>;
@@ -14,7 +19,11 @@ interface Props {
 }
 interface States {
   show: boolean;
-  form: FormData
+  form: FormData;
+  branchList: GitBranch[];
+  refs: {
+    branch: Select
+  }
 }
 
 class CreateVersion extends React.Component<Props, States> {
@@ -25,21 +34,49 @@ class CreateVersion extends React.Component<Props, States> {
       form: {
         version: '',
         source: 'branch',
-        value: ''
+        branch: ''/* ,
+        tag: '',
+        commit: '' */
+      },
+      branchList: [],
+      refs: {
+        branch: null
       }
     }
     this.onCommit = this.onCommit.bind(this)
     this.onCancel = this.onCancel.bind(this)
-    this.onChangeForm = this.onChangeForm.bind(this)
+    this.onInputVersion = this.onInputVersion.bind(this)
+    this.onChangeBranch = this.onChangeBranch.bind(this)
   }
   componentDidMount () {
     this.props.form.setFieldsValue(this.state.form)
+    this.getBranchList()
   }
-  onChangeForm () {
-    const form = this.props.form.getFieldsValue() as FormData
-    this.setState({
-      form
+  getBranchList () {
+    ajax({
+      url: `/api/git/branchs/${this.props.gitId}`,
+      method: 'GET'
     })
+    .then((res: ApiResult) => {
+      this.setState({
+        branchList: res.data as GitBranch[]
+      })
+    })
+    .catch(err => {
+      message.error('git分支列表获取失败')
+      console.error('git分支列表获取失败', err)
+    })
+  }
+  onChangeBranch (branch: string) {
+    this.setState({
+      form: {
+        ...this.state.form,
+        branch
+      }
+    })
+  }
+  onInputVersion () {
+    
   }
   onCommit () {
     console.log('保存')
@@ -64,12 +101,11 @@ class CreateVersion extends React.Component<Props, States> {
         <Form 
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 14 }} 
-          layout="horizontal"
-          onChange={this.onChangeForm}>
+          layout="horizontal">
           <Form.Item label="版本号">
           {
             getFieldDecorator('version')(
-              <Input addonBefore="v" placeholder="x.x.x"/>
+              <Input addonBefore="v" placeholder="x.x.x" onChange={this.onInputVersion}/>
             )
           }
           </Form.Item>
@@ -84,32 +120,23 @@ class CreateVersion extends React.Component<Props, States> {
             )
           }
           </Form.Item>
+          <Form.Item label="branch">
           {
-            this.state.form.source ? (
-              <Form.Item label={this.state.form.source}>
+            getFieldDecorator('branch')(
+              <Select showSearch={true} onChange={this.onChangeBranch}>
               {
-                getFieldDecorator('value')(
-                  (() => {
-                    switch (this.state.form.source) {
-                      case 'branch':
-                        return (
-                          <Input placeholder="branch"/>
-                        )
-                      case 'tag':
-                        return (
-                          <Input placeholder="tag"/>
-                        )
-                      case 'commit':
-                        return (
-                          <Input placeholder="commit"/>
-                        )
-                    }
-                  })()
-                )
+                this.state.branchList.map(branch => {
+                  return (
+                    <Select.Option value={branch.name} key={branch.name}>
+                      {branch.name}
+                    </Select.Option>
+                  )
+                })
               }
-              </Form.Item>
-            ) : ''
+              </Select>
+            )
           }
+          </Form.Item>
         </Form>
       </Modal>
     )

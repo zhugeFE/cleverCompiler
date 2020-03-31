@@ -1,7 +1,7 @@
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
-import { GitInstance, GitInfo } from '../types/git';
+import { GitInstance, GitInfo, GitBranch } from '../types/git';
 const router = Router()
 
 router.post('/list', (req: Request, res: Response, next: NextFunction) => {
@@ -29,8 +29,8 @@ router.get('/info/:id', (req: Request, res: Response, next: NextFunction) => {
 })
 router.get('/branchs/:id', (req: Request, res: Response, next: NextFunction) => {
   gitService.getBranchsById(req.params.id)
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success, null))
+  .then((branchList: GitBranch[]) => {
+    res.json(new ApiResult(ResponseStatus.success, branchList))
   })
   .catch(next)
 })

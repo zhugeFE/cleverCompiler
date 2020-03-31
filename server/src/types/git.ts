@@ -29,4 +29,5 @@ export interface GitCommit {
 
 export interface GitBranch {
   name: string;
+  commit: GitCommit;
 }

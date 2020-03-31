@@ -1,5 +1,5 @@
 import gitDao from '../dao/git'
-import { GitInstance, GitInfo } from '../types/git';
+import { GitInstance, GitInfo, GitBranch } from '../types/git';
 
 class GitService {
   async query (): Promise<GitInstance[]> {
@@ -13,8 +13,8 @@ class GitService {
   async getInfoById (id: string): Promise<GitInfo> {
     return await gitDao.getInfo(id)
   }
-  async getBranchsById (id: string | number): Promise<void> {
-    await gitDao.getBranchsById(id)
+  async getBranchsById (id: string | number): Promise<GitBranch[]> {
+    return await gitDao.getBranchsById(id)
   }
 }
 

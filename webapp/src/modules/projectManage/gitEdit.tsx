@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Icon, Button, Tabs, Input, Tag, message } from 'antd'
+import { Icon, Button, Tabs, Input, Tag, message, Spin } from 'antd'
 import TimeLinePanel from '../../components/timeline/timeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'
@@ -59,6 +59,11 @@ class GitEditPanel extends React.Component<Props, State> {
   render () {
     const source = '# Live demo\nChanges are automatically rendered as you type.\n## Table of Contents\n* Implements [GitHub Flavored Markdown](https://github.github.com/gfm/)\n* Renders actual, "native" React DOM elements\n* Allows you to escape or skip HTML (try toggling the checkboxes above)\n## HTML block below'
     const labelWidth = 75
+    if (!this.state.gitInfo) {
+      return (
+        <Spin tip="git详情获取中..." size="large"></Spin>
+      )
+    }
     return (
       <div className="git-edit-panel">
         <div className="git-panel-top">
