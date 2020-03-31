@@ -108,18 +108,23 @@ class CreateVersion extends React.Component<Props, States> {
     return new RegExp(value.toLowerCase()).test(optionData.title.toLowerCase())
   }
   onChangeForm (chanedValue: any, values: FormData) {
-    console.log('form changed', values)
+    this.setState({
+      form: values
+    })
   }
   onCommit () {
     console.log('保存')
   }
   onCancel () {
-    console.log('取消')
     this.setState({
       show: false
     })
   }
   render () {
+    const source = this.state.form.source
+    const branchDisplay = source === 'branch' ? 'flex' : 'none'
+    const tagDisplay = source === 'tag' ? 'flex' : 'none'
+    const commitDisplay = source === 'commit' ? 'flex' : 'none'
     return (
       <Modal
         title="添加版本"
@@ -145,7 +150,7 @@ class CreateVersion extends React.Component<Props, States> {
               <Radio.Button value="commit">commit</Radio.Button>
             </Radio.Group>
           </Form.Item>
-          <Form.Item label="branch" name="branch">
+          <Form.Item label="branch" name="branch" style={{display: branchDisplay}}>
             <Select showSearch={true}>
               {
                 this.state.branchList.map(branch => {
@@ -158,7 +163,7 @@ class CreateVersion extends React.Component<Props, States> {
               }
             </Select>
           </Form.Item>
-          <Form.Item label="tag" name="tag">
+          <Form.Item label="tag" name="tag" style={{display: tagDisplay}}>
             <Select showSearch={true}>
             {
               this.state.tags.map(tag => {
@@ -171,7 +176,7 @@ class CreateVersion extends React.Component<Props, States> {
             }
             </Select>
           </Form.Item>
-          <Form.Item label="commit" name="commit">
+          <Form.Item label="commit" name="commit" style={{display: commitDisplay}}>
             <Select showSearch={true} filterOption={this.onFilterCommit}>
             {
               this.state.commits.map(commit => {
