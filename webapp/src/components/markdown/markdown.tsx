@@ -1,7 +1,8 @@
 import * as React from 'react'
 import * as ReactMarkdown from 'react-markdown'
-import { Input, Icon } from 'antd'
+import { Input } from 'antd'
 import './markdown.less'
+import { EditOutlined, FileMarkdownOutlined, FullscreenOutlined } from '@ant-design/icons'
 
 interface Props {
   content: string
@@ -37,9 +38,14 @@ class Markdown extends React.Component<Props, State> {
     return (
       <div className="markdown">
       <span className="markdown-handles">
-        <Icon type={this.state.mode === Mode.preview ? 'edit' : 'file-markdown'} 
-          onClick={this.onTogleMode.bind(this)}/>
-        <Icon type={'fullscreen'}></Icon>
+        {
+          this.state.mode === Mode.preview ? (
+            <EditOutlined onClick={this.onTogleMode.bind(this)}/>
+          ) : (
+            <FileMarkdownOutlined onClick={this.onTogleMode.bind(this)}/>
+          )
+        }
+        <FullscreenOutlined/>
       </span>
       {(() => {
         if (this.state.mode === Mode.edit) {

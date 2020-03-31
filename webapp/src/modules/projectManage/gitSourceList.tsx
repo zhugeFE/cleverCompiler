@@ -1,23 +1,20 @@
 import * as React from 'react'
 import './styles/gitList.less'
 import { Table, message, Form, Input, Button } from 'antd'
-import { ColumnProps, TableRowSelection } from 'antd/lib/table'
+import { ColumnProps } from 'antd/lib/table'
 import history from '../../utils/history'
 import { RootState } from '../../store/state';
 import { Dispatch } from 'redux';
 import { gitActions } from '../../store/actionTypes'
 import { connect } from 'react-redux'
 import ajax from '../../utils/ajax'
-import { WrappedFormUtils } from 'antd/lib/form/Form'
 import * as _ from 'lodash'
 import { GitInstance } from '../../store/state/git';
 interface Props {
   getGitSourceList (): void;
   gitList: GitInstance[];
-  form: WrappedFormUtils
 }
 interface State {
-  rowSelection: TableRowSelection<GitInstance>,
   form: {
     name: string,
     version: string
@@ -27,12 +24,6 @@ class GitSourceList extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
-      rowSelection: {
-        getCheckboxProps: (record: GitInstance) => ({
-          disabled: record.name === 'Disabled User', // Column configuration not to be checked
-          name: record.name,
-        })
-      },
       form: {
         name: '',
         version: ''
@@ -48,10 +39,10 @@ class GitSourceList extends React.Component<Props, State> {
   }
   onSearch () {
     this.setState({
-      form: this.props.form.getFieldsValue() as {
-        name: string,
-        version: string
-      }
+      // form: this.props.form.getFieldsValue() as {
+      //   name: string,
+      //   version: string
+      // }
     })
   }
   render () {
@@ -122,10 +113,6 @@ class GitSourceList extends React.Component<Props, State> {
         }
       }
     ]
-    const rowSelection: TableRowSelection<GitInstance> = {
-
-    }
-    const {getFieldDecorator} = this.props.form
     const formData = this.state.form
     const showList = this.props.gitList.filter(item => {
       return new RegExp(formData.name).test(item.name) && new RegExp(formData.version).test(item.lastVersion)
@@ -133,20 +120,12 @@ class GitSourceList extends React.Component<Props, State> {
     return (
       <div className="git-source-list">
         <div className="git-filter-panel">
-          <Form layout="inline" ref="form" onChange={this.onSearch}>
-            <Form.Item label="项目名称">
-              {
-                getFieldDecorator('name')(
-                  <Input/>
-                )
-              }
+          <Form layout="inline" onChange={this.onSearch}>
+            <Form.Item label="项目名称" name="name">
+              <Input/>
             </Form.Item>
-            <Form.Item label="版本">
-              {
-                getFieldDecorator('version')(
-                  <Input/>
-                )
-              }
+            <Form.Item label="版本" name="version">
+              <Input/>
             </Form.Item>
             <Form.Item>
               <Button type="primary">批量启用</Button>
@@ -157,7 +136,6 @@ class GitSourceList extends React.Component<Props, State> {
           </Form>
         </div>
         <Table 
-          rowSelection={rowSelection} 
           rowKey="id"
           columns={columns} 
           dataSource={showList}
@@ -196,4 +174,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Form.create()(GitSourceList))
+)(GitSourceList)

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import './commands.less'
-import { Input, Tag, Icon } from 'antd'
+import { Input, Tag } from 'antd'
+import { PlusCircleFilled } from '@ant-design/icons'
 
 interface Props {
   tags: string[]
@@ -85,7 +86,7 @@ class Commands extends React.Component<Props, State> {
             return (
               <Tag onClick={this.onShowInput} 
                 style={{ background: '#fff', borderStyle: 'dashed' }}>
-                <Icon type="plus" /> New Tag
+                <PlusCircleFilled/> New Tag
               </Tag>
             )
           }

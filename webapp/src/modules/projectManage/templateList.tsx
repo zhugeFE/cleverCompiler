@@ -1,7 +1,7 @@
 import * as React from 'react'
 import './styles/templateList.less'
 import { Table, Button } from 'antd'
-import { ColumnProps, TableRowSelection } from 'antd/lib/table'
+import { ColumnProps } from 'antd/lib/table'
 import history from '../../utils/history'
 interface Props {
 
@@ -15,8 +15,7 @@ interface Record {
   update: number
 }
 interface State {
-  store: Record[],
-  rowSelection: TableRowSelection<Record>
+  store: Record[];
 }
 class TemplateList extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
@@ -39,13 +38,7 @@ class TemplateList extends React.Component<Props, State> {
           devDoc: 'http://xx.com/a', 
           depDoc: 'http://xx.com/b'
         }
-      ],
-      rowSelection: {
-        getCheckboxProps: (record: Record) => ({
-          disabled: record.name === 'Disabled User', // Column configuration not to be checked
-          name: record.name,
-        })
-      }
+      ]
     }
   }
   render () {

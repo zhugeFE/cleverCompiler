@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Icon, Button, Tabs, Input, Tag, message, Spin } from 'antd'
+import { Button, Tabs, Input, Tag, message, Spin } from 'antd'
 import TimeLinePanel from '../../components/timeline/timeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'
@@ -12,6 +12,7 @@ import { GitInfo } from '../../store/state/git'
 import ajax from '../../utils/ajax'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import CreateVersion from './createVersion'
+import { LeftOutlined } from '@ant-design/icons'
 
 interface Props extends RouteComponentProps<{
   id: string
@@ -67,7 +68,7 @@ class GitEditPanel extends React.Component<Props, State> {
     return (
       <div className="git-edit-panel">
         <div className="git-panel-top">
-          <a onClick={() => {history.goBack()}}><Icon type="left" />返回</a>
+          <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
         </div>
         {
           this.state.gitInfo?.versionList.length ? (

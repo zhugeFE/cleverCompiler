@@ -1,4 +1,4 @@
-import { Layout, Menu, Icon, Spin } from 'antd'
+import { Layout, Menu, Spin } from 'antd'
 import * as React from 'react'
 import './app.less'
 import { Route, Switch, withRouter, Redirect, RouteComponentProps } from 'react-router-dom'
@@ -17,6 +17,7 @@ import { RootState } from './store/state';
 import ajax from './utils/ajax'
 import api from './store/api'
 import { User } from './store/state/user';
+import { UserOutlined, MenuOutlined, MenuFoldOutlined } from '@ant-design/icons'
 const { Header, Sider, Content } = Layout
 
 interface AppState {
@@ -85,7 +86,7 @@ class App extends React.Component<Props, AppState> {
               {menus.map(menu => {
                 return (
                   <Menu.Item key={menu.key}>
-                    <Icon type="user"/>
+                    <UserOutlined/>
                     {this.state.collapsed ? '' : menu.label}
                   </Menu.Item>
                 )
@@ -94,11 +95,11 @@ class App extends React.Component<Props, AppState> {
           </Sider>
           <Layout>
             <Header className="app-header">
-              <Icon
-                className="trigger"
-                type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
-                onClick={this.toggle}
-              />
+              {this.state.collapsed ? (
+                <MenuOutlined className="trigger" onClick={this.toggle}/>
+              ) : (
+                <MenuFoldOutlined className="trigger" onClick={this.toggle}/>
+              )}
               <Menu className="top-menu"
                 theme="dark"
                 mode="horizontal"

@@ -3,11 +3,12 @@ import './styles/templateEditPanel.less'
 import TimeLinePanel from '../../components/timeline/timeLine'
 import Description from '../../components/description/description'
 import GitConfigPanel from './edit/config'
-import { Button, Tabs, Tag, Icon, Radio } from 'antd'
+import { Button, Tabs, Tag, Radio } from 'antd'
 import Commands from './edit/commands'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
 import { Version } from '../../types/common.d';
+import { LeftOutlined } from '@ant-design/icons'
 
 interface Props {
 
@@ -36,7 +37,7 @@ class TemplateEdit extends React.Component<Props, State> {
     return (
       <div className="template-edit-panel">
         <div className="template-panel-top">
-          <a onClick={() => {history.goBack()}}><Icon type="left" />返回</a>
+          <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
         </div>
         <div className="template-panel-center">
           <TimeLinePanel versionList={this.state.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>

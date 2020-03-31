@@ -1,9 +1,10 @@
 import * as React from 'react'
 import './timeLine.less'
-import { Timeline, Tag, Icon, Button } from 'antd'
+import { Timeline, Tag, Button } from 'antd'
 import TimelineItem from 'antd/lib/timeline/TimelineItem'
 import Search from 'antd/lib/input/Search'
 import { Version } from '../../types/common.d';
+import { PlusOutlined } from '@ant-design/icons'
 
 interface Props {
   onAddVersion: () => void,
@@ -37,7 +38,7 @@ class TimeLinePanel extends React.Component<Props, State> {
         />
         <Timeline mode="alternate">
           <TimelineItem dot={
-            <a onClick={this.props.onAddVersion}><Icon type="plus"></Icon></a>
+            <a onClick={this.props.onAddVersion}><PlusOutlined/></a>
           }></TimelineItem>
           {
             this.props.versionList.map(version => {

@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { Form, Icon, Input, Button, Checkbox, message } from 'antd'
-import { FormProps } from '../../types/antd'
+import { Form, Input, Button, Checkbox, message, Layout } from 'antd';
 import './login.less'
 import ajax from '../../utils/ajax'
 import apis from '../../store/api'
@@ -8,62 +7,49 @@ import { userActions } from '../../store/actionTypes';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux'
 import history from '../../utils/history'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { FormInstance } from 'antd/lib/form';
 interface LoginProps {
-  form: FormProps,
-  login (param: any): void,
-  dispatch: Dispatch
+  login (param: any): void
+}
+interface FormData {
+  username: string;
+  password: string;
 }
 class NormalLoginForm extends React.Component<LoginProps, any> {
+  formRef: React.RefObject<FormInstance>;
   constructor (props: LoginProps) {
     super(props)
+    this.formRef = React.createRef()
     this.onSubmit = this.onSubmit.bind(this)
   }
-  onSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    this.props.form.validateFields((err, values) => {
-      if (err) return
-      this.props.login(values)
-    })
+  onSubmit(data: FormData) {
+    this.props.login(data)
   }
 
   render() {
-    const { getFieldDecorator } = this.props.form
     return (
-      <Form onSubmit={this.onSubmit} className="login-form">
-        <Form.Item>
-          {getFieldDecorator('username', {
-            rules: [{ required: true, message: 'Please input your username!' }],
-          })(
-            <Input
-              prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-              placeholder="Username"
-            />,
-          )}
+      <Form 
+        className="login-form" 
+        labelCol={{ span: 0 }} 
+        wrapperCol={{ span: 24 }} 
+        onFinish={this.onSubmit} 
+        size="large" ref={this.formRef}>
+        <Form.Item name="username" rules={[{ required: true, message: 'Please input your username!' }]}>
+          <Input
+            prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }}/>}
+            placeholder="Username"/>
         </Form.Item>
-        <Form.Item>
-          {getFieldDecorator('password', {
-            rules: [{ required: true, message: 'Please input your Password!' }],
-          })(
-            <Input
-              prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-              type="password"
-              placeholder="Password"
-            />,
-          )}
+        <Form.Item name="password" rules={[{ required: true, message: 'Please input your Password!' }]}>
+          <Input
+            prefix={<LockOutlined style={{ color: 'rgba(0,0,0,.25)' }}/>}
+            type="password"
+            placeholder="Password"/>
         </Form.Item>
-        <Form.Item>
-          {getFieldDecorator('remember', {
-            valuePropName: 'checked',
-            initialValue: true,
-          })(<Checkbox>Remember me</Checkbox>)}
-          <a className="login-form-forgot" href="">
-            Forgot password
-          </a>
-          <Button type="primary" htmlType="submit" className="login-form-button">
+        <Button type="primary" htmlType="submit" className="login-form-button">
             Log in
           </Button>
           Or <a href="">register now!</a>
-        </Form.Item>
       </Form>
     )
   }
@@ -71,14 +57,11 @@ class NormalLoginForm extends React.Component<LoginProps, any> {
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    login: (param: any) => {
+    login: (data: FormData) => {
       ajax({
         url: apis.user.login,
         method: 'POST',
-        data: {
-          username: param.username,
-          password: param.password
-        }
+        data
       }).then(res => {
         dispatch({
           type: userActions.UPDATE_CURRENT,
@@ -92,8 +75,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     }
   }
 }
-const WrappedNormalLoginForm = Form.create({ name: 'normal_login' })(NormalLoginForm)
 export default connect(
   null,
   mapDispatchToProps
-)(WrappedNormalLoginForm)
+)(NormalLoginForm)

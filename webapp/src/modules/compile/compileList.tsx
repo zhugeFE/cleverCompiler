@@ -1,7 +1,7 @@
 import * as React from 'react'
 import './styles/compileList.less'
 import { Table, Button } from 'antd'
-import { ColumnProps, TableRowSelection } from 'antd/lib/table'
+import { ColumnProps } from 'antd/lib/table'
 import { compileType } from '../../constants/index';
 interface Props {
 
@@ -16,8 +16,7 @@ interface Record {
   lastCompiler: string
 }
 interface State {
-  store: Record[],
-  rowSelection: TableRowSelection<Record>
+  store: Record[]
 }
 class CompileList extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
@@ -42,13 +41,7 @@ class CompileList extends React.Component<Props, State> {
           compileType: compileType.production,
           lastCompiler: '李四'
         }
-      ],
-      rowSelection: {
-        getCheckboxProps: (record: Record) => ({
-          disabled: record.name === 'Disabled User', // Column configuration not to be checked
-          name: record.name,
-        })
-      }
+      ]
     }
   }
   render () {

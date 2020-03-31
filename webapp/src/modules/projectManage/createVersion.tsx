@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { Modal, Form, Input, Radio, message, Select } from 'antd'
-import { WrappedFormUtils } from 'antd/lib/form/Form'
 import * as _ from 'lodash';
 import ajax from '../../utils/ajax';
 import { ApiResult } from '../../utils/ajax';
 import { GitBranch } from '../../store/state/git';
+// import { WrappedFormUtils } from 'antd/lib/form/Form';
 
 interface FormData {
   source: string;
@@ -14,8 +14,9 @@ interface FormData {
   commit: string; */
 }
 interface Props {
-  form: WrappedFormUtils<FormData>;
+  // form: WrappedFormUtils<FormData>;
   gitId: string;
+  onValuesChange?: (props: any, changedValues: any, allValues: any) => void;
 }
 interface States {
   show: boolean;
@@ -45,11 +46,12 @@ class CreateVersion extends React.Component<Props, States> {
     }
     this.onCommit = this.onCommit.bind(this)
     this.onCancel = this.onCancel.bind(this)
+    this.onChangeForm = this.onChangeForm.bind(this)
     this.onInputVersion = this.onInputVersion.bind(this)
     this.onChangeBranch = this.onChangeBranch.bind(this)
   }
   componentDidMount () {
-    this.props.form.setFieldsValue(this.state.form)
+    // this.props.form.setFieldsValue(this.state.form)
     this.getBranchList()
   }
   getBranchList () {
@@ -75,6 +77,9 @@ class CreateVersion extends React.Component<Props, States> {
       }
     })
   }
+  onChangeForm () {
+    // console.log('form changed', this.props.form.getFieldsValue())
+  }
   onInputVersion () {
     
   }
@@ -88,7 +93,7 @@ class CreateVersion extends React.Component<Props, States> {
     })
   }
   render () {
-    let { getFieldDecorator } = this.props.form
+    console.log(this.props)
     return (
       <Modal
         title="添加版本"
@@ -101,29 +106,20 @@ class CreateVersion extends React.Component<Props, States> {
         <Form 
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 14 }} 
-          layout="horizontal">
-          <Form.Item label="版本号">
-          {
-            getFieldDecorator('version')(
-              <Input addonBefore="v" placeholder="x.x.x" onChange={this.onInputVersion}/>
-            )
-          }
+          layout="horizontal"
+          onValuesChange={this.onChangeForm}>
+          <Form.Item label="版本号" name="version">
+            <Input addonBefore="v" placeholder="x.x.x" onChange={this.onInputVersion}/>
           </Form.Item>
-          <Form.Item label="来源">
-          {
-            getFieldDecorator('source')(
-              <Radio.Group>
-                <Radio.Button value="branch">branch</Radio.Button>
-                <Radio.Button value="tag">tag</Radio.Button>
-                <Radio.Button value="commit">commit</Radio.Button>
-              </Radio.Group>
-            )
-          }
+          <Form.Item label="来源" name="source">
+            <Radio.Group>
+              <Radio.Button value="branch">branch</Radio.Button>
+              <Radio.Button value="tag">tag</Radio.Button>
+              <Radio.Button value="commit">commit</Radio.Button>
+            </Radio.Group>
           </Form.Item>
-          <Form.Item label="branch">
-          {
-            getFieldDecorator('branch')(
-              <Select showSearch={true} onChange={this.onChangeBranch}>
+          <Form.Item label="branch" name="branch">
+            <Select showSearch={true} onChange={this.onChangeBranch}>
               {
                 this.state.branchList.map(branch => {
                   return (
@@ -134,12 +130,10 @@ class CreateVersion extends React.Component<Props, States> {
                 })
               }
               </Select>
-            )
-          }
           </Form.Item>
         </Form>
       </Modal>
     )
   }
 }
-export default Form.create<Props>()(CreateVersion)
+export default CreateVersion
