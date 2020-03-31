@@ -36,3 +36,9 @@ export interface GitTag {
   message: string;
   commit: GitCommit;
 }
+export interface GitCreateVersionParam {
+  gitId: string; // git id（这里指编译平台里面的id）
+  version: string; // 版本号
+  source: string; // 版本来源：branch/tag/commit
+  value: string; // 版本来源值
+}

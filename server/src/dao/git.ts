@@ -1,10 +1,10 @@
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
-import { Version, Config } from '../types/common';
+import { Version, Config, VersionStatus } from '../types/common';
 import gitUtil from '../utils/gitUtil';
 interface Repo {
   id: string;
@@ -110,6 +110,24 @@ class GitDao {
     const configSql = `select * from source_config where source_id = ?`
     gitInfo.configs = await pool.query<Config>(configSql, [id]) as Config[]
     return gitInfo
+  }
+  async addVersion (param: GitCreateVersionParam): Promise<void> {
+    // todo 版本号重复校验
+    const sql = `insert into source_version(
+      id, source_id, version, publish_time, status, source_type, source_value
+    ) values(
+      ?,?,?,?,?,?,?
+    )`
+    const res = await pool.query(sql, [
+      util.uuid(),
+      param.gitId,
+      param.version,
+      new Date().getTime(),
+      VersionStatus.normal,
+      param.source,
+      param.value
+    ])
+    console.log(res)
   }
 }
 

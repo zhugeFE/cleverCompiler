@@ -1,7 +1,7 @@
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../types/git';
 const router = Router()
 
 router.post('/list', (req: Request, res: Response, next: NextFunction) => {
@@ -45,6 +45,13 @@ router.get('/commits/:id', (req: Request, res: Response, next: NextFunction) => 
   gitService.getCommitsById(req.params.id)
   .then((commits: GitCommit[]) => {
     res.json(new ApiResult(ResponseStatus.success, commits))
+  })
+  .catch(next)
+})
+router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
+  gitService.addVersion(req.body as GitCreateVersionParam)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
   })
   .catch(next)
 })

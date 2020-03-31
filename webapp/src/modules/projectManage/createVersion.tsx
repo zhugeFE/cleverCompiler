@@ -3,7 +3,7 @@ import { Modal, Form, Input, Radio, message, Select } from 'antd'
 import * as _ from 'lodash';
 import ajax from '../../utils/ajax';
 import { ApiResult } from '../../utils/ajax';
-import { GitBranch, GitTag, GitCommit } from '../../store/state/git';
+import { GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../../store/state/git';
 // import { WrappedFormUtils } from 'antd/lib/form/Form';
 
 interface FormData {
@@ -15,6 +15,7 @@ interface FormData {
 }
 interface Props {
   gitId: string;
+  repoId: string;
 }
 interface States {
   show: boolean;
@@ -61,7 +62,7 @@ class CreateVersion extends React.Component<Props, States> {
   }
   getBranchList () {
     ajax({
-      url: `/api/git/branchs/${this.props.gitId}`,
+      url: `/api/git/branchs/${this.props.repoId}`,
       method: 'GET'
     })
     .then((res: ApiResult) => {
@@ -76,7 +77,7 @@ class CreateVersion extends React.Component<Props, States> {
   }
   getTags () {
     ajax({
-      url: `/api/git/tags/${this.props.gitId}`,
+      url: `/api/git/tags/${this.props.repoId}`,
       method: 'GET'
     })
     .then((res: ApiResult) => {
@@ -91,7 +92,7 @@ class CreateVersion extends React.Component<Props, States> {
   }
   getCommits () {
     ajax({
-      url: `/api/git/commits/${this.props.gitId}`,
+      url: `/api/git/commits/${this.props.repoId}`,
       method: 'GET'
     })
     .then((res: ApiResult) => {
@@ -113,7 +114,25 @@ class CreateVersion extends React.Component<Props, States> {
     })
   }
   onCommit () {
-    console.log('保存')
+    const source = this.state.form.source as 'branch' | 'tag' | 'commit'
+    const data: GitCreateVersionParam = {
+      gitId: this.props.gitId,
+      version: this.state.form.version,
+      source: source,
+      value: this.state.form[source]
+    }
+    ajax({
+      url: '/api/git/version/add',
+      method: 'POST',
+      data
+    })
+    .then(() => {
+      message.success('版本创建成功')
+    })
+    .catch(err => {
+      message.error('版本创建失败')
+      console.error('版本创建失败', err)
+    })
   }
   onCancel () {
     this.setState({
