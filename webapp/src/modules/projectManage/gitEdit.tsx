@@ -38,6 +38,10 @@ class GitEditPanel extends React.Component<Props, State> {
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
     this.onChangeVersion = this.onChangeVersion.bind(this)
     this.onChangeOrders = this.onChangeOrders.bind(this)
+    this.onChangeReadme = this.onChangeReadme.bind(this)
+    this.onChangeBuild = this.onChangeBuild.bind(this)
+    this.onChangeUpdate = this.onChangeUpdate.bind(this)
+    this.onSave = this.onSave.bind(this)
   }
   componentDidMount () {
     this.getInfo()
@@ -82,6 +86,30 @@ class GitEditPanel extends React.Component<Props, State> {
       currentVersion: version
     })
   }
+  onChangeReadme (content: string) {
+    const version = _.cloneDeep(this.state.currentVersion)
+    version.readmeDoc = content
+    this.setState({
+      currentVersion: version
+    })
+  }
+  onChangeBuild (content: string) {
+    const version = _.cloneDeep(this.state.currentVersion)
+    version.buildDoc = content
+    this.setState({
+      currentVersion: version
+    })
+  }
+  onChangeUpdate (content: string) {
+    const version = _.cloneDeep(this.state.currentVersion)
+    version.updateDoc = content
+    this.setState({
+      currentVersion: version
+    })
+  }
+  onSave () {
+    console.log('保存', _.cloneDeep(this.state.currentVersion))
+  }
   onCancelAddVersion (): void {
     console.log('取消添加版本')
   }
@@ -124,16 +152,16 @@ class GitEditPanel extends React.Component<Props, State> {
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
-                    <Markdown content={this.state.currentVersion?.readmeDoc}></Markdown>
+                    <Markdown onChange={this.onChangeReadme} content={this.state.currentVersion?.readmeDoc}></Markdown>
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署文档" key="build">
-                    <Markdown content={this.state.currentVersion?.buildDoc}></Markdown>
+                    <Markdown onChange={this.onChangeBuild} content={this.state.currentVersion?.buildDoc}></Markdown>
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
-                    <Markdown content={this.state.currentVersion?.updateDoc}></Markdown>
+                    <Markdown onChange={this.onChangeUpdate} content={this.state.currentVersion?.updateDoc}></Markdown>
                   </Tabs.TabPane>
                 </Tabs>
-                <Button type="primary">保存</Button>
+                <Button type="primary" onClick={this.onSave}>保存</Button>
               </div>
             </div>
           ) : (

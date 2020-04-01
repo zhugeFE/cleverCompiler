@@ -5,7 +5,8 @@ import './markdown.less'
 import { EditOutlined, FileMarkdownOutlined, FullscreenOutlined } from '@ant-design/icons'
 
 interface Props {
-  content: string
+  content: string;
+  onChange ?(content: string): void;
 }
 enum Mode {
   preview = 'preview',
@@ -33,6 +34,9 @@ class Markdown extends React.Component<Props, State> {
     this.setState({
       content: e.target.value
     })
+    if (this.props.onChange) {
+      this.props.onChange(e.target.value)
+    }
   }
   render () {
     return (
