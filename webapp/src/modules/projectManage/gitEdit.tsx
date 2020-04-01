@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Button, Tabs, Input, Tag, message, Spin } from 'antd'
+import { Button, Tabs, Tag, message, Spin } from 'antd'
 import TimeLinePanel from '../../components/timeline/timeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'

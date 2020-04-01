@@ -1,6 +1,6 @@
 import * as React from 'react'
 import './timeLine.less'
-import { Timeline, Tag, Button, Input } from 'antd'
+import { Timeline, Tag, Input } from 'antd'
 import TimelineItem from 'antd/lib/timeline/TimelineItem'
 import { PlusOutlined } from '@ant-design/icons'
 import { Version, VersionStatus } from '../../store/state/common';
