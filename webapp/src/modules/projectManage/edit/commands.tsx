@@ -4,15 +4,16 @@ import { Input, Tag } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 
 interface Props {
-  tags: string[]
+  tags: string[];
+  onChange ?(tags: string[]): void;
 }
 interface State {
-  tags: string[],
-  inputVisible: boolean,
-  value: string
+  tags: string[];
+  inputVisible: boolean;
+  value: string;
 }
 class Commands extends React.Component<Props, State> {
-  private inputRef: Input
+  inputRef: React.RefObject<Input>
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
@@ -20,9 +21,11 @@ class Commands extends React.Component<Props, State> {
       inputVisible: false,
       value: ''
     }
+    this.inputRef = React.createRef()
     this.onEnterTag = this.onEnterTag.bind(this)
     this.onShowInput = this.onShowInput.bind(this)
     this.onInput = this.onInput.bind(this)
+    this.onBlurInput = this.onBlurInput.bind(this)
   }
   onEnterTag () {
     this.setState({
@@ -34,7 +37,14 @@ class Commands extends React.Component<Props, State> {
     }
     this.setState({
       tags,
-      value: '',
+      value: ''
+    })
+    if (this.props.onChange) {
+      this.props.onChange(tags)
+    }
+  }
+  onBlurInput () {
+    this.setState({
       inputVisible: false
     })
   }
@@ -47,7 +57,7 @@ class Commands extends React.Component<Props, State> {
     this.setState({
       inputVisible: true
     }, () => {
-      this.inputRef.focus()
+      this.inputRef.current.focus()
     })
   }
   onDel (i: number) {
@@ -56,9 +66,9 @@ class Commands extends React.Component<Props, State> {
     this.setState({
       tags
     })
-  }
-  saveInputRef = (input: Input) => {
-    this.inputRef = input
+    if (this.props.onChange) {
+      this.props.onChange(tags)
+    }
   }
   render () {
     return (
@@ -74,12 +84,13 @@ class Commands extends React.Component<Props, State> {
           if (this.state.inputVisible) {
             return (
               <Input 
-                ref={this.saveInputRef}
+                ref={this.inputRef}
                 type="text" 
                 size="small" 
                 value={this.state.value} 
                 onBlur={this.onEnterTag}
                 onChange={this.onInput}
+                onBlurCapture={this.onBlurInput}
                 onPressEnter={this.onEnterTag}></Input>
             )
           } else {

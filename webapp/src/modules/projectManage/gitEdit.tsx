@@ -37,6 +37,7 @@ class GitEditPanel extends React.Component<Props, State> {
     this.afterCreateVersion = this.afterCreateVersion.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
     this.onChangeVersion = this.onChangeVersion.bind(this)
+    this.onChangeOrders = this.onChangeOrders.bind(this)
   }
   componentDidMount () {
     this.getInfo()
@@ -74,6 +75,13 @@ class GitEditPanel extends React.Component<Props, State> {
       currentVersion: version
     })
   }
+  onChangeOrders (orders: string[]) {
+    const version = _.cloneDeep(this.state.currentVersion)
+    version.compileOrders = orders
+    this.setState({
+      currentVersion: version
+    })
+  }
   onCancelAddVersion (): void {
     console.log('取消添加版本')
   }
@@ -101,7 +109,7 @@ class GitEditPanel extends React.Component<Props, State> {
               <div className="git-detail">
                 <Description label="项目名称" labelWidth={labelWidth}>
                   {this.state.gitInfo.name} 
-                  <Tag color="#87d068">v:{this.state.currentVersion?.name}</Tag> 
+                  <Tag color="#87d068" style={{marginLeft: '5px'}}>v:{this.state.currentVersion?.name}</Tag> 
                   <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion?.publishTime))}</Tag>
                 </Description>
                 <Description label="git地址" labelWidth={labelWidth} className="git-addr">
@@ -112,7 +120,7 @@ class GitEditPanel extends React.Component<Props, State> {
                   <Button className="btn-add-config-item">添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
-                  <Commands tags={this.state.tags}></Commands>
+                  <Commands onChange={this.onChangeOrders} tags={this.state.tags}></Commands>
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
