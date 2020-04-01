@@ -25,6 +25,7 @@ export interface GitInfo {
 export interface GitCommit {
   id: string;
   message: string;
+  createdAt?: string;
 }
 
 export interface GitBranch {

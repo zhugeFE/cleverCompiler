@@ -27,6 +27,7 @@ export interface GitState {
 export interface GitCommit {
   id: string;
   message: string;
+  createdAt: string;
 }
 export interface GitBranch {
   name: string;

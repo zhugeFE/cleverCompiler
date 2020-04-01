@@ -86,11 +86,12 @@ class GitDao {
     })
   }
   async getCommitsById (id: string | number): Promise<GitCommit[]> {
-    const res = await gitUtil.ajax<GitCommit[]>(`projects/${id}/repository/commits`, 'GET')
+    const res = await gitUtil.ajax<any[]>(`projects/${id}/repository/commits`, 'GET')
     return res.map(item => {
       return {
         id: item.id,
-        message: item.message
+        message: item.message,
+        createdAt: item.created_at
       }
     })
   }

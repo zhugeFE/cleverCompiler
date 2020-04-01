@@ -7,6 +7,9 @@ import { GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../../store
 // import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { Version } from '../../store/state/common';
 
+import './styles/createVersion.less'
+import util from '../../utils/util';
+
 interface FormData {
   source: string;
   version: string;
@@ -149,6 +152,7 @@ class CreateVersion extends React.Component<Props, States> {
     const commitDisplay = source === 'commit' ? 'flex' : 'none'
     return (
       <Modal
+        className="create-git-version"
         title="添加版本"
         closable={false}
         visible={this.state.show}
@@ -205,6 +209,9 @@ class CreateVersion extends React.Component<Props, States> {
                 return (
                   <Select.Option value={commit.id} key={commit.id} title={commit.message}>
                     {commit.message}
+                    {commit.createdAt ? (
+                      <div className="git-commit-time">{util.dateTimeFormat(new Date(commit.createdAt))}</div>
+                    ) : null}
                   </Select.Option>
                 )
               })
