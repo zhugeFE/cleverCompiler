@@ -19,7 +19,7 @@ class Markdown extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
-      content: this.props.content,
+      content: this.props.content || '# empty content',
       mode: Mode.preview
     }
     this.onChange = this.onChange.bind(this)

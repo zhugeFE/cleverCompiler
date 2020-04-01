@@ -14,6 +14,7 @@ import CreateVersion from './createVersion'
 import { LeftOutlined } from '@ant-design/icons'
 import { Version } from '../../store/state/common';
 import * as _ from 'lodash';
+import util from '../../utils/util'
 
 interface Props extends RouteComponentProps<{
   id: string
@@ -74,11 +75,10 @@ class GitEditPanel extends React.Component<Props, State> {
     console.log('取消添加版本')
   }
   render () {
-    const source = '# Live demo\nChanges are automatically rendered as you type.\n## Table of Contents\n* Implements [GitHub Flavored Markdown](https://github.github.com/gfm/)\n* Renders actual, "native" React DOM elements\n* Allows you to escape or skip HTML (try toggling the checkboxes above)\n## HTML block below'
     const labelWidth = 75
     if (!this.state.gitInfo) {
       return (
-        <Spin tip="git详情获取中..." size="large"></Spin>
+        <Spin className="git-edit-loading" tip="git详情获取中..." size="large"></Spin>
       )
     }
     return (
@@ -91,10 +91,16 @@ class GitEditPanel extends React.Component<Props, State> {
             <div className="git-panel-center">
               <TimeLinePanel versionList={this.state.gitInfo.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
               <div className="git-detail">
-                <Description label="项目名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
-                <Description label="git地址" labelWidth={labelWidth} className="git-addr"><a>http://gl.zhugeio.com/dongyongqiang/webapp</a></Description>
+                <Description label="项目名称" labelWidth={labelWidth}>
+                  {this.state.gitInfo.name} 
+                  <Tag color="#87d068">v:{this.state.currentVersion?.name}</Tag> 
+                  <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion?.publishTime))}</Tag>
+                </Description>
+                <Description label="git地址" labelWidth={labelWidth} className="git-addr">
+                  <a>{this.state.gitInfo.gitRepo}</a>
+                </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
-                  <GitConfigPanel store={[]}></GitConfigPanel>
+                  <GitConfigPanel store={this.state.gitInfo?.configs || []}></GitConfigPanel>
                   <Button className="btn-add-config-item">添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
@@ -102,13 +108,13 @@ class GitEditPanel extends React.Component<Props, State> {
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
-                    <Markdown content={source}></Markdown>
+                    <Markdown content={this.state.currentVersion?.readmeDoc}></Markdown>
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署文档" key="build">
-                    <Markdown content="部署文档"></Markdown>
+                    <Markdown content={this.state.currentVersion?.buildDoc}></Markdown>
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
-                    <Markdown content="更新内容"></Markdown>
+                    <Markdown content={this.state.currentVersion?.updateDoc}></Markdown>
                   </Tabs.TabPane>
                 </Tabs>
                 <Button type="primary">保存</Button>
