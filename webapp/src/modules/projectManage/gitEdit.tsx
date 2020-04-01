@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Button, Tabs, Tag, message, Spin } from 'antd'
-import TimeLinePanel from '../../components/timeline/timeLine'
+import TimeLinePanel from './timeline/timeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'
 import GitConfigPanel from './edit/config'
@@ -36,9 +36,7 @@ class GitEditPanel extends React.Component<Props, State> {
     }
     this.afterCreateVersion = this.afterCreateVersion.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
-  }
-  onAddVersion () {
-
+    this.onChangeVersion = this.onChangeVersion.bind(this)
   }
   componentDidMount () {
     this.getInfo()
@@ -65,9 +63,14 @@ class GitEditPanel extends React.Component<Props, State> {
   }
   afterCreateVersion (version: Version): void {
     const gitInfo = _.cloneDeep(this.state.gitInfo)
-    gitInfo.versionList.push(version)
+    gitInfo.versionList.unshift(version)
     this.setState({
       gitInfo,
+      currentVersion: version
+    })
+  }
+  onChangeVersion (version: Version) {
+    this.setState({
       currentVersion: version
     })
   }
@@ -89,7 +92,12 @@ class GitEditPanel extends React.Component<Props, State> {
         {
           this.state.gitInfo?.versionList.length ? (
             <div className="git-panel-center">
-              <TimeLinePanel versionList={this.state.gitInfo.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
+              <TimeLinePanel 
+                gitId={this.state.gitInfo.id} 
+                repoId={this.state.gitInfo.gitId}
+                versionList={this.state.gitInfo.versionList}
+                afterAdd={this.afterCreateVersion}
+                onChange={this.onChangeVersion}></TimeLinePanel>
               <div className="git-detail">
                 <Description label="项目名称" labelWidth={labelWidth}>
                   {this.state.gitInfo.name} 

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import './styles/templateEditPanel.less'
-import TimeLinePanel from '../../components/timeline/timeLine'
+import TimeLinePanel from './timeline/timeLine'
 import Description from '../../components/description/description'
 import GitConfigPanel from './edit/config'
 import { Button, Tabs, Tag, Radio } from 'antd'
@@ -36,7 +36,9 @@ class TemplateEdit extends React.Component<Props, State> {
           <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
         </div>
         <div className="template-panel-center">
-          <TimeLinePanel versionList={this.state.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
+          {
+            // <TimeLinePanel versionList={this.state.versionList}></TimeLinePanel>
+          }
           <div className="template-detail">
             <Description label="模板名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
             <Description label="全局配置" labelWidth={labelWidth} display="flex" className="template-configs">
