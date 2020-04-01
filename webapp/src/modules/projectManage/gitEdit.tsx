@@ -127,13 +127,13 @@ class GitEditPanel extends React.Component<Props, State> {
           <span style={{marginLeft: '20px'}}>
             <a onClick={this.onSave}>保存</a>
             <Tooltip title="归档后版本将变为只读状态">
-              <a style={{marginLeft: '10px'}}>归档</a>
+              <a style={{marginLeft: '10px', color: '#faad14'}}>归档</a>
             </Tooltip>
             <Tooltip title="操作倒计时：24:00:00">
-              <a style={{marginLeft: '10px'}}>删除</a>
+              <a style={{marginLeft: '10px', color: '#f5222d'}}>删除</a>
             </Tooltip>
             <Tooltip title="废弃后，新建项目中该版本将不可用">
-              <a style={{marginLeft: '10px'}}>废弃</a>
+              <a style={{marginLeft: '10px', color: '#f5222d'}}>废弃</a>
             </Tooltip>
           </span>
         </div>
