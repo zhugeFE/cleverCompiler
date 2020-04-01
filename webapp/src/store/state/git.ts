@@ -1,5 +1,4 @@
-import { Config } from './common';
-import { Version } from '../../types/common.d';
+import { Config, Version } from './common';
 
 export interface GitInstance {
   id: string;

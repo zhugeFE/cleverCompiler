@@ -7,12 +7,13 @@ import GitConfigPanel from './edit/config'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
 import Commands from './edit/commands'
-import { Version } from '../../types/common.d'
-import { GitInfo } from '../../store/state/git'
+import { GitInfo } from '../../store/state/git';
 import ajax from '../../utils/ajax'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import CreateVersion from './createVersion'
 import { LeftOutlined } from '@ant-design/icons'
+import { Version } from '../../store/state/common';
+import * as _ from 'lodash';
 
 interface Props extends RouteComponentProps<{
   id: string
@@ -20,9 +21,9 @@ interface Props extends RouteComponentProps<{
 
 }
 interface State {
-  tags: string[],
-  versionList: Version[],
-  gitInfo: GitInfo
+  tags: string[];
+  gitInfo: GitInfo;
+  currentVersion: Version;
 }
 class GitEditPanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
@@ -30,12 +31,10 @@ class GitEditPanel extends React.Component<Props, State> {
     this.state = {
       tags: [],
       gitInfo: null,
-      versionList: [
-        {id: '1', version: '1.0.0', createTime: new Date(), updateTime: new Date(), disabled: false},
-        {id: '2', version: '1.1.0', createTime: new Date(), updateTime: new Date(), disabled: true},
-        {id: '3', version: '1.2.0', createTime: new Date(), updateTime: new Date(), disabled: false}
-      ].reverse()
+      currentVersion: null
     }
+    this.afterCreateVersion = this.afterCreateVersion.bind(this)
+    this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
   }
   onAddVersion () {
 
@@ -49,13 +48,30 @@ class GitEditPanel extends React.Component<Props, State> {
       method: 'GET'
     })
     .then(res => {
+      const gitInfo = res.data as GitInfo
       this.setState({
-        gitInfo: res.data
+        gitInfo
       })
+      if (gitInfo.versionList && gitInfo.versionList.length) {
+        this.setState({
+          currentVersion: gitInfo.versionList[0]
+        })
+      }
     })
     .catch(err => {
       message.error(err.message)
     })
+  }
+  afterCreateVersion (version: Version): void {
+    const gitInfo = _.cloneDeep(this.state.gitInfo)
+    gitInfo.versionList.push(version)
+    this.setState({
+      gitInfo,
+      currentVersion: version
+    })
+  }
+  onCancelAddVersion (): void {
+    console.log('取消添加版本')
   }
   render () {
     const source = '# Live demo\nChanges are automatically rendered as you type.\n## Table of Contents\n* Implements [GitHub Flavored Markdown](https://github.github.com/gfm/)\n* Renders actual, "native" React DOM elements\n* Allows you to escape or skip HTML (try toggling the checkboxes above)\n## HTML block below'
@@ -73,7 +89,7 @@ class GitEditPanel extends React.Component<Props, State> {
         {
           this.state.gitInfo?.versionList.length ? (
             <div className="git-panel-center">
-              <TimeLinePanel versionList={this.state.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
+              <TimeLinePanel versionList={this.state.gitInfo.versionList} onAddVersion={this.onAddVersion}></TimeLinePanel>
               <div className="git-detail">
                 <Description label="项目名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>
                 <Description label="git地址" labelWidth={labelWidth} className="git-addr"><a>http://gl.zhugeio.com/dongyongqiang/webapp</a></Description>
@@ -100,8 +116,12 @@ class GitEditPanel extends React.Component<Props, State> {
             </div>
           ) : (
             <div className="git-panel-center">
-              暂无版本，新建版本
-              <CreateVersion gitId={this.state.gitInfo?.id} repoId={this.state.gitInfo.gitId}></CreateVersion>
+              <CreateVersion 
+                title="创建初始版本"
+                gitId={this.state.gitInfo?.id} 
+                repoId={this.state.gitInfo.gitId}
+                onCancel={this.onCancelAddVersion}
+                afterAdd={this.afterCreateVersion}></CreateVersion>
             </div>
           )
         }

@@ -3,8 +3,8 @@ import './timeLine.less'
 import { Timeline, Tag, Button } from 'antd'
 import TimelineItem from 'antd/lib/timeline/TimelineItem'
 import Search from 'antd/lib/input/Search'
-import { Version } from '../../types/common.d';
 import { PlusOutlined } from '@ant-design/icons'
+import { Version, VersionStatus } from '../../store/state/common';
 
 interface Props {
   onAddVersion: () => void,
@@ -44,18 +44,18 @@ class TimeLinePanel extends React.Component<Props, State> {
             this.props.versionList.map(version => {
               if (version === this.state.currentVersion) {
                 return (
-                  <TimelineItem key={version.id} color={version.disabled ? 'gray' : 'blue'}>
+                  <TimelineItem key={version.id} color={version.status === VersionStatus.deprecated ? 'gray' : 'blue'}>
                     <a 
-                      className={version.disabled ? 'disabled' : null} 
+                      className={version.status === VersionStatus.deprecated ? 'disabled' : null} 
                       onClick={this.onChooseVersion.bind(this, version)}>
-                      <Tag color="blue">{version.version}</Tag>
+                      <Tag color="blue">{version.name}</Tag>
                     </a>
                   </TimelineItem>
                 )
               } else {
                 return (
-                  <TimelineItem key={version.id} color={version.disabled ? 'gray' : 'blue'}>
-                    <a className={version.disabled ? 'disabled' : null} onClick={this.onChooseVersion.bind(this, version)}>{version.version}</a>
+                  <TimelineItem key={version.id} color={version.status === VersionStatus.deprecated ? 'gray' : 'blue'}>
+                    <a className={version.status === VersionStatus.deprecated ? 'disabled' : null} onClick={this.onChooseVersion.bind(this, version)}>{version.name}</a>
                   </TimelineItem>
                 )
               }

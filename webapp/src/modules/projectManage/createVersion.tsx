@@ -4,7 +4,6 @@ import * as _ from 'lodash';
 import ajax from '../../utils/ajax';
 import { ApiResult } from '../../utils/ajax';
 import { GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../../store/state/git';
-// import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { Version } from '../../store/state/common';
 
 import './styles/createVersion.less'
@@ -20,6 +19,7 @@ interface FormData {
 interface Props {
   gitId: string;
   repoId: string;
+  title?: string;
   onCancel? (): void;
   afterAdd? (version: Version): void;
 }
@@ -132,8 +132,9 @@ class CreateVersion extends React.Component<Props, States> {
       method: 'POST',
       data
     })
-    .then(() => {
+    .then((res: ApiResult) => {
       message.success('版本创建成功')
+      if (this.props.afterAdd) this.props.afterAdd(res.data as Version)
     })
     .catch(err => {
       message.error('版本创建失败')
@@ -144,6 +145,7 @@ class CreateVersion extends React.Component<Props, States> {
     this.setState({
       show: false
     })
+    if (this.props.onCancel) this.props.onCancel()
   }
   render () {
     const source = this.state.form.source
@@ -153,7 +155,7 @@ class CreateVersion extends React.Component<Props, States> {
     return (
       <Modal
         className="create-git-version"
-        title="添加版本"
+        title={this.props.title || '添加版本'}
         closable={false}
         visible={this.state.show}
         cancelText="取消"

@@ -7,8 +7,8 @@ import { Button, Tabs, Tag, Radio } from 'antd'
 import Commands from './edit/commands'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
-import { Version } from '../../types/common.d';
 import { LeftOutlined } from '@ant-design/icons'
+import { Version } from '../../store/state/common';
 
 interface Props {
 
@@ -20,11 +20,7 @@ class TemplateEdit extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
-      versionList: [
-        {id: '1', version: '1.0.0', createTime: new Date(), updateTime: new Date(), disabled: false},
-        {id: '2', version: '1.1.0', createTime: new Date(), updateTime: new Date(), disabled: false},
-        {id: '3', version: '1.2.0', createTime: new Date(), updateTime: new Date(), disabled: true}
-      ].reverse()
+      versionList: [].reverse()
     }
     this.onAddVersion = this.onAddVersion.bind(this)
   }
