@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Button, Tabs, Tag, message, Spin } from 'antd'
+import { Button, Tabs, Tag, message, Spin, Tooltip } from 'antd'
 import TimeLinePanel from './timeline/timeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'
@@ -124,6 +124,18 @@ class GitEditPanel extends React.Component<Props, State> {
       <div className="git-edit-panel">
         <div className="git-panel-top">
           <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
+          <span style={{marginLeft: '20px'}}>
+            <a onClick={this.onSave}>保存</a>
+            <Tooltip title="归档后版本将变为只读状态">
+              <a style={{marginLeft: '10px'}}>归档</a>
+            </Tooltip>
+            <Tooltip title="操作倒计时：24:00:00">
+              <a style={{marginLeft: '10px'}}>删除</a>
+            </Tooltip>
+            <Tooltip title="废弃后，新建项目中该版本将不可用">
+              <a style={{marginLeft: '10px'}}>废弃</a>
+            </Tooltip>
+          </span>
         </div>
         {
           this.state.gitInfo?.versionList.length ? (
@@ -161,7 +173,6 @@ class GitEditPanel extends React.Component<Props, State> {
                     <Markdown onChange={this.onChangeUpdate} content={this.state.currentVersion?.updateDoc}></Markdown>
                   </Tabs.TabPane>
                 </Tabs>
-                <Button type="primary" onClick={this.onSave}>保存</Button>
               </div>
             </div>
           ) : (
