@@ -68,7 +68,7 @@ class CreateVersion extends React.Component<Props, States> {
   }
   getBranchList () {
     ajax({
-      url: `/api/git/branchs/${this.props.repoId}`,
+      url: `/api/git/${this.props.repoId}/branchs`,
       method: 'GET'
     })
     .then((res: ApiResult) => {
@@ -83,7 +83,7 @@ class CreateVersion extends React.Component<Props, States> {
   }
   getTags () {
     ajax({
-      url: `/api/git/tags/${this.props.repoId}`,
+      url: `/api/git/${this.props.repoId}/tags`,
       method: 'GET'
     })
     .then((res: ApiResult) => {
@@ -98,7 +98,7 @@ class CreateVersion extends React.Component<Props, States> {
   }
   getCommits () {
     ajax({
-      url: `/api/git/commits/${this.props.repoId}`,
+      url: `/api/git/${this.props.repoId}/commits`,
       method: 'GET'
     })
     .then((res: ApiResult) => {

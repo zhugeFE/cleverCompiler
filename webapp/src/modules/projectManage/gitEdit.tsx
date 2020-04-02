@@ -45,13 +45,10 @@ class GitEditPanel extends React.Component<Props, State> {
   }
   componentDidMount () {
     this.getInfo()
-    ajax({
-      url: `/api/git/filetree/${this.props.match.params.id}`
-    })
   }
   getInfo () {
     ajax({
-      url: `/api/git/info/${this.props.match.params.id}`,
+      url: `/api/git/${this.props.match.params.id}/info`,
       method: 'GET'
     })
     .then(res => {

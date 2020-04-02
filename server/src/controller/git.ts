@@ -14,7 +14,7 @@ router.post('/list', (req: Request, res: Response, next: NextFunction) => {
     next(err)
   })
 })
-router.get('/info/:id', (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
   gitService.getInfoById(req.params.id)
   .then((gitInfo: GitInfo) => {
     if (!gitInfo) {
@@ -28,21 +28,21 @@ router.get('/info/:id', (req: Request, res: Response, next: NextFunction) => {
     next(err)
   })
 })
-router.get('/branchs/:id', (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id/branchs', (req: Request, res: Response, next: NextFunction) => {
   gitService.getBranchsById(req.params.id)
   .then((branchList: GitBranch[]) => {
     res.json(new ApiResult(ResponseStatus.success, branchList))
   })
   .catch(next)
 })
-router.get('/tags/:id', (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id/tags', (req: Request, res: Response, next: NextFunction) => {
   gitService.getTagsById(req.params.id)
   .then((tagList: GitTag[]) => {
     res.json(new ApiResult(ResponseStatus.success, tagList))
   })
   .catch(next)
 })
-router.get('/commits/:id', (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id/commits', (req: Request, res: Response, next: NextFunction) => {
   gitService.getCommitsById(req.params.id)
   .then((commits: GitCommit[]) => {
     res.json(new ApiResult(ResponseStatus.success, commits))
@@ -56,7 +56,7 @@ router.post('/version/add', (req: Request, res: Response, next: NextFunction) =>
   })
   .catch(next)
 })
-router.get('/filetree/:id', (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id/filetree', (req: Request, res: Response, next: NextFunction) => {
   gitService.getFileTree(req.params.id, req.session.currentUser)
   .then((treeList: DirNode[]) => {
     res.json(new ApiResult(ResponseStatus.success, treeList))
