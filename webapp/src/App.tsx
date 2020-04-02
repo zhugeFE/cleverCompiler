@@ -18,6 +18,7 @@ import ajax from './utils/ajax'
 import api from './store/api'
 import { User } from './store/state/user';
 import { UserOutlined, MenuOutlined, MenuFoldOutlined } from '@ant-design/icons'
+import UserMenu from './modules/userMenu/userMenu'
 const { Header, Sider, Content } = Layout
 
 interface AppState {
@@ -110,6 +111,7 @@ class App extends React.Component<Props, AppState> {
                 <Menu.Item key="compile">编译管理</Menu.Item>
                 <Menu.Item key="project">配置管理</Menu.Item>
               </Menu>
+              <UserMenu></UserMenu>
             </Header>
             <Content
               style={{
