@@ -1,6 +1,11 @@
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../types/git';
-import { Version } from '../types/common';
+import { Version, DirNode } from '../types/common';
+import * as path from 'path'
+import config from '../config';
+import { User } from '../types/user';
+import fsUtil from '../utils/fsUtil';
+import dashUtil from '../utils/dashUtil';
 
 class GitService {
   async query (): Promise<GitInstance[]> {
@@ -11,20 +16,33 @@ class GitService {
     }
     return gitList
   }
-  async getInfoById (id: string): Promise<GitInfo> {
-    return await gitDao.getInfo(id)
+  async getInfoById (repoId: string): Promise<GitInfo> {
+    return await gitDao.getInfo(repoId)
   }
-  async getBranchsById (id: string | number): Promise<GitBranch[]> {
-    return await gitDao.getBranchsById(id)
+  async getBranchsById (repoId: string | number): Promise<GitBranch[]> {
+    return await gitDao.getBranchsById(repoId)
   }
-  async getTagsById (id: string | number): Promise<GitTag[]> {
-    return await gitDao.getTagsById(id)
+  async getTagsById (repoId: string | number): Promise<GitTag[]> {
+    return await gitDao.getTagsById(repoId)
   }
-  async getCommitsById (id: string | number): Promise<GitCommit[]> {
-    return await gitDao.getCommitsById(id)
+  async getCommitsById (repoId: string | number): Promise<GitCommit[]> {
+    return await gitDao.getCommitsById(repoId)
   }
   async addVersion (param: GitCreateVersionParam): Promise<Version> {
     return await gitDao.addVersion(param)
+  }
+  async getFileTree (id: string, currentUser: User): Promise<DirNode[]> {
+    const gitInfo = await gitDao.getInfo(id)
+    const workDir = path.resolve(config.compileDir, currentUser.id)
+    await fsUtil.mkdir(workDir)
+    const repoDir = path.resolve(workDir, gitInfo.name)
+    const repoExist = await fsUtil.pathExist(repoDir)
+    if (!repoExist) {
+      await dashUtil.exec(`git clone ${gitInfo.gitRepo}`, {
+        cwd: workDir
+      })
+    }
+    return fsUtil.getDirTree(repoDir)
   }
 }
 

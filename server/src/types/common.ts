@@ -21,3 +21,8 @@ export interface Config {
   filePath: string; // 原始文件路径
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
 }
+export interface DirNode {
+  name: string;
+  filePath: string;
+  children: DirNode[];
+}

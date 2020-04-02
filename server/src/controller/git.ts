@@ -2,7 +2,7 @@ import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../types/git';
-import { Version } from '../types/common';
+import { Version, DirNode } from '../types/common';
 const router = Router()
 
 router.post('/list', (req: Request, res: Response, next: NextFunction) => {
@@ -53,6 +53,13 @@ router.post('/version/add', (req: Request, res: Response, next: NextFunction) =>
   gitService.addVersion(req.body as GitCreateVersionParam)
   .then((version: Version) => {
     res.json(new ApiResult(ResponseStatus.success, version))
+  })
+  .catch(next)
+})
+router.get('/filetree/:id', (req: Request, res: Response, next: NextFunction) => {
+  gitService.getFileTree(req.params.id, req.session.currentUser)
+  .then((treeList: DirNode[]) => {
+    res.json(new ApiResult(ResponseStatus.success, treeList))
   })
   .catch(next)
 })

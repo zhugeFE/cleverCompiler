@@ -14,6 +14,7 @@ interface Database {
 interface ServerConfig{
   database: Database;
   port: number;
+  compileDir: string;
 }
 
 let config: ServerConfig = {
@@ -25,7 +26,8 @@ let config: ServerConfig = {
     password: 'dongyongqiang',
     database: 'compile_deploy_sys',
     connectionLimit: 20
-  }
+  },
+  compileDir: path.resolve(__dirname, '../.compile')
 }
 try {
   fs.statSync(configPath)
@@ -33,5 +35,9 @@ try {
 } catch (e) {
   fs.writeFileSync(configPath, JSON.stringify(config))
 }
-
+try {
+  fs.statSync(config.compileDir)
+} catch (e) {
+  fs.mkdirSync(config.compileDir)
+}
 export default config

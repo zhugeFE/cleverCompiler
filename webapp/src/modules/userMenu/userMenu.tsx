@@ -2,8 +2,13 @@ import './styles/userMenu.less'
 import * as React from 'react';
 import { Dropdown, Menu } from 'antd';
 import { DownOutlined, UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
+import { RootState } from '../../store/state/index';
+import { connect } from 'react-redux';
+import { User } from '../../store/state/user';
 
-interface Props {}
+interface Props {
+  currentUser: User;
+}
 interface States {}
 
 class UserMenu extends React.Component<Props, States> {
@@ -29,10 +34,15 @@ class UserMenu extends React.Component<Props, States> {
     return (
       <span className="user-menu">
         <Dropdown overlay={menu} placement="bottomRight" trigger={['click']}>
-          <a>admin<DownOutlined style={{marginLeft: '5px'}}/></a>
+          <a>{this.props.currentUser.name || this.props.currentUser.email}<DownOutlined style={{marginLeft: '5px'}}/></a>
         </Dropdown>
       </span>
     )
   }
 }
-export default UserMenu
+const mapStateToProps = (state: RootState) => {
+  return {
+    currentUser: state.user.current
+  }
+}
+export default connect(mapStateToProps)(UserMenu)
