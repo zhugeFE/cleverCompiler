@@ -1,6 +1,6 @@
 import pool from './pool'
 import { PoolConnection } from 'mysql'
-import { SysInfo } from '../types/sys';
+import { SysInfo, ConfigType, Role } from '../types/sys';
 import userDao from './user';
 import logger from '../utils/logger';
 
@@ -68,6 +68,9 @@ class SysDao {
       return pool.queryInTransaction(conn, sql, params)
     }))
   }
+  async queryConfigType (): Promise<ConfigType[]> {
+    return await pool.query<ConfigType[]>('select * from config_type') as ConfigType[]
+  }
   async initRole (conn: PoolConnection): Promise<void> {
     const sql = 'insert into role(id, name) values(?,?)'
     const roles = [
@@ -80,6 +83,9 @@ class SysDao {
       const params = [i, role]
       return pool.queryInTransaction(conn, sql, params)
     }))
+  }
+  async queryRole (): Promise<Role[]> {
+    return await pool.query<Role[]>('select * from role') as Role[]
   }
 }
 export default new SysDao()

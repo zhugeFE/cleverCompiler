@@ -15,6 +15,7 @@ import { LeftOutlined } from '@ant-design/icons'
 import { Version } from '../../store/state/common';
 import * as _ from 'lodash';
 import util from '../../utils/util'
+import GitAddConfig from './edit/addConfig';
 
 interface Props extends RouteComponentProps<{
   id: string
@@ -25,6 +26,7 @@ interface State {
   tags: string[];
   gitInfo: GitInfo;
   currentVersion: Version;
+  showAddConfig: boolean;
 }
 class GitEditPanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
@@ -32,7 +34,8 @@ class GitEditPanel extends React.Component<Props, State> {
     this.state = {
       tags: [],
       gitInfo: null,
-      currentVersion: null
+      currentVersion: null,
+      showAddConfig: false
     }
     this.afterCreateVersion = this.afterCreateVersion.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
@@ -42,6 +45,7 @@ class GitEditPanel extends React.Component<Props, State> {
     this.onChangeBuild = this.onChangeBuild.bind(this)
     this.onChangeUpdate = this.onChangeUpdate.bind(this)
     this.onSave = this.onSave.bind(this)
+    this.onAddConfig = this.onAddConfig.bind(this)
   }
   componentDidMount () {
     this.getInfo()
@@ -110,6 +114,11 @@ class GitEditPanel extends React.Component<Props, State> {
   onSave () {
     console.log('保存', _.cloneDeep(this.state.currentVersion))
   }
+  onAddConfig () {
+    this.setState({
+      showAddConfig: true
+    })
+  }
   onCancelAddVersion (): void {
     console.log('取消添加版本')
   }
@@ -122,6 +131,12 @@ class GitEditPanel extends React.Component<Props, State> {
     }
     return (
       <div className="git-edit-panel">
+        {
+          // this.state.showAddConfig ? (
+          //   <GitAddConfig></GitAddConfig>
+          // ) : null
+        }
+        <GitAddConfig></GitAddConfig>
         <div className="git-panel-top">
           <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>
@@ -157,7 +172,7 @@ class GitEditPanel extends React.Component<Props, State> {
                 </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
                   <GitConfigPanel store={this.state.gitInfo?.configs || []}></GitConfigPanel>
-                  <Button className="btn-add-config-item">添加配置项</Button>
+                  <Button className="btn-add-config-item" onClick={this.onAddConfig}>添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
                   <Commands onChange={this.onChangeOrders} tags={this.state.tags}></Commands>

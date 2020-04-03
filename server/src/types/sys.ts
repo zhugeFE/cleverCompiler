@@ -6,3 +6,11 @@ export interface SysInfo{
   email: string;
   password: string;
 }
+export interface ConfigType {
+  id: number;
+  label: string;
+}
+export interface Role {
+  id: number;
+  name: string;
+}
