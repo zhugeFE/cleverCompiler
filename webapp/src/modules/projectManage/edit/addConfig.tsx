@@ -16,7 +16,7 @@ interface Props {
   getConfigTypes (): void;
 }
 interface State {
-  type: number;
+  type: ConfigType;
 }
 class GitAddConfig extends React.Component<Props, State> {
   static defaultProps = {
@@ -31,19 +31,28 @@ class GitAddConfig extends React.Component<Props, State> {
   componentDidMount () {
     this.props.getConfigTypes()
   }
+  onClickType (configType: ConfigType) {
+    this.setState({
+      type: configType
+    })
+  }
   render () {
     let title = this.props.mode === 'add' ? '添加配置' : '修改配置'
     return (
       <Modal title={title} visible={true} className="add-git-config-modal">
+      {this.state.type ? (
+        <div>{this.state.type.label}</div>
+      ) : (
         <Row gutter={16}>
           {this.props.configTypes.map(config => {
             return (
               <Col span={8} key={config.id}>
-                <Card className="config-item">{config.label}</Card>
+                <Card className="config-item" onClick={this.onClickType.bind(this, config)}>{config.label}</Card>
               </Col>
             )
           })}
         </Row>
+      )}
       </Modal>
     )
   }
