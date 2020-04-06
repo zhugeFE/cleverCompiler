@@ -57,14 +57,26 @@ class SysDao {
    * @param conn 
    */
   async initConfigTypes (conn: PoolConnection): Promise<void> {
-    const sql = 'insert into config_type(id, label) values(?,?)'
+    const sql = 'insert into config_type(id, label, key) values(?,?,?)'
     const types = [
-      '文本',
-      '文件替换',
-      'JSON'
+      {
+        id: 0,
+        label: '文本',
+        key: 'text'
+      },
+      {
+        id: 1,
+        label: '文件替换',
+        key: 'file'
+      },
+      {
+        id: 2,
+        label: 'JSON',
+        key: 'json'
+      }
     ]
-    await Promise.all(types.map((type, i) => {
-      const params = [i, type]
+    await Promise.all(types.map((type) => {
+      const params = [type.id, type.label, type.key]
       return pool.queryInTransaction(conn, sql, params)
     }))
   }

@@ -9,6 +9,7 @@ export interface SysInfo{
 export interface ConfigType {
   id: number;
   label: string;
+  key: string;
 }
 export interface Role {
   id: number;

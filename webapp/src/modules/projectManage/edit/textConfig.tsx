@@ -1,11 +1,17 @@
 import * as React from 'react';
+import { Modal } from 'antd';
+import { LeftOutlined } from '@ant-design/icons';
 
 interface Props {}
 interface State {}
 class GitTextConfig extends React.Component<Props, State> {
   render () {
     return (
-      <div>text config</div>
+      <Modal visible={true} title={
+        <a><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>
+      } width="90%">
+        xxx
+      </Modal>
     )
   }
 }
