@@ -1,5 +1,5 @@
 import * as React from 'react'
-import './config.less'
+import './styles/config.less'
 import { Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 

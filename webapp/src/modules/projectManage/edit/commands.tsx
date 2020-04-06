@@ -1,5 +1,5 @@
 import * as React from 'react'
-import './commands.less'
+import './styles/commands.less'
 import { Input, Tag } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 
