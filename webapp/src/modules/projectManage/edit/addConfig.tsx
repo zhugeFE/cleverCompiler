@@ -14,6 +14,8 @@ interface Props {
   mode: string;
   configTypes: ConfigType[];
   getConfigTypes (): void;
+  onClose ?(): void;
+  onSubmit ?(): void;
 }
 interface State {
   type: ConfigType;
