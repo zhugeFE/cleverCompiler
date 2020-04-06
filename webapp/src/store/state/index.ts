@@ -1,10 +1,12 @@
 import { SysState } from './sys';
 import { UserState } from './user';
 import { GitState } from './git'
+import { BaseState } from './common';
 export interface RootState {
-  sys: SysState,
-  user: UserState,
-  git: GitState
+  sys: SysState;
+  user: UserState;
+  git: GitState;
+  base: BaseState;
 }
 const defaultState: RootState = {
   sys: {
@@ -16,6 +18,10 @@ const defaultState: RootState = {
   },
   git: {
     list: []
+  },
+  base: {
+    roleList: [],
+    configTypes: []
   }
 }
 

@@ -21,3 +21,15 @@ export interface Config {
   filePath: string; // 原始文件路径
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
 }
+export interface ConfigType {
+  id: number;
+  label: string;
+}
+export interface Role {
+  id: number;
+  name: string;
+}
+export interface BaseState {
+  roleList: Role[];
+  configTypes: ConfigType[];
+}

@@ -5,5 +5,9 @@ export default {
   },
   sys: {
     init: '/api/sys/init'
+  },
+  base: {
+    queryConfigTypes: '/api/sys/configtypes',
+    queryRoles: '/api/sys/roles'
   }
 }

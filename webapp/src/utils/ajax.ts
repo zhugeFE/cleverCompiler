@@ -14,16 +14,16 @@ export enum ResponseStatus {
 /**
  * 接口返回json统一结构
  */
-export interface ApiResult{
+export interface ApiResult<T>{
   status: ResponseStatus,
-  data: object | null,
+  data: T,
   msg?: string
 }
 
 export default function (options: AxiosRequestConfig): Promise<any> {
   return new Promise((resolve, reject) => {
     axios(options)
-    .then((res: AxiosResponse<ApiResult>) => {
+    .then((res: AxiosResponse<ApiResult<any>>) => {
       let err = new Error()
       switch (res.data.status) {
         case ResponseStatus.success:

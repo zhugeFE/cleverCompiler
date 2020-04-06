@@ -71,9 +71,9 @@ class CreateVersion extends React.Component<Props, States> {
       url: `/api/git/${this.props.repoId}/branchs`,
       method: 'GET'
     })
-    .then((res: ApiResult) => {
+    .then((res: ApiResult<GitBranch[]>) => {
       this.setState({
-        branchList: res.data as GitBranch[]
+        branchList: res.data
       })
     })
     .catch(err => {
@@ -86,9 +86,9 @@ class CreateVersion extends React.Component<Props, States> {
       url: `/api/git/${this.props.repoId}/tags`,
       method: 'GET'
     })
-    .then((res: ApiResult) => {
+    .then((res: ApiResult<GitTag[]>) => {
       this.setState({
-        tags: res.data as GitTag[]
+        tags: res.data
       })
     })
     .catch(err => {
@@ -101,9 +101,9 @@ class CreateVersion extends React.Component<Props, States> {
       url: `/api/git/${this.props.repoId}/commits`,
       method: 'GET'
     })
-    .then((res: ApiResult) => {
+    .then((res: ApiResult<GitCommit[]>) => {
       this.setState({
-        commits: res.data as GitCommit[]
+        commits: res.data
       })
     })
     .catch(err => {
@@ -132,9 +132,9 @@ class CreateVersion extends React.Component<Props, States> {
       method: 'POST',
       data
     })
-    .then((res: ApiResult) => {
+    .then((res: ApiResult<Version>) => {
       message.success('版本创建成功')
-      if (this.props.afterAdd) this.props.afterAdd(res.data as Version)
+      if (this.props.afterAdd) this.props.afterAdd(res.data)
     })
     .catch(err => {
       message.error('版本创建失败')
