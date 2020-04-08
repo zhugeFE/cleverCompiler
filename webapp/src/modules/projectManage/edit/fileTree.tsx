@@ -9,10 +9,13 @@ import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import './styles/fileTree.less'
 interface Props {
   gitId: string;
-  onSelect? (filePath: string): void
+  onSelect? (filePath: string, fileType: string): void
+}
+interface NodeData extends DataNode {
+  fileType: string;
 }
 interface State {
-  treeData: DataNode[];
+  treeData: NodeData[];
 }
 
 class FileTree extends React.Component<Props, State> {
@@ -29,13 +32,14 @@ class FileTree extends React.Component<Props, State> {
       method: 'GET'
     })
     .then((res: ApiResult<DirNode[]>) => {
-      function iterator (nodes: DirNode[]): DataNode[] {
+      function iterator (nodes: DirNode[]): NodeData[] {
         return nodes.map(node => {
-          const resNode: DataNode = {
+          const resNode: NodeData = {
             key: node.filePath,
             title: node.name,
             isLeaf: !node.isDirectory,
-            children: iterator(node.children)
+            children: iterator(node.children),
+            fileType: node.fileType
           }
           return resNode
         })
@@ -56,11 +60,12 @@ class FileTree extends React.Component<Props, State> {
     event: 'select';
     selected: boolean;
     node: EventDataNode;
-    selectedNodes: DataNode[];
+    selectedNodes: NodeData[];
     nativeEvent: MouseEvent;
   }) {
-    if (info.node.isLeaf) {
-      if (this.props.onSelect) this.props.onSelect(info.node.key as string)
+    const node = info.selectedNodes[0]
+    if (node.isLeaf) {
+      if (this.props.onSelect) this.props.onSelect(node.key as string, node.fileType)
     }
   }
   render () {

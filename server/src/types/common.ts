@@ -24,6 +24,7 @@ export interface Config {
 export interface DirNode {
   name: string;
   filePath: string;
+  fileType?: string;
   isDirectory: boolean;
   children: DirNode[];
 }

@@ -39,4 +39,5 @@ export interface DirNode {
   filePath: string;
   isDirectory: boolean;
   children: DirNode[];
+  fileType: string;
 }

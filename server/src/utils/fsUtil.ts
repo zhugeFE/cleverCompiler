@@ -50,6 +50,7 @@ class FsUtil {
         res.push({
           name: child,
           filePath: relativePath,
+          fileType: pt.extname(child).replace(/^\./, ''),
           isDirectory: false,
           children: []
         })
