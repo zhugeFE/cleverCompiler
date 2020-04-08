@@ -31,11 +31,12 @@ class GitService {
   async addVersion (param: GitCreateVersionParam): Promise<Version> {
     return await gitDao.addVersion(param)
   }
-  async getFileTree (id: string, currentUser: User): Promise<DirNode[]> {
+  async getFileTree (session: Express.Session, id: string, currentUser: User): Promise<DirNode[]> {
     const gitInfo = await gitDao.getInfo(id)
     const workDir = path.resolve(config.compileDir, currentUser.id)
     await fsUtil.mkdir(workDir)
     const repoDir = path.resolve(workDir, gitInfo.name)
+    session.repoDir = repoDir
     const repoExist = await fsUtil.pathExist(repoDir)
     if (!repoExist) {
       await dashUtil.exec(`git clone ${gitInfo.gitRepo}`, {
@@ -43,6 +44,12 @@ class GitService {
       })
     }
     return fsUtil.getDirTree(repoDir)
+  }
+  async getFileContent (session: Express.Session, filePath: string): Promise<string> {
+    if (!session.repoDir) {
+      throw new Error('会话中workDir找不到')
+    }
+    return await fsUtil.readFile(path.resolve(session.repoDir, filePath))
   }
 }
 

@@ -58,5 +58,19 @@ class FsUtil {
     }
     return res
   }
+  readFile (filePath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      fs.readFile(filePath, (err, data: Buffer) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(data.toString())
+        }
+      })
+    })
+  }
+  async getFileContent (filePath: string): Promise<string> {
+    return await this.readFile(filePath)
+  }
 }
 export default new FsUtil()

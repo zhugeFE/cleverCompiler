@@ -11,9 +11,9 @@ enum ResponseStatus {
  */
 class ApiResult{
   status: ResponseStatus
-  data: object | null
+  data: string | object | null
   msg?: string
-  constructor (status: ResponseStatus, data?: object | null, message?: string) {
+  constructor (status: ResponseStatus, data?: string | object | null, message?: string) {
     this.status = status
     this.data = data
     this.msg = message

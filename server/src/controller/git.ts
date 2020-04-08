@@ -57,9 +57,16 @@ router.post('/version/add', (req: Request, res: Response, next: NextFunction) =>
   .catch(next)
 })
 router.get('/:id/filetree', (req: Request, res: Response, next: NextFunction) => {
-  gitService.getFileTree(req.params.id, req.session.currentUser)
+  gitService.getFileTree(req.session, req.params.id, req.session.currentUser)
   .then((treeList: DirNode[]) => {
     res.json(new ApiResult(ResponseStatus.success, treeList))
+  })
+  .catch(next)
+})
+router.get('/cat', (req: Request, res: Response, next: NextFunction) => {
+  gitService.getFileContent(req.session, req.query.filePath)
+  .then((fileContent: string) => {
+    res.json(new ApiResult(ResponseStatus.success, fileContent))
   })
   .catch(next)
 })
