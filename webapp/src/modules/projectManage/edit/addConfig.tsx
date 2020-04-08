@@ -14,6 +14,7 @@ import GitFileConfig from './fileConfig';
 import GitJsonConfig from './jsonConfig';
 
 interface Props {
+  gitId: string;
   mode: string;
   configTypes: ConfigType[];
   getConfigTypes (): void;
@@ -47,7 +48,7 @@ class GitAddConfig extends React.Component<Props, State> {
       switch (this.state.type.key) {
         case 'text':
           return (
-            <GitTextConfig></GitTextConfig>
+            <GitTextConfig gitId={this.props.gitId}></GitTextConfig>
           )
         case 'file':
           return (

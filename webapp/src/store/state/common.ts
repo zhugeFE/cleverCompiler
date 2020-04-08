@@ -34,3 +34,9 @@ export interface BaseState {
   roleList: Role[];
   configTypes: ConfigType[];
 }
+export interface DirNode {
+  name: string;
+  filePath: string;
+  isDirectory: boolean;
+  children: DirNode[];
+}

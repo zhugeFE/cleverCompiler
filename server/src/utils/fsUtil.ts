@@ -43,12 +43,14 @@ class FsUtil {
         res.push({
           name: child,
           filePath: relativePath,
+          isDirectory: true,
           children: await this.getDirTree(childPath, relativePath)
         })
       } else {
         res.push({
           name: child,
           filePath: relativePath,
+          isDirectory: false,
           children: []
         })
       }

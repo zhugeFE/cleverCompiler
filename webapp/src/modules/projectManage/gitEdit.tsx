@@ -136,7 +136,7 @@ class GitEditPanel extends React.Component<Props, State> {
           //   <GitAddConfig></GitAddConfig>
           // ) : null
         }
-        <GitAddConfig></GitAddConfig>
+        <GitAddConfig gitId={this.props.match.params.id}></GitAddConfig>
         <div className="git-panel-top">
           <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>

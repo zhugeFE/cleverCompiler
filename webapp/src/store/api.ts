@@ -9,5 +9,8 @@ export default {
   base: {
     queryConfigTypes: '/api/sys/configtypes',
     queryRoles: '/api/sys/roles'
+  },
+  git: {
+    getFileTree: '/api/git/:id/filetree'
   }
 }
