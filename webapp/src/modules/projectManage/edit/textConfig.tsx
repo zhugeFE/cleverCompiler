@@ -10,7 +10,7 @@ interface State {}
 class GitTextConfig extends React.Component<Props, State> {
   render () {
     return (
-      <Modal visible={true} title={
+      <Modal className="git-config-modal" visible={true} title={
         <a><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>
       } width="90%">
         <FileTree gitId={this.props.gitId}></FileTree>
