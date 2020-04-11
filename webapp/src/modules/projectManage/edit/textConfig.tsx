@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, message, Form, Input, Checkbox } from 'antd';
+import { Modal, message, Form, Input, Checkbox, Button } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import FileTree from './fileTree';
 import ajax from '../../../utils/ajax';
@@ -41,28 +41,34 @@ class GitTextConfig extends React.Component<Props, State> {
     })
   }
   render () {
+    const layout = {
+      labelCol: { span: 6 }
+    }
     return (
       <Modal className="git-config-modal" visible={true} title={
         <a><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>
-      } width="90%">
+      } width="90%" okText="保存" cancelText="取消">
         <FileTree onSelect={this.onSelectFile} gitId={this.props.gitId}></FileTree>
         <div className="git-cm-left-panel git-text-config">
-          <Form layout="inline">
-            <Form.Item label="匹配正则">
-              <Form.Item name="reg" noStyle>
-                <Input></Input>
-              </Form.Item>
-              <Form.Item name="global" valuePropName="global" noStyle>
-                <Checkbox>全局</Checkbox>
-              </Form.Item>
-              <Form.Item name="ignoreCase" valuePropName="ignoreCase" noStyle>
-                <Checkbox>忽略大小写</Checkbox>
-              </Form.Item>
-            </Form.Item>
-            <Form.Item label="替换为" name="value">
+          <Form layout="inline" {...layout}>
+            <Form.Item name="reg" label="匹配正则" className="long">
               <Input></Input>
             </Form.Item>
-            <Form.Item label="配置描述" name="desc">
+            <Form.Item valuePropName="global">
+              <Checkbox>全局</Checkbox>
+            </Form.Item>
+            <Form.Item valuePropName="ignoreCase">
+              <Checkbox>忽略大小写</Checkbox>
+            </Form.Item>
+            <Button type="primary">查找</Button>
+            <Button>还原</Button>
+            <div className="form-divider"></div>
+            <Form.Item label="替换为" name="value" className="long">
+              <Input></Input>
+            </Form.Item>
+            <Button type="primary">测试替换</Button>
+            <div className="form-divider"></div>
+            <Form.Item label="配置描述" name="desc" className="long">
               <Input></Input>
             </Form.Item>
           </Form>

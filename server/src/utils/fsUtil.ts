@@ -31,13 +31,31 @@ class FsUtil {
   async getDirTree (targetPath: string, parentDir?: string): Promise<DirNode[]> {
     const res: DirNode[] = []
     const children = fs.readdirSync(targetPath)
-    const exclude = ['node_modules'] // todo 根据ignore文件的配置，来进行忽略
+    const exclude = ['^\\.']
+    const ignorePath = pt.resolve(targetPath, '.gitignore')
+    if (await this.pathExist(ignorePath)) {
+      const text = await this.readFile(ignorePath)
+      text.split(/\s/g).forEach(item => {
+        if (item && !/^#/.test(item)) {
+          exclude.push(item.replace(/[/*]/g, ''))
+        }
+      })
+    }
+    const matchIgnore = (itemPath: string): boolean => {
+      let match = false
+      exclude.forEach(reg => {
+        if (new RegExp(reg).test(itemPath)) {
+          match = true
+        }
+      })
+      return match
+    }
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       const childPath = pt.resolve(targetPath, child)
       const stat = fs.statSync(childPath)
       const relativePath = parentDir ? pt.join(parentDir, child) : child
-      if (exclude.includes(child)) {
+      if (matchIgnore(child)) {
         // nothing
       } else if (stat.isDirectory()) {
         res.push({
