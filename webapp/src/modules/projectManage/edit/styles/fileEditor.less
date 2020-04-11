@@ -8,4 +8,16 @@
   line-height: 24px;
   word-break: break-word;
   white-space: pre-wrap;
+  position: relative;
+  .editor-find-bar {
+    position: absolute;
+    padding: 5px;
+    top: 10px;
+    right: 10px;
+    color: @primary-color;
+  }
+  .editor-match {
+    background: @primary-color;
+    color: white;
+  }
 }
