@@ -31,12 +31,11 @@ class GitService {
   async addVersion (param: GitCreateVersionParam): Promise<GitVersion> {
     return await gitDao.addVersion(param)
   }
-  async getFileTree (session: Express.Session, id: string, versionId: string, currentUser: User): Promise<DirNode[]> {
-    const gitInfo = await gitDao.getInfo(id)
-    const workDir = path.resolve(config.compileDir, currentUser.id)
+  async initRepo (gitId: string, versionId: string, userId: string): Promise<string> {
+    const gitInfo = await gitDao.getInfo(gitId)
+    const workDir = path.resolve(config.compileDir, userId)
     await fsUtil.mkdir(workDir)
     const repoDir = path.resolve(workDir, gitInfo.name)
-    session.repoDir = repoDir
     const repoExist = await fsUtil.pathExist(repoDir)
     if (!repoExist) {
       await dashUtil.exec(`git clone ${gitInfo.gitRepo}`, {
@@ -60,6 +59,11 @@ class GitService {
     await dashUtil.exec(`git checkout .`, {cwd: repoDir})
     await dashUtil.exec(`git clean -df`, {cwd: repoDir})
     if (version.sourceType === 'branch') await dashUtil.exec(`git pull`, {cwd: repoDir})
+    return repoDir
+  }
+  async getFileTree (session: Express.Session, id: string, versionId: string, currentUser: User): Promise<DirNode[]> {
+    const repoDir = await this.initRepo(id, versionId, currentUser.id)
+    session.repoDir = repoDir
     return fsUtil.getDirTree(repoDir)
   }
   async getFileContent (session: Express.Session, filePath: string): Promise<string> {
