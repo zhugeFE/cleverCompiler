@@ -43,6 +43,19 @@ export interface GitCreateVersionParam {
   source: string; // 版本来源：branch/tag/commit
   value: string; // 版本来源值
 }
+export interface GitCreateConfigParam {
+  sourceId: string;
+  versionId: string;
+  typeId: string;
+  filePath: string;
+  reg?: {
+    source: string;
+    global: boolean;
+    ignoreCase: boolean;
+  };
+  value: string;
+  desc: string;
+}
 export interface GitVersion extends Version{
   sourceType: string; // 版本来源类型：branch/tag/commit
   sourceValue: string; // 版本来源值

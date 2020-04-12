@@ -70,4 +70,11 @@ router.get('/cat', (req: Request, res: Response, next: NextFunction) => {
   })
   .catch(next)
 })
+router.post('/config/add', (req: Request, res: Response, next: NextFunction) => {
+  gitService.addConfig(req.body)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
 export default router

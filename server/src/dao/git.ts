@@ -1,7 +1,7 @@
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
 import { Config, VersionStatus } from '../types/common';
@@ -106,7 +106,12 @@ class GitDao {
     const versionSql = `select 
         version.*, 
         version.version as name
-      from source_version as version where version.source_id = ?`
+      from 
+        source_version as version 
+      where 
+        version.source_id = ? 
+      order by 
+        version.publish_time desc`
     gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
     const configSql = `select * from source_config where source_id = ?`
     gitInfo.configs = await pool.query<Config>(configSql, [id]) as Config[]
@@ -146,23 +151,33 @@ class GitDao {
     const versionList = await pool.query<GitVersion[]>(sql, [versionId]) as GitVersion[]
     return versionList[0]
   }
-  // async addConfig (): Promise<any> {
-  //   const sql = `insert into 
-  //     source_config(
-  //       id, 
-  //       source_id, 
-  //       version_id, 
-  //       name, 
-  //       desc, 
-  //       reg, 
-  //       type_id, 
-  //       file_path, 
-  //       target_value
-  //     ) values(
-  //       ?,?,?,?,?,?,?,?,?
-  //     )`
-  //     const configId = util.uuid()
-  // }
+  async addConfig (param: GitCreateConfigParam): Promise<any> {
+    const sql = `insert into 
+      source_config(
+        id, 
+        source_id, 
+        version_id, 
+        \`desc\`, 
+        reg, 
+        type_id, 
+        file_path, 
+        target_value
+      ) values(
+        ?,?,?,?,?,?,?,?
+      )`
+      const configId = util.uuid()
+      const a = await pool.query(sql, [
+        configId, 
+        param.sourceId, 
+        param.versionId, 
+        param.desc, 
+        param.reg ? JSON.stringify(param.reg) : null, 
+        param.typeId, 
+        param.filePath, 
+        param.value
+      ])
+      console.log(a)
+  }
 }
 
 export default new GitDao()

@@ -1,5 +1,5 @@
 import gitDao from '../dao/git'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam } from '../types/git';
 import { DirNode } from '../types/common';
 import * as path from 'path'
 import config from '../config';
@@ -71,6 +71,9 @@ class GitService {
       throw new Error('会话中workDir找不到')
     }
     return await fsUtil.readFile(path.resolve(session.repoDir, filePath))
+  }
+  async addConfig (config: GitCreateConfigParam): Promise<void> {
+    return await gitDao.addConfig(config)
   }
 }
 

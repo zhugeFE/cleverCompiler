@@ -17,20 +17,21 @@ interface FormData {
   global?: boolean;
   ignoreCase?: boolean;
 }
+export interface TextConfigParam {
+  filePath: string;
+  reg: {
+    source: string;
+    global: boolean;
+    ignoreCase: boolean;
+  };
+  value: string;
+  desc: string;
+}
 interface Props {
   gitId: string;
   versionId: string;
   onCancel (): void;
-  onSubmit (data: {
-    filePath: string;
-    reg: {
-      source: string;
-      global: boolean;
-      ignoreCase: boolean;
-    },
-    value: string;
-    desc: string;
-  }): void;
+  onSubmit (data: TextConfigParam): void;
   onBack (): void;
 }
 interface State {

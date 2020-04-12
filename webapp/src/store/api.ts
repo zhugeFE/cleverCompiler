@@ -12,6 +12,7 @@ export default {
   },
   git: {
     getFileTree: '/api/git/filetree',
-    fileCat: '/api/git/cat'
+    fileCat: '/api/git/cat',
+    addConfig: '/api/git/config/add'
   }
 }
