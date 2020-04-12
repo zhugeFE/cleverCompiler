@@ -1,6 +1,6 @@
 import gitDao from '../dao/git'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../types/git';
-import { Version, DirNode } from '../types/common';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion } from '../types/git';
+import { DirNode } from '../types/common';
 import * as path from 'path'
 import config from '../config';
 import { User } from '../types/user';
@@ -28,10 +28,10 @@ class GitService {
   async getCommitsById (repoId: string | number): Promise<GitCommit[]> {
     return await gitDao.getCommitsById(repoId)
   }
-  async addVersion (param: GitCreateVersionParam): Promise<Version> {
+  async addVersion (param: GitCreateVersionParam): Promise<GitVersion> {
     return await gitDao.addVersion(param)
   }
-  async getFileTree (session: Express.Session, id: string, currentUser: User): Promise<DirNode[]> {
+  async getFileTree (session: Express.Session, id: string, versionId: string, currentUser: User): Promise<DirNode[]> {
     const gitInfo = await gitDao.getInfo(id)
     const workDir = path.resolve(config.compileDir, currentUser.id)
     await fsUtil.mkdir(workDir)
@@ -43,6 +43,23 @@ class GitService {
         cwd: workDir
       })
     }
+    const version = await gitDao.getVersionById(versionId)
+    // 清空目录下所有的修改，并且将内容更新到最新
+    await dashUtil.exec(`git checkout .`, {cwd: repoDir})
+    await dashUtil.exec(`git clean -df`, {cwd: repoDir})
+    await dashUtil.exec('git fetch --all', {cwd: repoDir})
+    switch (version.sourceType) {
+      case 'branch':
+      case 'commit':
+        await dashUtil.exec(`git checkout ${version.sourceValue}`, {cwd: repoDir})
+        break;
+      case 'tag':
+        await dashUtil.exec(`git checkout tags/${version.sourceValue}`, {cwd: repoDir})
+        break;
+    }
+    await dashUtil.exec(`git checkout .`, {cwd: repoDir})
+    await dashUtil.exec(`git clean -df`, {cwd: repoDir})
+    if (version.sourceType === 'branch') await dashUtil.exec(`git pull`, {cwd: repoDir})
     return fsUtil.getDirTree(repoDir)
   }
   async getFileContent (session: Express.Session, filePath: string): Promise<string> {

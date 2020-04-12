@@ -11,7 +11,7 @@ export default {
     queryRoles: '/api/sys/roles'
   },
   git: {
-    getFileTree: '/api/git/:id/filetree',
+    getFileTree: '/api/git/filetree',
     fileCat: '/api/git/cat'
   }
 }

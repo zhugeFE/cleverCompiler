@@ -19,6 +19,7 @@ interface FormData {
 }
 interface Props {
   gitId: string;
+  versionId: string;
   onCancel (): void;
   onSubmit (data: {
     filePath: string;
@@ -136,7 +137,10 @@ class GitTextConfig extends React.Component<Props, State> {
         cancelText="取消"
         onCancel={this.onCancel}
         onOk={this.onSubmit}>
-        <FileTree onSelect={this.onSelectFile} gitId={this.props.gitId}></FileTree>
+        <FileTree 
+          onSelect={this.onSelectFile} 
+          versionId={this.props.versionId}
+          gitId={this.props.gitId}></FileTree>
         <div className="git-cm-left-panel git-text-config">
           <Form ref={this.form}
             layout="inline" {...layout} 

@@ -74,6 +74,7 @@ class GitAddConfig extends React.Component<Props, State> {
           return (
             <GitTextConfig 
               gitId={this.props.gitId}
+              versionId={this.props.version.id}
               onSubmit={this.onSubmitForm}
               onBack={this.onBack}
               onCancel={this.onCancel}></GitTextConfig>

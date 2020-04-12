@@ -1,10 +1,10 @@
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
-import { Version, Config, VersionStatus } from '../types/common';
+import { Config, VersionStatus } from '../types/common';
 import gitUtil from '../utils/gitUtil';
 interface Repo {
   id: string;
@@ -107,12 +107,12 @@ class GitDao {
         version.*, 
         version.version as name
       from source_version as version where version.source_id = ?`
-    gitInfo.versionList = await pool.query<Version>(versionSql, [id]) as Version[]
+    gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
     const configSql = `select * from source_config where source_id = ?`
     gitInfo.configs = await pool.query<Config>(configSql, [id]) as Config[]
     return gitInfo
   }
-  async addVersion (param: GitCreateVersionParam): Promise<Version> {
+  async addVersion (param: GitCreateVersionParam): Promise<GitVersion> {
     // todo 版本号重复校验
     const sql = `insert into source_version(
       id, source_id, version, publish_time, status, source_type, source_value
@@ -131,7 +131,7 @@ class GitDao {
     ])
     return await this.getVersionById(id)
   }
-  async getVersionById (versionId: string): Promise<Version> {
+  async getVersionById (versionId: string): Promise<GitVersion> {
     const sql = `select 
       v.id,
       v.version as name,
@@ -140,10 +140,29 @@ class GitDao {
       v.compile_orders,
       v.readme_doc,
       v.build_doc,
-      v.update_doc from source_version as v where v.id = ?`
-    const versionList = await pool.query<Version[]>(sql, [versionId]) as Version[]
+      v.update_doc,
+      v.source_type,
+      v.source_value from source_version as v where v.id = ?`
+    const versionList = await pool.query<GitVersion[]>(sql, [versionId]) as GitVersion[]
     return versionList[0]
   }
+  // async addConfig (): Promise<any> {
+  //   const sql = `insert into 
+  //     source_config(
+  //       id, 
+  //       source_id, 
+  //       version_id, 
+  //       name, 
+  //       desc, 
+  //       reg, 
+  //       type_id, 
+  //       file_path, 
+  //       target_value
+  //     ) values(
+  //       ?,?,?,?,?,?,?,?,?
+  //     )`
+  //     const configId = util.uuid()
+  // }
 }
 
 export default new GitDao()

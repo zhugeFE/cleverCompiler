@@ -1,8 +1,8 @@
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../types/git';
-import { Version, DirNode } from '../types/common';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion } from '../types/git';
+import { DirNode } from '../types/common';
 const router = Router()
 
 router.post('/list', (req: Request, res: Response, next: NextFunction) => {
@@ -51,13 +51,13 @@ router.get('/:id/commits', (req: Request, res: Response, next: NextFunction) => 
 })
 router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
   gitService.addVersion(req.body as GitCreateVersionParam)
-  .then((version: Version) => {
+  .then((version: GitVersion) => {
     res.json(new ApiResult(ResponseStatus.success, version))
   })
   .catch(next)
 })
-router.get('/:id/filetree', (req: Request, res: Response, next: NextFunction) => {
-  gitService.getFileTree(req.session, req.params.id, req.session.currentUser)
+router.get('/filetree', (req: Request, res: Response, next: NextFunction) => {
+  gitService.getFileTree(req.session, req.query.id, req.query.versionId, req.session.currentUser)
   .then((treeList: DirNode[]) => {
     res.json(new ApiResult(ResponseStatus.success, treeList))
   })

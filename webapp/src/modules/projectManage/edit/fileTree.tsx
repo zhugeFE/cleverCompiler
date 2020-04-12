@@ -9,6 +9,7 @@ import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import './styles/fileTree.less'
 interface Props {
   gitId: string;
+  versionId: string;
   onSelect? (filePath: string, fileType: string): void
 }
 interface NodeData extends DataNode {
@@ -28,8 +29,12 @@ class FileTree extends React.Component<Props, State> {
   }
   queryTreeData () {
     ajax({
-      url: api.git.getFileTree.replace(':id', this.props.gitId),
-      method: 'GET'
+      url: api.git.getFileTree,
+      method: 'GET',
+      params: {
+        id: this.props.gitId,
+        versionId: this.props.versionId
+      }
     })
     .then((res: ApiResult<DirNode[]>) => {
       function iterator (nodes: DirNode[]): NodeData[] {
