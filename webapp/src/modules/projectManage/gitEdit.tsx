@@ -46,6 +46,7 @@ class GitEditPanel extends React.Component<Props, State> {
     this.onChangeUpdate = this.onChangeUpdate.bind(this)
     this.onSave = this.onSave.bind(this)
     this.onAddConfig = this.onAddConfig.bind(this)
+    this.onCancelConfig = this.onCancelConfig.bind(this)
   }
   componentDidMount () {
     this.getInfo()
@@ -119,6 +120,11 @@ class GitEditPanel extends React.Component<Props, State> {
       showAddConfig: true
     })
   }
+  onCancelConfig () {
+    this.setState({
+      showAddConfig: false
+    })
+  }
   onCancelAddVersion (): void {
     console.log('取消添加版本')
   }
@@ -132,11 +138,13 @@ class GitEditPanel extends React.Component<Props, State> {
     return (
       <div className="git-edit-panel">
         {
-          // this.state.showAddConfig ? (
-          //   <GitAddConfig></GitAddConfig>
-          // ) : null
+          this.state.showAddConfig ? (
+            <GitAddConfig 
+              gitId={this.props.match.params.id}
+              version={this.state.currentVersion}
+              onClose={this.onCancelConfig}></GitAddConfig>
+          ) : null
         }
-        <GitAddConfig gitId={this.props.match.params.id}></GitAddConfig>
         <div className="git-panel-top">
           <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>

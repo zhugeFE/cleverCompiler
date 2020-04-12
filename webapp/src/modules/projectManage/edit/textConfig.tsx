@@ -9,17 +9,31 @@ import GitFileEditor from './fileEditor';
 import './styles/textConfig.less'
 import { FormInstance } from 'antd/lib/form';
 
-interface Props {
-  gitId: string;
-}
 interface FormData {
+  filePath?: string;
   reg?: string;
   value?: string;
   desc?: string;
   global?: boolean;
   ignoreCase?: boolean;
 }
+interface Props {
+  gitId: string;
+  onCancel (): void;
+  onSubmit (data: {
+    filePath: string;
+    reg: {
+      source: string;
+      global: boolean;
+      ignoreCase: boolean;
+    },
+    value: string;
+    desc: string;
+  }): void;
+  onBack (): void;
+}
 interface State {
+  filePath: string;
   fileContent: string;
   formData: FormData;
   reg: RegExp;
@@ -30,6 +44,7 @@ class GitTextConfig extends React.Component<Props, State> {
   constructor (props: Props) {
     super(props)
     this.state = {
+      filePath: '',
       fileContent: '',
       formData: {},
       reg: null,
@@ -53,6 +68,7 @@ class GitTextConfig extends React.Component<Props, State> {
     })
     .then((res: ApiResult<string>) => {
       this.setState({
+        filePath,
         fileContent: res.data,
         displayContent: res.data
       })
@@ -79,19 +95,32 @@ class GitTextConfig extends React.Component<Props, State> {
     })
   }
   onSubmit () {
+    if (!this.state.filePath) {
+      message.error('请选择目标文件')
+      return;
+    }
     this.form.current.validateFields()
     .then(() => {
-      console.log('表单没问题了')
+      if (this.props.onSubmit) this.props.onSubmit({
+        filePath: this.state.filePath,
+        reg: {
+          source: this.state.reg.source,
+          global: this.state.reg.global,
+          ignoreCase: this.state.reg.ignoreCase
+        },
+        value: this.state.formData.value,
+        desc: this.state.formData.desc
+      })
     })
     .catch(() => {
       console.error('表单校验失败')
     })
   }
   onCancel () {
-    console.log('on cancel')
+    if (this.props.onCancel) this.props.onCancel()
   }
   onBack () {
-    console.log('on back')
+    if (this.props.onBack) this.props.onBack()
   }
   render () {
     const layout = {

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import ajax from '../../../utils/ajax';
 import api from '../../../store/api';
 import { ApiResult } from '../../../utils/ajax';
-import { ConfigType } from '../../../store/state/common';
+import { ConfigType, Version } from '../../../store/state/common';
 import { baseActions } from '../../../store/actionTypes';
 import './styles/addConfig.less'
 import GitTextConfig from './textConfig';
@@ -16,6 +16,7 @@ import GitJsonConfig from './jsonConfig';
 interface Props {
   gitId: string;
   mode: string;
+  version: Version;
   configTypes: ConfigType[];
   getConfigTypes (): void;
   onClose ?(): void;
@@ -33,6 +34,10 @@ class GitAddConfig extends React.Component<Props, State> {
     this.state = {
       type: null
     }
+    this.onSubmit = this.onSubmit.bind(this)
+    this.onSubmitForm = this.onSubmitForm.bind(this)
+    this.onBack = this.onBack.bind(this)
+    this.onCancel = this.onCancel.bind(this)
   }
   componentDidMount () {
     this.props.getConfigTypes()
@@ -42,13 +47,36 @@ class GitAddConfig extends React.Component<Props, State> {
       type: configType
     })
   }
+  onSubmitForm (formData: any) {
+    console.log('>>>>>form data', {
+      sourceId: this.props.gitId,
+      versionId: this.props.version.id,
+      typeId: this.state.type.id,
+      param: formData
+    })
+  }
+  onCancel () {
+    if (this.props.onClose) this.props.onClose()
+  }
+  onBack () {
+    this.setState({
+      type: null
+    })
+  }
+  onSubmit () {
+    if (this.props.onSubmit) this.props.onSubmit()
+  }
   render () {
     let title = this.props.mode === 'add' ? '添加配置' : '修改配置'
     if (this.state.type) {
       switch (this.state.type.key) {
         case 'text':
           return (
-            <GitTextConfig gitId={this.props.gitId}></GitTextConfig>
+            <GitTextConfig 
+              gitId={this.props.gitId}
+              onSubmit={this.onSubmitForm}
+              onBack={this.onBack}
+              onCancel={this.onCancel}></GitTextConfig>
           )
         case 'file':
           return (
@@ -60,12 +88,17 @@ class GitAddConfig extends React.Component<Props, State> {
           )
         default:
           return (
-            <div>???</div>
+            <div>未知配置类型</div>
           )
       }
     } else {
       return (
-        <Modal title={title} visible={true} className="add-git-config-modal">
+        <Modal 
+          title={title} 
+          visible={true} 
+          className="add-git-config-modal"
+          onOk={this.onSubmit}
+          onCancel={this.onCancel}>
           <Row gutter={16}>
             {this.props.configTypes.map(config => {
               return (
