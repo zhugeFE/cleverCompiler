@@ -17,10 +17,17 @@ class GitConfigPanel extends React.Component<Props, State> {
     super(props, state)
     this.state = {
       columns: [
-        {title: '名称', dataIndex: 'name'},
+        {title: '文件位置', dataIndex: 'filePath', fixed: 'left'},
+        {title: '目标内容', dataIndex: 'value'},
         {title: '类型', dataIndex: 'type'},
-        {title: '文件位置', dataIndex: 'filePath'},
-        {title: '匹配规则', dataIndex: 'reg'},
+        {title: '匹配规则', dataIndex: 'reg', render (value) {
+          if (!value) return <span>-</span>
+          const val = JSON.parse(value)
+          const reg = new RegExp(val.source, `${val.global ? 'g' : ''}${val.ignoreCase ? 'i' : ''}`)
+          return (
+            <span>{reg.toString()}</span>
+          )
+        }},
         {title: '描述', dataIndex: 'desc'},
         {title: '操作', render () {
           return (
@@ -36,7 +43,7 @@ class GitConfigPanel extends React.Component<Props, State> {
   render () {
     return (
       <div className="git-config-panel">
-        <Table bordered columns={this.state.columns} dataSource={this.props.store}></Table>
+        <Table bordered columns={this.state.columns} rowKey="id" dataSource={this.props.store}></Table>
       </div>
     )
   }
