@@ -1,6 +1,6 @@
 import * as React from 'react'
 import './timeLine.less'
-import { Timeline, Tag, Input } from 'antd'
+import { Timeline, Tag, Input, Form } from 'antd'
 import TimelineItem from 'antd/lib/timeline/TimelineItem'
 import { PlusOutlined } from '@ant-design/icons'
 import { Version, VersionStatus } from '../../../store/state/common';
@@ -37,9 +37,11 @@ class TimeLinePanel extends React.Component<Props, State> {
     })
     if (this.props.onChange) this.props.onChange(version)
   }
-  onFilter (v: string) {
+  onFilter (changedValues: {
+    search: string;
+  }) {
     this.setState({
-      filter: v
+      filter: changedValues.search
     })
   }
   toAddVersion () {
@@ -66,11 +68,14 @@ class TimeLinePanel extends React.Component<Props, State> {
               afterAdd={this.afterAdd}></CreateVersion>
           ) : null
         }
-        <Input.Search
-          className="version-search"
-          size="small"
-          placeholder="x.x.x"
-          onSearch={this.onFilter}/>
+        <Form layout="inline" onValuesChange={this.onFilter} wrapperCol={{span: 24}}>
+          <Form.Item name="search">
+            <Input.Search
+              className="version-search"
+              size="small"
+              placeholder="x.x.x"/>
+          </Form.Item>
+        </Form>
         <Timeline mode="alternate">
           <TimelineItem dot={
             <a onClick={this.toAddVersion}><PlusOutlined/></a>

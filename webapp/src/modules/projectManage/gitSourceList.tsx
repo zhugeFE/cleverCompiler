@@ -35,7 +35,7 @@ class GitSourceList extends React.Component<Props, State> {
     history.push(`/project/git/${record.id}`)
   }
   componentDidMount () {
-    this.props.getGitSourceList()
+    if (!this.props.gitList.length) this.props.getGitSourceList()
   }
   onSearch (changedValues: any, values: any) {
     this.setState({
