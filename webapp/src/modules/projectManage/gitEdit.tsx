@@ -7,12 +7,11 @@ import GitConfigPanel from './edit/config'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
 import Commands from './edit/commands'
-import { GitInfo, GitConfig } from '../../store/state/git';
+import { GitInfo, GitConfig, GitVersion } from '../../store/state/git';
 import ajax from '../../utils/ajax'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import CreateVersion from './createVersion'
 import { LeftOutlined } from '@ant-design/icons'
-import { Version } from '../../store/state/common';
 import * as _ from 'lodash';
 import util from '../../utils/util'
 import GitAddConfig from './edit/addConfig';
@@ -25,7 +24,7 @@ interface Props extends RouteComponentProps<{
 interface State {
   tags: string[];
   gitInfo: GitInfo;
-  currentVersion: Version;
+  currentVersion: GitVersion;
   showAddConfig: boolean;
 }
 class GitEditPanel extends React.Component<Props, State> {
@@ -72,7 +71,7 @@ class GitEditPanel extends React.Component<Props, State> {
       message.error(err.message)
     })
   }
-  afterCreateVersion (version: Version): void {
+  afterCreateVersion (version: GitVersion): void {
     const gitInfo = _.cloneDeep(this.state.gitInfo)
     gitInfo.versionList.unshift(version)
     this.setState({
@@ -80,7 +79,7 @@ class GitEditPanel extends React.Component<Props, State> {
       currentVersion: version
     })
   }
-  onChangeVersion (version: Version) {
+  onChangeVersion (version: GitVersion) {
     this.setState({
       currentVersion: version
     })
@@ -182,7 +181,9 @@ class GitEditPanel extends React.Component<Props, State> {
               <div className="git-detail">
                 <Description label="项目名称" labelWidth={labelWidth}>
                   {this.state.gitInfo.name} 
-                  <Tag color="#87d068" style={{marginLeft: '5px'}}>v:{this.state.currentVersion?.name}</Tag> 
+                  <Tooltip title={`${this.state.currentVersion?.sourceType}: ${this.state.currentVersion?.sourceValue}`} placement="bottom">
+                    <Tag color="#87d068" style={{marginLeft: '5px'}}>v:{this.state.currentVersion?.name}</Tag>
+                  </Tooltip>
                   <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion?.publishTime))}</Tag>
                 </Description>
                 <Description label="git地址" labelWidth={labelWidth} className="git-addr">

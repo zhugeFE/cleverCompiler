@@ -23,13 +23,18 @@ export interface GitConfig {
   filePath: string; // 原始文件路径
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
 }
+export interface GitVersion extends Version{
+  sourceType: string;
+  sourceValue: string;
+  compileOrders: string[]; // 编译命令组
+}
 export interface GitInfo {
   id: string;
   gitId: string;
   name: string;
   gitRepo: string;
   configs: GitConfig[];
-  versionList: Version[];
+  versionList: GitVersion[];
 }
 export interface GitState {
   list: GitInstance[]
