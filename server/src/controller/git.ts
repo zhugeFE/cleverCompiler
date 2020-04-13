@@ -1,7 +1,7 @@
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitConfig } from '../types/git';
 import { DirNode } from '../types/common';
 const router = Router()
 
@@ -72,8 +72,8 @@ router.get('/cat', (req: Request, res: Response, next: NextFunction) => {
 })
 router.post('/config/add', (req: Request, res: Response, next: NextFunction) => {
   gitService.addConfig(req.body)
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success))
+  .then((config: GitConfig) => {
+    res.json(new ApiResult(ResponseStatus.success, config))
   })
   .catch(next)
 })

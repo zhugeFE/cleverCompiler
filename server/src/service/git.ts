@@ -1,5 +1,5 @@
 import gitDao from '../dao/git'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
 import { DirNode } from '../types/common';
 import * as path from 'path'
 import config from '../config';
@@ -72,7 +72,7 @@ class GitService {
     }
     return await fsUtil.readFile(path.resolve(session.repoDir, filePath))
   }
-  async addConfig (config: GitCreateConfigParam): Promise<void> {
+  async addConfig (config: GitCreateConfigParam): Promise<GitConfig> {
     return await gitDao.addConfig(config)
   }
 }

@@ -1,10 +1,10 @@
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
-import { Config, VersionStatus } from '../types/common';
+import { VersionStatus } from '../types/common';
 import gitUtil from '../utils/gitUtil';
 interface Repo {
   id: string;
@@ -113,8 +113,7 @@ class GitDao {
       order by 
         version.publish_time desc`
     gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
-    const configSql = `select * from source_config where source_id = ?`
-    gitInfo.configs = await pool.query<Config>(configSql, [id]) as Config[]
+    gitInfo.configs = await this.queryConfigBySourceId(id)
     return gitInfo
   }
   async addVersion (param: GitCreateVersionParam): Promise<GitVersion> {
@@ -151,7 +150,7 @@ class GitDao {
     const versionList = await pool.query<GitVersion[]>(sql, [versionId]) as GitVersion[]
     return versionList[0]
   }
-  async addConfig (param: GitCreateConfigParam): Promise<any> {
+  async addConfig (param: GitCreateConfigParam): Promise<GitConfig> {
     const sql = `insert into 
       source_config(
         id, 
@@ -165,18 +164,37 @@ class GitDao {
       ) values(
         ?,?,?,?,?,?,?,?
       )`
-      const configId = util.uuid()
-      const a = await pool.query(sql, [
-        configId, 
-        param.sourceId, 
-        param.versionId, 
-        param.desc, 
-        param.reg ? JSON.stringify(param.reg) : null, 
-        param.typeId, 
-        param.filePath, 
-        param.value
-      ])
-      console.log(a)
+    const configId = util.uuid()
+    await pool.query(sql, [
+      configId, 
+      param.sourceId, 
+      param.versionId, 
+      param.desc, 
+      param.reg ? JSON.stringify(param.reg) : null, 
+      param.typeId, 
+      param.filePath, 
+      param.value
+    ])
+    return await this.getConfigById(configId)
+  }
+  async getConfigById (id: string): Promise<GitConfig> {
+    const sql = `select 
+      config.*,
+      ct.label as type
+    from source_config as config 
+    left join config_type as ct on config.type_id = ct.id
+    where config.id=?`
+    const list = await pool.query(sql, [id])
+    return list[0]
+  }
+  async queryConfigBySourceId (sourceId: string): Promise<GitConfig[]> {
+    const sql = `select 
+      config.*,
+      ct.label as type
+    from source_config as config 
+    left join config_type as ct on config.type_id = ct.id
+    where config.source_id=?`
+    return await pool.query(sql, [sourceId]) as GitConfig[]
   }
 }
 

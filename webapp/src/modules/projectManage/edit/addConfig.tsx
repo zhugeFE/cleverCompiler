@@ -12,6 +12,7 @@ import './styles/addConfig.less'
 import GitTextConfig from './textConfig';
 import GitFileConfig from './fileConfig';
 import GitJsonConfig from './jsonConfig';
+import { GitConfig } from '../../../store/state/git';
 
 interface Props {
   gitId: string;
@@ -20,7 +21,7 @@ interface Props {
   configTypes: ConfigType[];
   getConfigTypes (): void;
   onClose ?(): void;
-  onSubmit ?(): void;
+  onSubmit ?(config: GitConfig): void;
 }
 interface State {
   type: ConfigType;
@@ -34,7 +35,6 @@ class GitAddConfig extends React.Component<Props, State> {
     this.state = {
       type: null
     }
-    this.onSubmit = this.onSubmit.bind(this)
     this.onSubmitForm = this.onSubmitForm.bind(this)
     this.onBack = this.onBack.bind(this)
     this.onCancel = this.onCancel.bind(this)
@@ -58,8 +58,10 @@ class GitAddConfig extends React.Component<Props, State> {
         ...formData
       }
     })
-    .then((res: ApiResult<any>) => {
-      console.log('>>>>', res)
+    .then((res: ApiResult<GitConfig>) => {
+      if (this.props.onSubmit) {
+        this.props.onSubmit(res.data)
+      }
     })
     .catch(err => {
       message.error('保存失败')
@@ -73,9 +75,6 @@ class GitAddConfig extends React.Component<Props, State> {
     this.setState({
       type: null
     })
-  }
-  onSubmit () {
-    if (this.props.onSubmit) this.props.onSubmit()
   }
   render () {
     let title = this.props.mode === 'add' ? '添加配置' : '修改配置'
@@ -109,7 +108,7 @@ class GitAddConfig extends React.Component<Props, State> {
           title={title} 
           visible={true} 
           className="add-git-config-modal"
-          onOk={this.onSubmit}
+          footer={null}
           onCancel={this.onCancel}>
           <Row gutter={16}>
             {this.props.configTypes.map(config => {

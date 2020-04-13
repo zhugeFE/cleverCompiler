@@ -12,12 +12,23 @@ export interface GitInstance {
   readmeDoc: string;
   buildDoc: string;
 }
+export interface GitConfig {
+  id: string; // 配置项id
+  sourceId: string;
+  versionId: string;
+  typeId: number; // 类型id
+  type: string; // 类型名称
+  desc: string; // 描述信息
+  reg: string; // 正则表达式
+  filePath: string; // 原始文件路径
+  targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
+}
 export interface GitInfo {
   id: string;
   gitId: string;
   name: string;
   gitRepo: string;
-  configs: Config[];
+  configs: GitConfig[];
   versionList: Version[];
 }
 export interface GitState {
