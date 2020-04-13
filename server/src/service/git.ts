@@ -46,6 +46,7 @@ class GitService {
     // 清空目录下所有的修改，并且将内容更新到最新
     await dashUtil.exec(`git checkout .`, {cwd: repoDir})
     await dashUtil.exec(`git clean -df`, {cwd: repoDir})
+    await dashUtil.exec(`git checkout master`, {cwd: repoDir})
     await dashUtil.exec('git fetch --all', {cwd: repoDir})
     switch (version.sourceType) {
       case 'branch':

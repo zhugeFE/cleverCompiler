@@ -7,7 +7,7 @@ import GitConfigPanel from './edit/config'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
 import Commands from './edit/commands'
-import { GitInfo } from '../../store/state/git';
+import { GitInfo, GitConfig } from '../../store/state/git';
 import ajax from '../../utils/ajax'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import CreateVersion from './createVersion'
@@ -47,6 +47,7 @@ class GitEditPanel extends React.Component<Props, State> {
     this.onSave = this.onSave.bind(this)
     this.onAddConfig = this.onAddConfig.bind(this)
     this.onCancelConfig = this.onCancelConfig.bind(this)
+    this.afterAddConfig = this.afterAddConfig.bind(this)
   }
   componentDidMount () {
     this.getInfo()
@@ -128,6 +129,14 @@ class GitEditPanel extends React.Component<Props, State> {
   onCancelAddVersion (): void {
     console.log('取消添加版本')
   }
+  afterAddConfig (config: GitConfig) {
+    const gitInfo = _.cloneDeep(this.state.gitInfo)
+    gitInfo.configs.push(config)
+    this.setState({
+      gitInfo
+    })
+    this.onCancelConfig()
+  }
   render () {
     const labelWidth = 75
     if (!this.state.gitInfo) {
@@ -142,7 +151,8 @@ class GitEditPanel extends React.Component<Props, State> {
             <GitAddConfig 
               gitId={this.props.match.params.id}
               version={this.state.currentVersion}
-              onClose={this.onCancelConfig}></GitAddConfig>
+              onClose={this.onCancelConfig}
+              onSubmit={this.afterAddConfig}></GitAddConfig>
           ) : null
         }
         <div className="git-panel-top">
