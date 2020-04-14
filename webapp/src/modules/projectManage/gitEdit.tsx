@@ -202,7 +202,6 @@ class GitEditPanel extends React.Component<Props, State> {
         <div className="git-panel-top">
           <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>
-            <a onClick={this.onSave}>保存</a>
             <Tooltip title="归档后版本将变为只读状态">
               <a style={{marginLeft: '10px', color: '#faad14'}}>归档</a>
             </Tooltip>
