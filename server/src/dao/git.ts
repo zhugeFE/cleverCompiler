@@ -109,7 +109,7 @@ class GitDao {
     left join (
       SELECT a.*
         FROM
-      (SELECT * FROM source_version) as a
+        source_version as a
       JOIN
       (SELECT source_id, max(publish_time) as publish_time FROM source_version GROUP BY source_id) as b 
       ON a.source_id=b.source_id
