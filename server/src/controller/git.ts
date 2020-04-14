@@ -77,4 +77,11 @@ router.post('/config/add', (req: Request, res: Response, next: NextFunction) => 
   })
   .catch(next)
 })
+router.delete('/config', (req: Request, res: Response, next: NextFunction) => {
+  gitService.deleteConfigById(req.query.configId)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
 export default router

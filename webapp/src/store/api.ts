@@ -13,6 +13,7 @@ export default {
   git: {
     getFileTree: '/api/git/filetree',
     fileCat: '/api/git/cat',
-    addConfig: '/api/git/config/add'
+    addConfig: '/api/git/config/add',
+    delConfig: '/api/git/config'
   }
 }

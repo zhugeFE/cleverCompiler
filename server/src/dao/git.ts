@@ -215,6 +215,10 @@ class GitDao {
     where config.source_id=?`
     return await pool.query(sql, [sourceId]) as GitConfig[]
   }
+  async deleteConfigById (configId: string): Promise<void> {
+    const sql = `delete from source_config where id=?`
+    await pool.query(sql, [configId])
+  }
 }
 
 export default new GitDao()

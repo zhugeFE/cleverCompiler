@@ -47,6 +47,7 @@ class GitEditPanel extends React.Component<Props, State> {
     this.onAddConfig = this.onAddConfig.bind(this)
     this.onCancelConfig = this.onCancelConfig.bind(this)
     this.afterAddConfig = this.afterAddConfig.bind(this)
+    this.afterDelConfig = this.afterDelConfig.bind(this)
   }
   componentDidMount () {
     this.getInfo()
@@ -136,6 +137,17 @@ class GitEditPanel extends React.Component<Props, State> {
     })
     this.onCancelConfig()
   }
+  afterDelConfig (configId: string) {
+    const gitInfo = _.cloneDeep(this.state.gitInfo)
+    gitInfo.configs.forEach((config, i) => {
+      if (config.id === configId) {
+        gitInfo.configs.splice(i, 1)
+      }
+    })
+    this.setState({
+      gitInfo
+    })
+  }
   render () {
     const labelWidth = 75
     if (!this.state.gitInfo) {
@@ -190,7 +202,9 @@ class GitEditPanel extends React.Component<Props, State> {
                   <a>{this.state.gitInfo.gitRepo}</a>
                 </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
-                  <GitConfigPanel store={this.state.gitInfo?.configs || []}></GitConfigPanel>
+                  <GitConfigPanel 
+                    store={this.state.gitInfo?.configs || []}
+                    afterDelConfig={this.afterDelConfig}></GitConfigPanel>
                   <Button className="btn-add-config-item" onClick={this.onAddConfig}>添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
