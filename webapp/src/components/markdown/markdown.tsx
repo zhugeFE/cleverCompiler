@@ -25,6 +25,14 @@ class Markdown extends React.Component<Props, State> {
     }
     this.onChange = this.onChange.bind(this)
   }
+  static getDerivedStateFromProps (props: Props, state: State) {
+    if (props.content !== state.content) {
+      return {
+        content: props.content
+      }
+    }
+    return null
+  }
   onTogleMode () {
     this.setState({
       mode: this.state.mode === Mode.preview ? Mode.edit : Mode.preview

@@ -2,6 +2,7 @@ import * as React from 'react'
 import './styles/commands.less'
 import { Input, Tag } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
+import * as _ from 'lodash';
 
 interface Props {
   tags: string[];
@@ -26,6 +27,14 @@ class Commands extends React.Component<Props, State> {
     this.onShowInput = this.onShowInput.bind(this)
     this.onInput = this.onInput.bind(this)
     this.onBlurInput = this.onBlurInput.bind(this)
+  }
+  static getDerivedStateFromProps(props:Props, state: State) {
+    if (props.tags !== state.tags) {
+      return {
+        tags: props.tags
+      }
+    }
+    return null
   }
   onEnterTag () {
     this.setState({
