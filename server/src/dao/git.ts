@@ -37,7 +37,7 @@ class GitDao {
     const gitList = await this.query()
     const gitIdMap = {}
     gitList.forEach((git: GitInstance) => {
-      gitIdMap[git.gitId] = git
+      gitIdMap[git.repoId] = git
     })
     const connect = await pool.beginTransaction()
     try {
@@ -96,7 +96,26 @@ class GitDao {
     })
   }
   async query (): Promise<GitInstance[]> {
-    const sql = `select * from git_source`
+    const sql = `select 
+      git.id,
+      git.name,
+      git.description,
+      version.id as version_id,
+      version.version,
+      git.git as repo,
+      git.git_id as repo_id,
+      git.enable 
+    from git_source as git
+    left join (
+      SELECT a.*
+        FROM
+      (SELECT * FROM source_version) as a
+      JOIN
+      (SELECT source_id, max(publish_time) as publish_time FROM source_version GROUP BY source_id) as b 
+      ON a.source_id=b.source_id
+      AND a.publish_time=b.publish_time
+    ) as version 
+    on git.id=version.source_id`
     return await pool.query<GitInstance>(sql) as GitInstance[]
   }
   async getInfo (id: string): Promise<GitInfo> {

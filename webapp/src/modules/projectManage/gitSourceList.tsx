@@ -52,6 +52,7 @@ class GitSourceList extends React.Component<Props, State> {
         title: '项目名称',
         dataIndex: 'name',
         fixed: 'left',
+        width: 300,
         render (text, record: GitInstance) {
           return (
             <div>
@@ -63,21 +64,11 @@ class GitSourceList extends React.Component<Props, State> {
       },
       {
         title: '最新版本',
-        dataIndex: 'lastVersion',
+        dataIndex: 'version',
         render (text) {
           return (
             text || '-'
           )
-        },
-        sorter (a:GitInstance, b: GitInstance) {
-          const val = Number(a.lastVersion.replace(/\D/g, '')) - Number(b.lastVersion.replace(/\D/g, ''))
-          if (val > 0) {
-            return 1
-          } else if (val < 0) {
-            return -1
-          } else {
-            return 0
-          }
         }
       },
       {
@@ -115,7 +106,7 @@ class GitSourceList extends React.Component<Props, State> {
     ]
     const formData = this.state.form
     const showList = this.props.gitList.filter(item => {
-      return new RegExp(formData.name).test(item.name) && new RegExp(formData.version).test(item.lastVersion)
+      return new RegExp(formData.name, 'i').test(item.name) && new RegExp(formData.version, 'i').test(item.version)
     })
     return (
       <div className="git-source-list">
