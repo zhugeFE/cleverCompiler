@@ -245,13 +245,13 @@ class GitEditPanel extends React.Component<Props, State> {
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
-                    <Markdown onChange={this.onChangeReadme} content={this.state.currentVersion?.readmeDoc}></Markdown>
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.state.currentVersion?.readmeDoc}></Markdown> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署文档" key="build">
-                    <Markdown onChange={this.onChangeBuild} content={this.state.currentVersion?.buildDoc}></Markdown>
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.state.currentVersion?.buildDoc}></Markdown> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
-                    <Markdown onChange={this.onChangeUpdate} content={this.state.currentVersion?.updateDoc}></Markdown>
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.state.currentVersion?.updateDoc}></Markdown> : null}
                   </Tabs.TabPane>
                 </Tabs>
               </div>
