@@ -15,6 +15,7 @@ import { LeftOutlined } from '@ant-design/icons'
 import * as _ from 'lodash';
 import util from '../../utils/util'
 import GitAddConfig from './edit/addConfig';
+import api from '../../store/api'
 
 interface Props extends RouteComponentProps<{
   id: string
@@ -22,19 +23,19 @@ interface Props extends RouteComponentProps<{
 
 }
 interface State {
-  tags: string[];
   gitInfo: GitInfo;
   currentVersion: GitVersion;
   showAddConfig: boolean;
+  updateTimeout: NodeJS.Timeout;
 }
 class GitEditPanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
-      tags: [],
       gitInfo: null,
       currentVersion: null,
-      showAddConfig: false
+      showAddConfig: false,
+      updateTimeout: null
     }
     this.afterCreateVersion = this.afterCreateVersion.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
@@ -91,6 +92,7 @@ class GitEditPanel extends React.Component<Props, State> {
     this.setState({
       currentVersion: version
     })
+    this.onUpdateVersion()
   }
   onChangeReadme (content: string) {
     const version = _.cloneDeep(this.state.currentVersion)
@@ -98,6 +100,7 @@ class GitEditPanel extends React.Component<Props, State> {
     this.setState({
       currentVersion: version
     })
+    this.onUpdateVersion()
   }
   onChangeBuild (content: string) {
     const version = _.cloneDeep(this.state.currentVersion)
@@ -105,12 +108,42 @@ class GitEditPanel extends React.Component<Props, State> {
     this.setState({
       currentVersion: version
     })
+    this.onUpdateVersion()
   }
   onChangeUpdate (content: string) {
     const version = _.cloneDeep(this.state.currentVersion)
     version.updateDoc = content
     this.setState({
       currentVersion: version
+    })
+    this.onUpdateVersion()
+  }
+  onUpdateVersion () {
+    if (this.state.updateTimeout) {
+      clearTimeout(this.state.updateTimeout)
+    }
+    this.setState({
+      updateTimeout: setTimeout(() => {
+        const version = this.state.currentVersion
+        ajax({
+          url: api.git.updateVersion,
+          method: 'POST',
+          data: {
+            id: version.id,
+            compileOrders: JSON.stringify(version.compileOrders),
+            readmeDoc: version.readmeDoc,
+            buildDoc: version.buildDoc,
+            updateDoc: version.updateDoc
+          }
+        })
+        .then(() => {
+          console.log('保存成功')
+        })
+        .catch (err => {
+          message.error('保存失败')
+          console.error('保存失败', err)
+        })
+      }, 500)
     })
   }
   onSave () {
@@ -208,7 +241,7 @@ class GitEditPanel extends React.Component<Props, State> {
                   <Button className="btn-add-config-item" onClick={this.onAddConfig}>添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
-                  <Commands onChange={this.onChangeOrders} tags={this.state.tags}></Commands>
+                  {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} tags={this.state.currentVersion?.compileOrders}></Commands> : null}
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">

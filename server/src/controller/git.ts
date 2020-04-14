@@ -84,4 +84,16 @@ router.delete('/config', (req: Request, res: Response, next: NextFunction) => {
   })
   .catch(next)
 })
+router.post('/version/update', (req: Request, res: Response, next: NextFunction) => {
+  const param = req.body as GitVersion
+  if (!param.id) {
+    res.json(new ApiResult(ResponseStatus.fail, null, '版本id不能为空'))
+    return
+  }
+  gitService.updateVersion(req.body)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
 export default router

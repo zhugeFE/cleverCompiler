@@ -14,6 +14,7 @@ export default {
     getFileTree: '/api/git/filetree',
     fileCat: '/api/git/cat',
     addConfig: '/api/git/config/add',
-    delConfig: '/api/git/config'
+    delConfig: '/api/git/config',
+    updateVersion: '/api/git/version/update'
   }
 }

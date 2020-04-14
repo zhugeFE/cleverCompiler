@@ -79,6 +79,9 @@ class GitService {
   async deleteConfigById (configId: string): Promise<void> {
     await gitDao.deleteConfigById(configId)
   }
+  async updateVersion (version: GitVersion): Promise<void> {
+    await gitDao.updateVersion(version)
+  }
 }
 
 export default new GitService()

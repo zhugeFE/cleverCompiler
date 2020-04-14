@@ -6,6 +6,7 @@ import logger from '../utils/logger';
 import util from '../utils/util';
 import { VersionStatus } from '../types/common';
 import gitUtil from '../utils/gitUtil';
+import * as _ from 'lodash';
 interface Repo {
   id: string;
   name: string;
@@ -132,6 +133,9 @@ class GitDao {
       order by 
         version.publish_time desc`
     gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
+    gitInfo.versionList.forEach((version: GitVersion) => {
+      version.compileOrders = JSON.parse(version.compileOrders as unknown as string) || []
+    })
     gitInfo.configs = await this.queryConfigBySourceId(id)
     return gitInfo
   }
@@ -218,6 +222,19 @@ class GitDao {
   async deleteConfigById (configId: string): Promise<void> {
     const sql = `delete from source_config where id=?`
     await pool.query(sql, [configId])
+  }
+  async updateVersion (version: GitVersion): Promise<void> {
+    const props = []
+    const params = []
+    for (const key in version) {
+      if (key !== 'id') {
+        props.push(`${_.snakeCase(key)}=?`)
+        params.push(version[key])
+      }
+    }
+    params.push(version.id)
+    const sql = `update source_version set ${props.join(',')} where id=?`
+    await pool.query(sql, params)
   }
 }
 
