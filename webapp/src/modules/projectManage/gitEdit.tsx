@@ -28,6 +28,9 @@ interface State {
   showAddConfig: boolean;
   updateTimeout: NodeJS.Timeout;
   savePercent: number;
+  delTimeout: number;
+  delInterval: NodeJS.Timeout;
+  delTooltip: string;
 }
 class GitEditPanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
@@ -37,7 +40,10 @@ class GitEditPanel extends React.Component<Props, State> {
       currentVersion: null,
       showAddConfig: false,
       updateTimeout: null,
-      savePercent: 100
+      savePercent: 100,
+      delTimeout: 0,
+      delInterval: null,
+      delTooltip: ''
     }
     this.afterCreateVersion = this.afterCreateVersion.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
@@ -68,10 +74,31 @@ class GitEditPanel extends React.Component<Props, State> {
         this.setState({
           currentVersion: gitInfo.versionList[0]
         })
+        this.initDelInterval(gitInfo.versionList[0])
       }
     })
     .catch(err => {
       message.error(err.message)
+    })
+  }
+  initDelInterval (version: GitVersion) {
+    clearInterval(this.state.delInterval)
+    let delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() - version.publishTime)
+    let delTooltip = `操作倒计时：${util.timeFormat(delTimeout)}`
+    this.setState({
+      delTimeout,
+      delTooltip,
+      delInterval: setInterval(() => {
+        delTimeout = delTimeout - 1000
+        delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
+        if (delTimeout <= 0) {
+          clearInterval(this.state.delInterval)
+        }
+        this.setState({
+          delTimeout,
+          delTooltip
+        })
+      }, 1000)
     })
   }
   afterCreateVersion (version: GitVersion): void {
@@ -81,11 +108,13 @@ class GitEditPanel extends React.Component<Props, State> {
       gitInfo,
       currentVersion: version
     })
+    this.initDelInterval(version)
   }
   onChangeVersion (version: GitVersion) {
     this.setState({
       currentVersion: version
     })
+    this.initDelInterval(version)
   }
   onChangeOrders (orders: string[]) {
     const version = _.cloneDeep(this.state.currentVersion)
@@ -223,12 +252,17 @@ class GitEditPanel extends React.Component<Props, State> {
             <Tooltip title="归档后版本将变为只读状态">
               <a style={{marginLeft: '10px', color: '#faad14'}}>归档</a>
             </Tooltip>
-            <Tooltip title="操作倒计时：24:00:00">
-              <a style={{marginLeft: '10px', color: '#f5222d'}}>删除</a>
-            </Tooltip>
             <Tooltip title="废弃后，新建项目中该版本将不可用">
               <a style={{marginLeft: '10px', color: '#f5222d'}}>废弃</a>
             </Tooltip>
+            {
+              this.state.delTimeout > 0 ? (
+                <span>
+                  <a style={{marginLeft: '10px', color: '#f5222d', marginRight: '5px'}}>删除</a>
+                  ({this.state.delTooltip})
+                </span>
+              ) : null
+            }
             <Progress 
               percent={this.state.savePercent} 
               size="small"
