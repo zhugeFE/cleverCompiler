@@ -133,10 +133,11 @@ class GitDao {
       order by 
         version.publish_time desc`
     gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
-    gitInfo.versionList.forEach((version: GitVersion) => {
+    for (let i = 0; i < gitInfo.versionList.length; i++) {
+      const version = gitInfo.versionList[i]
       version.compileOrders = JSON.parse(version.compileOrders as unknown as string) || []
-    })
-    gitInfo.configs = await this.queryConfigBySourceId(id)
+      version.configs = await this.queryConfigByVersionId(version.id)
+    }
     return gitInfo
   }
   async addVersion (param: GitCreateVersionParam): Promise<GitVersion> {
@@ -210,13 +211,13 @@ class GitDao {
     const list = await pool.query(sql, [id])
     return list[0]
   }
-  async queryConfigBySourceId (sourceId: string): Promise<GitConfig[]> {
+  async queryConfigByVersionId (sourceId: string): Promise<GitConfig[]> {
     const sql = `select 
       config.*,
       ct.label as type
     from source_config as config 
     left join config_type as ct on config.type_id = ct.id
-    where config.source_id=?`
+    where config.version_id=?`
     return await pool.query(sql, [sourceId]) as GitConfig[]
   }
   async deleteConfigById (configId: string): Promise<void> {

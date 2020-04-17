@@ -5,6 +5,7 @@ import TimelineItem from 'antd/lib/timeline/TimelineItem'
 import { PlusOutlined } from '@ant-design/icons'
 import { Version, VersionStatus } from '../../../store/state/common';
 import CreateVersion from '../createVersion'
+import * as _ from 'lodash';
 
 interface Props {
   gitId: string;
@@ -30,6 +31,15 @@ class TimeLinePanel extends React.Component<Props, State> {
     this.onChooseVersion = this.onChooseVersion.bind(this)
     this.afterAdd = this.afterAdd.bind(this)
     this.onFilter = this.onFilter.bind(this)
+  }
+  static getDerivedStateFromProps(props:Props, state: State) {
+    const version = props.versionList.find(item => item.id === state.currentVersion.id)
+    if (!_.isEqual(version, state.currentVersion)) {
+      return {
+        currentVersion: version
+      }
+    }
+    return null
   }
   onChooseVersion (version: Version) {
     this.setState({

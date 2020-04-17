@@ -163,21 +163,35 @@ class GitEditPanel extends React.Component<Props, State> {
     console.log('取消添加版本')
   }
   afterAddConfig (config: GitConfig) {
+    const currentVersion = _.cloneDeep(this.state.currentVersion)
+    currentVersion.configs.push(config)
     const gitInfo = _.cloneDeep(this.state.gitInfo)
-    gitInfo.configs.push(config)
+    gitInfo.versionList.forEach((version, i) => {
+      if (version.id === currentVersion.id) {
+        gitInfo.versionList[i] = currentVersion
+      }
+    })
     this.setState({
+      currentVersion,
       gitInfo
     })
     this.onCancelConfig()
   }
   afterDelConfig (configId: string) {
-    const gitInfo = _.cloneDeep(this.state.gitInfo)
-    gitInfo.configs.forEach((config, i) => {
+    const currentVersion = _.cloneDeep(this.state.currentVersion)
+    currentVersion.configs.forEach((config, i) => {
       if (config.id === configId) {
-        gitInfo.configs.splice(i, 1)
+        currentVersion.configs.splice(i, 1)
+      }
+    })
+    const gitInfo = _.cloneDeep(this.state.gitInfo)
+    gitInfo.versionList.forEach((version, i) => {
+      if (version.id === currentVersion.id) {
+        gitInfo.versionList[i] = currentVersion
       }
     })
     this.setState({
+      currentVersion,
       gitInfo
     })
   }
@@ -235,7 +249,7 @@ class GitEditPanel extends React.Component<Props, State> {
                 </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
                   <GitConfigPanel 
-                    store={this.state.gitInfo?.configs || []}
+                    store={this.state.currentVersion?.configs || []}
                     afterDelConfig={this.afterDelConfig}></GitConfigPanel>
                   <Button className="btn-add-config-item" onClick={this.onAddConfig}>添加配置项</Button>
                 </Description>

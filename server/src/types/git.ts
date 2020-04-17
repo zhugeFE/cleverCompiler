@@ -16,8 +16,7 @@ export interface GitInfo {
   gitId: string;
   name: string;
   gitRepo: string;
-  configs: GitConfig[];
-  versionList: Version[];
+  versionList: GitVersion[];
 }
 
 export interface GitCommit {
@@ -68,5 +67,6 @@ export interface GitConfig {
 export interface GitVersion extends Version{
   sourceType: string; // 版本来源类型：branch/tag/commit
   sourceValue: string; // 版本来源值
+  configs: GitConfig[];
   compileOrders: string[]; // 编译命令组
 }

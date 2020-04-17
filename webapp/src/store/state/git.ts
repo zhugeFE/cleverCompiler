@@ -25,13 +25,13 @@ export interface GitVersion extends Version{
   sourceType: string;
   sourceValue: string;
   compileOrders: string[]; // 编译命令组
+  configs: GitConfig[];
 }
 export interface GitInfo {
   id: string;
   gitId: string;
   name: string;
   gitRepo: string;
-  configs: GitConfig[];
   versionList: GitVersion[];
 }
 export interface GitState {
