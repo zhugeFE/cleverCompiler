@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Button, Tabs, Tag, message, Spin, Tooltip } from 'antd'
+import { Button, Tabs, Tag, message, Spin, Tooltip, Progress } from 'antd'
 import TimeLinePanel from './timeline/timeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'
@@ -27,6 +27,7 @@ interface State {
   currentVersion: GitVersion;
   showAddConfig: boolean;
   updateTimeout: NodeJS.Timeout;
+  savePercent: number;
 }
 class GitEditPanel extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
@@ -35,7 +36,8 @@ class GitEditPanel extends React.Component<Props, State> {
       gitInfo: null,
       currentVersion: null,
       showAddConfig: false,
-      updateTimeout: null
+      updateTimeout: null,
+      savePercent: 100
     }
     this.afterCreateVersion = this.afterCreateVersion.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
@@ -44,7 +46,6 @@ class GitEditPanel extends React.Component<Props, State> {
     this.onChangeReadme = this.onChangeReadme.bind(this)
     this.onChangeBuild = this.onChangeBuild.bind(this)
     this.onChangeUpdate = this.onChangeUpdate.bind(this)
-    this.onSave = this.onSave.bind(this)
     this.onAddConfig = this.onAddConfig.bind(this)
     this.onCancelConfig = this.onCancelConfig.bind(this)
     this.afterAddConfig = this.afterAddConfig.bind(this)
@@ -123,6 +124,7 @@ class GitEditPanel extends React.Component<Props, State> {
       clearTimeout(this.state.updateTimeout)
     }
     this.setState({
+      savePercent: _.random(10, 90, false),
       updateTimeout: setTimeout(() => {
         const version = this.state.currentVersion
         ajax({
@@ -137,7 +139,9 @@ class GitEditPanel extends React.Component<Props, State> {
           }
         })
         .then(() => {
-          console.log('保存成功')
+          this.setState({
+            savePercent: 100
+          })
         })
         .catch (err => {
           message.error('保存失败')
@@ -146,8 +150,8 @@ class GitEditPanel extends React.Component<Props, State> {
       }, 500)
     })
   }
-  onSave () {
-    console.log('保存', _.cloneDeep(this.state.currentVersion))
+  savePercentFormat (percent: number) {
+    return percent === 100 ? 'saved' : 'saving'
   }
   onAddConfig () {
     this.setState({
@@ -225,6 +229,11 @@ class GitEditPanel extends React.Component<Props, State> {
             <Tooltip title="废弃后，新建项目中该版本将不可用">
               <a style={{marginLeft: '10px', color: '#f5222d'}}>废弃</a>
             </Tooltip>
+            <Progress 
+              percent={this.state.savePercent} 
+              size="small"
+              strokeWidth={2}
+              format={this.savePercentFormat}></Progress>
           </span>
         </div>
         {
