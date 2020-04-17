@@ -84,7 +84,7 @@ class GitEditPanel extends React.Component<Props, State> {
   initDelInterval (version: GitVersion) {
     clearInterval(this.state.delInterval)
     let delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() - version.publishTime)
-    let delTooltip = `操作倒计时：${util.timeFormat(delTimeout)}`
+    let delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
     this.setState({
       delTimeout,
       delTooltip,
@@ -100,6 +100,9 @@ class GitEditPanel extends React.Component<Props, State> {
         })
       }, 1000)
     })
+  }
+  componentWillUnmount () {
+    clearInterval(this.state.delInterval)
   }
   afterCreateVersion (version: GitVersion): void {
     const gitInfo = _.cloneDeep(this.state.gitInfo)
