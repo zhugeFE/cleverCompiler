@@ -33,10 +33,10 @@ class TimeLinePanel extends React.Component<Props, State> {
     this.onFilter = this.onFilter.bind(this)
   }
   static getDerivedStateFromProps(props:Props, state: State) {
-    const version = props.versionList.find(item => item.id === state.currentVersion.id)
+    const version = props.versionList.find(item => item.id === state.currentVersion?.id)
     if (!_.isEqual(version, state.currentVersion)) {
       return {
-        currentVersion: version
+        currentVersion: version || state.currentVersion
       }
     }
     return null
@@ -64,6 +64,7 @@ class TimeLinePanel extends React.Component<Props, State> {
       currentVersion: version,
       showCreate: false
     })
+    console.log('添加版本完成')
     if (this.props.afterAdd) this.props.afterAdd(version)
   }
   render () {
