@@ -39,6 +39,7 @@ export interface GitCreateVersionParam {
   version: string; // 版本号
   source: string; // 版本来源：branch/tag/commit
   value: string; // 版本来源值
+  description: string; // 版本描述
 }
 export interface GitCreateConfigParam {
   sourceId: string;
@@ -67,6 +68,7 @@ export interface GitConfig {
 export interface GitVersion extends Version{
   sourceType: string; // 版本来源类型：branch/tag/commit
   sourceValue: string; // 版本来源值
+  description: string; // 版本描述
   configs: GitConfig[];
   compileOrders: string[]; // 编译命令组
 }
