@@ -44,7 +44,7 @@ class FsUtil {
     const matchIgnore = (itemPath: string): boolean => {
       let match = false
       exclude.forEach(reg => {
-        if (new RegExp(reg).test(itemPath)) {
+        if (reg && new RegExp(reg).test(itemPath)) {
           match = true
         }
       })
@@ -58,7 +58,7 @@ class FsUtil {
       if (matchIgnore(child)) {
         // nothing
       } else if (stat.isDirectory()) {
-        res.push({
+        res.unshift({
           name: child,
           filePath: relativePath,
           isDirectory: true,
