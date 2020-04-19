@@ -1,6 +1,6 @@
 import * as React from 'react'
 import './styles/templateList.less'
-import { Table, Button } from 'antd'
+import { Table, Button, Form, Input } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import history from '../../utils/history'
 interface Props {
@@ -21,24 +21,7 @@ class TemplateList extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
-      store: [
-        {
-          key: 'xxx', 
-          name: 'webapp', 
-          latest: '1.0.3', 
-          update: new Date().getTime(),
-          devDoc: 'http://xx.com/a', 
-          depDoc: 'http://xx.com/b'
-        },
-        {
-          key: 'aaa', 
-          name: 'sdkv', 
-          latest: '1.2.2', 
-          update: new Date().getTime(),
-          devDoc: 'http://xx.com/a', 
-          depDoc: 'http://xx.com/b'
-        }
-      ]
+      store: []
     }
   }
   render () {
@@ -50,6 +33,7 @@ class TemplateList extends React.Component<Props, State> {
       {
         title: '最新版本',
         dataIndex: 'latest',
+        showSorterTooltip: false,
         sorter (a:Record, b: Record) {
           const val = Number(a.latest.replace(/\D/g, '')) - Number(b.latest.replace(/\D/g, ''))
           if (val > 0) {
@@ -69,6 +53,7 @@ class TemplateList extends React.Component<Props, State> {
             <span>{new Date(record.update).toLocaleString()}</span>
           )
         },
+        showSorterTooltip: false,
         sorter (a: Record, b: Record) {
           return a.update - b.update
         }
@@ -107,6 +92,17 @@ class TemplateList extends React.Component<Props, State> {
     ]
     return (
       <div className="template-source-list">
+        <Form layout="inline" style={{marginBottom: '10px'}}>
+          <Form.Item name="name" label="项目名称">
+            <Input></Input>
+          </Form.Item>
+          <Form.Item name="version" label="版本">
+            <Input></Input>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary">新建</Button>
+          </Form.Item>
+        </Form>
         <Table columns={columns} dataSource={this.state.store}></Table>
       </div>
     )
