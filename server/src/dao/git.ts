@@ -44,8 +44,8 @@ class GitDao {
     try {
       await Promise.all(repoList.map(async (rep: Repo) => {
         if (gitIdMap[rep.id]) return null
-        const sql = `insert into git_source(id, name, git, git_id, description, enable) values(?, ?, ?, ?, ?, ${false})`
-        await pool.queryInTransaction(connect, sql, [
+        const sql = `insert into git_source(\`id\`, \`name\`, \`git\`, \`git_id\`, \`description\`, \`enable\`) values(?, ?, ?, ?, ?, ${false})`
+        await pool.writeInTransaction(connect, sql, [
           util.uuid(),
           rep.name,
           rep.ssh_url_to_repo,
@@ -148,7 +148,7 @@ class GitDao {
       ?,?,?,?,?,?,?,?
     )`
     const id = util.uuid()
-    await pool.query(sql, [
+    await pool.write(sql, [
       id,
       param.gitId,
       param.version,
@@ -173,7 +173,7 @@ class GitDao {
       v.update_doc,
       v.source_type,
       v.source_value from source_version as v where v.id = ?`
-    const versionList = await pool.query<GitVersion[]>(sql, [versionId]) as GitVersion[]
+    const versionList = await pool.query<GitVersion>(sql, [versionId])
     return versionList[0]
   }
   async addConfig (param: GitCreateConfigParam): Promise<GitConfig> {
@@ -191,7 +191,7 @@ class GitDao {
         ?,?,?,?,?,?,?,?
       )`
     const configId = util.uuid()
-    await pool.query(sql, [
+    await pool.write(sql, [
       configId, 
       param.sourceId, 
       param.versionId, 
@@ -210,7 +210,7 @@ class GitDao {
     from source_config as config 
     left join config_type as ct on config.type_id = ct.id
     where config.id=?`
-    const list = await pool.query(sql, [id])
+    const list = await pool.query<GitConfig>(sql, [id])
     return list[0]
   }
   async queryConfigByVersionId (sourceId: string): Promise<GitConfig[]> {

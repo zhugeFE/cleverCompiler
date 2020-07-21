@@ -57,7 +57,7 @@ class SysDao {
    * @param conn 
    */
   async initConfigTypes (conn: PoolConnection): Promise<void> {
-    const sql = 'insert into config_type(id, label, key) values(?,?,?)'
+    const sql = `insert into config_type(\`id\`, \`label\`, \`key\`) values(?,?,?)`
     const types = [
       {
         id: 0,
@@ -81,7 +81,7 @@ class SysDao {
     }))
   }
   async queryConfigType (): Promise<ConfigType[]> {
-    return await pool.query<ConfigType[]>('select * from config_type') as ConfigType[]
+    return await pool.query<ConfigType>('select * from config_type')
   }
   async initRole (conn: PoolConnection): Promise<void> {
     const sql = 'insert into role(id, name) values(?,?)'
@@ -97,7 +97,7 @@ class SysDao {
     }))
   }
   async queryRole (): Promise<Role[]> {
-    return await pool.query<Role[]>('select * from role') as Role[]
+    return await pool.query<Role>('select * from role')
   }
 }
 export default new SysDao()

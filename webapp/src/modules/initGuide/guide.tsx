@@ -1,44 +1,49 @@
 import * as React from 'react'
-import {Form, Button, Input, Checkbox, message} from 'antd'
+import {Form, Button, Input, message} from 'antd'
 import './guide.less'
 import history from '../../utils/history'
-import { FormProps } from '../../types/antd'
 import ajax from '../../utils/ajax'
 import api from '../../store/api'
+import { FormInstance, Rule } from 'antd/lib/form'
 interface Props {
 }
+interface FormData {
+  account: string
+  email: string
+  host: string
+  password: string
+  rePassword: string
+  sshToken: string
+  token: string
+}
 class InitForm extends React.Component<Props, any>{
+  formRef: React.RefObject<FormInstance>
   constructor (props: Props) {
     super(props)
+    this.formRef = React.createRef()
     this.onSubmit = this.onSubmit.bind(this)
   }
   state: {
     form: null
   }
-  onSubmit (e: React.FormEvent) {
-    e.preventDefault()
-    // this.props.form.validateFields((err, props) => {
-    //   if (err) {
-    //     console.error('校验失败', err)
-    //   } else {
-    //     ajax({
-    //       url: api.sys.init,
-    //       method: 'POST',
-    //       data: {
-    //         gitHost: props.host,
-    //         gitToken: props.token,
-    //         gitSsh: props.sshToken,
-    //         gitAccount: props.account,
-    //         email: props.email,
-    //         password: props.password
-    //       }
-    //     }).then(() => {
-    //       history.replace('/login')
-    //     }).catch(err => {
-    //       message.error(err.message)
-    //     })
-    //   }
-    // })
+  onSubmit (values: FormData) {
+    ajax({
+      url: api.sys.init,
+      method: 'POST',
+      data: {
+        gitHost: values.host,
+        gitToken: values.token,
+        gitSsh: values.sshToken,
+        gitAccount: values.account,
+        email: values.email,
+        password: values.password
+      }
+    }).then(() => {
+      history.replace('/login')
+    }).catch(err => {
+      console.log('fjdi')
+      message.error(err.message)
+    })
   }
   render () {
     const formItemLayout = {
@@ -51,7 +56,7 @@ class InitForm extends React.Component<Props, any>{
     }
     return (
       <div className="init-guide">
-        <Form {...formItemLayout}>
+        <Form ref={this.formRef} {...formItemLayout} onFinish={this.onSubmit}>
           <div className="form-line">
           git绑定信息
           </div>
@@ -78,17 +83,14 @@ class InitForm extends React.Component<Props, any>{
           </Form.Item>
           <Form.Item label="确认密码" name="rePassword" rules={[{
             required: true, 
-            message: '请确认管理员密码!'
-            // validator: (rule: ValidationRule, value: any, callback: any) => {
-            //   if (!value) {
-            //     callback(rule)
-              // } else if (value !== this.props.form.getFieldValue('password')) {
-              //   rule.message = '确认密码与密码不一致'
-              //   callback(rule)
-            //   } else {
-            //     callback()
-            //   }
-            // }
+            message: '请确认管理员密码!',
+            validator: (rule: Rule, value: any) => {
+              if (value !== this.formRef.current.getFieldValue('password')) {
+                return Promise.reject('确认密码与密码不一致')
+              } else {
+                return Promise.resolve()
+              }
+            }
           }]}>
             <Input placeholder="确认密码" type="password"/>
           </Form.Item>

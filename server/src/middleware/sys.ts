@@ -4,6 +4,10 @@ import { ApiResult, ResponseStatus } from "../types/apiResult"
 import logger from '../utils/logger';
 
 export default function (req: Request, res: Response, next: NextFunction): void {
+  if (req.url === '/api/sys/init') {
+    next()
+    return
+  }
   sysDao.getStatus()
   .then(inited => {
     if (inited) {

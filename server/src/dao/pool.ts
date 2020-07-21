@@ -7,7 +7,7 @@ const pool: mysql.Pool = mysql.createPool({
   ...config.database
 })
 
-function formatRes <T>(sql: string, res: any): T | T[] {
+function formatRes <T>(sql: string, res: any): T[] {
   if (/^select/.test(sql)) {
     const list = []
     res.forEach((item: object) => {
@@ -19,14 +19,28 @@ function formatRes <T>(sql: string, res: any): T | T[] {
   }
 }
 class PoolUtil {
-  query<T> (sql: string, params?: any[]): Promise<T | T[]> {
+  query<T> (sql: string, params?: any[]): Promise<T[]> {
+    logger.info('sql query', sql, params)
     return new Promise((resolve, reject) => {
       pool.query(sql, params, (err, result) => {
         if (err) {
-          logger.error('执行sql错误', err)
+          logger.error('执行sql错误', err.sql)
           reject(err)
         } else {
           resolve(formatRes<T>(sql, result))
+        }
+      })
+    })
+  }
+  write (sql: string, params?: any[]): Promise<mysql.OkPacket> {
+    logger.info('sql insert: ', sql, params)
+    return new Promise((resolve, reject) => {
+      pool.query(sql, params, (err, result) => {
+        if (err) {
+          logger.error('执行insert语句错误', err.sql)
+          reject(err)
+        } else {
+          resolve(result)
         }
       })
     })
@@ -50,14 +64,28 @@ class PoolUtil {
       })
     })
   }
-  queryInTransaction (connect: mysql.PoolConnection, sql: string, params?: Array<string|number>): Promise<any> {
+  queryInTransaction<T> (connect: mysql.PoolConnection, sql: string, params?: Array<string|number>): Promise<T[]> {
     return new Promise((resolve, reject) => {
+      logger.info('query in transaction', sql, params)
       connect.query(sql, params, (err, results) => {
         if (err) {
           logger.error('事务中执行sql失败', err.sql)
           reject(err)
         } else {
           resolve(formatRes(sql, results))
+        }
+      })
+    })
+  }
+  writeInTransaction (connect: mysql.PoolConnection, sql: string, params?: any[]): Promise<mysql.OkPacket> {
+    return new Promise((resolve, reject) => {
+      logger.info('insert in transaction', sql, params)
+      connect.query(sql, params, (err, result) => {
+        if (err) {
+          logger.error('事务中执行sql失败', err.sql)
+          reject(err)
+        } else {
+          resolve(result)
         }
       })
     })
