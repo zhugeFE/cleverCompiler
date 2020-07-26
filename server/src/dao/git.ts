@@ -239,6 +239,10 @@ class GitDao {
     const sql = `update source_version set ${props.join(',')} where id=?`
     await pool.query(sql, params)
   }
+  async deleteVersion (id: string): Promise<void> {
+    const sql = `delete from source_version where id=?`
+    await pool.write(sql, [id])
+  }
 }
 
 export default new GitDao()

@@ -82,6 +82,9 @@ class GitService {
   async updateVersion (version: GitVersion): Promise<void> {
     await gitDao.updateVersion(version)
   }
+  async deleteVersion (id: string): Promise<void> {
+    await gitDao.deleteVersion(id)
+  }
 }
 
 export default new GitService()

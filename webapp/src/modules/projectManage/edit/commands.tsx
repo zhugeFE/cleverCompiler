@@ -42,7 +42,7 @@ class Commands extends React.Component<Props, State> {
     })
     let tags = this.state.tags
     if (this.state.value) {
-      tags = this.state.tags.concat([this.state.value])
+      tags = (this.state.tags || []).concat([this.state.value])
     }
     this.setState({
       tags,
