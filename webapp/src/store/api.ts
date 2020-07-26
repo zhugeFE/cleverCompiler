@@ -11,10 +11,12 @@ export default {
     queryRoles: '/api/sys/roles'
   },
   git: {
+    queryGitList: '/api/git/list',
     getFileTree: '/api/git/filetree',
     fileCat: '/api/git/cat',
     addConfig: '/api/git/config/add',
     delConfig: '/api/git/config',
-    updateVersion: '/api/git/version/update'
+    updateVersion: '/api/git/version/update',
+    deleteVersion: '/api/git/version'
   }
 }

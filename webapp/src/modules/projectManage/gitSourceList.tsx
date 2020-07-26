@@ -10,6 +10,7 @@ import { connect } from 'react-redux'
 import ajax from '../../utils/ajax'
 import * as _ from 'lodash'
 import { GitInstance } from '../../store/state/git';
+import api from '../../store/api'
 interface Props {
   getGitSourceList (): void;
   gitList: GitInstance[];
@@ -35,7 +36,7 @@ class GitSourceList extends React.Component<Props, State> {
     history.push(`/project/git/${record.id}`)
   }
   componentDidMount () {
-    if (!this.props.gitList.length) this.props.getGitSourceList()
+    this.props.getGitSourceList()
   }
   onSearch (changedValues: any, values: any) {
     this.setState({
@@ -149,7 +150,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     getGitSourceList: () => {
       ajax({
-        url: '/api/git/list',
+        url: api.git.queryGitList,
         method: 'post'
       }).then((res) => {
         dispatch({

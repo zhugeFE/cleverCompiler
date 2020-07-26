@@ -96,4 +96,11 @@ router.post('/version/update', (req: Request, res: Response, next: NextFunction)
   })
   .catch(next)
 })
+router.delete('/version', (req: Request, res: Response, next: NextFunction) => {
+  gitService.deleteVersion(req.query.id)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
 export default router

@@ -16,6 +16,7 @@ import * as _ from 'lodash';
 import util from '../../utils/util'
 import GitAddConfig from './edit/addConfig';
 import api from '../../store/api'
+import { version } from 'react-dom'
 
 interface Props extends RouteComponentProps<{
   id: string
@@ -56,6 +57,7 @@ class GitEditPanel extends React.Component<Props, State> {
     this.onCancelConfig = this.onCancelConfig.bind(this)
     this.afterAddConfig = this.afterAddConfig.bind(this)
     this.afterDelConfig = this.afterDelConfig.bind(this)
+    this.onDeleteVersion = this.onDeleteVersion.bind(this)
   }
   componentDidMount () {
     this.getInfo()
@@ -196,7 +198,7 @@ class GitEditPanel extends React.Component<Props, State> {
     })
   }
   onCancelAddVersion (): void {
-    console.log('取消添加版本')
+    if (!this.state.gitInfo.versionList.length) history.replace('/project/git/list')
   }
   afterAddConfig (config: GitConfig) {
     const currentVersion = _.cloneDeep(this.state.currentVersion)
@@ -231,6 +233,36 @@ class GitEditPanel extends React.Component<Props, State> {
       gitInfo
     })
   }
+  onDeleteVersion () {
+    ajax({
+      url: api.git.deleteVersion,
+      method: 'delete',
+      params: {
+        id: this.state.currentVersion.id
+      }
+    })
+    .then(() => {
+      const versionList: GitVersion[] = []
+      this.state.gitInfo.versionList.forEach((version) => {
+        if (version.id !== this.state.currentVersion.id) {
+          versionList.push(version)
+        }
+      })
+      const currentVersion = versionList.length > 0 ? versionList[0] : null
+      const gitInfo = _.cloneDeep(this.state.gitInfo)
+      gitInfo.versionList = versionList
+      this.setState({
+        gitInfo,
+        currentVersion
+      })
+    })
+    .catch(err => {
+      message.error({
+        content: '删除版本失败'
+      })
+      console.error('删除版本失败', err)
+    })
+  }
   render () {
     const labelWidth = 75
     if (!this.state.gitInfo) {
@@ -261,7 +293,7 @@ class GitEditPanel extends React.Component<Props, State> {
             {
               this.state.delTimeout > 0 ? (
                 <span>
-                  <a style={{marginLeft: '10px', color: '#f5222d', marginRight: '5px'}}>删除</a>
+                  <a onClick={this.onDeleteVersion} style={{marginLeft: '10px', color: '#f5222d', marginRight: '5px'}}>删除</a>
                   ({this.state.delTooltip})
                 </span>
               ) : null
