@@ -3,7 +3,7 @@ import { DirNode } from '../../../store/state/common';
 import ajax from '../../../utils/ajax';
 import api from '../../../store/api';
 import { ApiResult } from '../../../utils/ajax';
-import { message } from 'antd';
+import { message, Spin } from 'antd';
 import DirectoryTree from 'antd/lib/tree/DirectoryTree';
 import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import './styles/fileTree.less'
@@ -17,13 +17,15 @@ interface NodeData extends DataNode {
 }
 interface State {
   treeData: NodeData[];
+  loading: boolean;
 }
 
 class FileTree extends React.Component<Props, State> {
   constructor (props: Props) {
     super(props)
     this.state = {
-      treeData: []
+      treeData: [],
+      loading: true
     }
     this.onSelect = this.onSelect.bind(this)
   }
@@ -50,7 +52,8 @@ class FileTree extends React.Component<Props, State> {
         })
       }
       this.setState({
-        treeData: iterator(res.data)
+        treeData: iterator(res.data),
+        loading: false
       })
     })
     .catch(err => {
@@ -76,9 +79,13 @@ class FileTree extends React.Component<Props, State> {
   render () {
     return (
       <div className="file-tree">
-      <DirectoryTree
-        treeData={this.state.treeData}
-        onSelect={this.onSelect}></DirectoryTree>
+        {this.state.loading ? (
+          <Spin className="tree-loading"></Spin>
+        ) : (
+          <DirectoryTree
+          treeData={this.state.treeData}
+          onSelect={this.onSelect}></DirectoryTree>
+        )}
       </div>
     )
   }
