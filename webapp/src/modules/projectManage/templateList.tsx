@@ -3,6 +3,7 @@ import './styles/templateList.less'
 import { Table, Button, Form, Input } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import history from '../../utils/history'
+import CreateTemplate from './createTemplate'
 interface Props {
 
 }
@@ -16,13 +17,21 @@ interface Record {
 }
 interface State {
   store: Record[];
+  showCreate: boolean;
 }
 class TemplateList extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
     super(props, state)
     this.state = {
-      store: []
+      store: [],
+      showCreate: true
     }
+    this.onCreate = this.onCreate.bind(this)
+  }
+  onCreate () {
+    this.setState({
+      showCreate: true
+    })
   }
   render () {
     const columns: ColumnProps<Record>[] = [
@@ -92,6 +101,7 @@ class TemplateList extends React.Component<Props, State> {
     ]
     return (
       <div className="template-source-list">
+        {this.state.showCreate ? <CreateTemplate></CreateTemplate> : null}
         <Form layout="inline" style={{marginBottom: '10px'}}>
           <Form.Item name="name" label="项目名称">
             <Input></Input>
@@ -100,7 +110,7 @@ class TemplateList extends React.Component<Props, State> {
             <Input></Input>
           </Form.Item>
           <Form.Item>
-            <Button type="primary">新建</Button>
+            <Button type="primary" onClick={this.onCreate}>新建</Button>
           </Form.Item>
         </Form>
         <Table columns={columns} dataSource={this.state.store}></Table>

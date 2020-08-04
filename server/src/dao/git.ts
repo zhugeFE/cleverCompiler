@@ -240,8 +240,17 @@ class GitDao {
     await pool.query(sql, params)
   }
   async deleteVersion (id: string): Promise<void> {
+    const delConfig = 'delete from source_config where version_id = ?'
     const sql = `delete from source_version where id=?`
-    await pool.write(sql, [id])
+    const conn = await pool.beginTransaction()
+    try {
+      await pool.writeInTransaction(conn, delConfig, [id])
+      await pool.writeInTransaction(conn, sql, [id])
+      await pool.commit(conn)
+    } catch (e) {
+      pool.rollback(conn)
+      throw e
+    }
   }
 }
 
