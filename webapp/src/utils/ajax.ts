@@ -27,7 +27,7 @@ export default function (options: AxiosRequestConfig): Promise<any> {
       let err = new Error()
       switch (res.data.status) {
         case ResponseStatus.success:
-          resolve(res.data)
+          resolve(res.data as ApiResult<any>)
           break
         case ResponseStatus.fail:
         case ResponseStatus.sysInited:

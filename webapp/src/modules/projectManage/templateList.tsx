@@ -1,23 +1,17 @@
 import * as React from 'react'
 import './styles/templateList.less'
-import { Table, Button, Form, Input } from 'antd'
+import { Table, Button, Form, Input, message } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import history from '../../utils/history'
 import CreateTemplate from './createTemplate'
-import { Template } from '../../store/state/template'
+import { Template, TemplateListItem } from '../../store/state/template'
+import ajax from '../../utils/ajax'
+import api from '../../store/api'
 interface Props {
 
 }
-interface Record {
-  key: string,
-  name: string,
-  latest: string,
-  devDoc: string,
-  depDoc: string,
-  update: number
-}
 interface State {
-  store: Record[];
+  store: TemplateListItem[];
   showCreate: boolean;
 }
 class TemplateList extends React.Component<Props, State> {
@@ -25,14 +19,20 @@ class TemplateList extends React.Component<Props, State> {
     super(props, state)
     this.state = {
       store: [],
-      showCreate: true
+      showCreate: false
     }
     this.onCreate = this.onCreate.bind(this)
     this.afterCreate = this.afterCreate.bind(this)
+    this.onCancelCreate = this.onCancelCreate.bind(this)
   }
   onCreate () {
     this.setState({
       showCreate: true
+    })
+  }
+  onCancelCreate () {
+    this.setState({
+      showCreate: false
     })
   }
   afterCreate (template: Template) {
@@ -41,18 +41,43 @@ class TemplateList extends React.Component<Props, State> {
     })
     history.push(`/project/template/${template.id}`)
   }
+  queryList  () {
+    ajax({
+      url: api.template.query,
+      method: 'GET'
+    })
+    .then(res => {
+      this.setState({
+        store: res.data
+      })
+    })
+    .catch(err => {
+      message.error({
+        content: '查询模板列表失败'
+      })
+      console.error('查询模板列表失败', err)
+    })
+  }
+  componentDidMount () {
+    this.queryList()
+  }
   render () {
-    const columns: ColumnProps<Record>[] = [
+    const columns: ColumnProps<TemplateListItem>[] = [
       {
-        title: '项目名称',
+        title: '模板名称',
         dataIndex: 'name'
       },
       {
         title: '最新版本',
-        dataIndex: 'latest',
+        dataIndex: 'version',
         showSorterTooltip: false,
-        sorter (a:Record, b: Record) {
-          const val = Number(a.latest.replace(/\D/g, '')) - Number(b.latest.replace(/\D/g, ''))
+        render (version) {
+          return (
+          <span>{version || '-'}</span>
+          )
+        },
+        sorter (a:TemplateListItem, b: TemplateListItem) {
+          const val = Number(a.version.replace(/\D/g, '')) - Number(b.version.replace(/\D/g, ''))
           if (val > 0) {
             return 1
           } else if (val < 0) {
@@ -60,19 +85,6 @@ class TemplateList extends React.Component<Props, State> {
           } else {
             return 0
           }
-        }
-      },
-      {
-        title: '更新时间',
-        dataIndex: 'update',
-        render (text, record: Record) {
-          return (
-            <span>{new Date(record.update).toLocaleString()}</span>
-          )
-        },
-        showSorterTooltip: false,
-        sorter (a: Record, b: Record) {
-          return a.update - b.update
         }
       },
       {
@@ -96,10 +108,10 @@ class TemplateList extends React.Component<Props, State> {
       {
         title: '操作',
         dataIndex: 'handle',
-        render (text, record: Record) {
+        render (text, item: TemplateListItem) {
           return (
             <div className="to-handle">
-              <a onClick={() => {history.push(`/project/template/${record.key}`)}}>编辑</a>
+              <a onClick={() => {history.push(`/project/template/${item.id}`)}}>编辑</a>
               <a style={{marginLeft: 5}}>版本记录</a>
               <a className="btn-del">删除</a>
             </div>
@@ -109,7 +121,7 @@ class TemplateList extends React.Component<Props, State> {
     ]
     return (
       <div className="template-source-list">
-        {this.state.showCreate ? <CreateTemplate onCreate={this.afterCreate}></CreateTemplate> : null}
+        {this.state.showCreate ? <CreateTemplate onCreate={this.afterCreate} onCancel={this.onCancelCreate}></CreateTemplate> : null}
         <Form layout="inline" style={{marginBottom: '10px'}}>
           <Form.Item name="name" label="项目名称">
             <Input></Input>
@@ -121,7 +133,7 @@ class TemplateList extends React.Component<Props, State> {
             <Button type="primary" onClick={this.onCreate}>新建</Button>
           </Form.Item>
         </Form>
-        <Table columns={columns} dataSource={this.state.store}></Table>
+        <Table columns={columns} rowKey="id" dataSource={this.state.store}></Table>
       </div>
     )
   }

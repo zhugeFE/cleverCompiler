@@ -16,4 +16,12 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
+router.get('/query', (req: Request, res: Response, next: NextFunction) => {
+  templateService.query()
+  .then(list => {
+    res.json(new ApiResult(ResponseStatus.success, list))
+  })
+  .catch(next)
+})
+
 export default router

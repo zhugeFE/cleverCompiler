@@ -20,6 +20,7 @@ export default {
     deleteVersion: '/api/git/version'
   },
   template: {
-    add: '/api/template/add'
+    add: '/api/template/add',
+    query: '/api/template/query'
   }
 }

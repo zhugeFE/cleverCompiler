@@ -4,11 +4,12 @@ import Form, { FormInstance } from "antd/lib/form/Form";
 import FormItem from "antd/lib/form/FormItem";
 import TextArea from "antd/lib/input/TextArea";
 import { Template } from "../../store/state/template";
-import ajax from "../../utils/ajax";
+import ajax, { ApiResult } from "../../utils/ajax";
 import api from "../../store/api";
 
 interface Prop {
-  onCreate (temp: Template): void
+  onCreate (temp: Template): void;
+  onCancel (): void;
 }
 interface FormData {
   name: string;
@@ -37,7 +38,7 @@ class CreateTemplate extends React.Component<Prop, State> {
     })
   }
   onCancel () {
-
+    this.props.onCancel()
   }
   onSubmit () {
     this.formRef.current.validateFields()
@@ -48,8 +49,8 @@ class CreateTemplate extends React.Component<Prop, State> {
         method: 'POST',
         data: form
       })
-      .then((temp: Template) => {
-        this.props.onCreate(temp)
+      .then((res: ApiResult<Template>) => {
+        this.props.onCreate(res.data)
       })
       .catch(err => {
         message.error({
