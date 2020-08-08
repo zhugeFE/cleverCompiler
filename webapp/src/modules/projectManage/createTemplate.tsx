@@ -1,24 +1,30 @@
 import * as React from "react";
-import { Modal, Input } from "antd";
-import Form from "antd/lib/form/Form";
+import { Modal, Input, message } from "antd";
+import Form, { FormInstance } from "antd/lib/form/Form";
 import FormItem from "antd/lib/form/FormItem";
 import TextArea from "antd/lib/input/TextArea";
+import { Template } from "../../store/state/template";
+import ajax from "../../utils/ajax";
+import api from "../../store/api";
 
-interface Prop {}
+interface Prop {
+  onCreate (temp: Template): void
+}
 interface FormData {
   name: string;
-  desc: string;
+  description: string;
 }
 interface State {
   form: FormData;
 }
 class CreateTemplate extends React.Component<Prop, State> {
+  formRef = React.createRef<FormInstance>()
   constructor (props: Prop, state: State) {
     super(props, state)
     this.state = {
       form: {
         name: '',
-        desc: ''
+        description: ''
       }
     }
     this.onCancel = this.onCancel.bind(this)
@@ -34,7 +40,24 @@ class CreateTemplate extends React.Component<Prop, State> {
 
   }
   onSubmit () {
-
+    this.formRef.current.validateFields()
+    const form = this.state.form
+    if (form.description && form.name) {
+      ajax({
+        url: api.template.add,
+        method: 'POST',
+        data: form
+      })
+      .then((temp: Template) => {
+        this.props.onCreate(temp)
+      })
+      .catch(err => {
+        message.error({
+          content: '创建模板失败'
+        })
+        console.error('创建模板失败', err)
+      })
+    }
   }
   render () {
     return (
@@ -43,8 +66,10 @@ class CreateTemplate extends React.Component<Prop, State> {
         visible={true}
         cancelText="取消"
         okText="保存"
-        onCancel={this.onCancel}>
+        onCancel={this.onCancel}
+        onOk={this.onSubmit}>
         <Form
+          ref={this.formRef}
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 20 }} 
           layout="horizontal"
@@ -52,7 +77,7 @@ class CreateTemplate extends React.Component<Prop, State> {
           <FormItem label="名称" name="name" rules={[{ required: true, message: '请输入模板名称' }]}>
             <Input placeholder="模板名称，如「私有部署标准版」"></Input>
           </FormItem>
-          <FormItem label="简介" name="desc">
+          <FormItem label="简介" name="description" rules={[{ required: true, message: '请填写模板简介'}]}>
             <TextArea rows={5}></TextArea>
           </FormItem>
         </Form>

@@ -18,5 +18,8 @@ export default {
     delConfig: '/api/git/config',
     updateVersion: '/api/git/version/update',
     deleteVersion: '/api/git/version'
+  },
+  template: {
+    add: '/api/template/add'
   }
 }

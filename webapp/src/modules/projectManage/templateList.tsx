@@ -4,6 +4,7 @@ import { Table, Button, Form, Input } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import history from '../../utils/history'
 import CreateTemplate from './createTemplate'
+import { Template } from '../../store/state/template'
 interface Props {
 
 }
@@ -27,11 +28,18 @@ class TemplateList extends React.Component<Props, State> {
       showCreate: true
     }
     this.onCreate = this.onCreate.bind(this)
+    this.afterCreate = this.afterCreate.bind(this)
   }
   onCreate () {
     this.setState({
       showCreate: true
     })
+  }
+  afterCreate (template: Template) {
+    this.setState({
+      showCreate: false
+    })
+    history.push(`/project/template/${template.id}`)
   }
   render () {
     const columns: ColumnProps<Record>[] = [
@@ -101,7 +109,7 @@ class TemplateList extends React.Component<Props, State> {
     ]
     return (
       <div className="template-source-list">
-        {this.state.showCreate ? <CreateTemplate></CreateTemplate> : null}
+        {this.state.showCreate ? <CreateTemplate onCreate={this.afterCreate}></CreateTemplate> : null}
         <Form layout="inline" style={{marginBottom: '10px'}}>
           <Form.Item name="name" label="项目名称">
             <Input></Input>
