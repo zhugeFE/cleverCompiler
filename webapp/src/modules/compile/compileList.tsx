@@ -19,8 +19,8 @@ interface State {
   store: Record[]
 }
 class CompileList extends React.Component<Props, State> {
-  constructor (props: Props, state: State) {
-    super(props, state)
+  constructor (props: Props) {
+    super(props)
     this.state = {
       store: [
         {

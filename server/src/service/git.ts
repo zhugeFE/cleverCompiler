@@ -37,29 +37,23 @@ class GitService {
     await fsUtil.mkdir(workDir)
     const repoDir = path.resolve(workDir, gitInfo.name)
     const repoExist = await fsUtil.pathExist(repoDir)
-    if (!repoExist) {
+    if (repoExist) { // 如果代码库已经clone到本地
+      return repoDir
+    } else { // 代码还没clone到本地
       await dashUtil.exec(`git clone ${gitInfo.gitRepo}`, {
         cwd: workDir
       })
+      const version = await gitDao.getVersionById(versionId)
+      switch (version.sourceType) {
+        case 'branch':
+        case 'commit':
+          await dashUtil.exec(`git checkout ${version.sourceValue}`, {cwd: repoDir})
+          break;
+        case 'tag':
+          await dashUtil.exec(`git checkout tags/${version.sourceValue}`, {cwd: repoDir})
+          break;
+      }
     }
-    const version = await gitDao.getVersionById(versionId)
-    // 清空目录下所有的修改，并且将内容更新到最新
-    await dashUtil.exec(`git checkout .`, {cwd: repoDir})
-    await dashUtil.exec(`git clean -df`, {cwd: repoDir})
-    await dashUtil.exec(`git checkout master`, {cwd: repoDir})
-    await dashUtil.exec('git fetch --all', {cwd: repoDir})
-    switch (version.sourceType) {
-      case 'branch':
-      case 'commit':
-        await dashUtil.exec(`git checkout ${version.sourceValue}`, {cwd: repoDir})
-        break;
-      case 'tag':
-        await dashUtil.exec(`git checkout tags/${version.sourceValue}`, {cwd: repoDir})
-        break;
-    }
-    await dashUtil.exec(`git checkout .`, {cwd: repoDir})
-    await dashUtil.exec(`git clean -df`, {cwd: repoDir})
-    if (version.sourceType === 'branch') await dashUtil.exec(`git pull`, {cwd: repoDir})
     return repoDir
   }
   async getFileTree (session: Express.Session, id: string, versionId: string, currentUser: User): Promise<DirNode[]> {
