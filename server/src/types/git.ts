@@ -40,6 +40,7 @@ export interface GitCreateVersionParam {
   source: string; // 版本来源：branch/tag/commit
   value: string; // 版本来源值
   description: string; // 版本描述
+  parentId?: string; // 父版本id
 }
 export interface GitCreateConfigParam {
   sourceId: string;

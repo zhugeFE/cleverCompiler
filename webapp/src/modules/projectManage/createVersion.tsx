@@ -16,6 +16,7 @@ interface FormData {
   tag: string;
   commit: string;
   description: string;
+  parentId: string;
 }
 interface Props {
   gitId: string;
@@ -49,7 +50,8 @@ class CreateVersion extends React.Component<Props, States> {
         source: 'branch',
         branch: '',
         tag: '',
-        commit: ''
+        commit: '',
+        parentId: null
       },
       branchList: [],
       tags: [],
@@ -129,7 +131,8 @@ class CreateVersion extends React.Component<Props, States> {
       version: this.state.form.version,
       source: source,
       value: this.state.form[source],
-      description: this.state.form.description
+      description: this.state.form.description,
+      parentId: this.state.form.parentId
     }
     ajax({
       url: '/api/git/version/add',
@@ -227,7 +230,7 @@ class CreateVersion extends React.Component<Props, States> {
             }
             </Select>
           </Form.Item>
-          <Form.Item label="父版本" name="parent">
+          <Form.Item label="父版本" name="parentId">
             <Select>
               {this.props.versionList.map(version => {
                 return (
