@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Button, Tabs, Tag, message, Spin, Tooltip, Progress } from 'antd'
-import TimeLinePanel from './timeline/timeLine'
+import TimeLinePanel from './timeline/gitTimeLine'
 import './styles/gitEditPanel.less'
 import Description from '../../components/description/description'
 import GitConfigPanel from './edit/config'
@@ -16,7 +16,6 @@ import * as _ from 'lodash';
 import util from '../../utils/util'
 import GitAddConfig from './edit/addConfig';
 import api from '../../store/api'
-import { version } from 'react-dom'
 
 interface Props extends RouteComponentProps<{
   id: string
@@ -351,6 +350,7 @@ class GitEditPanel extends React.Component<Props, State> {
             <div className="git-panel-center">
               <CreateVersion 
                 title="创建初始版本"
+                versionList={this.state.gitInfo?.versionList}
                 gitId={this.state.gitInfo?.id} 
                 repoId={this.state.gitInfo.gitId}
                 onCancel={this.onCancelAddVersion}

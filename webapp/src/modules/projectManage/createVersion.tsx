@@ -3,7 +3,7 @@ import { Modal, Form, Input, Radio, message, Select } from 'antd'
 import * as _ from 'lodash';
 import ajax from '../../utils/ajax';
 import { ApiResult } from '../../utils/ajax';
-import { GitBranch, GitTag, GitCommit, GitCreateVersionParam } from '../../store/state/git';
+import { GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion } from '../../store/state/git';
 import { Version } from '../../store/state/common';
 
 import './styles/createVersion.less'
@@ -21,6 +21,7 @@ interface Props {
   gitId: string;
   repoId: string;
   title?: string;
+  versionList: Version[];
   onCancel? (): void;
   afterAdd? (version: Version): void;
 }
@@ -224,6 +225,21 @@ class CreateVersion extends React.Component<Props, States> {
                 )
               })
             }
+            </Select>
+          </Form.Item>
+          <Form.Item label="父版本" name="parent">
+            <Select>
+              {this.props.versionList.map(version => {
+                return (
+                <Select.Option 
+                  value={version.id} 
+                  key={version.id} 
+                  title={version.name}>
+                  {version.name}
+                  <div className='option-desc'>{version.description}</div>
+                </Select.Option>
+                )
+              })}
             </Select>
           </Form.Item>
         </Form>

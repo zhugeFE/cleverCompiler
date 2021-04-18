@@ -25,7 +25,6 @@ export interface GitVersion extends Version{
   sourceType: string;
   sourceValue: string;
   compileOrders: string[]; // 编译命令组
-  description: string; // 版本描述
   configs: GitConfig[];
 }
 export interface GitInfo {

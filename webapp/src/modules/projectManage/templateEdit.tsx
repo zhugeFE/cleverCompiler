@@ -1,9 +1,9 @@
 import * as React from 'react'
 import './styles/templateEditPanel.less'
-import TimeLinePanel from './timeline/timeLine'
+import TimeLinePanel from './timeline/gitTimeLine'
 import Description from '../../components/description/description'
 import GitConfigPanel from './edit/config'
-import { Button, Tabs, Tag, Radio } from 'antd'
+import { Button, Tabs, Tag, Radio, Tooltip, Progress } from 'antd'
 import Commands from './edit/commands'
 import Markdown from '../../components/markdown/markdown'
 import history from '../../utils/history'
@@ -14,18 +14,37 @@ interface Props {
 
 }
 interface State {
-  versionList: Version[]
+  versionList: Version[];
+  /**
+   * 自动保存进度条
+   */
+  savePercent: number;
+  /**
+   * 可删除操作倒计时
+   */
+  delTimeout: number;
+  delTooltip: string;
 }
 class TemplateEdit extends React.Component<Props, State> {
-  constructor (props: Props, state: State) {
-    super(props, state)
+  constructor (props: Props) {
+    super(props)
     this.state = {
-      versionList: [].reverse()
+      versionList: [],
+      savePercent: 100,
+      delTimeout: 0,
+      delTooltip: ''
     }
     this.onAddVersion = this.onAddVersion.bind(this)
+    this.onDeleteVersion = this.onDeleteVersion.bind(this)
   }
   onAddVersion () {
     console.log('add new version')
+  }
+  onDeleteVersion () {
+
+  }
+  savePercentFormat (percent: number) {
+    return percent === 100 ? 'saved' : 'saving'
   }
   render () {
     const source = '# Live demo\nChanges are automatically rendered as you type.\n## Table of Contents\n* Implements [GitHub Flavored Markdown](https://github.github.com/gfm/)\n* Renders actual, "native" React DOM elements\n* Allows you to escape or skip HTML (try toggling the checkboxes above)\n## HTML block below'
@@ -34,10 +53,31 @@ class TemplateEdit extends React.Component<Props, State> {
       <div className="template-edit-panel">
         <div className="template-panel-top">
           <a onClick={() => {history.goBack()}}><LeftOutlined/>返回</a>
+          <span style={{marginLeft: '20px'}}>
+            <Tooltip title="归档后版本将变为只读状态">
+              <a style={{marginLeft: '10px', color: '#faad14'}}>归档</a>
+            </Tooltip>
+            <Tooltip title="废弃后，新建项目中该版本将不可用">
+              <a style={{marginLeft: '10px', color: '#f5222d'}}>废弃</a>
+            </Tooltip>
+            {
+              this.state.delTimeout > 0 ? (
+                <span>
+                  <a onClick={this.onDeleteVersion} style={{marginLeft: '10px', color: '#f5222d', marginRight: '5px'}}>删除</a>
+                  ({this.state.delTooltip})
+                </span>
+              ) : null
+            }
+            <Progress 
+              percent={this.state.savePercent} 
+              size="small"
+              strokeWidth={2}
+              format={this.savePercentFormat}></Progress>
+          </span>
         </div>
         <div className="template-panel-center">
           {
-            // <TimeLinePanel versionList={this.state.versionList}></TimeLinePanel>
+            <TimeLinePanel gitId="" repoId="" versionList={this.state.versionList}></TimeLinePanel>
           }
           <div className="template-detail">
             <Description label="模板名称" labelWidth={labelWidth}>webapp <Tag color="#87d068">v:1.2.1</Tag> <Tag color="#f50">2020-01-15 12:00:20</Tag></Description>

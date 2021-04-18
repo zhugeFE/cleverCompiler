@@ -5,6 +5,7 @@ export enum VersionStatus {
 export interface Version {
   id: string; // 版本id
   name: string; // 版本名称
+  description: string; // 版本描述
   status: number; // 版本状态
   publishTime: number; // 版本创建时间
   compileOrders: string[]; // 编译命令组

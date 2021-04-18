@@ -20,8 +20,8 @@ interface State {
   filter: string;
 }
 class TimeLinePanel extends React.Component<Props, State> {
-  constructor (props: Props, state: State) {
-    super(props, state)
+  constructor (props: Props) {
+    super(props)
     this.state = {
       currentVersion: this.props.versionList[0],
       showCreate: false,
@@ -75,6 +75,7 @@ class TimeLinePanel extends React.Component<Props, State> {
             <CreateVersion 
               gitId={this.props.gitId} 
               repoId={this.props.repoId}
+              versionList={this.props.versionList}
               onCancel={this.toAddVersion}
               afterAdd={this.afterAdd}></CreateVersion>
           ) : null
