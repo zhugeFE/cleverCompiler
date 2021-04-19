@@ -2,9 +2,10 @@
  * request 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
- import { extend, RequestOptionsInit } from 'umi-request';
- import { notification } from 'antd';
+import { extend, RequestOptionsInit } from 'umi-request';
+import { notification } from 'antd';
 import util from './utils';
+import history from './history'
  
  enum ResponseStatus {
    success = 200,
@@ -91,9 +92,10 @@ import util from './utils';
    let flag = false
    let message = '接口请求失败'
    switch(apiResult.status) {
-     case ResponseStatus.sysNotInit:
-       message = '系统未初始化'
-       break;
+    case ResponseStatus.sysNotInit:
+      history.push('/init')
+      message = '系统未初始化'
+      break
      case ResponseStatus.sysInited:
        message = '系统已初始化'
        break;

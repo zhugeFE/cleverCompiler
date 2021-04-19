@@ -14,6 +14,11 @@
           },
         ],
       },
+      {
+        name: 'init',
+        path: '/init',
+        component: '/initGuide'
+      }
       // {
       //   path: '/',
       //   component: '../layouts/SecurityLayout',
