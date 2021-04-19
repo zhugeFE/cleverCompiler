@@ -11,13 +11,38 @@
             name: 'login',
             path: '/user/login',
             component: './User/login',
-          },
+          }
         ],
       },
       {
-        name: 'init',
         path: '/init',
-        component: '/initGuide'
+        component: './initGuide/guide'
+      },
+      {
+        path: '/',
+        component: '../layouts/SecurityLayout',
+        authority: ['admin', 'user'],
+        routes: [
+          {
+            path: '/manage',
+            routes: [
+              {
+                name: 'gitList',
+                path: '/git/list',
+                component: './manage/gitList'
+              }
+            ]
+          },
+          {
+            path: '/compile'
+          },
+          {
+            component: './404',
+          }
+        ]
+      },
+      {
+        component: './404',
       }
       // {
       //   path: '/',

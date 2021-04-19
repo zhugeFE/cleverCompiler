@@ -1,3 +1,4 @@
+import { SysModelState } from './sys';
 import type { MenuDataItem, Settings as ProSettings } from '@ant-design/pro-layout';
 import { GlobalModelState } from './global';
 import { UserModelState } from './user';
@@ -20,6 +21,7 @@ export type ConnectState = {
   loading: Loading;
   settings: ProSettings;
   user: UserModelState;
+  sys: SysModelState;
 };
 
 export type Route = {

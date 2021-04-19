@@ -24,12 +24,8 @@ const UserModel: SysModelType = {
   },
 
   effects: {
-    *init({payload}, { call, put }) {
-      const res = yield call(sysService.init, payload);
-      yield put({
-        type: 'saveCurrentUser',
-        payload: res.data,
-      });
+    *init({payload}, { call}) {
+      yield call(sysService.init, payload);
     }
   },
   reducers: {

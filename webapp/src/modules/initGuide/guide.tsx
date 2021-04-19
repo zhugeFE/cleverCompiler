@@ -41,7 +41,6 @@ class InitForm extends React.Component<Props, any>{
     }).then(() => {
       history.replace('/login')
     }).catch(err => {
-      console.log('fjdi')
       message.error(err.message)
     })
   }

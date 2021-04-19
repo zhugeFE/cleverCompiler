@@ -2,8 +2,18 @@ import * as React from 'react'
 import {Form, Button, Input} from 'antd'
 import styles from './guide.less'
 import { FormInstance, Rule } from 'antd/lib/form'
-import { connect, IRouteComponentProps, withRouter } from 'umi';
+import { connect, Dispatch, IRouteComponentProps, withRouter } from 'umi';
 interface Props extends IRouteComponentProps{
+  dispatch: Dispatch;  
+}
+interface FormData {
+  account: string
+  email: string
+  host: string
+  password: string
+  rePassword: string
+  sshToken: string
+  token: string
 }
 interface State {
 
@@ -19,23 +29,17 @@ class InitForm extends React.Component<Props, State>{
   }
 
   onSubmit (values: FormData) {
-    // ajax({
-    //   url: api.sys.init,
-    //   method: 'POST',
-    //   data: {
-    //     gitHost: values.host,
-    //     gitToken: values.token,
-    //     gitSsh: values.sshToken,
-    //     gitAccount: values.account,
-    //     email: values.email,
-    //     password: values.password
-    //   }
-    // }).then(() => {
-    //   history.replace('/login')
-    // }).catch(err => {
-    //   console.log('fjdi')
-    //   message.error(err.message)
-    // })
+    this.props.dispatch({
+      type: 'sys/init',
+      payload: {
+        gitHost: values.host,
+        gitToken: values.token,
+        gitSsh: values.sshToken,
+        gitAccount: values.account,
+        email: values.email,
+        password: values.password
+      }
+    })
   }
   render () {
     const formItemLayout = {
@@ -47,9 +51,9 @@ class InitForm extends React.Component<Props, State>{
       }
     }
     return (
-      <div className="init-guide">
+      <div className={styles.initGuide}>
         <Form ref={this.formRef} {...formItemLayout} onFinish={this.onSubmit}>
-          <div className="form-line">
+          <div className={styles.formLine}>
           git绑定信息
           </div>
           <Form.Item label="git host" name="host" rules={[{required: true, message: '请输入git库host'}]}>
@@ -64,7 +68,7 @@ class InitForm extends React.Component<Props, State>{
           <Form.Item label="git account" name="account" rules={[{ required: true, message: '请输入git账户名' }]}>
             <Input placeholder="account"/>
           </Form.Item>
-          <div className="form-line">
+          <div className={styles.formLine}>
           管理员信息
           </div>
           <Form.Item label="管理员邮箱" name="email" rules={[{required: true, message: '请输入管理员邮箱'}]}>
@@ -86,7 +90,7 @@ class InitForm extends React.Component<Props, State>{
           }]}>
             <Input placeholder="确认密码" type="password"/>
           </Form.Item>
-          <Button type="primary" htmlType="submit" className="btn-submit">
+          <Button type="primary" htmlType="submit" className={styles.btnSubmit}>
             保存
           </Button>
         </Form>

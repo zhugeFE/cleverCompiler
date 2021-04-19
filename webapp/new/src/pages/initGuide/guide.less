@@ -1,18 +1,18 @@
-@import '../../assets//styles/constants.less';
-.init-guide {
+@import '~antd/es/style/themes/default.less';
+.initGuide {
   height: 100%;
   overflow: auto;
-  .ant-form {
+  :global(.ant-form) {
     width: 400px;
     display: block;
     margin: 20px auto;
-    .form-line {
-      border-bottom: 1px dashed @border-color-base;
-      padding: 0 0 5px 10px;
-      margin-bottom: 5px;
-    }
-    .btn-submit {
-      width: 100%;
-    }
   }
+}
+.formLine {
+  border-bottom: 1px dashed @border-color-split;
+  padding: 0 0 5px 10px;
+  margin-bottom: 5px;
+}
+.btnSubmit {
+  width: 100%;
 }

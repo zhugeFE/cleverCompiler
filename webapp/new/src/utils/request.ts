@@ -5,7 +5,7 @@
 import { extend, RequestOptionsInit } from 'umi-request';
 import { notification } from 'antd';
 import util from './utils';
-import history from './history'
+import { history } from '@/.umi/core/history';
  
  enum ResponseStatus {
    success = 200,
