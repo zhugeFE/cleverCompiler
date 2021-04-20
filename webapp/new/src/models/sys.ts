@@ -24,8 +24,9 @@ const UserModel: SysModelType = {
   },
 
   effects: {
-    *init({payload}, { call}) {
-      yield call(sysService.init, payload);
+    *init({payload, callback}, { call}) {
+      const res = yield call(sysService.init, payload);
+      if (res.status !== -1) callback(res)
     }
   },
   reducers: {

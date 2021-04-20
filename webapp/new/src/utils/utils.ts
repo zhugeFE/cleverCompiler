@@ -1,3 +1,6 @@
+import { parse } from 'querystring';
+
+export const getPageQuery = () => parse(window.location.href.split('?')[1]);
 class Util {
 
   type (obj: any): string {

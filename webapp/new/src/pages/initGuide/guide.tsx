@@ -2,7 +2,7 @@ import * as React from 'react'
 import {Form, Button, Input} from 'antd'
 import styles from './guide.less'
 import { FormInstance, Rule } from 'antd/lib/form'
-import { connect, Dispatch, IRouteComponentProps, withRouter } from 'umi';
+import { connect, Dispatch, history, IRouteComponentProps, withRouter } from 'umi';
 interface Props extends IRouteComponentProps{
   dispatch: Dispatch;  
 }
@@ -38,6 +38,9 @@ class InitForm extends React.Component<Props, State>{
         gitAccount: values.account,
         email: values.email,
         password: values.password
+      },
+      callback () {
+        history.replace('/')
       }
     })
   }
