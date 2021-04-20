@@ -13,6 +13,10 @@ class UserServices {
       method: 'post'
     })
   }
+  
+  async getCurrent () {
+    return request(apis.user.getCurrent)
+  }
 }
 
 const userService = new UserServices()

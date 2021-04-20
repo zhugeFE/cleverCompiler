@@ -1,49 +1,46 @@
 ﻿export default [
   {
-    path: '/',
-    component: '../layouts/BlankLayout',
+    path: '/user',
+    component: '../layouts/UserLayout',
     routes: [
       {
-        path: '/user',
-        component: '../layouts/UserLayout',
-        routes: [
-          {
-            name: 'login',
-            path: '/user/login',
-            component: './User/login',
-          }
-        ],
-      },
-      {
-        path: '/init',
-        component: './initGuide/guide'
-      },
+        name: 'login',
+        path: '/user/login',
+        component: './User/login',
+      }
+    ],
+  },
+  {
+    path: '/init',
+    component: './initGuide/guide'
+  },
+  {
+    path: '/',
+    component: '../layouts/SecurityLayout',
+    authority: ['admin', 'user'],
+    routes: [
       {
         path: '/',
-        component: '../layouts/SecurityLayout',
-        authority: ['admin', 'user'],
+        redirect: '/manage'
+      },
+      {
+        path: '/manage',
         routes: [
           {
-            path: '/manage',
-            routes: [
-              {
-                name: 'gitList',
-                path: '/git/list',
-                component: './manage/gitList'
-              }
-            ]
-          },
-          {
-            path: '/compile'
-          },
-          {
-            component: './404',
+            name: 'gitList',
+            path: '/git/list',
+            component: './manage/gitList'
           }
         ]
       },
       {
+        path: '/compile'
+      },
+      {
         component: './404',
       }
+    ]
+  },
       // {
       //   path: '/',
       //   component: '../layouts/SecurityLayout',
@@ -95,8 +92,6 @@
         //   },
         // ],
       // },
-    ],
-  },
   {
     component: './404',
   },

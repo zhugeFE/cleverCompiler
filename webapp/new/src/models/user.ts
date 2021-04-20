@@ -40,6 +40,7 @@ export type UserModelType = {
   state: UserModelState;
   effects: {
     login: Effect;
+    fetchCurrent: Effect;
   };
   reducers: {
     saveCurrentUser: Reducer<UserModelState>;
@@ -62,6 +63,14 @@ const UserModel: UserModelType = {
         payload: res.data,
       });
       afterLogin()
+    },
+    *fetchCurrent(_, { call, put }) {
+      const res = yield call(userService.getCurrent)
+      if (res.status === -1) return
+      yield put({
+        type: 'saveCurrentUser',
+        payload: res.data,
+      });
     }
   },
   reducers: {
