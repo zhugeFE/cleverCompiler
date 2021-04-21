@@ -6,7 +6,7 @@ import { connect } from 'dva'
 import React from 'react'
 import { withRouter } from 'react-router'
 import { Dispatch, IRouteComponentProps } from 'umi'
-
+import styles from './styles/gitList.less'
 export interface GitListProps extends IRouteComponentProps{
   gitList: GitInstance[];
   dispatch: Dispatch;
@@ -41,8 +41,13 @@ class GitList extends React.Component<GitListProps, State> {
 
   }
 
-  onSearch () {
-
+  onSearch (changedValues: any, values: any) {
+    this.setState({
+      form: {
+        ...this.state.form,
+        ...values
+      }
+    })
   }
 
   render () {
@@ -94,7 +99,7 @@ class GitList extends React.Component<GitListProps, State> {
         fixed: 'right',
         render: (text, record: GitInstance) => {
           return (
-            <div className="to-handle">
+            <div className={styles.toHandle}>
               <a onClick={this.onClickEdit.bind(this, record)}>编辑</a>
               <a style={{marginRight: 5}}>版本记录</a>
               <a>禁用</a>
@@ -108,8 +113,8 @@ class GitList extends React.Component<GitListProps, State> {
       return new RegExp(formData.name, 'i').test(item.name) && new RegExp(formData.version, 'i').test(item.version)
     })
     return (
-      <div className="git-source-list">
-        <div className="git-filter-panel">
+      <div className={styles.gitSourceList}>
+        <div className={styles.gitFilterPanel}>
           <Form layout="inline" onValuesChange={this.onSearch}>
             <Form.Item label="项目名称" name="name">
               <Input/>
