@@ -5,7 +5,7 @@ import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionPar
 import { DirNode } from '../types/common';
 const router = Router()
 
-router.post('/list', (req: Request, res: Response, next: NextFunction) => {
+router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   gitService.query()
   .then((gitList: GitInstance[]) => {
     res.json(new ApiResult(ResponseStatus.success, gitList))

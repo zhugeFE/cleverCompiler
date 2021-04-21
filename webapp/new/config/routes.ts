@@ -21,77 +21,41 @@
     routes: [
       {
         path: '/',
-        redirect: '/manage'
-      },
-      {
-        path: '/manage',
+        component: '../layouts/BasicLayout',
+        authority: ['admin', 'user'],
         routes: [
           {
-            name: 'gitList',
-            path: '/git/list',
-            component: './manage/gitList'
+            path: '/',
+            redirect: '/manage/git/list'
+          },
+          {
+            path: '/manage',
+            name: 'configManage',
+            routes: [
+              {
+                path: '/manage/git/list',
+                name: 'gitList',
+                component: './manage/gitList'
+              },
+              {
+                component: './404',
+              }
+            ]
+          },
+          // {
+          //   path: '/compile',
+          //   name: 'compileManage'
+          // }
+          {
+            component: './404',
           }
         ]
-      },
-      {
-        path: '/compile'
       },
       {
         component: './404',
       }
     ]
   },
-      // {
-      //   path: '/',
-      //   component: '../layouts/SecurityLayout',
-      //   routes: [
-      //     {
-      //       path: '/',
-      //       component: '../layouts/BasicLayout',
-      //       authority: ['admin', 'user'],
-      //       routes: [
-      //         {
-      //           path: '/',
-      //           redirect: '/welcome',
-      //         },
-      //         {
-      //           path: '/welcome',
-      //           name: 'welcome',
-      //           icon: 'smile',
-      //           component: './Welcome',
-      //         },
-      //         {
-      //           path: '/admin',
-      //           name: 'admin',
-      //           icon: 'crown',
-      //           component: './Admin',
-      //           authority: ['admin'],
-      //           routes: [
-      //             {
-      //               path: '/admin/sub-page',
-      //               name: 'sub-page',
-      //               icon: 'smile',
-      //               component: './Welcome',
-      //               authority: ['admin'],
-      //             },
-      //           ],
-      //         },
-      //         {
-      //           name: 'list.table-list',
-      //           icon: 'table',
-      //           path: '/list',
-      //           component: './TableList',
-      //         },
-      //         {
-      //           component: './404',
-      //         },
-      //       ],
-      //     },
-        //   {
-        //     component: './404',
-        //   },
-        // ],
-      // },
   {
     component: './404',
   },

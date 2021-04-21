@@ -1,3 +1,4 @@
+import { GitModelState } from './git';
 import { SysModelState } from './sys';
 import type { MenuDataItem, Settings as ProSettings } from '@ant-design/pro-layout';
 import { GlobalModelState } from './global';
@@ -22,6 +23,7 @@ export type ConnectState = {
   settings: ProSettings;
   user: UserModelState;
   sys: SysModelState;
+  git: GitModelState;
 };
 
 export type Route = {
