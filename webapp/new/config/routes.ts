@@ -38,6 +38,11 @@
                 component: './manage/gitList'
               },
               {
+                path: '/manage/git/:id',
+                name: 'gitEdit',
+                component: './manage/gitEdit'
+              },
+              {
                 component: './404',
               }
             ]

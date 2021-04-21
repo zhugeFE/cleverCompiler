@@ -37,8 +37,8 @@ class GitList extends React.Component<GitListProps, State> {
     })
   }
 
-  onClickEdit () {
-
+  onClickEdit (git: GitInstance) {
+    this.props.history.push(`/manage/git/${git.id}`)
   }
 
   onSearch (changedValues: any, values: any) {
