@@ -1,11 +1,11 @@
 import * as React from 'react'
-import './timeLine.less'
 import { Timeline, Tag, Input, Form } from 'antd'
 import TimelineItem from 'antd/lib/timeline/TimelineItem'
 import { PlusOutlined } from '@ant-design/icons'
 import * as _ from 'lodash';
 import { Version, VersionStatus } from '@/models/common'
 import CreateGitVersion from './createGitVersion'
+import styles from './styles/timeline.less'
 
 interface Props {
   gitId: string;
@@ -69,7 +69,7 @@ class TimeLinePanel extends React.Component<Props, State> {
   }
   render () {
     return (
-      <div className="time-line-panel">
+      <div className={styles.timeLinePanel}>
         {
           this.state.showCreate ? (
             <CreateGitVersion 
@@ -83,7 +83,7 @@ class TimeLinePanel extends React.Component<Props, State> {
         <Form layout="inline" onValuesChange={this.onFilter} wrapperCol={{span: 24}}>
           <Form.Item name="search">
             <Input.Search
-              className="version-search"
+              className={styles.versionSearch}
               size="small"
               placeholder="x.x.x"/>
           </Form.Item>
@@ -100,7 +100,7 @@ class TimeLinePanel extends React.Component<Props, State> {
                 return (
                   <TimelineItem key={version.id} color={version.status === VersionStatus.deprecated ? 'gray' : 'blue'}>
                     <a 
-                      className={version.status === VersionStatus.deprecated ? 'disabled' : null} 
+                      className={version.status === VersionStatus.deprecated ? styles.disabled : null} 
                       onClick={this.onChooseVersion.bind(this, version)}>
                       <Tag color="blue">{version.name}</Tag>
                     </a>
@@ -109,7 +109,7 @@ class TimeLinePanel extends React.Component<Props, State> {
               } else {
                 return (
                   <TimelineItem key={version.id} color={version.status === VersionStatus.deprecated ? 'gray' : 'blue'}>
-                    <a className={version.status === VersionStatus.deprecated ? 'disabled' : null} onClick={this.onChooseVersion.bind(this, version)}>{version.name}</a>
+                    <a className={version.status === VersionStatus.deprecated ? styles.disabled : null} onClick={this.onChooseVersion.bind(this, version)}>{version.name}</a>
                   </TimelineItem>
                 )
               }

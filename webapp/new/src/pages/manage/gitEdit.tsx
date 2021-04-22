@@ -8,6 +8,8 @@ import { Button, Tabs, Tag, Spin, Tooltip, Progress } from 'antd'
 import { connect } from 'dva'
 import React from 'react'
 import { withRouter } from 'react-router'
+import TimeLinePanel from './gitTimeLine'
+import styles from './styles/gitEdit.less'
 
 export interface GitEditProps extends IRouteComponentProps<{
   id: string;
@@ -113,11 +115,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
     const labelWidth = 75
     if (!this.state.gitInfo) {
       return (
-        <Spin className="git-edit-loading" tip="git详情获取中..." size="large"></Spin>
+        <Spin className={styles.gitEditLoading} tip="git详情获取中..." size="large"></Spin>
       )
     }
     return (
-      <div className="git-edit-panel">
+      <div className={styles.gitEditPanel}>
         {/* {
           this.state.showAddConfig ? (
             <GitAddConfig 
@@ -127,7 +129,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
               onSubmit={this.afterAddConfig}></GitAddConfig>
           ) : null
         } */}
-        <div className="git-panel-top">
+        <div className={styles.gitPanelTop}>
           <a onClick={() => {this.props.history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>
             <Tooltip title="归档后版本将变为只读状态">
@@ -153,14 +155,14 @@ class GitEdit extends React.Component<GitEditProps, State> {
         </div>
         {
           this.state.gitInfo?.versionList.length ? (
-            <div className="git-panel-center">
+            <div className={styles.gitPanelCenter}>
               <TimeLinePanel 
                 gitId={this.state.gitInfo.id} 
                 repoId={this.state.gitInfo.gitId}
                 versionList={this.state.gitInfo.versionList}
                 afterAdd={this.afterCreateVersion}
                 onChange={this.onChangeVersion}></TimeLinePanel>
-              <div className="git-detail">
+              <div className={styles.gitDetail}>
                 <Description label="项目名称" labelWidth={labelWidth}>
                   {this.state.gitInfo.name} 
                   <Tooltip title={`${this.state.currentVersion?.sourceType}: ${this.state.currentVersion?.sourceValue}`} placement="bottom">
@@ -168,14 +170,14 @@ class GitEdit extends React.Component<GitEditProps, State> {
                   </Tooltip>
                   <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion!.publishTime))}</Tag>
                 </Description>
-                <Description label="git地址" labelWidth={labelWidth} className="git-addr">
+                <Description label="git地址" labelWidth={labelWidth} className={styles.gitAddr}>
                   <a>{this.state.gitInfo.gitRepo}</a>
                 </Description>
-                <Description label="配置项" labelWidth={labelWidth} display="flex" className="git-configs">
+                <Description label="配置项" labelWidth={labelWidth} display="flex" className={styles.gitConfigs}>
                   {/* <GitConfigPanel 
                     store={this.state.currentVersion?.configs || []}
                     afterDelConfig={this.afterDelConfig}></GitConfigPanel> */}
-                  <Button className="btn-add-config-item" onClick={this.onAddConfig}>添加配置项</Button>
+                  <Button className={styles.btnAddConfigItem} onClick={this.onAddConfig}>添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
                   {/* {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} tags={this.state.currentVersion?.compileOrders}></Commands> : null} */}
@@ -194,14 +196,14 @@ class GitEdit extends React.Component<GitEditProps, State> {
               </div>
             </div>
           ) : (
-            <div className="git-panel-center">
-              {/* <CreateVersion 
+            <div className={styles.gitPanelCenter}>
+              <CreateVersion 
                 title="创建初始版本"
                 versionList={this.state.gitInfo?.versionList}
                 gitId={this.state.gitInfo?.id} 
                 repoId={this.state.gitInfo.gitId}
                 onCancel={this.onCancelAddVersion}
-                afterAdd={this.afterCreateVersion}></CreateVersion> */}
+                afterAdd={this.afterCreateVersion}></CreateVersion>
             </div>
           )
         }
