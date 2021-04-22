@@ -13,6 +13,11 @@ export default {
   git: {
     queryGitList: '/git/list',
     getFileTree: '/git/filetree',
+    getInfo: '/git/{{id}}/info',
+    queryBranch: '/api/git/{{gitId}}/branchs',
+    queryTags: '/api/git/{{gitId}}/tags',
+    queryCommits: '/api/git/{{gitId}}/commits',
+    createVersion: '/api/git/version/add',
     fileCat: '/git/cat',
     addConfig: '/git/config/add',
     delConfig: '/git/config',

@@ -40,6 +40,7 @@
               {
                 path: '/manage/git/:id',
                 name: 'gitEdit',
+                hideInMenu: true,
                 component: './manage/gitEdit'
               },
               {

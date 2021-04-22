@@ -1,6 +1,7 @@
 export default {
   'menu.configManage': '配置管理',
   'menu.compileManage': '编译管理',
+  'menu.configManage.gitEdit': 'git编辑',
   'menu.home': '首页',
   'menu.configManage.gitList': 'git列表',
   'menu.exception.403': '403',

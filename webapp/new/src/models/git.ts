@@ -70,6 +70,8 @@ export type GitModelType = {
   state: GitModelState;
   effects: {
     query: Effect;
+    getInfo: Effect;
+    getFileTree: Effect;
   };
   reducers: {
     setList: Reducer<GitModelState>;
@@ -89,6 +91,16 @@ const GitModel: GitModelType = {
         type: 'setList',
         payload: res.data
       })
+    },
+    *getInfo ({payload, callback}, {call}) {
+      const res = yield call(gitService.getInfo, payload as string)
+      if (res.status === -1) return
+      callback(res.data)
+    },
+    *getFileTree ({payload, callback}, {call}) {
+      const res = yield call(gitService.getFileTree, payload)
+      if (res.status === -1) return
+      callback(res.data)
     }
   },
   reducers: {
