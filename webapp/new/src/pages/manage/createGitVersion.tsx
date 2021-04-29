@@ -4,6 +4,7 @@ import { Version } from '@/models/common';
 import { GitBranch, GitCommit, GitCreateVersionParam, GitTag } from '@/models/git';
 import util from '@/utils/utils';
 import { connect } from 'dva';
+import { Dispatch } from '@/.umi/plugin-dva/connect';
 
 interface FormData {
   source: string;
@@ -19,6 +20,7 @@ interface Props {
   repoId: string;
   title?: string;
   versionList: Version[];
+  dispatch: Dispatch;
   onCancel? (): void;
   afterAdd? (version: Version): void;
 }
@@ -69,14 +71,38 @@ class CreateGitVersion extends React.Component<Props, States> {
   }
 
   getBranchList () {
-
+    this.props.dispatch({
+      type: 'git/queryBranchs',
+      payload: this.props.repoId,
+      callback: (list: GitBranch[]) => {
+        this.setState({
+          branchList: list
+        })
+      }
+    })
   }
 
   getTags () {
-    
+    this.props.dispatch({
+      type: 'git/queryTags',
+      payload: this.props.repoId,
+      callback: (list: GitTag[]) => {
+        this.setState({
+          tags: list
+        })
+      }
+    })
   }
   getCommits () {
-    
+    this.props.dispatch({
+      type: 'git/queryCommits',
+      payload: this.props.repoId,
+      callback: (list: GitCommit[]) => {
+        this.setState({
+          commits: list
+        })
+      }
+    })
   }
   onFilterCommit<GitCommit> (value: string, optionData: any): boolean {
     return new RegExp(value.toLowerCase()).test(optionData.title.toLowerCase())

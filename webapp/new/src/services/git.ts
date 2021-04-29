@@ -27,6 +27,30 @@ class GitService {
       }
     })
   }
+
+  async queryBranchs (gitId: string) {
+    return request(apis.git.queryBranch, {
+      params: {
+        gitId
+      }
+    })
+  }
+
+  async queryTags (gitId: string) {
+    return request(apis.git.queryTags, {
+      params: {
+        gitId
+      }
+    })
+  }
+
+  async queryCommits (gitId: string) {
+    return request(apis.git.queryCommits, {
+      params: {
+        gitId
+      }
+    })
+  }
 }
 
 const gitService = new GitService()

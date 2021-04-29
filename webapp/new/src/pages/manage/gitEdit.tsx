@@ -8,6 +8,7 @@ import { Button, Tabs, Tag, Spin, Tooltip, Progress } from 'antd'
 import { connect } from 'dva'
 import React from 'react'
 import { withRouter } from 'react-router'
+import CreateGitVersion from './createGitVersion'
 import TimeLinePanel from './gitTimeLine'
 import styles from './styles/gitEdit.less'
 
@@ -197,13 +198,13 @@ class GitEdit extends React.Component<GitEditProps, State> {
             </div>
           ) : (
             <div className={styles.gitPanelCenter}>
-              <CreateVersion 
+              <CreateGitVersion 
                 title="创建初始版本"
                 versionList={this.state.gitInfo?.versionList}
                 gitId={this.state.gitInfo?.id} 
                 repoId={this.state.gitInfo.gitId}
                 onCancel={this.onCancelAddVersion}
-                afterAdd={this.afterCreateVersion}></CreateVersion>
+                afterAdd={this.afterCreateVersion}></CreateGitVersion>
             </div>
           )
         }

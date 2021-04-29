@@ -72,6 +72,9 @@ export type GitModelType = {
     query: Effect;
     getInfo: Effect;
     getFileTree: Effect;
+    queryBranchs: Effect;
+    queryCommits: Effect;
+    queryTags: Effect;
   };
   reducers: {
     setList: Reducer<GitModelState>;
@@ -101,6 +104,21 @@ const GitModel: GitModelType = {
       const res = yield call(gitService.getFileTree, payload)
       if (res.status === -1) return
       callback(res.data)
+    },
+    *queryBranchs ({payload, callback}, {call}) {
+      const res = yield call(gitService.queryBranchs, payload)
+      if (res.status === -1) return 
+      if (callback) callback(res.data)
+    },
+    *queryCommits ({payload, callback}, {call}) {
+      const res = yield call(gitService.queryCommits, payload)
+      if (res.status === -1) return 
+      if (callback) callback(res.data)
+    },
+    *queryTags ({payload, callback}, {call}) {
+      const res = yield call(gitService.queryTags, payload)
+      if (res.status === -1) return 
+      if (callback) callback(res.data)
     }
   },
   reducers: {
