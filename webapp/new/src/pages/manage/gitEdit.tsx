@@ -58,7 +58,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
       payload: this.props.match.params.id,
       callback: (info: GitInfo) => {
         this.setState({
-          gitInfo: info
+          gitInfo: info,
+          currentVersion: info.versionList.length ? info.versionList[0] : null
         })
       }
     })
