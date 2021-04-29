@@ -1,3 +1,4 @@
+import { GitCreateVersionParam } from '@/models/git';
 import request from '@/utils/request';
 import apis from './constants/apis';
 
@@ -49,6 +50,13 @@ class GitService {
       params: {
         gitId
       }
+    })
+  }
+
+  async createVersion (param: GitCreateVersionParam) {
+    return request(apis.git.createVersion, {
+      method: 'post',
+      data: param
     })
   }
 }

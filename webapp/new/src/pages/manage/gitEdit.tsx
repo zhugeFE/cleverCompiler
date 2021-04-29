@@ -104,8 +104,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   }
 
-  afterCreateVersion () {
-
+  afterCreateVersion (version: GitVersion) {
+    this.setState(preState => {
+      preState.gitInfo?.versionList.push(version)
+      return preState
+    })
   }
 
   afterDelConfig () {

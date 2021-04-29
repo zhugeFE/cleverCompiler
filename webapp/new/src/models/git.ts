@@ -75,6 +75,7 @@ export type GitModelType = {
     queryBranchs: Effect;
     queryCommits: Effect;
     queryTags: Effect;
+    createVersion: Effect;
   };
   reducers: {
     setList: Reducer<GitModelState>;
@@ -118,6 +119,11 @@ const GitModel: GitModelType = {
     *queryTags ({payload, callback}, {call}) {
       const res = yield call(gitService.queryTags, payload)
       if (res.status === -1) return 
+      if (callback) callback(res.data)
+    },
+    *createVersion ({payload, callback}, {call}) {
+      const res = yield call(gitService.createVersion, payload)
+      if (res.status === -1) return
       if (callback) callback(res.data)
     }
   },

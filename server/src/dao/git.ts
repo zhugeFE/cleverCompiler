@@ -143,7 +143,7 @@ class GitDao {
   async addVersion (param: GitCreateVersionParam): Promise<GitVersion> {
     // todo 版本号重复校验
     const sql = `insert into source_version(
-      id, source_id, version, publish_time, status, source_type, source_value, description
+      id, source_id, parent_id, version, publish_time, status, source_type, source_value, description
     ) values(
       ?,?,?,?,?,?,?,?
     )`
@@ -151,6 +151,7 @@ class GitDao {
     await pool.write(sql, [
       id,
       param.gitId,
+      param.parentId,
       param.version,
       new Date().getTime(),
       VersionStatus.normal,

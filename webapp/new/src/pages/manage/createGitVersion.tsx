@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Modal, Form, Input, Radio, message, Select } from 'antd'
 import { Version } from '@/models/common';
-import { GitBranch, GitCommit, GitCreateVersionParam, GitTag } from '@/models/git';
+import { GitBranch, GitCommit, GitCreateVersionParam, GitTag, GitVersion } from '@/models/git';
 import util from '@/utils/utils';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -122,6 +122,13 @@ class CreateGitVersion extends React.Component<Props, States> {
       description: this.state.form.description,
       parentId: this.state.form.parentId
     }
+    this.props.dispatch({
+      type: 'git/createVersion',
+      payload: data,
+      callback: (version: GitVersion) => {
+        if (this.props.afterAdd) this.props.afterAdd(version)
+      }
+    })
   }
   onCancel () {
     this.setState({
