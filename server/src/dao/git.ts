@@ -145,7 +145,7 @@ class GitDao {
     const sql = `insert into source_version(
       id, source_id, parent_id, version, publish_time, status, source_type, source_value, description
     ) values(
-      ?,?,?,?,?,?,?,?
+      ?,?,?,?,?,?,?,?,?
     )`
     const id = util.uuid()
     await pool.write(sql, [

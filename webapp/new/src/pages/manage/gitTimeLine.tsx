@@ -64,7 +64,6 @@ class TimeLinePanel extends React.Component<Props, State> {
       currentVersion: version,
       showCreate: false
     })
-    console.log('添加版本完成')
     if (this.props.afterAdd) this.props.afterAdd(version)
   }
   render () {
