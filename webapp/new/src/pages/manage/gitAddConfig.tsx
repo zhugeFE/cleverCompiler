@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Modal, Card, Row, Col } from 'antd';
+import GitTextConfig from './gitTextConfig'
 import styles from './styles/gitAddConfig.less'
 import { ConfigType, Version } from '@/models/common';
 import { connect } from 'dva'
@@ -87,13 +88,12 @@ class GitAddConfig extends React.Component<Props, State> {
       switch (this.state.type.key) {
         case 'text':
           return (
-            // <GitTextConfig 
-            //   gitId={this.props.gitId}
-            //   versionId={this.props.version.id}
-            //   onSubmit={this.onSubmitForm}
-            //   onBack={this.onBack}
-            //   onCancel={this.onCancel}></GitTextConfig>
-            'git text config'
+            <GitTextConfig 
+              gitId={this.props.gitId}
+              versionId={this.props.version.id}
+              onSubmit={this.onSubmitForm}
+              onBack={this.onBack}
+              onCancel={this.onCancel}></GitTextConfig>
           )
         case 'file':
           return (
@@ -134,7 +134,6 @@ class GitAddConfig extends React.Component<Props, State> {
 }
 
 export default connect(({sys}: ConnectState) => {
-  console.log('>>>>>>', sys)
   return {
     configTypes: sys.configTypes
   }

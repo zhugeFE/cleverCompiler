@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Spin } from 'antd';
-import DirectoryTree from 'antd/lib/tree/DirectoryTree';
+import { Spin, Tree } from 'antd';
 import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
-import './styles/fileTree.less'
+import styles from './styles/fileTree.less'
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/core/umiExports';
 import { DirNode } from '@/models/common';
@@ -74,13 +73,13 @@ class FileTree extends React.Component<FileTreeProps, State> {
 
   render () {
     return (
-      <div className="file-tree">
+      <div className={styles.fileTree}>
         {this.state.loading ? (
-          <Spin className="tree-loading"></Spin>
+          <Spin className={styles.treeLoading}></Spin>
         ) : (
-          <DirectoryTree
+          <Tree.DirectoryTree
           treeData={this.state.treeData}
-          onSelect={this.onSelect}></DirectoryTree>
+          onSelect={this.onSelect}></Tree.DirectoryTree>
         )}
       </div>
     )

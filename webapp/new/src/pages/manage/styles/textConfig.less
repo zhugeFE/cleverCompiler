@@ -1,0 +1,27 @@
+@import '~antd/es/style/themes/default.less';
+.gitTextConfig {
+  display: flex;
+  flex-direction: column;
+  :global(.ant-form) {
+    flex: none;
+    :global(.ant-form-item) {
+      margin-bottom: 10px;
+      :global(.ant-form-item-label) {
+        width: 100px;
+      }
+    }
+    &>:global(.ant-btn) {
+      margin-right: 10px;
+    }
+    .long {
+      width: 350px;
+    }
+    .formDivider {
+      width: 100%;
+    }
+  }
+  .gitFileEditor {
+    flex: 1;
+    overflow: auto;
+  }
+}

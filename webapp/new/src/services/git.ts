@@ -6,7 +6,7 @@ class GitService {
   async query () {
     return request(apis.git.queryGitList)
   }
-  async getFileTree (data: {
+  async getFileTree (params: {
     /**
      * gitId
      */
@@ -17,8 +17,8 @@ class GitService {
     versionId: string;
   }) {
     return request(apis.git.getFileTree, {
-      method: 'post',
-      data
+      method: 'get',
+      params
     })
   }
   async getInfo (id: string) {
