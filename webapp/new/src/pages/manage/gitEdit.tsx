@@ -10,6 +10,7 @@ import { connect } from 'dva'
 import React from 'react'
 import { withRouter } from 'react-router'
 import CreateGitVersion from './createGitVersion'
+import GitConfigPanel from './gitConfig'
 import TimeLinePanel from './gitTimeLine'
 import styles from './styles/gitEdit.less'
 
@@ -98,11 +99,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   }
 
-  onChangeVersion (version: GitVersion) {
+  onChangeVersion (version: Version) {
     this.setState({
-      currentVersion: version
+      currentVersion: version as GitVersion
     })
-    this.initDelInterval(version)
+    this.initDelInterval(version as GitVersion)
   }
 
   onAddConfig () {
@@ -211,9 +212,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
                   <a>{this.state.gitInfo.gitRepo}</a>
                 </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className={styles.gitConfigs}>
-                  {/* <GitConfigPanel 
+                  <GitConfigPanel 
                     store={this.state.currentVersion?.configs || []}
-                    afterDelConfig={this.afterDelConfig}></GitConfigPanel> */}
+                    afterDelConfig={this.afterDelConfig}></GitConfigPanel>
                   <Button className={styles.btnAddConfigItem} onClick={this.onAddConfig}>添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>

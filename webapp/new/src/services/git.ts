@@ -59,6 +59,15 @@ class GitService {
       data: param
     })
   }
+
+  async delConfig (configId: string) {
+    return request(apis.git.delConfig, {
+      method: 'delete',
+      params: {
+        configId
+      }
+    })
+  }
 }
 
 const gitService = new GitService()
