@@ -1,5 +1,6 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
+import { Version } from '@/models/common'
 import { GitInfo, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import { LeftOutlined } from '@ant-design/icons'
@@ -22,8 +23,9 @@ interface State {
   showAddConfig: boolean;
   currentVersion: GitVersion | null;
   delTimeout: number;
-  delTip: string;
   savePercent: number;
+  delInterval?: NodeJS.Timeout;
+  delTooltip: string;
 }
 
 class GitEdit extends React.Component<GitEditProps, State> {
@@ -34,8 +36,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
       showAddConfig: false,
       currentVersion: null,
       delTimeout: 0,
-      delTip: '',
-      savePercent: 100
+      savePercent: 100,
+      delTooltip: ''
     }
 
     this.onCancelConfig = this.onCancelConfig.bind(this)
@@ -57,11 +59,34 @@ class GitEdit extends React.Component<GitEditProps, State> {
       type: 'git/getInfo',
       payload: this.props.match.params.id,
       callback: (info: GitInfo) => {
+        const currentVersion = info.versionList.length ? info.versionList[0] : null
         this.setState({
           gitInfo: info,
-          currentVersion: info.versionList.length ? info.versionList[0] : null
+          currentVersion
         })
+        this.initDelInterval(currentVersion!)
       }
+    })
+  }
+
+  initDelInterval (version: GitVersion) {
+    clearInterval(this.state.delInterval as unknown as number)
+    let delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() - version.publishTime)
+    let delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
+    this.setState({
+      delTimeout,
+      delTooltip,
+      delInterval: setInterval(() => {
+        delTimeout = delTimeout - 1000
+        delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
+        if (delTimeout <= 0) {
+          clearInterval(this.state.delInterval as unknown as number)
+        }
+        this.setState({
+          delTimeout,
+          delTooltip
+        })
+      }, 1000)
     })
   }
 
@@ -73,8 +98,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   }
 
-  onChangeVersion () {
-
+  onChangeVersion (version: GitVersion) {
+    this.setState({
+      currentVersion: version
+    })
+    this.initDelInterval(version)
   }
 
   onAddConfig () {
@@ -106,10 +134,12 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   afterCreateVersion (version: GitVersion) {
-    this.setState(preState => {
-      preState.gitInfo?.versionList.push(version)
-      return preState
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo?.versionList.unshift(version)
+    this.setState({
+      currentVersion: version
     })
+    this.initDelInterval(version)
   }
 
   afterDelConfig () {
@@ -147,7 +177,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
               this.state.delTimeout > 0 ? (
                 <span>
                   <a onClick={this.onDeleteVersion} style={{marginLeft: '10px', color: '#f5222d', marginRight: '5px'}}>删除</a>
-                  ({this.state.delTip})
+                  ({this.state.delTooltip})
                 </span>
               ) : null
             }
@@ -173,7 +203,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
                   <Tooltip title={`${this.state.currentVersion?.sourceType}: ${this.state.currentVersion?.sourceValue}`} placement="bottom">
                     <Tag color="#87d068" style={{marginLeft: '5px'}}>v:{this.state.currentVersion?.name}</Tag>
                   </Tooltip>
-                  <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion!.publishTime))}</Tag>
+                  <Tooltip title="版本发布时间">
+                    <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion!.publishTime))}</Tag>
+                  </Tooltip>
                 </Description>
                 <Description label="git地址" labelWidth={labelWidth} className={styles.gitAddr}>
                   <a>{this.state.gitInfo.gitRepo}</a>
