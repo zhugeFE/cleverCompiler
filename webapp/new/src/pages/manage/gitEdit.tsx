@@ -12,6 +12,7 @@ import { withRouter } from 'react-router'
 import CreateGitVersion from './createGitVersion'
 import GitConfigPanel from './gitConfig'
 import TimeLinePanel from './gitTimeLine'
+import GitAddConfig from './gitAddConfig'
 import styles from './styles/gitEdit.less'
 
 export interface GitEditProps extends IRouteComponentProps<{
@@ -92,7 +93,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   onCancelConfig () {
-
+    this.setState({
+      showAddConfig: false
+    })
   }
 
   onDeleteVersion () {
@@ -107,7 +110,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   onAddConfig () {
-    
+    this.setState({
+      showAddConfig: true
+    })
   }
 
   onChangeOrders () {
@@ -156,7 +161,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     }
     return (
       <div className={styles.gitEditPanel}>
-        {/* {
+        {
           this.state.showAddConfig ? (
             <GitAddConfig 
               gitId={this.props.match.params.id}
@@ -164,7 +169,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
               onClose={this.onCancelConfig}
               onSubmit={this.afterAddConfig}></GitAddConfig>
           ) : null
-        } */}
+        }
         <div className={styles.gitPanelTop}>
           <a onClick={() => {this.props.history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>

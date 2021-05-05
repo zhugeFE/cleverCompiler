@@ -15,6 +15,10 @@ class SysService {
       data
     })
   }
+
+  async queryConfigTypes () {
+    return request(apis.base.queryConfigTypes)
+  }
 }
 
 const sysService = new SysService()
