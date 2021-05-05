@@ -77,6 +77,7 @@ export type GitModelType = {
     queryTags: Effect;
     createVersion: Effect;
     delConfig: Effect;
+    getFileContent: Effect;
   };
   reducers: {
     setList: Reducer<GitModelState>;
@@ -129,6 +130,11 @@ const GitModel: GitModelType = {
     },
     *delConfig ({payload, callback}, {call}) {
       const res = yield call(gitService.delConfig, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
+    *getFileContent ({payload, callback}, {call}) {
+      const res = yield call(gitService.getFileContent, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     }

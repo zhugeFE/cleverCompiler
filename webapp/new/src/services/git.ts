@@ -68,6 +68,15 @@ class GitService {
       }
     })
   }
+
+  async getFileContent (filePath: string) {
+    return request(apis.git.fileCat, {
+      method: 'get',
+      params: {
+        filePath
+      }
+    })
+  }
 }
 
 const gitService = new GitService()

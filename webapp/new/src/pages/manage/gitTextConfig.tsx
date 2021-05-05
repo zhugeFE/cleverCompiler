@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, Form, Input, Checkbox, Button } from 'antd';
+import { Modal, Form, Input, Checkbox, Button, message } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import FileTree from './fileTree';
 import { FormInstance } from 'antd/lib/form';
@@ -7,6 +7,7 @@ import configStyles from './styles/gitAddConfig.less'
 import styles from './styles/textConfig.less'
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from 'dva';
+import GitFileEditor from './fileEditor';
 
 interface FormData {
   filePath?: string;
@@ -60,24 +61,17 @@ class GitTextConfig extends React.Component<Props, State> {
     this.onBack = this.onBack.bind(this)
   }
   onSelectFile (filePath: string) {
-    // ajax({
-    //   url: api.git.fileCat,
-    //   method: 'get',
-    //   params: {
-    //     filePath
-    //   }
-    // })
-    // .then((res: ApiResult<string>) => {
-    //   this.setState({
-    //     filePath,
-    //     fileContent: res.data,
-    //     displayContent: res.data
-    //   })
-    // })
-    // .catch(err => {
-    //   message.error('文件读取失败')
-    //   console.error('文件读取失败', err)
-    // })
+    this.props.dispatch({
+      type: 'git/getFileContent',
+      payload: filePath,
+      callback: fileContent => {
+        this.setState({
+          filePath,
+          fileContent,
+          displayContent: fileContent
+        })
+      }
+    })
   }
   onChange (changedValues: FormData, formData: FormData) {
     this.setState({
@@ -96,26 +90,28 @@ class GitTextConfig extends React.Component<Props, State> {
     })
   }
   onSubmit () {
-    // if (!this.state.filePath) {
-    //   message.error('请选择目标文件')
-    //   return;
-    // }
-    // this.form.current.validateFields()
-    // .then(() => {
-    //   if (this.props.onSubmit) this.props.onSubmit({
-    //     filePath: this.state.filePath,
-    //     reg: {
-    //       source: this.state.reg.source,
-    //       global: this.state.reg.global,
-    //       ignoreCase: this.state.reg.ignoreCase
-    //     },
-    //     value: this.state.formData.value,
-    //     desc: this.state.formData.desc
-    //   })
-    // })
-    // .catch(() => {
-    //   console.error('表单校验失败')
-    // })
+    if (!this.state.filePath) {
+      message.error('请选择目标文件')
+      return;
+    }
+    this.form.current?.validateFields()
+    .then(() => {
+      if (!this.props.onSubmit) return
+      const reg = this.state.reg
+      this.props.onSubmit({
+        filePath: this.state.filePath,
+        reg: {
+          source: reg!.source,
+          global: reg!.global,
+          ignoreCase: reg!.ignoreCase
+        },
+        value: this.state.formData.value!,
+        desc: this.state.formData.desc!
+      })
+    })
+    .catch((err) => {
+      console.error('表单验证失败', err)
+    })
   }
   onCancel () {
     if (this.props.onCancel) this.props.onCancel()
@@ -170,7 +166,7 @@ class GitTextConfig extends React.Component<Props, State> {
             <Button type="primary" onClick={this.onReplace}>替换</Button>
             <Button onClick={this.onReset}>还原</Button>
           </Form>
-          {/* <GitFileEditor reg={this.state.reg} content={this.state.displayContent}></GitFileEditor> */}
+          <GitFileEditor reg={this.state.reg!} content={this.state.displayContent}></GitFileEditor>
         </div>
       </Modal>
     )

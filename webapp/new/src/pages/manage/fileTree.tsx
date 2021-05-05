@@ -5,6 +5,9 @@ import styles from './styles/fileTree.less'
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/core/umiExports';
 import { DirNode } from '@/models/common';
+interface NodeData extends DataNode {
+  fileType: string;
+}
 export interface FileTreeProps {
   gitId: string;
   versionId: string;
@@ -12,7 +15,7 @@ export interface FileTreeProps {
   onSelect? (filePath: string, fileType: string): void
 }
 interface State {
-  treeData: DataNode[];
+  treeData: NodeData[];
   loading: boolean;
 }
 
@@ -34,9 +37,9 @@ class FileTree extends React.Component<FileTreeProps, State> {
         versionId: this.props.versionId
       },
       callback: (list: DirNode[]) => {
-        function iterator (nodes: DirNode[]): DataNode[] {
+        function iterator (nodes: DirNode[]): NodeData[] {
           return nodes.map(node => {
-            const resNode: DataNode = {
+            const resNode: NodeData = {
               key: node.filePath,
               title: node.name,
               isLeaf: !node.isDirectory,
@@ -62,12 +65,12 @@ class FileTree extends React.Component<FileTreeProps, State> {
     event: 'select';
     selected: boolean;
     node: EventDataNode;
-    selectedNodes: DataNode[];
+    selectedNodes: NodeData[];
     nativeEvent: MouseEvent;
   }) {
     const node = info.selectedNodes[0]
     if (node.isLeaf) {
-      // if (this.props.onSelect) this.props.onSelect(node.key as string, node.fileType)
+      if (this.props.onSelect) this.props.onSelect(node.key as string, node.fileType)
     }
   }
 
