@@ -83,7 +83,7 @@ class TimeLinePanel extends React.Component<Props, State> {
           <Form.Item name="search">
             <Input.Search
               className={styles.versionSearch}
-              size="small"
+              size="middle"
               placeholder="x.x.x"/>
           </Form.Item>
         </Form>
