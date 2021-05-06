@@ -35,13 +35,13 @@
               {
                 path: '/manage/git/list',
                 name: 'gitList',
-                component: './manage/gitList'
+                component: './gitManage/gitList'
               },
               {
                 path: '/manage/git/:id',
                 name: 'gitEdit',
                 hideInMenu: true,
-                component: './manage/gitEdit'
+                component: './gitManage/gitEdit'
               },
               {
                 component: './404',

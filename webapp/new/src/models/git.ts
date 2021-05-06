@@ -1,5 +1,5 @@
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
-import { TextConfigParam } from '@/pages/manage/gitTextConfig';
+import { TextConfigParam } from '@/pages/gitManage/gitTextConfig';
 import gitService from '@/services/git';
 import { ConfigType, Version } from './common';
 
