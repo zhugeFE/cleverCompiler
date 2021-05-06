@@ -240,8 +240,23 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.initDelInterval(version)
   }
 
-  afterDelConfig () {
-
+  afterDelConfig (configId: string) {
+    const currentVersion = util.clone(this.state.currentVersion)
+    currentVersion?.configs.forEach((config, i) => {
+      if (configId === config.id) {
+        currentVersion.configs.splice(i, 1)
+      }
+    })
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo!.versionList.forEach((version, i) => {
+      if (version.id === currentVersion!.id) {
+        gitInfo!.versionList[i] = currentVersion!
+      }
+    })
+    this.setState({
+      gitInfo,
+      currentVersion
+    })
   }
 
   render () {
