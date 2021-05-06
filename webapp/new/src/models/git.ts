@@ -1,6 +1,7 @@
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
+import { TextConfigParam } from '@/pages/manage/gitTextConfig';
 import gitService from '@/services/git';
-import { Version } from './common';
+import { ConfigType, Version } from './common';
 
 export interface GitInstance {
   id: string;
@@ -61,6 +62,12 @@ export interface GitCreateVersionParam {
   parentId?: string; // 父版本id
 }
 
+export interface GitTextConfigParam extends TextConfigParam{
+  sourceId: string;
+  versionId: string;
+  typeId: ConfigType['id'];
+}
+
 export type GitModelState = {
   gitList: GitInstance[];
 }
@@ -77,6 +84,7 @@ export type GitModelType = {
     queryTags: Effect;
     createVersion: Effect;
     delConfig: Effect;
+    addConfig: Effect;
     getFileContent: Effect;
   };
   reducers: {
@@ -130,6 +138,11 @@ const GitModel: GitModelType = {
     },
     *delConfig ({payload, callback}, {call}) {
       const res = yield call(gitService.delConfig, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
+    *addConfig ({payload, callback}, {call}) {
+      const res = yield call(gitService.addConfig, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     },

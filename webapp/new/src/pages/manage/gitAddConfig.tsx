@@ -51,25 +51,18 @@ class GitAddConfig extends React.Component<Props, State> {
   }
 
   onSubmitForm (formData: any) {
-    // ajax({
-    //   url: api.git.addConfig,
-    //   method: 'POST',
-    //   data: {
-    //     sourceId: this.props.gitId,
-    //     versionId: this.props.version.id,
-    //     typeId: this.state.type.id,
-    //     ...formData
-    //   }
-    // })
-    // .then((res: ApiResult<GitConfig>) => {
-    //   if (this.props.onSubmit) {
-    //     this.props.onSubmit(res.data)
-    //   }
-    // })
-    // .catch(err => {
-    //   message.error('保存失败')
-    //   console.error('保存配置失败', err)
-    // })
+    this.props.dispatch({
+      type: 'git/addConfig',
+      payload: {
+        sourceId: this.props.gitId,
+        versionId: this.props.version.id,
+        typeId: this.state.type!.id,
+        ...formData
+      },
+      callback: (config: GitConfig) => {
+        if (this.props.onSubmit) this.props.onSubmit(config)
+      }
+    })
   }
 
   onCancel () {

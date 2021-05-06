@@ -1,4 +1,5 @@
-import { GitCreateVersionParam } from '@/models/git';
+import { ConfigType } from '@/models/common';
+import { GitCreateVersionParam, GitTextConfigParam } from '@/models/git';
 import request from '@/utils/request';
 import apis from './constants/apis';
 
@@ -57,6 +58,13 @@ class GitService {
     return request(apis.git.createVersion, {
       method: 'post',
       data: param
+    })
+  }
+
+  async addConfig (data: GitTextConfigParam) {
+    return request(apis.git.addConfig, {
+      method: 'post',
+      data: data
     })
   }
 

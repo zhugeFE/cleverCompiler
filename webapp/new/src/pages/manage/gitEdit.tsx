@@ -1,7 +1,7 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
 import { Version } from '@/models/common'
-import { GitInfo, GitVersion } from '@/models/git'
+import { GitConfig, GitInfo, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import { LeftOutlined } from '@ant-design/icons'
 import { IRouteComponentProps } from '@umijs/renderer-react'
@@ -135,8 +135,20 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   }
 
-  afterAddConfig () {
-
+  afterAddConfig (config: GitConfig) {
+    const currentVersion = util.clone(this.state.currentVersion)
+    currentVersion?.configs.push(config)
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo?.versionList.forEach((version, i) => {
+      if (version.id === currentVersion!.id) {
+        gitInfo.versionList[i] = currentVersion!
+      }
+    })
+    this.setState({
+      showAddConfig: false,
+      currentVersion,
+      gitInfo
+    })
   }
 
   afterCreateVersion (version: GitVersion) {
