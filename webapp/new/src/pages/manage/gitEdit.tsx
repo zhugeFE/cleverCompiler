@@ -76,9 +76,16 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
-  initDelInterval (version: GitVersion) {
+  initDelInterval (version: GitVersion | null) {
     clearInterval(this.state.delInterval as unknown as number)
-    let delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() - version.publishTime)
+    if (!version) {
+      this.setState({
+        delTimeout: 0,
+        delTooltip: ''
+      })
+      return
+    }
+    let delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() - version!.publishTime)
     let delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
     this.setState({
       delTimeout,
@@ -104,7 +111,26 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   onDeleteVersion () {
-
+    this.props.dispatch({
+      type: 'git/deleteVersion',
+      payload: this.state.currentVersion!.id,
+      callback: () => {
+        const versionList: GitVersion[] = []
+        this.state.gitInfo?.versionList.forEach(version => {
+          if (version.id !== this.state.currentVersion!.id) {
+            versionList.push(version)
+          }
+        })
+        const currentVersion = versionList.length > 0 ? versionList[0] : null
+        const gitInfo = util.clone(this.state.gitInfo)
+        gitInfo!.versionList = versionList
+        this.setState({
+          gitInfo,
+          currentVersion
+        })
+        this.initDelInterval(currentVersion)
+      }
+    })
   }
 
   onChangeVersion (version: Version) {
@@ -208,7 +234,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
     const gitInfo = util.clone(this.state.gitInfo)
     gitInfo?.versionList.unshift(version)
     this.setState({
-      currentVersion: version
+      currentVersion: version,
+      gitInfo
     })
     this.initDelInterval(version)
   }

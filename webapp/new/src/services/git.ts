@@ -92,6 +92,15 @@ class GitService {
       data
     })
   }
+
+  async deleteVersion (versionId: string) {
+    return request(apis.git.deleteVersion, {
+      method: 'delete',
+      params: {
+        id: versionId
+      }
+    })
+  }
 }
 
 const gitService = new GitService()

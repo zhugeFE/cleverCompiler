@@ -93,6 +93,7 @@ export type GitModelType = {
     addConfig: Effect;
     getFileContent: Effect;
     updateVersion: Effect;
+    deleteVersion: Effect;
   };
   reducers: {
     setList: Reducer<GitModelState>;
@@ -160,6 +161,11 @@ const GitModel: GitModelType = {
     },
     *updateVersion ({payload, callback}, {call}) {
       const res = yield call(gitService.updateVersion, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
+    *deleteVersion ({payload, callback}, {call}) {
+      const res = yield call(gitService.deleteVersion, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     }
