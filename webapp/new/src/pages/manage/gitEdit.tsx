@@ -14,6 +14,7 @@ import GitConfigPanel from './gitConfig'
 import TimeLinePanel from './gitTimeLine'
 import GitAddConfig from './gitAddConfig'
 import styles from './styles/gitEdit.less'
+import Commands from './commands'
 
 export interface GitEditProps extends IRouteComponentProps<{
   id: string;
@@ -115,8 +116,17 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
-  onChangeOrders () {
+  onChangeOrders (orders: string[]) {
+    const version = util.clone(this.state.currentVersion)
+    version!.compileOrders = orders
+    this.setState({
+      currentVersion: version
+    })
+    this.onUpdateVersion()
+  }
 
+  onUpdateVersion () {
+    
   }
 
   onChangeReadme () {
@@ -177,7 +187,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
           this.state.showAddConfig ? (
             <GitAddConfig 
               gitId={this.props.match.params.id}
-              version={this.state.currentVersion}
+              version={this.state.currentVersion!}
               onClose={this.onCancelConfig}
               onSubmit={this.afterAddConfig}></GitAddConfig>
           ) : null
@@ -235,7 +245,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                   <Button className={styles.btnAddConfigItem} onClick={this.onAddConfig}>添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
-                  {/* {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} tags={this.state.currentVersion?.compileOrders}></Commands> : null} */}
+                  {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} tags={this.state.currentVersion?.compileOrders}></Commands> : null}
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">

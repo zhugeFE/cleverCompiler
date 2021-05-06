@@ -14,7 +14,6 @@ interface Props {
   version: Version;
   configTypes: ConfigType[];
   dispatch: Dispatch;
-  getConfigTypes (): void;
   onClose ?(): void;
   onSubmit ?(config: GitConfig): void;
 }
