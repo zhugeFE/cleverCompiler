@@ -1,0 +1,27 @@
+@import '~antd/es/style/themes/default.less';
+.markdown {
+  position: relative;
+  min-height: 200px;
+  background: #fff;
+  padding: 5px 10px;
+  .markdown-handles {
+    position: absolute;
+    right: 20px;
+    top: 0;
+    font-size: 18px;
+    z-index: 10;
+    .anticon {
+      margin-left: 5px;
+    }
+  }
+  .markdown-editor {
+    border: none;
+    resize: none;
+    outline: none !important;
+    -webkit-appearance: none;
+    :active,:focus {
+      outline: none !important;
+      -webkit-appearance: none;
+    }
+  }
+}

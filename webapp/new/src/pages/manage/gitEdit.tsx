@@ -16,6 +16,7 @@ import TimeLinePanel from './gitTimeLine'
 import GitAddConfig from './gitAddConfig'
 import styles from './styles/gitEdit.less'
 import Commands from './commands'
+import Markdown from '@/components/markdown/markdown'
 
 export interface GitEditProps extends IRouteComponentProps<{
   id: string;
@@ -156,16 +157,31 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
-  onChangeReadme () {
-
+  onChangeReadme (content: string) {
+    const currentVersion = util.clone(this.state.currentVersion)
+    currentVersion!.readmeDoc = content
+    this.setState({
+      currentVersion
+    })
+    this.onUpdateVersion()
   }
 
-  onChangeBuild () {
-
+  onChangeBuild (content: string) {
+    const currentVersion = util.clone(this.state.currentVersion)
+    currentVersion!.buildDoc = content
+    this.setState({
+      currentVersion
+    })
+    this.onUpdateVersion()
   }
 
-  onChangeUpdate () {
-
+  onChangeUpdate (content: string) {
+    const currentVersion = util.clone(this.state.currentVersion)
+    currentVersion!.updateDoc = content
+    this.setState({
+      currentVersion
+    })
+    this.onUpdateVersion()
   }
 
   onCancelAddVersion () {
@@ -276,13 +292,13 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
-                    {/* {this.state.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.state.currentVersion?.readmeDoc}></Markdown> : null} */}
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.state.currentVersion?.readmeDoc}></Markdown> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署文档" key="build">
-                    {/* {this.state.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.state.currentVersion?.buildDoc}></Markdown> : null} */}
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.state.currentVersion?.buildDoc}></Markdown> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
-                    {/* {this.state.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.state.currentVersion?.updateDoc}></Markdown> : null} */}
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.state.currentVersion?.updateDoc}></Markdown> : null}
                   </Tabs.TabPane>
                 </Tabs>
               </div>
