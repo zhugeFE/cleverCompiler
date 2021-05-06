@@ -67,7 +67,13 @@ export interface GitTextConfigParam extends TextConfigParam{
   versionId: string;
   typeId: ConfigType['id'];
 }
-
+export interface GitUpdateVersionParam {
+  id: string;
+  compileOrders: string;
+  readmeDoc: string;
+  buildDoc: string;
+  updateDoc: string;
+}
 export type GitModelState = {
   gitList: GitInstance[];
 }
@@ -86,6 +92,7 @@ export type GitModelType = {
     delConfig: Effect;
     addConfig: Effect;
     getFileContent: Effect;
+    updateVersion: Effect;
   };
   reducers: {
     setList: Reducer<GitModelState>;
@@ -148,6 +155,11 @@ const GitModel: GitModelType = {
     },
     *getFileContent ({payload, callback}, {call}) {
       const res = yield call(gitService.getFileContent, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
+    *updateVersion ({payload, callback}, {call}) {
+      const res = yield call(gitService.updateVersion, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     }

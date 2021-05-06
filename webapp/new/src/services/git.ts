@@ -1,5 +1,5 @@
 import { ConfigType } from '@/models/common';
-import { GitCreateVersionParam, GitTextConfigParam } from '@/models/git';
+import { GitCreateVersionParam, GitTextConfigParam, GitUpdateVersionParam } from '@/models/git';
 import request from '@/utils/request';
 import apis from './constants/apis';
 
@@ -83,6 +83,13 @@ class GitService {
       params: {
         filePath
       }
+    })
+  }
+
+  async updateVersion (data: GitUpdateVersionParam) {
+    return request(apis.git.updateVersion, {
+      method: 'post',
+      data
     })
   }
 }

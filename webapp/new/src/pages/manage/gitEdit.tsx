@@ -1,8 +1,9 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
 import { Version } from '@/models/common'
-import { GitConfig, GitInfo, GitVersion } from '@/models/git'
+import { GitConfig, GitInfo, GitUpdateVersionParam, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
+import * as _ from 'lodash'
 import { LeftOutlined } from '@ant-design/icons'
 import { IRouteComponentProps } from '@umijs/renderer-react'
 import { Button, Tabs, Tag, Spin, Tooltip, Progress } from 'antd'
@@ -25,6 +26,7 @@ interface State {
   gitInfo: GitInfo | null;
   showAddConfig: boolean;
   currentVersion: GitVersion | null;
+  updateTimeout: number;
   delTimeout: number;
   savePercent: number;
   delInterval?: NodeJS.Timeout;
@@ -38,6 +40,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
       gitInfo: null,
       showAddConfig: false,
       currentVersion: null,
+      updateTimeout: 0,
       delTimeout: 0,
       savePercent: 100,
       delTooltip: ''
@@ -126,7 +129,31 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   onUpdateVersion () {
-    
+    if (this.state.updateTimeout) {
+      clearTimeout(this.state.updateTimeout)
+    }
+    this.setState({
+      savePercent: _.random(10, 90, false),
+      updateTimeout: setTimeout(() => {
+        const { currentVersion } = this.state
+        const param: GitUpdateVersionParam = {
+          id: currentVersion!.id,
+          compileOrders: JSON.stringify(currentVersion!.compileOrders),
+          readmeDoc: currentVersion!.readmeDoc,
+          buildDoc: currentVersion!.buildDoc,
+          updateDoc: currentVersion!.updateDoc
+        }
+        this.props.dispatch({
+          type: 'git/updateVersion',
+          payload: param,
+          callback: () => {
+            this.setState({
+              savePercent: 100
+            })
+          }
+        })
+      }, 500) as unknown as number
+    })
   }
 
   onChangeReadme () {
