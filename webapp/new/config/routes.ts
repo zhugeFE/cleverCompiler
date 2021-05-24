@@ -44,6 +44,11 @@
                 component: './gitManage/gitEdit'
               },
               {
+                path: '/manage/template/list',
+                name: 'templateList',
+                component: './templateManage/index'
+              },
+              {
                 component: './404',
               }
             ]

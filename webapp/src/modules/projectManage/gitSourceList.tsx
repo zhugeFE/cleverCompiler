@@ -22,7 +22,7 @@ interface State {
   }
 }
 class GitSourceList extends React.Component<Props, State> {
-  constructor (props: Props, state: State) {
+  constructor (props: Props) {
     super(props)
     this.state = {
       form: {

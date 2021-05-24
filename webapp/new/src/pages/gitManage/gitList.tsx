@@ -94,6 +94,15 @@ class GitList extends React.Component<GitListProps, State> {
         }
       },
       {
+        title: '更新文档',
+        dataIndex: 'updateDoc',
+        render (text) {
+          return (
+            <a>{text || '-'}</a>
+          )
+        }
+      },
+      {
         title: '操作',
         dataIndex: 'handle',
         fixed: 'right',
