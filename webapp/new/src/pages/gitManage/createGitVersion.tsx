@@ -122,6 +122,7 @@ class CreateGitVersion extends React.Component<Props, States> {
       description: this.state.form.description,
       parentId: this.state.form.parentId
     }
+
     this.props.dispatch({
       type: 'git/createVersion',
       payload: data,

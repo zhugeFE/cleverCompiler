@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-08-03 18:45:22
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-08-06 17:23:06
+ */
 export default {
   user: {
     getCurrent: '/user/getCurrent',
@@ -25,7 +33,7 @@ export default {
     deleteVersion: '/git/version'
   },
   template: {
-    add: '/template/add',
-    query: '/template/query'
+    createTemplate: '/template/add',
+    queryTemplateList: '/template/list'
   }
 }

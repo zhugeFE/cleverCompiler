@@ -93,7 +93,7 @@ import { history } from '@/.umi/core/history';
    let message = '接口请求失败'
    switch(apiResult.status) {
     case ResponseStatus.sysNotInit:
-      history.push('/init')
+      location.href = '/init'
       message = '系统未初始化'
       break
      case ResponseStatus.sysInited:

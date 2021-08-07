@@ -1,4 +1,12 @@
-﻿export default [
+﻿/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-08-03 18:45:22
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-08-04 15:12:13
+ */
+export default [
   {
     path: '/user',
     component: '../layouts/UserLayout',
@@ -46,7 +54,13 @@
               {
                 path: '/manage/template/list',
                 name: 'templateList',
-                component: './templateManage/index'
+                component: './templateManage/templateList'
+              },
+              {
+                path: '/manage/template/:id',
+                name: 'templateEdit',
+                hideInMenu:true,
+                component: './templateManage/templateEdit'
               },
               {
                 component: './404',
