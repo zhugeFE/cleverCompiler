@@ -1,4 +1,12 @@
-import { Template, TemplateListItem } from "../types/template"
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-08-03 16:47:43
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-08-07 10:14:02
+ */
+import { Template, TemplateInstance } from "../types/template"
 import util from "../utils/util"
 import templateDao from "../dao/template"
 
@@ -13,7 +21,7 @@ class TemplateService {
     }
     return await templateDao.create(param)
   }
-  async query (): Promise<TemplateListItem[]> {
+  async query (): Promise<TemplateInstance[]> {
     return await templateDao.query()
   }
 }

@@ -6,7 +6,7 @@
   "scripts": {
     "eslint": "eslint ./ --ext .ts",
     "fix": "eslint --fix ./ --ext .ts",
-    "build": "npm run eslint;rm -rf ./dist;tsc"
+    "build": "npm run eslint && tsc"
   },
   "author": "dongyongqiang@zhugeio.com",
   "license": "ISC",

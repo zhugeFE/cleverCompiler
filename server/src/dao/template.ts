@@ -1,8 +1,16 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-08-07 09:59:03
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-08-07 10:20:49
+ */
 /**
  * 模板
  */
 
-import { Template, TemplateListItem } from "../types/template"
+import { Template, TemplateInstance } from "../types/template"
 import * as _ from 'lodash'
 import pool from "./pool"
 
@@ -23,27 +31,19 @@ class TemplateDao {
     const list = await pool.query<Template>(sql, [id])
     return list.length ? list[0] : null
   }
-  async query (): Promise<TemplateListItem[]> {
+  async query (): Promise<TemplateInstance[]> {
     const sql = `
     SELECT
       t.id,
       t.name,
       t.description,
-      v.version_id,
-      v.version 
+      t.creator_id,
+      t.create_time
     FROM
       template AS t
-      LEFT JOIN (
-      SELECT
-        a.id AS version_id,
-        a.template_id,
-        a.version 
-      FROM
-        template_version AS a
-      JOIN ( SELECT template_id, MAX( publish_time ) FROM template_version GROUP BY template_id ) AS b ON a.id = b.template_id 
-      ) AS v ON t.id = v.template_id
+    order by t.create_time desc
     `
-    return await pool.query<TemplateListItem>(sql, [])
+    return await pool.query<TemplateInstance>(sql)as TemplateInstance[]
   }
 }
 const templateDao = new TemplateDao()
