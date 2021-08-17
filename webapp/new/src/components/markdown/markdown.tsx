@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-08-03 18:45:22
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-08-12 17:41:01
+ */
 import * as React from 'react'
 import * as ReactMarkdown from 'react-markdown'
 import { Input } from 'antd'
@@ -70,7 +78,7 @@ class Markdown extends React.Component<Props, State> {
         } else {
           return (
             <div className="markdown-preview">
-              <ReactMarkdown source={this.state.content}></ReactMarkdown>
+              <ReactMarkdown children={this.state.content}></ReactMarkdown>
             </div>
           )
         }

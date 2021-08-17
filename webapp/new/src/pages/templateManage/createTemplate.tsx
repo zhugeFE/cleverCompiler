@@ -4,23 +4,24 @@
  * @Author: Adxiong
  * @Date: 2021-08-05 09:58:53
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-06 19:04:20
+ * @LastEditTime: 2021-08-16 18:24:40
  */
-import * as React from "react";
+import React from 'react'
 import { Modal, Form, Input, message} from 'antd';
-import { TemplateCreateParam, Template } from "@/models/template";
+import { TemplateCreateParam, TemplateInfo, TemplateInstance } from "@/models/template";
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 
 interface FormData {
   name: string;
   description: string;
+  version: string;
+  versionDescription: string;
 }
 
 interface Props {
-  showAddModal : boolean;
   dispatch:Dispatch;
-  onCommit? (): void;
+  onCommit? (template:TemplateInfo): void;
   onCancel? (): void;
 }
 
@@ -33,9 +34,13 @@ class CreateTemplate extends React.Component<Props ,States> {
   constructor (props : Props){
     super(props)
     this.state = {
+      git:"",
+      show:true,
       form: {
         name: "",
         description: "",
+        version: "1.0.0",
+        versionDescription:""
       }
     } as States
     this.onCommit = this.onCommit.bind(this)
@@ -44,26 +49,33 @@ class CreateTemplate extends React.Component<Props ,States> {
   }
 
   onCommit () {
-    const {name , description } = this.state.form
+    const {name , description ,version, versionDescription } = this.state.form
     if (!name) {
       message.error("名称未填写！",1)
     }
     const data:TemplateCreateParam = {
       name,
-      description
+      description,
+      version,
+      versionDescription
     }
-    
+
     this.props.dispatch({
       type: 'template/createTemplate',
       payload: data,
-      callback: (template:Template) => {
-        if (this.props.onCommit) this.props.onCommit()
+      callback: (template:TemplateInfo) => {
+        if(this.props.onCommit)this.props.onCommit(template)
+        this.setState({
+          show:false
+        })
       }
     })
   }
 
   onCancel () {
-    if (this.props.onCancel) this.props.onCancel()
+    this.setState({
+      show:false
+    })
   }
 
   onChangeForm (changeValue: any , values: FormData) {
@@ -72,8 +84,9 @@ class CreateTemplate extends React.Component<Props ,States> {
     })
   }
 
+
   render () {
-    const show = this.props.showAddModal
+    const show = this.state.show
     return (
       <Modal 
         title="新建模板" 
@@ -91,7 +104,6 @@ class CreateTemplate extends React.Component<Props ,States> {
           onValuesChange={this.onChangeForm}
         >
           <Form.Item
-            className="item"
             label="名称"
             name="name"
             rules={[{ required: true, message: '请输入模板名称!' }]}
@@ -99,16 +111,33 @@ class CreateTemplate extends React.Component<Props ,States> {
             <Input type="text"></Input>
           </Form.Item>
           <Form.Item
-            className="item"
             label="描述"
             name="description"
             rules={[{ required: true, message: '请输入模板描述!' }]}
           >
             <Input></Input>
           </Form.Item>
+
+          <Form.Item 
+            label="版本号" 
+            name="version"
+            rules={[{ required: true, message: '请输入版本号!' }]}
+          >
+            <Input disabled addonBefore="v" placeholder="x.x.x"/>
+          </Form.Item>
+
+          <Form.Item 
+            label="版本描述" 
+            name="versionDescription"
+            rules={[{ required: true, message: '请输入版本描述!' }]}
+          >
+            <Input />
+          </Form.Item>
         </Form>
       </Modal>
+    
     )
+      
   }
 }
 export default connect()(CreateTemplate)

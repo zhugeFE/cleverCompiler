@@ -3,6 +3,19 @@ import { TextConfigParam } from '@/pages/gitManage/gitTextConfig';
 import gitService from '@/services/git';
 import { ConfigType, Version } from './common';
 
+export interface GitSelectParams {
+  git:[
+    {
+      id:string,
+      name:string
+    }
+  ];
+  version:{
+    [propName:string]:string[]
+  }
+}
+
+
 export interface GitInstance {
   id: string;
   name: string;

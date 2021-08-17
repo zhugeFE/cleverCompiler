@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-06 17:23:06
+ * @LastEditTime: 2021-08-13 16:57:36
  */
 export default {
   user: {
@@ -34,6 +34,19 @@ export default {
   },
   template: {
     createTemplate: '/template/add',
-    queryTemplateList: '/template/list'
+    getInfo: '/template/{{id}}/info',
+    queryTemplateList: '/template/list',
+    updateTemplateStatus: "/template/update",
+    addVersion: '/template/version/add',
+    delVersion: '/template/version',
+    updateVersion: '/template/version/update',
+    addVersionGit: '/template/git/add',
+    delVersionGit: '/template/git',
+    addConfig: '/template/config/add',
+    updateConfig: '/template/config/update',
+    delConfig: '/template/config',
+    addComConfig: '/template/comconfig/add',
+    updateComConfig: '/template/comconfig/update',
+    delComConfig: '/template/comconfig'
   }
 }

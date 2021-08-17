@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-08-07 09:58:37
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-08-09 17:32:16
+ */
 import { Settings as ProSettings } from '@ant-design/pro-layout';
 
 type DefaultSettings = Partial<ProSettings> & {
