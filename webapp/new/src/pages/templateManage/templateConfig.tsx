@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-16 18:09:35
+ * @LastEditTime: 2021-08-17 18:37:22
  */
 import * as React from 'react'
 import styles from './styles/templateConfig.less'
@@ -12,7 +12,8 @@ import { Select, Table, Tabs } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { connect } from 'dva'
 import { Dispatch } from '@/.umi/plugin-dva/connect'
-import {  ConfigInstance, TemplateConfig, TemplateGlobalConfig, TemplateVersion, TemplateVersionGit } from '@/models/template'
+import {  ConfigInstance, TemplateConfig, TemplateGlobalConfig, TemplateVersion, TemplateVersionGit, UpdateConfigParam } from '@/models/template'
+import util from '@/utils/utils'
 const { TabPane } = Tabs;
 const { Option } = Select
 
@@ -23,17 +24,14 @@ const initialPanes = [
 
 export interface ConfigPanelProps {
   comConfig: TemplateGlobalConfig[] | null;
-  currentVersioinGit: TemplateVersionGit | null;
   gitList: TemplateVersionGit[] | null;
-  onClick():void;
-  onChange(id:string):void;
-  afterchangeHiddenStatus?(configId: string): void;
-  afterDelVersion? (id: string):void;
-  
+  afterChangeConfig?(data: ConfigInstance): void;
+  afterDelVersion? (data: any):void;
   dispatch: Dispatch;
 }
 interface State {
-  // activeKey: string
+  activeKey: string
+  comConfigDict: {};
   columns: ColumnProps<ConfigInstance>[]
 }
 class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
@@ -41,22 +39,31 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     super(props)
     const that = this
     this.state = {
-      // activeKey: this.props.currentVersioin.id,
+      comConfigDict:{},
+      activeKey: props.gitList?[0].id! ,
       columns: [ 
         // {title: '名称', dataIndex: 'name' , fixed: 'left'},
         {title: '文件位置', width:150,ellipsis:true, dataIndex: 'filePath',fixed: 'left'},
         {title: '默认值', width:300 , ellipsis:true, render(record: ConfigInstance){
           return(
-            <>
+            <div style={{display:'flex',justifyContent:'space-between'}}>
               {record.value || record.sourceValue}
-              <Select>
+              <Select 
+                defaultValue={that.state.comConfigDict[record.globalConfigId]}
+                style={{width:'100px'}} 
+                onChange={that.onChangeConfig.bind(that,record,"globalConfig")}>
                 {
                   that.props.comConfig!.map(item=>
-                    <Option value={item.id} key={item.id} title={item.name}>{item.name}</Option>
+                    <Option 
+                    
+                    value={item.id} 
+                    key={item.id} 
+                    title={item.name}
+                    >{item.name}</Option>
                   )
                 }
               </Select>
-            </>
+            </div>
           )
         }},
         {title: '描述', width:100 , dataIndex: 'description'},
@@ -77,7 +84,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           return (
             <div>
               <a onClick={that.onConfigEdit.bind(that,record.id)}>编辑</a>
-              <a style={{marginLeft:"5px",color:record.isHidden?"rgba(0,0,0,0,.5)":""}} onClick={that.changeHiddenStatus.bind(that, record)}>{record.isHidden?"启用":"隐藏"}</a>
+              <a style={{marginLeft:"5px",color:record.isHidden?"rgba(0,0,0,0,.5)":""}} onClick={that.onChangeConfig.bind(that, record,'hidden')}>{record.isHidden?"启用":"隐藏"}</a>
             </div>
           )
         }}
@@ -85,7 +92,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     }
     this.onChange = this.onChange.bind(this);
     this.onEdit = this.onEdit.bind(this);
-    this.onConfigEdit = this.onConfigEdit.bind(this);
     this.remove = this.remove.bind(this);
   }
 
@@ -94,6 +100,18 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     if(this.props.onChange){
       this.props.onChange(activeKey)
     }
+  }
+
+  componentWillMount(){
+    var data = {}
+    this.props.comConfig?.map(item=>{data[item.id] = item.name})
+    
+    this.setState({
+      comConfigDict: data
+    })
+    setTimeout(()=>{
+      console.log(this.state.comConfigDict)
+    },0)
   }
 
   onEdit (targetKey:any, action:any) {
@@ -108,26 +126,39 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.props.dispatch({
       type:"template/delVersionGit",
       payload:targetKey,
-      callback:()=>{
-        if(this.props.afterDelVersion)this.props.afterDelVersion(targetKey)
+      callback:(data: TemplateVersion)=>{
+        if(this.props.afterDelVersion)this.props.afterDelVersion({...data , id: targetKey})
+      }
+    })
+  }
+  onChangeConfig(config: ConfigInstance , type: string, value: any,){
+    console.log(type)
+    const data = util.clone(config)
+    switch (type){
+      case "globalConfig": {
+        data.globalConfigId = value;
+        break;
+      }
+      case "hidden": {
+        data.isHidden = Number(!data.isHidden)
+      }
+    }
+    this.props.dispatch({
+      type: "template/updateConfig",
+      payload: {
+        id: data.id,
+        defaultValue: data.value,
+        isHidden: data.isHidden,
+        globalConfigId: data.globalConfigId
+      } as UpdateConfigParam,
+      callback: () => {
+        if(this.props.afterChangeConfig){this.props.afterChangeConfig(data)}
       }
     })
   }
 
-  onConfigEdit (id:string) {
+  onConfigEdit (id: string) {
     console.log(id)
-  }
-  changeHiddenStatus(config:ConfigInstance){
-    this.props.dispatch({
-      type:"template/updateConfig",
-      payload: {
-        id:config.id,
-        isHidden:Number(!config.isHidden)
-      },
-      callback: () => {
-        if(this.props.afterchangeHiddenStatus){this.props.afterchangeHiddenStatus(config.id)}
-      }
-    })  
   }
 
   render () {

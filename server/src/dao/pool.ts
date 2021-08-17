@@ -8,7 +8,7 @@ const pool: mysql.Pool = mysql.createPool({
 })
 
 function formatRes <T>(sql: string, res: any): T[] {
-  if (/^select/.test(sql)) {
+  if (/^select/i.test(sql)) {
     const list = []
     res.forEach((item: object) => {
       list.push(util.toCamelObj(item))

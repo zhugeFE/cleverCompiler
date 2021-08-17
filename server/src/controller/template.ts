@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-13 15:38:46
+ * @LastEditTime: 2021-08-17 17:21:26
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
-import { CreateTemplateConfigParams, CreateTemplateGlobalConfigParams, CreateTemplateVersionGitParams, CreateTemplateVersionParams, TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersion, TemplateVersionGit } from '../types/template'
+import { CreateTemplateConfigParams, CreateTemplateGlobalConfigParams, CreateTemplateVersionGitParams, CreateTemplateVersionParams, TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersion, TemplateVersionGit, UpdateConfigParam } from '../types/template'
 const router = Router()
 
 //添加模板
@@ -106,8 +106,8 @@ router.post('/git/add', (req: Request, res: Response, next: NextFunction) => {
 
 router.delete('/git', (req: Request, res: Response, next: NextFunction) => {
   templateService.deleteGitById(req.query.id)
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success))
+  .then((data: TemplateVersion) => {
+    res.json(new ApiResult(ResponseStatus.success, data))
   })
   .catch(next)
 })
@@ -121,7 +121,7 @@ router.post('/config/add', (req: Request, res: Response, next: NextFunction) => 
 })
 
 router.post('/config/update', (req: Request, res: Response, next: NextFunction) => {
-  const param = req.body as TemplateConfig
+  const param = req.body as UpdateConfigParam
   if (!param.id) {
     res.json(new ApiResult(ResponseStatus.fail, null, '配置id不能为空'))
     return

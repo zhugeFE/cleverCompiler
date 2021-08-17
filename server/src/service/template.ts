@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-13 15:36:08
+ * @LastEditTime: 2021-08-17 17:21:24
  */
-import { CreateTemplateConfigParams, CreateTemplateGlobalConfigParams, CreateTemplateParams, CreateTemplateVersionGitParams, CreateTemplateVersionParams, TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersion, TemplateVersionGit } from "../types/template"
+import { CreateTemplateConfigParams, CreateTemplateGlobalConfigParams, CreateTemplateParams, CreateTemplateVersionGitParams, CreateTemplateVersionParams, TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersion, TemplateVersionGit, UpdateConfigParam } from "../types/template"
 import util from "../utils/util"
 import templateDao from "../dao/template"
 
@@ -45,13 +45,13 @@ class TemplateService {
   async addGit (config: CreateTemplateVersionGitParams): Promise<TemplateVersionGit> {
     return await templateDao.createTemplateVersionGit(config)
   }
-  async deleteGitById(configId: string): Promise<void> {
-    await templateDao.delTemplateVersionGit(configId)
+  async deleteGitById(configId: string): Promise<TemplateVersion> {
+    return await templateDao.delTemplateVersionGit(configId)
   }
   async addConfig (config: CreateTemplateConfigParams): Promise<TemplateConfig> {
     return await templateDao.createConfig(config)
   }
-  async updateConfig(config: TemplateConfig): Promise<void> {
+  async updateConfig(config: UpdateConfigParam): Promise<void> {
     await templateDao.updateConfig(config)
   }
   async deleteConfigById(configId: string): Promise<void> {

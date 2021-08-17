@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-16 17:44:48
+ * @LastEditTime: 2021-08-17 15:31:39
  */
 import { Form, Modal, Select } from "antd"
 import React from "react"
@@ -63,8 +63,8 @@ class CreateTemplateVersion extends React.Component<Props , States> {
     const data: CreateTemplateVersionGitParams = {
       templateId:this.props.id,
       templateVersionId:this.props.version,
-      git_source_id: this.state.form.gitId,
-      git_source_version_id: this.state.form.version
+      gitSourceId: this.state.form.gitId,
+      gitSourceVersionId: this.state.form.version
     }
     this.props.dispatch({
       type:"template/addVersionGit",

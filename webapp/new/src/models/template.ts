@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-16 17:54:31
+ * @LastEditTime: 2021-08-17 17:23:46
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -52,18 +52,21 @@ export interface CreateTemplateVersionParams {
 export interface CreateTemplateVersionGitParams {
   templateId: string ; //模板id
   templateVersionId: string; //模板版本id
-  git_source_id: string; //git源id
-  git_source_version_id: string; //git源版本
+  gitSourceId: string; //git源id
+  gitSourceVersionId: string; //git源版本
 }
 
 export interface TemplateVersionGit {
   id: string; //id
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
-  git_source_id: string; //git来源id
-  git_source_version_id: string; //git版本来源id
+  gitSourceId: string; //git来源id
+  gitSourceVersionId: string; //git版本来源id
   name: string; //git来源名称
   configList: ConfigInstance[]; //配置项
+  buildDoc?: string; //所在版本的配置文档
+  readmeDoc?: string; //所在版本的说明文档
+  updateDoc?: string; //所在版本的更新文档
 }
 
 export interface ConfigInstance {
@@ -76,6 +79,13 @@ export interface ConfigInstance {
   reg: string; // 正则表达式
   filePath: string; // 原始文件路径
   sourceValue: string; //源默认值
+}
+
+export interface UpdateConfigParam {
+  id: string;
+  defaultValue: string;
+  isHidden: number;
+  globalConfigId: string
 }
 
 export interface TemplateConfig {
@@ -105,6 +115,8 @@ export interface TemplateGlobalConfig {
   defaultValue: string;//默认值
   isHidden: number; //是否隐藏配置项
 }
+
+
 
 export interface CreateTemplateGlobalConfigParams {
   name: string; //名称

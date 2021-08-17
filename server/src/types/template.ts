@@ -6,7 +6,7 @@ import { Version } from "./common";
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-16 18:44:22
+ * @LastEditTime: 2021-08-17 18:09:52
  */
 
 export interface TemplateInstance {
@@ -16,6 +16,10 @@ export interface TemplateInstance {
   creatorId: string;
   createTime: Date;
   enable: number;
+  version?: string; //最新版本号
+  buildDoc?: string; //所在版本的配置文档
+  readmeDoc?: string; //所在版本的说明文档
+  updateDoc?: string; //所在版本的更新文档
 }
 
 export interface TemplateInfo extends TemplateInstance {
@@ -29,7 +33,6 @@ export interface CreateTemplateParams {
 }
 
 
-
 export interface TemplateVersion extends Version{
   templateId: string ; //模板版本id
   description: string; //模板版本描述
@@ -38,10 +41,6 @@ export interface TemplateVersion extends Version{
   globalConfigList?: TemplateGlobalConfig[]; //全局配置项
 }
 
-// export interface TemplateVersionUpdate {
-//   id: string; //版本id
-//   description: string; //版本描述
-// }
 
 export interface CreateTemplateVersionParams {
   templateId: string ; //模板id
@@ -53,18 +52,21 @@ export interface CreateTemplateVersionParams {
 export interface CreateTemplateVersionGitParams {
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
-  git_source_id: string; //git来源id
-  git_source_version_id: string; //git版本来源id
+  gitSourceId: string; //git来源id
+  gitSourceVersionId: string; //git版本来源id
 }
 
 export interface TemplateVersionGit {
   id: string; //id
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
-  git_source_id: string; //git来源id
-  git_source_version_id: string; //git版本来源id
+  gitSourceId: string; //git来源id
+  gitSourceVersionId: string; //git版本来源id
   name: string; //git来源名称
   configList: ConfigInstance[]; //配置项
+  buildDoc?: string; //所在版本的配置文档
+  readmeDoc?: string; //所在版本的说明文档
+  updateDoc?: string; //所在版本的更新文档
 }
 
 export interface ConfigInstance {
@@ -99,6 +101,13 @@ export interface TemplateConfig {
   value: string; //配置项默认值
   isHidden: string; //是否隐藏
   globalConfigId: string; //全局配置id
+}
+
+export interface UpdateConfigParam {
+  id: string;
+  defaultValue: string;
+  isHidden: number;
+  globalConfigId: string;
 }
 
 export interface CreateTemplateConfigParams {

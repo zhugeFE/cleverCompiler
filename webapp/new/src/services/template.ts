@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-13 16:55:34
+ * @LastEditTime: 2021-08-17 17:20:04
  */
 
 import request from "@/utils/request";
 import api from "./constants/apis";
-import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, TemplateConfig, TemplateInfo, TemplateInstance, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams } from "@/models/template";
+import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, TemplateConfig, TemplateInfo, TemplateInstance, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam } from "@/models/template";
 
 class TemplateService {
   async queryTemplateList () {
@@ -75,7 +75,7 @@ class TemplateService {
   }
 
 
-  async updateConfig ( data: TemplateConfig) {
+  async updateConfig ( data: UpdateConfigParam) {
     return request(api.template.updateConfig, {
       method:"post",
       data
