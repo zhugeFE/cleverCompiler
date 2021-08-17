@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-08-03 16:47:43
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-08-10 17:45:18
+ */
 import { Version } from './common';
 
 export interface GitInstance {
