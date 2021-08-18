@@ -6,7 +6,7 @@ import { Version } from "./common";
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-17 18:09:52
+ * @LastEditTime: 2021-08-18 18:52:10
  */
 
 export interface TemplateInstance {
