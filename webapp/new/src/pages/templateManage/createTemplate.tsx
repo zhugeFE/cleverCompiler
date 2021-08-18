@@ -1,14 +1,14 @@
 /*
- * @Descripttion: 
- * @version: 
+ * @Descripttion:
+ * @version:
  * @Author: Adxiong
  * @Date: 2021-08-05 09:58:53
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-16 18:24:40
+ * @LastEditTime: 2021-08-18 18:31:31
  */
-import React from 'react'
-import { Modal, Form, Input, message} from 'antd';
-import { TemplateCreateParam, TemplateInfo, TemplateInstance } from "@/models/template";
+import React from 'react';
+import { Modal, Form, Input, message } from 'antd';
+import { TemplateCreateParam, TemplateInfo, TemplateInstance } from '@/models/template';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 
@@ -20,9 +20,9 @@ interface FormData {
 }
 
 interface Props {
-  dispatch:Dispatch;
-  onCommit? (template:TemplateInfo): void;
-  onCancel? (): void;
+  dispatch: Dispatch;
+  onCommit?(template: TemplateInfo): void;
+  onCancel?(): void;
 }
 
 interface States {
@@ -30,70 +30,69 @@ interface States {
   form: FormData;
 }
 
-class CreateTemplate extends React.Component<Props ,States> {
-  constructor (props : Props){
-    super(props)
+class CreateTemplate extends React.Component<Props, States> {
+  constructor(props: Props) {
+    super(props);
     this.state = {
-      git:"",
-      show:true,
+      git: '',
+      show: true,
       form: {
-        name: "",
-        description: "",
-        version: "1.0.0",
-        versionDescription:""
-      }
-    } as States
-    this.onCommit = this.onCommit.bind(this)
-    this.onCancel = this.onCancel.bind(this)
-    this.onChangeForm = this.onChangeForm.bind(this)
+        name: '',
+        description: '',
+        version: '1.0.0',
+        versionDescription: '',
+      },
+    } as States;
+    this.onCommit = this.onCommit.bind(this);
+    this.onCancel = this.onCancel.bind(this);
+    this.onChangeForm = this.onChangeForm.bind(this);
   }
 
-  onCommit () {
-    const {name , description ,version, versionDescription } = this.state.form
+  onCommit() {
+    const { name, description, version, versionDescription } = this.state.form;
     if (!name) {
-      message.error("名称未填写！",1)
+      message.error('名称未填写！', 1);
     }
-    const data:TemplateCreateParam = {
+    const data: TemplateCreateParam = {
       name,
       description,
       version,
-      versionDescription
-    }
+      versionDescription,
+    };
 
     this.props.dispatch({
       type: 'template/createTemplate',
       payload: data,
-      callback: (template:TemplateInfo) => {
-        if(this.props.onCommit)this.props.onCommit(template)
+      callback: (template: TemplateInfo) => {
+        if (this.props.onCommit) this.props.onCommit(template);
         this.setState({
-          show:false
-        })
-      }
-    })
+          show: false,
+        });
+      },
+    });
   }
 
-  onCancel () {
+  onCancel() {
     this.setState({
-      show:false
-    })
+      show: false,
+    });
   }
 
-  onChangeForm (changeValue: any , values: FormData) {
+  onChangeForm(changeValue: any, values: FormData) {
     this.setState({
-      form: values
-    })
+      form: values,
+    });
   }
 
-
-  render () {
-    const show = this.state.show
+  render() {
+    const show = this.state.show;
     return (
-      <Modal 
-        title="新建模板" 
-        visible={show}  
+      <Modal
+        title="新建模板"
+        visible={show}
         okText="保存"
         cancelText="取消"
-        onOk={this.onCommit} 
+        onOk={this.onCommit}
         onCancel={this.onCancel}
       >
         <Form
@@ -118,16 +117,16 @@ class CreateTemplate extends React.Component<Props ,States> {
             <Input></Input>
           </Form.Item>
 
-          <Form.Item 
-            label="版本号" 
+          <Form.Item
+            label="版本号"
             name="version"
             rules={[{ required: true, message: '请输入版本号!' }]}
           >
-            <Input disabled addonBefore="v" placeholder="x.x.x"/>
+            <Input disabled addonBefore="v" placeholder="x.x.x" />
           </Form.Item>
 
-          <Form.Item 
-            label="版本描述" 
+          <Form.Item
+            label="版本描述"
             name="versionDescription"
             rules={[{ required: true, message: '请输入版本描述!' }]}
           >
@@ -135,9 +134,7 @@ class CreateTemplate extends React.Component<Props ,States> {
           </Form.Item>
         </Form>
       </Modal>
-    
-    )
-      
+    );
   }
 }
-export default connect()(CreateTemplate)
+export default connect()(CreateTemplate);

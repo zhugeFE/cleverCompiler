@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-17 17:23:46
+ * @LastEditTime: 2021-08-18 17:33:19
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -142,7 +142,8 @@ export interface TextConfigParam {
 
 
 export type TemplateModelState = {
-  templateList: TemplateInstance[]
+  templateList: TemplateInstance[] | null ;
+  templateInfo: TemplateInfo | null ;
 }
 
 
@@ -167,6 +168,7 @@ export type TemplateModelType = {
   };
   reducers: {
     setList: Reducer<TemplateModelState>;
+    setTemplateInfo: Reducer<TemplateModelState>;
   };
 }
 
@@ -174,32 +176,39 @@ export type TemplateModelType = {
 const TemplateModel: TemplateModelType = {
   namespace: 'template',
   state: {
-    templateList: []
+    templateList: [],
+    templateInfo: null 
   },
   effects: {
     *query (_ , {put , call}){
       const res = yield call(templateService.queryTemplateList)
       if (res.status === -1)return
-      console.log(res.data)
       yield put({
         type: "setList",
         payload: res.data
       })
     },
-    *getInfo ({payload , callback}, {call}) {
+    *getInfo ({payload}, {put , call}) {
       const res = yield call(templateService.getInfo, payload as string)
       if (res.status === -1) return
-      callback(res.data)
+      res.data.currentVersion = res.data.versionList[0] || {}
+      yield put({
+        type: "setTemplateInfo",
+        payload: res.data
+      })
     },
     *createTemplate ({payload, callback}, {call}) {
       const res = yield call(templateService.createTemplate, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
-    *updateTemplate ({payload,callback}, {call}) {
+    *updateTemplate ({payload}, {put ,call}) {
       const res = yield call(templateService.updateTemplateStatus, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      yield put({
+        type: "setTemplateInfo",
+        payload: res.data
+      })
     },
     *addVersion ({payload,callback},{call}){
       const res = yield call(templateService.addVersion, payload)
@@ -253,12 +262,18 @@ const TemplateModel: TemplateModelType = {
     }
   },
   reducers: {
-    setList (state, {payload}) {
+    setList (state, {payload}): TemplateModelState {
       return {
-        ...state,
-        templateList: payload
+        templateList: payload,
+        templateInfo: null
       }
-    }   
+    },
+    setTemplateInfo (state , {payload}): TemplateModelState {
+      return {
+        templateList: state?.templateList || [],
+        templateInfo: payload || {}
+      }
+    }
   }
 }
 

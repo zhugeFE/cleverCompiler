@@ -1,217 +1,257 @@
 /*
- * @Descripttion: 
- * @version: 
+ * @Descripttion:
+ * @version:
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-17 18:37:22
+ * @LastEditTime: 2021-08-18 18:32:07
  */
-import * as React from 'react'
-import styles from './styles/templateConfig.less'
-import { Select, Table, Tabs } from 'antd'
-import { ColumnProps } from 'antd/lib/table'
-import { connect } from 'dva'
-import { Dispatch } from '@/.umi/plugin-dva/connect'
-import {  ConfigInstance, TemplateConfig, TemplateGlobalConfig, TemplateVersion, TemplateVersionGit, UpdateConfigParam } from '@/models/template'
-import util from '@/utils/utils'
-const { TabPane } = Tabs;
-const { Option } = Select
-
-const initialPanes = [
-  { title: 'Tab 1', content: 'Content of Tab 1', key: '1' },
-];
-
+import * as React from 'react';
+import styles from './styles/templateConfig.less';
+import { Select, Table, Tabs } from 'antd';
+import { ColumnProps } from 'antd/lib/table';
+import { connect } from 'dva';
+import { Dispatch } from '@/.umi/plugin-dva/connect';
+import {
+  ConfigInstance,
+  TemplateConfig,
+  TemplateGlobalConfig,
+  TemplateInfo,
+  TemplateVersion,
+  TemplateVersionGit,
+  UpdateConfigParam,
+} from '@/models/template';
+import util from '@/utils/utils';
+import AddTemplateGitSourse from './addTemplateGitSourse';
+import { ConnectState } from '@/models/connect';
 
 export interface ConfigPanelProps {
-  comConfig: TemplateGlobalConfig[] | null;
-  gitList: TemplateVersionGit[] | null;
+  templateInfo: TemplateInfo | null;
+  globalConfigs: TemplateGlobalConfig[] | null;
+  gitList: TemplateVersionGit[];
   afterChangeConfig?(data: ConfigInstance): void;
-  afterDelVersion? (data: any):void;
   dispatch: Dispatch;
 }
 interface State {
-  activeKey: string
-  comConfigDict: {};
-  columns: ColumnProps<ConfigInstance>[]
+  activeKey: string | undefined;
+  showAddGitSource: boolean;
 }
+
 class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
-   constructor (props: ConfigPanelProps) {
-    super(props)
-    const that = this
+  globalConfigMap: { [propName: string]: TemplateGlobalConfig } = {};
+  constructor(props: ConfigPanelProps) {
+    super(props);
+    props.globalConfigs!.map((item) => (this.globalConfigMap[item.id] = item));
     this.state = {
-      comConfigDict:{},
-      activeKey: props.gitList?[0].id! ,
-      columns: [ 
-        // {title: '名称', dataIndex: 'name' , fixed: 'left'},
-        {title: '文件位置', width:150,ellipsis:true, dataIndex: 'filePath',fixed: 'left'},
-        {title: '默认值', width:300 , ellipsis:true, render(record: ConfigInstance){
-          return(
-            <div style={{display:'flex',justifyContent:'space-between'}}>
-              {record.value || record.sourceValue}
-              <Select 
-                defaultValue={that.state.comConfigDict[record.globalConfigId]}
-                style={{width:'100px'}} 
-                onChange={that.onChangeConfig.bind(that,record,"globalConfig")}>
-                {
-                  that.props.comConfig!.map(item=>
-                    <Option 
-                    
-                    value={item.id} 
-                    key={item.id} 
-                    title={item.name}
-                    >{item.name}</Option>
-                  )
-                }
-              </Select>
-            </div>
-          )
-        }},
-        {title: '描述', width:100 , dataIndex: 'description'},
-        {title: '类型', width:60, dataIndex: 'typeId', render (value){
-          if(value === 0 ) return <span>文本</span>
-          if(value === 1 ) return <span>文件替换</span>
-          if(value === 2 ) return <span>json</span>
-        }},
-        {title: '匹配规则', width:200, ellipsis:true, dataIndex: 'reg', render (value) {
-          if (!value) return <span>-</span>
-          const val = JSON.parse(value)
-          const reg = new RegExp(val.source, `${val.global ? 'g' : ''}${val.ignoreCase ? 'i' : ''}`)
-          return (
-            <span>{reg.toString()}</span>
-          )
-        }},
-        {title: '操作', fixed:"right", render (value: any, record: ConfigInstance) {
-          return (
-            <div>
-              <a onClick={that.onConfigEdit.bind(that,record.id)}>编辑</a>
-              <a style={{marginLeft:"5px",color:record.isHidden?"rgba(0,0,0,0,.5)":""}} onClick={that.onChangeConfig.bind(that, record,'hidden')}>{record.isHidden?"启用":"隐藏"}</a>
-            </div>
-          )
-        }}
-      ]
-    }
+      showAddGitSource: false,
+      activeKey: props.gitList.length ? props.gitList[0].id : '',
+    };
     this.onChange = this.onChange.bind(this);
     this.onEdit = this.onEdit.bind(this);
     this.remove = this.remove.bind(this);
+    this.hideAddGitSource = this.hideAddGitSource.bind(this);
+    this.showAddGitSource = this.showAddGitSource.bind(this);
   }
 
-  
-  onChange (activeKey: string) {
-    if(this.props.onChange){
-      this.props.onChange(activeKey)
-    }
-  }
-
-  componentWillMount(){
-    var data = {}
-    this.props.comConfig?.map(item=>{data[item.id] = item.name})
-    
+  onChange(activeKey: string) {
     this.setState({
-      comConfigDict: data
-    })
-    setTimeout(()=>{
-      console.log(this.state.comConfigDict)
-    },0)
+      activeKey,
+    });
   }
 
-  onEdit (targetKey:any, action:any) {
+  onEdit(targetKey: any, action: any) {
     this[action](targetKey);
   }
 
+  // 显示添加gitSource
   add = () => {
-    if(this.props.onClick){this.props.onClick()}
-  }
+    this.setState({
+      showAddGitSource: true,
+    });
+  };
 
-  remove(targetKey: string){
+  remove(targetKey: string) {
     this.props.dispatch({
-      type:"template/delVersionGit",
-      payload:targetKey,
-      callback:(data: TemplateVersion)=>{
-        if(this.props.afterDelVersion)this.props.afterDelVersion({...data , id: targetKey})
-      }
-    })
+      type: 'template/delVersionGit',
+      payload: targetKey,
+      callback: (data: TemplateVersion) => {
+        console.log(data);
+        const templateInfo = util.clone(this.props.templateInfo);
+        if (templateInfo) {
+          (templateInfo.currentVersion.buildDoc = data.buildDoc),
+            (templateInfo.currentVersion.readmeDoc = data.readmeDoc),
+            (templateInfo.currentVersion.updateDoc = data.updateDoc);
+          templateInfo.currentVersion!.gitList = templateInfo.currentVersion?.gitList?.filter(
+            (item) => item.id != targetKey,
+          );
+          templateInfo.versionList.map((item) => {
+            if (item.id === templateInfo.currentVersion?.id) {
+              item = templateInfo.currentVersion;
+            }
+          });
+          console.log(templateInfo);
+          this.props.dispatch({
+            type: 'template/setTemplateInfo',
+            payload: templateInfo,
+          });
+        }
+      },
+    });
   }
-  onChangeConfig(config: ConfigInstance , type: string, value: any,){
-    console.log(type)
-    const data = util.clone(config)
-    switch (type){
-      case "globalConfig": {
+  onChangeConfig(config: ConfigInstance, type: string, value: any) {
+    console.log(type);
+    const data = util.clone(config);
+    switch (type) {
+      case 'globalConfig': {
         data.globalConfigId = value;
         break;
       }
-      case "hidden": {
-        data.isHidden = Number(!data.isHidden)
+      case 'hidden': {
+        data.isHidden = Number(!data.isHidden);
       }
     }
     this.props.dispatch({
-      type: "template/updateConfig",
+      type: 'template/updateConfig',
       payload: {
         id: data.id,
         defaultValue: data.value,
         isHidden: data.isHidden,
-        globalConfigId: data.globalConfigId
+        globalConfigId: data.globalConfigId,
       } as UpdateConfigParam,
       callback: () => {
-        if(this.props.afterChangeConfig){this.props.afterChangeConfig(data)}
-      }
-    })
-  }
-
-  onConfigEdit (id: string) {
-    console.log(id)
-  }
-
-  render () {
-    const { columns} = this.state
-    const gitList = this.props.gitList
-    return (
-      
-      <div className={styles.templateConfigPanel}>
-        {
-          this.props.currentVersioinGit ?(
-            <Tabs
-              type="editable-card"
-              onChange={this.onChange}
-              activeKey={this.props.currentVersioinGit.id}
-              onEdit={this.onEdit}
-            >
-              {gitList!.map(item => (
-                <TabPane tab={item.name} key={item.id}>
-                  <Table
-                    columns={columns}
-                    dataSource={item.configList}
-                    pagination={{pageSize: 3, showTotal(totle: number) {
-                      return (
-                        `总记录数${totle}`
-                      )
-                    }}}
-                  >
-
-                  </Table>
-                </TabPane>
-              ))}
-            </Tabs>
-          ):(
-            <Tabs
-              type="editable-card"
-              onChange={this.onChange}
-              activeKey={initialPanes[0].key}
-              onEdit={this.onEdit}
-            >
-              {initialPanes.map(item => (
-                <TabPane tab={item.title} key={item.key}>
-                  <Table
-                    columns={columns}
-                  >
-                  </Table>
-                </TabPane>
-              ))}
-            </Tabs>
-          )
+        if (this.props.afterChangeConfig) {
+          this.props.afterChangeConfig(data);
         }
-        
+      },
+    });
+  }
+
+  onConfigEdit(id: string) {
+    console.log(id);
+  }
+
+  showAddGitSource() {
+    this.setState({
+      showAddGitSource: true,
+    });
+  }
+
+  //隐藏添加gitSource
+  hideAddGitSource() {
+    this.setState({
+      showAddGitSource: false,
+    });
+  }
+
+  render() {
+    const columns: ColumnProps<ConfigInstance>[] = [
+      { title: '文件位置', width: 150, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
+      {
+        title: '默认值',
+        width: 300,
+        ellipsis: true,
+        render: (record: ConfigInstance) => {
+          return (
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              {record.value || record.sourceValue}
+              <Select
+                defaultValue={this.globalConfigMap[record.globalConfigId]?.name}
+                style={{ width: '100px' }}
+                onChange={this.onChangeConfig.bind(this, record, 'globalConfig')}
+              >
+                {this.props.globalConfigs!.map((git) => {
+                  return (
+                    <Select.Option value={git.id} key={git.id} title={git.name}>
+                      {git.name}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </div>
+          );
+        },
+      },
+      { title: '描述', width: 100, dataIndex: 'description' },
+      {
+        title: '类型',
+        width: 60,
+        dataIndex: 'typeId',
+        render(value) {
+          if (value === 0) return <span>文本</span>;
+          if (value === 1) return <span>文件替换</span>;
+          if (value === 2) return <span>json</span>;
+        },
+      },
+      {
+        title: '匹配规则',
+        width: 200,
+        ellipsis: true,
+        dataIndex: 'reg',
+        render(value) {
+          if (!value) return <span>-</span>;
+          const val = JSON.parse(value);
+          const reg = new RegExp(
+            val.source,
+            `${val.global ? 'g' : ''}${val.ignoreCase ? 'i' : ''}`,
+          );
+          return <span>{reg.toString()}</span>;
+        },
+      },
+      {
+        title: '操作',
+        fixed: 'right',
+        render: (value: any, record: ConfigInstance) => {
+          return (
+            <div>
+              <a onClick={this.onConfigEdit.bind(this, record.id)}>编辑</a>
+              <a
+                style={{ marginLeft: '5px', color: record.isHidden ? 'rgba(0,0,0,0,.5)' : '' }}
+                onClick={this.onChangeConfig.bind(this, record, 'hidden')}
+              >
+                {record.isHidden ? '启用' : '隐藏'}
+              </a>
+            </div>
+          );
+        },
+      },
+    ];
+    const gitList = this.props.gitList;
+    return (
+      <div className={styles.templateConfigPanel}>
+        {this.state.showAddGitSource && <AddTemplateGitSourse onCancel={this.hideAddGitSource} />}
+        {!this.props.gitList.length ? (
+          <Tabs type="editable-card" onEdit={this.onEdit}>
+            <Tabs.TabPane>引导页面</Tabs.TabPane>
+          </Tabs>
+        ) : (
+          <Tabs
+            type="editable-card"
+            onChange={this.onChange}
+            activeKey={this.state.activeKey}
+            onEdit={this.onEdit}
+          >
+            {gitList!.map((item, index) => (
+              <Tabs.TabPane tab={item.name} key={item.id}>
+                <Table
+                  columns={columns}
+                  dataSource={item.configList}
+                  pagination={{
+                    pageSize: 3,
+                    showTotal(totle: number) {
+                      return `总记录数${totle}`;
+                    },
+                  }}
+                />
+              </Tabs.TabPane>
+            ))}
+          </Tabs>
+        )}
       </div>
-    )
+    );
   }
 }
-export default connect()(GitConfigPanel)
+export default connect(({ template }: ConnectState) => {
+  return {
+    templateInfo: template.templateInfo,
+  };
+})(GitConfigPanel);

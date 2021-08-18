@@ -1,18 +1,18 @@
 /*
- * @Descripttion: 
- * @version: 
+ * @Descripttion:
+ * @version:
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-17 16:26:05
+ * @LastEditTime: 2021-08-18 18:31:36
  */
-import { Form, Input, Modal } from "antd"
-import React from "react"
-import { Dispatch,  } from '@/.umi/core/umiExports'
-import { connect } from 'dva'
-import util from "@/utils/utils"
-import { CreateTemplateGlobalConfigParams, TemplateGlobalConfig } from "@/models/template"
-import { LeftOutlined } from "@ant-design/icons"
+import { Form, Input, Modal } from 'antd';
+import React from 'react';
+import { Dispatch } from '@/.umi/core/umiExports';
+import { connect } from 'dva';
+import util from '@/utils/utils';
+import { CreateTemplateGlobalConfigParams, TemplateGlobalConfig } from '@/models/template';
+import { LeftOutlined } from '@ant-design/icons';
 
 interface FormData {
   name: string;
@@ -21,70 +21,78 @@ interface FormData {
 }
 
 interface Props {
-  templateId:string;
+  templateId: string;
   templateVersionId: string;
-  onCancel():void;
-  onBack():void;
-  afterAdd(config:TemplateGlobalConfig): void; 
-  dispatch: Dispatch
+  onCancel(): void;
+  onBack(): void;
+  afterAdd(config: TemplateGlobalConfig): void;
+  dispatch: Dispatch;
 }
 
 interface States {
   form: FormData;
 }
 
-class AddTemplateGlobalTextConfig extends React.Component<Props , States> {
-  constructor (props: Props){
-    super(props)
+class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
+  constructor(props: Props) {
+    super(props);
     this.state = {
       form: {
-        name:"",
-        desc:"",
-        value: ""
+        name: '',
+        desc: '',
+        value: '',
       },
-    }
-    this.onCancel = this.onCancel.bind(this)
-    this.onCommit = this.onCommit.bind(this)
-    this.onChangeForm = this.onChangeForm.bind(this)
+    };
+    this.onCancel = this.onCancel.bind(this);
+    this.onCommit = this.onCommit.bind(this);
+    this.onChangeForm = this.onChangeForm.bind(this);
   }
 
-
-  onCancel () {
-    if(this.props.onCancel)this.props.onCancel()
+  onCancel() {
+    if (this.props.onCancel) this.props.onCancel();
   }
 
-  onCommit () {
+  onCommit() {
     const data: CreateTemplateGlobalConfigParams = {
       name: this.state.form.name,
       desc: this.state.form.desc,
       defaultValue: this.state.form.value,
       templateId: this.props.templateId,
-      templateVersionId: this.props.templateVersionId
-    }
+      templateVersionId: this.props.templateVersionId,
+    };
     this.props.dispatch({
-      type:"template/addComConfig",
-      payload:data,
-      callback:(config: TemplateGlobalConfig)=>{
-        if(this.props.afterAdd){this.props.afterAdd(config)}
-      }
-    })
+      type: 'template/addComConfig',
+      payload: data,
+      callback: (config: TemplateGlobalConfig) => {
+        if (this.props.afterAdd) {
+          this.props.afterAdd(config);
+        }
+      },
+    });
   }
 
-  onChangeForm (chanedValue: any, values: FormData) {
-    const form = util.clone(values)
+  onChangeForm(chanedValue: any, values: FormData) {
+    const form = util.clone(values);
     this.setState({
-      form
-    })
+      form,
+    });
   }
 
-  onBack (){
-    if(this.props.onBack){this.props.onBack()}
+  onBack() {
+    if (this.props.onBack) {
+      this.props.onBack();
+    }
   }
 
-  render () {
+  render() {
     return (
       <Modal
-        title={<a onClick={this.onBack}><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>} 
+        title={
+          <a onClick={this.onBack}>
+            <LeftOutlined style={{ marginRight: '5px' }} />
+            切换类型
+          </a>
+        }
         closable={false}
         visible={true}
         cancelText="取消"
@@ -97,7 +105,7 @@ class AddTemplateGlobalTextConfig extends React.Component<Props , States> {
           wrapperCol={{ span: 14 }}
           initialValues={this.state.form}
           layout="horizontal"
-          onValuesChange={this.onChangeForm} 
+          onValuesChange={this.onChangeForm}
         >
           <Form.Item label="名称" name="name">
             <Input></Input>
@@ -110,8 +118,8 @@ class AddTemplateGlobalTextConfig extends React.Component<Props , States> {
           </Form.Item>
         </Form>
       </Modal>
-    )
+    );
   }
 }
 
-export default connect()(AddTemplateGlobalTextConfig)
+export default connect()(AddTemplateGlobalTextConfig);
