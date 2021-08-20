@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-19 14:15:29
+ * @LastEditTime: 2021-08-20 16:30:23
  */
 /**
  * 模板
@@ -146,7 +146,6 @@ class TemplateDao {
         )
       })
     )
-    logger.info(templateInfo)
     return templateInfo
   }
 
@@ -177,6 +176,10 @@ class TemplateDao {
   async getVersionbyId(id: string): Promise<TemplateVersion> {
     const sql = 'select template_version.* from template_version where id = ?'
     const list = await pool.query<TemplateVersion>(sql, [id])
+    if( list.length ){
+      list[0].gitList = []
+      list[0].globalConfigList = []
+    }
     return list.length ? list[0] : null
   }
 
@@ -226,8 +229,7 @@ class TemplateDao {
     return null
   }
   async getVersionDocByID(id: string): Promise<TemplateVersion> {
-    const sql = `
-     SELECT
+    const sql = `SELECT
        readme_doc,
        build_doc,
        update_doc 
@@ -266,9 +268,7 @@ class TemplateDao {
       params.gitSourceId,
       params.gitSourceVersionId
     ])
-    const gitVersionDoc = await this.getGitDocByGitVersionID(
-      params.gitSourceVersionId
-    )
+    const gitVersionDoc = await this.getGitDocByGitVersionID(params.gitSourceVersionId)
     const versionDoc = await this.getVersionDocByID(params.templateVersionId)
     const Merge = {
       buildDpc: `${versionDoc.buildDoc}\n# ${gitVersionDoc.name}\n${gitVersionDoc.buildDoc}`,
@@ -304,7 +304,7 @@ class TemplateDao {
           isHidden: config.isHidden,
           globalConfigId: config.globalConfigId,
           typeId: item.typeId,
-          desc: item.desc,
+          description: item.description,
           reg: item.reg,
           filePath: item.filePath
         } as ConfigInstance)
@@ -475,7 +475,7 @@ class TemplateDao {
        template_id ,
        default_value,
        is_hidden,name,
-       \`desc\`) 
+       description) 
        values(?,?,?,?,?,?,?)`
     const comConfigId = util.uuid()
     await pool.write(sql, [
@@ -485,7 +485,7 @@ class TemplateDao {
       config.defaultValue,
       0,
       config.name,
-      config.desc
+      config.description
     ])
     return await this.getComConfigById(comConfigId)
   }

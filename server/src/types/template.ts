@@ -6,7 +6,7 @@ import { Version } from "./common";
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-19 14:09:21
+ * @LastEditTime: 2021-08-20 14:47:40
  */
 
 export interface TemplateInstance {
@@ -73,7 +73,7 @@ export interface ConfigInstance {
   isHidden: string; //是否隐藏
   globalConfigId: string; //全局配置id
   typeId: number; // 类型名称
-  desc: string; // 描述信息
+  description: string; // 描述信息
   reg: string; // 正则表达式
   filePath: string; // 原始文件路径
   sourceValue: string;
@@ -85,7 +85,7 @@ export interface GitConfig {
   versionId: string;
   typeId: number; // 类型id
   type: string; // 类型名称
-  desc: string; // 描述信息
+  description: string; // 描述信息
   reg: string; // 正则表达式
   filePath: string; // 原始文件路径
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
@@ -119,7 +119,7 @@ export interface CreateTemplateConfigParams {
 export interface TemplateGlobalConfig {
   id: string; 
   name: string;
-  desc: string;
+  description: string;
   templateId: string; //模板id
   templateVersionId: string;//模板版本id
   defaultValue: string;//默认值
@@ -129,7 +129,7 @@ export interface TemplateGlobalConfig {
 export interface CreateTemplateGlobalConfigParams {
   name: string; //名称
   defaultValue: string; //默认值
-  desc: string; //描述
+  description: string; //描述
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
 }
