@@ -4,11 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 17:33:19
+ * @LastEditTime: 2021-08-19 18:25:11
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
 import templateService from '@/services/template';
+import util from '@/utils/utils';
 import { Version } from './common';
 
 
@@ -19,6 +20,8 @@ export interface TemplateInstance {
   creatorId: string;
   createTime: string;
   enable: number;
+  version: string; //最新版本号
+  versionId: string; //最新版本id
 }
 
 
@@ -210,10 +213,17 @@ const TemplateModel: TemplateModelType = {
         payload: res.data
       })
     },
-    *addVersion ({payload,callback},{call}){
+    *addVersion ({payload, callback},{put, select, call}){
       const res = yield call(templateService.addVersion, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      const templateInfo = util.clone( yield select((_: { template: { templateInfo: TemplateInfo; }; }) => _.template.templateInfo));
+      templateInfo.versionList.unshift(res.data);
+      templateInfo.currentVersion = res.data;
+      yield put({
+        type: 'setTemplateInfo',
+        payload: templateInfo,
+      });
+      if(callback) callback(res.data)
     },
     *updateVersion ({payload, callback},{call}){
       const res = yield call(templateService.updateVersion, payload)
@@ -225,15 +235,52 @@ const TemplateModel: TemplateModelType = {
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
-    *addVersionGit({payload,callback},{call}){
+    *addVersionGit({payload, callback},{select, put, call}){
       const res = yield call(templateService.addVersionGit, payload)
       if (res.status === -1) return
+      const templateInfo = util.clone(yield select( (_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
+      templateInfo.currentVersion.gitList.push({
+        id: res.data.id,
+        templateId: res.data.templateId,
+        templateVersionId: res.data.templateVersionId,
+        gitSourceVersionId: res.data.gitSourceVersionId,
+        gitSourceId: res.data.gitSourceId,
+        name: res.data.name,
+        configList: res.data.configList,
+      } as TemplateVersionGit);
+      templateInfo.currentVersion.buildDoc = res.data.buildDoc || '';
+      templateInfo.currentVersion.readmeDoc = res.data.readmeDoc || '';
+      templateInfo.currentVersion.updateDoc = res.data.updateDoc || '';
+      templateInfo.versionList.map((item: TemplateVersion) => {
+        if (item.id === templateInfo.currentVersion.id) {
+          item = templateInfo.currentVersion;
+        }
+      });
+      yield put ({
+        type: 'setTemplateInfo',
+        payload: templateInfo,
+      });
       if (callback) callback(res.data)
     },
-    *delVersionGit ({payload, callback}, {call}){
+    *delVersionGit ({payload}, {put, select, call}){
       const res = yield call(templateService.delVersionGit, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo))
+      templateInfo.currentVersion.buildDoc = res.data.buildDoc,
+      templateInfo.currentVersion.readmeDoc = res.data.readmeDoc,
+      templateInfo.currentVersion.updateDoc = res.data.updateDoc;
+      templateInfo.currentVersion!.gitList = templateInfo.currentVersion.gitList.filter(
+        (item: TemplateVersionGit) => item.id != payload,
+      );
+      templateInfo.versionList.map((item: TemplateVersion) => {
+        if (item.id === templateInfo.currentVersion?.id) {
+          item = templateInfo.currentVersion;
+        }
+      })
+      yield put ({
+        type: 'setTemplateInfo',
+        payload: templateInfo,
+      });
     },
     *updateConfig ({payload,callback},{call}){
       const res = yield call(templateService.updateConfig, payload)

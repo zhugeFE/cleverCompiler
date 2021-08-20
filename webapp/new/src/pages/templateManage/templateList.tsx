@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:32:30
+ * @LastEditTime: 2021-08-19 14:24:07
  */
 import { Table, Button, Spin } from 'antd';
 import { connect } from 'dva';
@@ -16,6 +16,7 @@ import { Dispatch, IRouteComponentProps } from 'umi';
 import { ConnectState } from '@/models/connect';
 import { withRouter } from 'react-router';
 import util from '@/utils/utils';
+import { getTimeProps } from 'antd/lib/date-picker/generatePicker';
 
 interface State {
   form: {
@@ -80,7 +81,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         title: '名称',
         dataIndex: 'name',
         fixed: 'left',
-        width: 300,
+        width: 250,
         render(text: string, record: TemplateInstance) {
           return <div> {text || '-' || record.name} </div>;
         },
@@ -88,7 +89,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       {
         title: '描述',
         dataIndex: 'description',
-        width: 300,
+        width: 280,
         render(text: string, record: TemplateInstance) {
           return <div> {text || '-' || record.description} </div>;
         },
@@ -96,39 +97,51 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       {
         title: '最新版本号',
         dataIndex: 'version',
+        width: 150,
         render(text: string) {
           return text || '-';
         },
       },
       {
         title: '更新时间',
-        dataIndex: 'create_time',
+        width: 150,
+        dataIndex: 'createTime',
+        defaultSortOrder: 'descend',
+        sorter: (a, b) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
         render(text: string) {
           return util.dateTimeFormat(new Date(text)) || '-';
         },
       },
       {
         title: '使用文档',
-        dataIndex: 'readmeDoc',
+        dataIndex: 'versionId',
         render(text: string) {
-          return <a> {text || '-'} </a>;
+          return <a href={`?id=${text}type=readmeDoc`}> {`?id=${text}type=readmeDoc` || '-'} </a>;
+        },
+      },
+      {
+        title: '更新文档',
+        dataIndex: 'versionId',
+        render(text: string) {
+          return <a href={`?id=${text}type=updateDoc`}> {`?id=${text}type=updateDoc` || '-'} </a>;
         },
       },
       {
         title: '部署文档',
-        dataIndex: 'buildDoc',
+        dataIndex: 'versionId',
         render(text: string) {
-          return <a> {text || '-'} </a>;
+          return <a href={`?id=${text}type=buildDoc`}> {`?id=${text}type=buildDoc` || '-'} </a>;
         },
       },
       {
         title: '操作',
         dataIndex: 'handle',
+        width: 80,
         fixed: 'right',
         render: (text, record: TemplateInstance) => {
           return (
             <div>
-              <a style={{ marginRight: 5 }} onClick={this.onClickEdit.bind(this, record)}>
+              <a  onClick={this.onClickEdit.bind(this, record)}>
                 编辑{' '}
               </a>
               <a onClick={this.onClickEnable.bind(this, record)}>

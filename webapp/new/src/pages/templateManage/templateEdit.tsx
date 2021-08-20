@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:32:13
+ * @LastEditTime: 2021-08-19 18:54:28
  */
 
 import { connect } from 'dva';
@@ -17,10 +17,8 @@ import { Button, Progress, Spin, Tabs, Tag, Tooltip } from 'antd';
 import { GitInstance } from '@/models/git';
 import {
   TemplateInfo,
-  TemplateVersion,
   UpdateTemplateVersion,
   TemplateGlobalConfig,
-  TemplateVersionGit,
   ConfigInstance,
 } from '@/models/template';
 import TimeLinePanel from './templateTimeLine';
@@ -67,10 +65,10 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.afterAddGlobalConfig = this.afterAddGlobalConfig.bind(this);
     this.afterDelGlobalConfig = this.afterDelGlobalConfig.bind(this);
     this.afterChangeConfig = this.afterChangeConfig.bind(this);
-    this.onChangeConfigTab = this.onChangeConfigTab.bind(this);
     this.onChangeReadme = this.onChangeReadme.bind(this);
     this.onChangeBuild = this.onChangeBuild.bind(this);
     this.onChangeUpdate = this.onChangeUpdate.bind(this);
+    this.cloneChangeDoc = this.cloneChangeDoc.bind(this);
   }
 
   async componentDidMount() {
@@ -93,6 +91,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     });
   }
 
+  // 新建模板之后
   afterCreateTemplate(template: TemplateInfo) {
     history.replaceState('', '', `/manage/template/${template.id}`);
     const templateInfo: TemplateInfo = {
@@ -105,6 +104,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     });
   }
 
+  //异步更新版本里的文档
   onUpdateVersion() {
     if (this.state.updateTimeout) {
       clearTimeout(this.state.updateTimeout);
@@ -134,16 +134,24 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     });
   }
 
+
+  //更新文档，拷贝状态进行内容替换
+  cloneChangeDoc(content: string , key: string){
+    const templateInfo = util.clone(this.props.templateInfo);
+    if (templateInfo) {
+      templateInfo.currentVersion![key] = content;
+      templateInfo.versionList.map((item) => {
+        if (item.id === templateInfo.currentVersion?.id) {
+          item = templateInfo.currentVersion;
+        }
+      });
+    }
+    return templateInfo
+  }
+
+  //修改操作文档，同步更新状态
   onChangeReadme(content: string) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    if (templateInfo) {
-      templateInfo.currentVersion!.readmeDoc = content;
-      templateInfo.versionList.map((item) => {
-        if (item.id === templateInfo.currentVersion?.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-    }
+    const templateInfo = this.cloneChangeDoc(content, "readmeDoc")
     this.props.dispatch({
       type: 'template/setTemplateInfo',
       payload: templateInfo,
@@ -151,16 +159,9 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.onUpdateVersion();
   }
 
+  //操作部署文档，同步更新状态
   onChangeBuild(content: string) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    if (templateInfo) {
-      templateInfo.currentVersion!.buildDoc = content;
-      templateInfo.versionList.map((item) => {
-        if (item.id === templateInfo.currentVersion?.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-    }
+    const templateInfo = this.cloneChangeDoc(content, "buildDoc")
     this.props.dispatch({
       type: 'template/setTemplateInfo',
       payload: templateInfo,
@@ -168,16 +169,9 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.onUpdateVersion();
   }
 
+  //修改更新文档，同步更新状态
   onChangeUpdate(content: string) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    if (templateInfo) {
-      templateInfo.currentVersion!.updateDoc = content;
-      templateInfo.versionList.map((item) => {
-        if (item.id === templateInfo.currentVersion?.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-    }
+    const templateInfo = this.cloneChangeDoc(content, "updateDoc")
     this.props.dispatch({
       type: 'template/setTemplateInfo',
       payload: templateInfo,
@@ -185,21 +179,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.onUpdateVersion();
   }
 
-  onChangeConfigTab(id: string) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    if (templateInfo?.versionList) {
-      templateInfo.versionList.map((item) => {
-        if (item.id === id) {
-          templateInfo.currentVersion = item;
-        }
-      });
-      this.props.dispatch({
-        type: 'template/setTemplateInfo',
-        payload: templateInfo,
-      });
-    }
-  }
-
+  //config 修改
   afterChangeConfig(data: ConfigInstance) {
     const templateInfo = util.clone(this.props.templateInfo);
     if (templateInfo) {
@@ -222,17 +202,20 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     }
   }
 
+  //显示添加全局配置
   onAddGlobalConfig() {
     this.setState({
       showGlobalConfig: true,
     });
   }
 
+  //隐藏添加全局配置
   onCancelAddGlobalConfig() {
     this.setState({
       showGlobalConfig: false,
     });
   }
+  //添加全局配置之后，数据更改
   afterAddGlobalConfig(config: TemplateGlobalConfig) {
     const templateInfo = util.clone(this.props.templateInfo);
     if (templateInfo?.currentVersion) {
@@ -251,6 +234,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.onCancelAddGlobalConfig();
   }
 
+  //全局配置删除之后，数据更改 
   afterDelGlobalConfig(configId: string) {
     const templateInfo = util.clone(this.props.templateInfo);
     if (templateInfo?.currentVersion) {
@@ -295,12 +279,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
             返回
           </a>
           <span style={{ marginLeft: '20px' }}>
-            <Tooltip title="归档后版本将变为只读状态">
-              <a style={{ marginLeft: '10px', color: '#faad14' }}>归档</a>
-            </Tooltip>
-            <Tooltip title="废弃后，新建项目中该版本将不可用">
-              <a style={{ marginLeft: '10px', color: '#f5222d' }}>废弃</a>
-            </Tooltip>
             <Progress
               percent={this.state.savePercent}
               size="small"
@@ -310,13 +288,13 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
           </span>
         </div>
         {this.state.showCreateTemplate ? (
-          <div className={styles.gitPanelCenter}>
-            <CreateTemplate onCommit={this.afterCreateTemplate}></CreateTemplate>
-          </div>
+          <CreateTemplate onCommit={this.afterCreateTemplate}></CreateTemplate>
         ) : null}
         {this.props.templateInfo && (
           <div className={styles.gitPanelCenter}>
-            <TimeLinePanel></TimeLinePanel>
+            <TimeLinePanel
+              templateInfo={this.props.templateInfo}
+            ></TimeLinePanel>
             <div className={styles.gitDetail}>
               <Description label="项目名称" labelWidth={labelWidth}>
                 {this.props.templateInfo.name}
@@ -335,8 +313,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                 label="全局配置"
                 labelWidth={labelWidth}
                 display="flex"
-                className={styles.gitConfigs}
-              >
+                className={styles.gitConfigs}>
                 <>
                   <TemplateGlobalConfigComponent
                     store={this.props.templateInfo.currentVersion.globalConfigList}
@@ -349,9 +326,10 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                 label="配置项"
                 labelWidth={labelWidth}
                 display="flex"
-                className={styles.gitConfigs}
-              >
+                className={styles.gitConfigs}>
                 <TemplateConfigPanel
+                  templateId={this.props.templateInfo.id}
+                  templateVersionId={this.props.templateInfo.currentVersion.id}
                   globalConfigs={this.props.templateInfo.currentVersion.globalConfigList}
                   gitList={this.props.templateInfo.currentVersion.gitList}
                   afterChangeConfig={this.afterChangeConfig}

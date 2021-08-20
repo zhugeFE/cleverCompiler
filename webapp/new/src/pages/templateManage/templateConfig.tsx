@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:32:07
+ * @LastEditTime: 2021-08-19 18:35:00
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -14,20 +14,17 @@ import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import {
   ConfigInstance,
-  TemplateConfig,
   TemplateGlobalConfig,
-  TemplateInfo,
-  TemplateVersion,
   TemplateVersionGit,
   UpdateConfigParam,
 } from '@/models/template';
 import util from '@/utils/utils';
 import AddTemplateGitSourse from './addTemplateGitSourse';
-import { ConnectState } from '@/models/connect';
 
 export interface ConfigPanelProps {
-  templateInfo: TemplateInfo | null;
-  globalConfigs: TemplateGlobalConfig[] | null;
+  templateId: string;
+  templateVersionId: string;
+  globalConfigs: TemplateGlobalConfig[];
   gitList: TemplateVersionGit[];
   afterChangeConfig?(data: ConfigInstance): void;
   dispatch: Dispatch;
@@ -41,22 +38,29 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
   globalConfigMap: { [propName: string]: TemplateGlobalConfig } = {};
   constructor(props: ConfigPanelProps) {
     super(props);
-    props.globalConfigs!.map((item) => (this.globalConfigMap[item.id] = item));
     this.state = {
       showAddGitSource: false,
-      activeKey: props.gitList.length ? props.gitList[0].id : '',
+      activeKey: props.gitList.length > 0 ? props.gitList[0].id : ""
     };
     this.onChange = this.onChange.bind(this);
     this.onEdit = this.onEdit.bind(this);
     this.remove = this.remove.bind(this);
     this.hideAddGitSource = this.hideAddGitSource.bind(this);
-    this.showAddGitSource = this.showAddGitSource.bind(this);
   }
 
   onChange(activeKey: string) {
     this.setState({
       activeKey,
     });
+  }
+
+
+  componentWillReceiveProps(props: any ){
+    console.log(props)
+    this.setState({
+      activeKey: props.gitList.length > 0 ? props.gitList[0].id : ""
+    })
+    props.globalConfigs.map((item: any) => (this.globalConfigMap[item.id] = item));
   }
 
   onEdit(targetKey: any, action: any) {
@@ -70,36 +74,21 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     });
   };
 
+  //隐藏添加gitSource
+  hideAddGitSource() {
+    this.setState({
+      showAddGitSource: false,
+    });
+  }
+
   remove(targetKey: string) {
     this.props.dispatch({
       type: 'template/delVersionGit',
       payload: targetKey,
-      callback: (data: TemplateVersion) => {
-        console.log(data);
-        const templateInfo = util.clone(this.props.templateInfo);
-        if (templateInfo) {
-          (templateInfo.currentVersion.buildDoc = data.buildDoc),
-            (templateInfo.currentVersion.readmeDoc = data.readmeDoc),
-            (templateInfo.currentVersion.updateDoc = data.updateDoc);
-          templateInfo.currentVersion!.gitList = templateInfo.currentVersion?.gitList?.filter(
-            (item) => item.id != targetKey,
-          );
-          templateInfo.versionList.map((item) => {
-            if (item.id === templateInfo.currentVersion?.id) {
-              item = templateInfo.currentVersion;
-            }
-          });
-          console.log(templateInfo);
-          this.props.dispatch({
-            type: 'template/setTemplateInfo',
-            payload: templateInfo,
-          });
-        }
-      },
     });
   }
+  
   onChangeConfig(config: ConfigInstance, type: string, value: any) {
-    console.log(type);
     const data = util.clone(config);
     switch (type) {
       case 'globalConfig': {
@@ -130,18 +119,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     console.log(id);
   }
 
-  showAddGitSource() {
-    this.setState({
-      showAddGitSource: true,
-    });
-  }
 
-  //隐藏添加gitSource
-  hideAddGitSource() {
-    this.setState({
-      showAddGitSource: false,
-    });
-  }
 
   render() {
     const columns: ColumnProps<ConfigInstance>[] = [
@@ -218,19 +196,25 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     const gitList = this.props.gitList;
     return (
       <div className={styles.templateConfigPanel}>
-        {this.state.showAddGitSource && <AddTemplateGitSourse onCancel={this.hideAddGitSource} />}
-        {!this.props.gitList.length ? (
+        {
+          this.state.showAddGitSource && 
+          <AddTemplateGitSourse 
+            existGits={this.props.gitList}
+            templateId={this.props.templateId}
+            templateVersionId={this.props.templateVersionId}
+            onCancel={this.hideAddGitSource} />
+        }
+        { !gitList.length ? (
           <Tabs type="editable-card" onEdit={this.onEdit}>
-            <Tabs.TabPane>引导页面</Tabs.TabPane>
+            <Tabs.TabPane tab="引导页">引导页面</Tabs.TabPane>
           </Tabs>
         ) : (
           <Tabs
             type="editable-card"
             onChange={this.onChange}
             activeKey={this.state.activeKey}
-            onEdit={this.onEdit}
-          >
-            {gitList!.map((item, index) => (
+            onEdit={this.onEdit}>
+            {gitList.map((item, index) => (
               <Tabs.TabPane tab={item.name} key={item.id}>
                 <Table
                   columns={columns}
@@ -240,8 +224,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                     showTotal(totle: number) {
                       return `总记录数${totle}`;
                     },
-                  }}
-                />
+                  }}/>
               </Tabs.TabPane>
             ))}
           </Tabs>
@@ -250,8 +233,4 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     );
   }
 }
-export default connect(({ template }: ConnectState) => {
-  return {
-    templateInfo: template.templateInfo,
-  };
-})(GitConfigPanel);
+export default connect()(GitConfigPanel);

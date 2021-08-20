@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:31:50
+ * @LastEditTime: 2021-08-19 18:55:02
  */
 import { Form, Modal, Select } from 'antd';
 import React from 'react';
@@ -13,8 +13,6 @@ import { connect } from 'dva';
 import util from '@/utils/utils';
 import {
   CreateTemplateVersionGitParams,
-  TemplateInfo,
-  TemplateVersion,
   TemplateVersionGit,
 } from '@/models/template';
 import { GitInfo, GitInstance } from '@/models/git';
@@ -27,8 +25,10 @@ interface FormData {
 }
 
 interface Props {
+  templateId: string;
+  templateVersionId: string;
+  existGits: TemplateVersionGit[];
   gitList: GitInstance[];
-  templateInfo: TemplateInfo | null;
   onCancel(): void;
   dispatch: Dispatch;
 }
@@ -55,53 +55,25 @@ class CreateTemplateVersion extends React.Component<Props, States> {
     this.onChangeForm = this.onChangeForm.bind(this);
   }
 
-  componentDidMount() {
-    console.log(this.props.gitList);
-  }
-
   onCancel() {
     if (this.props.onCancel) this.props.onCancel();
   }
 
   onCommit() {
     const data: CreateTemplateVersionGitParams = {
-      templateId: this.props.templateInfo!.id,
-      templateVersionId: this.props.templateInfo!.currentVersion.id,
+      templateId: this.props.templateId,
+      templateVersionId: this.props.templateVersionId,
       gitSourceId: this.state.form.gitId,
       gitSourceVersionId: this.state.form.version,
     };
     this.props.dispatch({
       type: 'template/addVersionGit',
       payload: data,
-      callback: (version: TemplateVersionGit) => {
-        console.log(version);
-        const templateInfo = util.clone(this.props.templateInfo);
-        if (templateInfo?.currentVersion) {
-          templateInfo.currentVersion.gitList.push({
-            id: version.id,
-            templateId: version.templateId,
-            templateVersionId: version.templateVersionId,
-            gitSourceVersionId: version.gitSourceVersionId,
-            gitSourceId: version.gitSourceId,
-            name: version.name,
-            configList: version.configList,
-          } as TemplateVersionGit);
-          templateInfo.currentVersion.buildDoc = version.buildDoc || '';
-          templateInfo.currentVersion.readmeDoc = version.readmeDoc || '';
-          templateInfo.currentVersion.updateDoc = version.updateDoc || '';
-          templateInfo.versionList.map((item) => {
-            if (templateInfo.currentVersion && item.id === templateInfo.currentVersion.id) {
-              item = templateInfo.currentVersion;
-            }
-          });
-          this.props.dispatch({
-            type: 'template/setTemplateInfo',
-            payload: templateInfo,
-          });
-        }
-      },
+      callback: (git: TemplateVersionGit) => {
+        if (this.props.onCancel) this.props.onCancel();
+      }
     });
-    this.onCancel();
+    
   }
 
   async onChangeForm(chanedValue: any, values: FormData) {
@@ -113,6 +85,8 @@ class CreateTemplateVersion extends React.Component<Props, States> {
       form,
     });
   }
+
+  //获取git版本数据
   getGitInfo(id: string) {
     this.props.dispatch({
       type: 'git/getInfo',
@@ -126,7 +100,9 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   }
 
   render() {
-    const gitList = this.props.gitList;
+    const existGits = {}
+    this.props.existGits.map(item => {existGits[String(item.gitSourceId)]=true})
+    const gitList = this.props.gitList.filter(item => !existGits[item.id])
     const gitInfo = this.state.gitInfo;
     return (
       <>
@@ -145,8 +121,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
               wrapperCol={{ span: 14 }}
               initialValues={this.state.form}
               layout="horizontal"
-              onValuesChange={this.onChangeForm}
-            >
+              onValuesChange={this.onChangeForm}>
               <Form.Item label="git源" name="gitId">
                 <Select>
                   {gitList.map((item) => (
@@ -173,9 +148,8 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   }
 }
 
-export default connect(({ git, template }: ConnectState) => {
+export default connect(({ git }: ConnectState) => {
   return {
     gitList: git.gitList,
-    templateInfo: template.templateInfo,
   };
 })(CreateTemplateVersion);

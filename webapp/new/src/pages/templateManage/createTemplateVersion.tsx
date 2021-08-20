@@ -4,16 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:32:02
+ * @LastEditTime: 2021-08-19 17:47:39
  */
 
 import { Form, Input, Modal, Select } from 'antd';
 import React from 'react';
 import { Dispatch, TemplateVersion } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
-import { utils } from 'umi';
-import util from '@/utils/utils';
-import { values } from 'lodash';
 const { Option } = Select;
 
 const VersionType = [
@@ -29,9 +26,9 @@ interface FormData {
 
 interface Props {
   version: string;
-  title?: string;
   id: string;
-  afterAdd?(version: TemplateVersion): void;
+  onCancel(): void;
+  afterAdd(version: TemplateVersion): void;
   dispatch: Dispatch;
 }
 
@@ -58,9 +55,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   }
 
   onCancel() {
-    this.setState({
-      show: false,
-    });
+    if(this.props.onCancel){this.props.onCancel()}
   }
 
   onCommit() {
@@ -71,14 +66,9 @@ class CreateTemplateVersion extends React.Component<Props, States> {
         description: this.state.form.desc,
         version: this.state.version,
       },
-      callback: (version: TemplateVersion) => {
-        this.setState({
-          show: false,
-        });
-        if (this.props.afterAdd) {
-          this.props.afterAdd(version);
-        }
-      },
+      callback:(version: TemplateVersion) => {
+        if(this.props.afterAdd){this.props.afterAdd(version)}
+      }
     });
   }
 
@@ -107,21 +97,19 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   render() {
     return (
       <Modal
-        title={this.props.title || '添加版本'}
+        title='添加版本'
         closable={false}
         visible={this.state.show}
         cancelText="取消"
         okText="保存"
         onCancel={this.onCancel}
-        onOk={this.onCommit}
-      >
+        onOk={this.onCommit}>
         <Form
           labelCol={{ span: 6 }}
           wrapperCol={{ span: 14 }}
           initialValues={this.state.form}
           layout="horizontal"
-          onValuesChange={this.onChangeForm}
-        >
+          onValuesChange={this.onChangeForm}>
           <Form.Item label="版本类型" name="option">
             <Select>
               {VersionType.map((item) => (
