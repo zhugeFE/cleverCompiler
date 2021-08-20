@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:51:59
+ * @LastEditTime: 2021-08-19 14:15:29
  */
 /**
  * 模板
@@ -40,18 +40,25 @@ interface GitVersionDoc {
 
 class TemplateDao {
   async query(): Promise<TemplateInstance[]> {
-    const sql = `
-     SELECT
-       t.id,
-       t.name,
-       t.description,
-       t.creator_id,
-       t.create_time,
-       t.enable
-     FROM
-       template AS t
-     order by t.create_time desc
-     `
+    const sql = `SELECT
+      a.id as id,
+      a.\`name\` as name,
+      a.description as description,
+      a.creator_id as creator_id,
+      a.create_time as create_time,
+      a.\`enable\` as enable,
+      b.id as version_id,
+      b.version as version 
+    FROM
+      template AS a
+    LEFT JOIN ( 
+      SELECT 
+        id,
+        template_id, 
+        max( version ) AS version
+      FROM template_version 
+      GROUP BY template_id ) AS b 
+    ON a.id = b.template_id`
     return (await pool.query<TemplateInstance>(sql)) as TemplateInstance[]
   }
 
