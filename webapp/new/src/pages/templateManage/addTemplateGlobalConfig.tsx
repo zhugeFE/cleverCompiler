@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-12 08:30:26
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:31:43
+ * @LastEditTime: 2021-08-20 15:54:44
  */
 import * as React from 'react';
 import { Modal, Card, Row, Col } from 'antd';
@@ -19,7 +19,6 @@ import { ConnectState } from '@/models/connect';
 interface Props {
   templateId: string;
   versionId: string;
-  mode: string;
   configTypes: ConfigType[];
   dispatch: Dispatch;
   onClose?(): void;
@@ -29,10 +28,6 @@ interface State {
   type?: ConfigType;
 }
 class AddTemplateGlobalConfig extends React.Component<Props, State> {
-  static defaultProps = {
-    mode: 'add',
-  };
-
   constructor(props: Props) {
     super(props);
     this.state = {};
@@ -72,7 +67,6 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
   }
 
   render() {
-    let title = this.props.mode === 'add' ? '添加配置' : '修改配置';
     if (this.state.type) {
       switch (this.state.type.key) {
         case 'text':
@@ -81,7 +75,6 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
               templateId={this.props.templateId}
               templateVersionId={this.props.versionId}
               onCancel={this.onCancel}
-              afterAdd={this.onAfterAdd}
               onBack={this.onBack}
             ></AddTextConfig>
           );
@@ -101,12 +94,11 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
     } else {
       return (
         <Modal
-          title={title}
+          title="添加配置"
           visible={true}
           className={styles.addGitConfigModal}
           footer={null}
-          onCancel={this.onCancel}
-        >
+          onCancel={this.onCancel}>
           <Row gutter={16}>
             {this.props.configTypes.map((config) => {
               return (

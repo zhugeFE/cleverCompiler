@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 21:22:00
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-19 17:46:42
+ * @LastEditTime: 2021-08-20 16:37:43
  */
 import * as React from 'react';
 import { Timeline, Tag, Input, Form } from 'antd';
@@ -47,8 +47,6 @@ class TimeLinePanel extends React.Component<Props, State> {
   //添加新版本后 更改state值
   afterAddVersion(version: TemplateVersion) {
     const templateInfo = util.clone(this.props.templateInfo);
-    templateInfo.versionList.unshift(version);
-    templateInfo.currentVersion = version;
     this.setState({
       versionList: templateInfo.versionList,
       currentVersion: templateInfo.versionList[0],

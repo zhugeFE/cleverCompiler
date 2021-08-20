@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:31:36
+ * @LastEditTime: 2021-08-20 15:57:37
  */
-import { Form, Input, Modal } from 'antd';
+import { Form, Input, message, Modal } from 'antd';
 import React from 'react';
 import { Dispatch } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
@@ -16,16 +16,17 @@ import { LeftOutlined } from '@ant-design/icons';
 
 interface FormData {
   name: string;
-  desc: string;
+  description: string;
   value: string;
 }
 
 interface Props {
   templateId: string;
   templateVersionId: string;
+  mode: string;
+  globalConfig?: TemplateGlobalConfig;
   onCancel(): void;
-  onBack(): void;
-  afterAdd(config: TemplateGlobalConfig): void;
+  onBack?(): void;
   dispatch: Dispatch;
 }
 
@@ -34,13 +35,16 @@ interface States {
 }
 
 class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
+  static defaultProps = {
+    mode: 'add'
+  }
   constructor(props: Props) {
     super(props);
     this.state = {
       form: {
-        name: '',
-        desc: '',
-        value: '',
+        name: this.props.globalConfig?.name ? this.props.globalConfig.name : "",
+        description: this.props.globalConfig?.description ? this.props.globalConfig.description : "",
+        value:this.props.globalConfig?.defaultValue ? this.props.globalConfig.defaultValue : "",
       },
     };
     this.onCancel = this.onCancel.bind(this);
@@ -53,22 +57,42 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
   }
 
   onCommit() {
-    const data: CreateTemplateGlobalConfigParams = {
-      name: this.state.form.name,
-      desc: this.state.form.desc,
-      defaultValue: this.state.form.value,
-      templateId: this.props.templateId,
-      templateVersionId: this.props.templateVersionId,
-    };
-    this.props.dispatch({
-      type: 'template/addComConfig',
-      payload: data,
-      callback: (config: TemplateGlobalConfig) => {
-        if (this.props.afterAdd) {
-          this.props.afterAdd(config);
+    const { name, description, value } = this.state.form
+
+    if( !name || !description || !value){
+      message.error('数据未填写完整！', 1);
+      return
+    }
+
+    if(this.props.mode === "edit"){
+      const data = util.clone(this.props.globalConfig)
+      data!.defaultValue = this.state.form.value
+      data!.description = this.state.form.description
+      this.props.dispatch({
+        type: 'template/updateComConfig',
+        payload: data,
+        callback: ()=>{
+          if(this.props.onCancel) this.props.onCancel()
         }
-      },
-    });
+      })
+    }
+
+    if (this.props.mode === "add"){
+      const data: CreateTemplateGlobalConfigParams = {
+        name: name,
+        description: description,
+        defaultValue: value,
+        templateId: this.props.templateId,
+        templateVersionId: this.props.templateVersionId,
+      };
+      this.props.dispatch({
+        type: 'template/addComConfig',
+        payload: data,
+        callback: () => {
+          this.onCancel()
+        },
+      });
+    }
   }
 
   onChangeForm(chanedValue: any, values: FormData) {
@@ -88,35 +112,56 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
     return (
       <Modal
         title={
-          <a onClick={this.onBack}>
+          this.props.mode ==="add" ? (
+            <a onClick={this.onBack}>
             <LeftOutlined style={{ marginRight: '5px' }} />
             切换类型
           </a>
+          ) : "修改配置"
         }
         closable={false}
         visible={true}
         cancelText="取消"
         okText="保存"
         onCancel={this.onCancel}
-        onOk={this.onCommit}
-      >
-        <Form
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 14 }}
-          initialValues={this.state.form}
-          layout="horizontal"
-          onValuesChange={this.onChangeForm}
-        >
-          <Form.Item label="名称" name="name">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item label="描述" name="desc">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item label="默认值" name="value">
-            <Input></Input>
-          </Form.Item>
-        </Form>
+        onOk={this.onCommit}>
+          {
+            this.props.mode === "add" ? (
+              <Form
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 14 }}
+                initialValues={this.state.form}
+                layout="horizontal"
+                onValuesChange={this.onChangeForm}>
+                <Form.Item label="名称" name="name">
+                  <Input></Input>
+                </Form.Item>
+                <Form.Item label="描述" name="description">
+                  <Input></Input>
+                </Form.Item>
+                <Form.Item label="默认值" name="value">
+                  <Input></Input>
+                </Form.Item>
+              </Form>
+            ) : (
+              <Form
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 14 }}
+                initialValues={this.state.form}
+                layout="horizontal"
+                onValuesChange={this.onChangeForm}>
+                <Form.Item label="名称" name="name">
+                  <Input disabled></Input>
+                </Form.Item>
+                <Form.Item label="描述" name="description">
+                  <Input></Input>
+                </Form.Item>
+                <Form.Item label="默认值" name="value">
+                  <Input></Input>
+                </Form.Item>
+              </Form>
+            )
+          }
       </Modal>
     );
   }

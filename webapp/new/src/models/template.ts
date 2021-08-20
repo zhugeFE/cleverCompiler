@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-19 18:25:11
+ * @LastEditTime: 2021-08-20 16:25:59
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -78,7 +78,7 @@ export interface ConfigInstance {
   isHidden: number; //是否隐藏
   globalConfigId: string; //全局配置id
   typeId: number; // 类型名称
-  desc: string; // 描述信息
+  description: string; // 描述信息
   reg: string; // 正则表达式
   filePath: string; // 原始文件路径
   sourceValue: string; //源默认值
@@ -87,6 +87,7 @@ export interface ConfigInstance {
 export interface UpdateConfigParam {
   id: string;
   defaultValue: string;
+  description: string;
   isHidden: number;
   globalConfigId: string
 }
@@ -112,7 +113,7 @@ export interface UpdateTemplateVersion {
 export interface TemplateGlobalConfig {
   id: string; 
   name: string;
-  desc: string;
+  description: string;
   templateId: string; //模板id
   templateVersionId: string;//模板版本id
   defaultValue: string;//默认值
@@ -124,23 +125,23 @@ export interface TemplateGlobalConfig {
 export interface CreateTemplateGlobalConfigParams {
   name: string; //名称
   defaultValue: string; //默认值
-  desc: string; //描述
+  description: string; //描述
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
 }
 
 
-export interface TextConfigParam {
-  name: string;
-  filePath: string;
-  reg: {
-    source: string;
-    global: boolean;
-    ignoreCase: boolean;
-  };
-  value: string;
-  desc: string;
-}
+// export interface TextConfigParam {
+//   name: string;
+//   filePath: string;
+//   reg: {
+//     source: string;
+//     global: boolean;
+//     ignoreCase: boolean;
+//   };
+//   value: string;
+//   description: string;
+// }
 
 
 
@@ -269,7 +270,7 @@ const TemplateModel: TemplateModelType = {
       templateInfo.currentVersion.buildDoc = res.data.buildDoc,
       templateInfo.currentVersion.readmeDoc = res.data.readmeDoc,
       templateInfo.currentVersion.updateDoc = res.data.updateDoc;
-      templateInfo.currentVersion!.gitList = templateInfo.currentVersion.gitList.filter(
+      templateInfo.currentVersion.gitList = templateInfo.currentVersion.gitList.filter(
         (item: TemplateVersionGit) => item.id != payload,
       );
       templateInfo.versionList.map((item: TemplateVersion) => {
@@ -282,30 +283,82 @@ const TemplateModel: TemplateModelType = {
         payload: templateInfo,
       });
     },
-    *updateConfig ({payload,callback},{call}){
+    *updateConfig ({payload,callback},{select, put, call}){
       const res = yield call(templateService.updateConfig, payload)
       if (res.status === -1) return
+      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo))
+      templateInfo.currentVersion.gitList.map((item: TemplateVersionGit) => {
+        item.configList.map((config, index) => {
+          if (config.id == payload.id) {
+            item.configList[index].value = payload.defaultValue;
+            item.configList[index].isHidden = payload.isHidden;
+            item.configList[index].globalConfigId = payload.globalConfigId;
+          }
+        });
+      });
+      templateInfo.versionList.map((item: TemplateVersion) => {
+        if (item.id == templateInfo.currentVersion.id) {
+          item = templateInfo.currentVersion;
+        }
+      });
+      yield put ({
+        type: 'setTemplateInfo',
+        payload: templateInfo,
+      });
       if (callback) callback(res.data)
     },
-    // *delConfig ({payload,callback},{call}){
-    //   const res = yield call(templateService.delConfig, payload)
-    //   if (res.status === -1) return
-    //   if (callback) callback(res.data)
-    // },
-    *addComConfig ({payload,callback},{call}){
+    *addComConfig ({payload,callback},{select, put, call}){
       const res = yield call(templateService.addComConfig, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
+      templateInfo.currentVersion.globalConfigList.push(res.data);
+      templateInfo.versionList.map((item: TemplateVersion) => {
+        if (item.id === templateInfo.currentVersion.id) {
+          item = templateInfo.currentVersion;
+        }
+      });
+      yield put ({
+        type: 'setTemplateInfo',
+        payload: templateInfo,
+      });
+      if (callback) callback()
     },
-    *updateComConfig ({payload, callback}, {call}) {
+    *updateComConfig ({payload, callback}, {select, put, call}) {
       const res = yield call(templateService.updateComConfig, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
+      templateInfo.currentVersion.globalConfigList.map((item: TemplateGlobalConfig, index: number) => {
+        if( item.id === payload.id){
+          templateInfo.currentVersion.globalConfigList[index] = payload
+        }
+      });
+      templateInfo.versionList.map((item: TemplateVersion) => {
+        if (item.id === templateInfo.currentVersion.id) {
+          item = templateInfo.currentVersion;
+        }
+      });
+      yield put ({
+        type: 'setTemplateInfo',
+        payload: templateInfo,
+      });
+      if (callback) callback()
     },
-    *delComConfig ({payload, callback}, {call}) {
+    *delComConfig ({payload, callback}, {select, put, call}) {
       const res = yield call(templateService.delComConfig, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
+      templateInfo.currentVersion.globalConfigList =
+      templateInfo.currentVersion.globalConfigList.filter((item: TemplateGlobalConfig) => item.id != payload);
+      templateInfo.versionList.map((item: TemplateVersion) => {
+        if (item.id === templateInfo.currentVersion.id) {
+          item = templateInfo.currentVersion;
+        }
+      });
+      yield put ({
+        type: 'setTemplateInfo',
+        payload: templateInfo,
+      });
+      if (callback) callback()
     }
   },
   reducers: {

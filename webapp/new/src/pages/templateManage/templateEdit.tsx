@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-19 18:54:28
+ * @LastEditTime: 2021-08-20 15:17:06
  */
 
 import { connect } from 'dva';
@@ -13,12 +13,11 @@ import styles from './styles/templateEdit.less';
 import { withRouter } from 'react-router';
 import { IRouteComponentProps } from '@umijs/renderer-react';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
-import { Button, Progress, Spin, Tabs, Tag, Tooltip } from 'antd';
+import { Progress, Spin, Tabs, Tag, Tooltip } from 'antd';
 import { GitInstance } from '@/models/git';
 import {
   TemplateInfo,
   UpdateTemplateVersion,
-  TemplateGlobalConfig,
   ConfigInstance,
 } from '@/models/template';
 import TimeLinePanel from './templateTimeLine';
@@ -30,7 +29,7 @@ import * as _ from 'lodash';
 import TemplateConfigPanel from './templateConfig';
 import CreateTemplate from './createTemplate';
 import { ConnectState } from '@/models/connect';
-import AddTemplateGlobalConfig from './addTemplateGlobalConfig';
+
 import TemplateGlobalConfigComponent from './templateGlobalConfig';
 
 export interface TemplateEditProps
@@ -46,7 +45,6 @@ interface State {
   savePercent: number;
   updateTimeout: number;
   showCreateTemplate: boolean;
-  showGlobalConfig: boolean;
 }
 
 class TemplateEdit extends React.Component<TemplateEditProps, State> {
@@ -54,22 +52,17 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     super(prop);
     this.state = {
       showCreateTemplate: false,
-      showGlobalConfig: false,
       savePercent: 100,
       updateTimeout: 0,
     };
 
     this.afterCreateTemplate = this.afterCreateTemplate.bind(this);
-    this.onAddGlobalConfig = this.onAddGlobalConfig.bind(this);
-    this.onCancelAddGlobalConfig = this.onCancelAddGlobalConfig.bind(this);
-    this.afterAddGlobalConfig = this.afterAddGlobalConfig.bind(this);
-    this.afterDelGlobalConfig = this.afterDelGlobalConfig.bind(this);
-    this.afterChangeConfig = this.afterChangeConfig.bind(this);
     this.onChangeReadme = this.onChangeReadme.bind(this);
     this.onChangeBuild = this.onChangeBuild.bind(this);
     this.onChangeUpdate = this.onChangeUpdate.bind(this);
     this.cloneChangeDoc = this.cloneChangeDoc.bind(this);
   }
+
 
   async componentDidMount() {
     const id = this.props.match.params.id;
@@ -179,78 +172,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.onUpdateVersion();
   }
 
-  //config 修改
-  afterChangeConfig(data: ConfigInstance) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    if (templateInfo) {
-      templateInfo.currentVersion.gitList.map((item) => {
-        item.configList.map((config, index) => {
-          if (config.id == data.id) {
-            item.configList[index] = data;
-          }
-        });
-      });
-      templateInfo?.versionList.map((item) => {
-        if (item.id == templateInfo?.currentVersion?.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-      this.props.dispatch({
-        type: 'template/setTemplateInfo',
-        payload: templateInfo,
-      });
-    }
-  }
-
-  //显示添加全局配置
-  onAddGlobalConfig() {
-    this.setState({
-      showGlobalConfig: true,
-    });
-  }
-
-  //隐藏添加全局配置
-  onCancelAddGlobalConfig() {
-    this.setState({
-      showGlobalConfig: false,
-    });
-  }
-  //添加全局配置之后，数据更改
-  afterAddGlobalConfig(config: TemplateGlobalConfig) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    if (templateInfo?.currentVersion) {
-      templateInfo.currentVersion.globalConfigList.push(config);
-      templateInfo.versionList.map((item) => {
-        if (templateInfo.currentVersion && item.id === templateInfo.currentVersion.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-      this.props.dispatch({
-        type: 'template/setTemplateInfo',
-        payload: templateInfo,
-      });
-    }
-
-    this.onCancelAddGlobalConfig();
-  }
-
-  //全局配置删除之后，数据更改 
-  afterDelGlobalConfig(configId: string) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    if (templateInfo?.currentVersion) {
-      templateInfo.currentVersion.globalConfigList =
-        templateInfo.currentVersion.globalConfigList.filter((item) => item.id != configId);
-      templateInfo.versionList.map((item) => {
-        if (templateInfo.currentVersion && item.id === templateInfo.currentVersion.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-      this.props.dispatch({
-        type: 'template/setTemplateInfo',
-        payload: templateInfo,
-      });
-    }
-  }
 
   render() {
     const labelWidth = 75;
@@ -259,22 +180,11 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     }
     return (
       <div className={styles.gitEditPanel}>
-        {this.state.showGlobalConfig &&
-        this.props.templateInfo &&
-        this.props.templateInfo.currentVersion ? (
-          <AddTemplateGlobalConfig
-            templateId={this.props.templateInfo.id}
-            versionId={this.props.templateInfo.currentVersion?.id}
-            onClose={this.onCancelAddGlobalConfig}
-            onSubmit={this.afterAddGlobalConfig}
-          ></AddTemplateGlobalConfig>
-        ) : null}
         <div className={styles.gitPanelTop}>
           <a
             onClick={() => {
               this.props.history.goBack();
-            }}
-          >
+            }}>
             <LeftOutlined />
             返回
           </a>
@@ -287,86 +197,103 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
             ></Progress>
           </span>
         </div>
-        {this.state.showCreateTemplate ? (
-          <CreateTemplate onCommit={this.afterCreateTemplate}></CreateTemplate>
-        ) : null}
-        {this.props.templateInfo && (
-          <div className={styles.gitPanelCenter}>
-            <TimeLinePanel
-              templateInfo={this.props.templateInfo}
-            ></TimeLinePanel>
-            <div className={styles.gitDetail}>
-              <Description label="项目名称" labelWidth={labelWidth}>
-                {this.props.templateInfo.name}
-                <Tooltip title="版本" placement="bottom">
-                  <Tag color="#87d068" style={{ marginLeft: '5px' }}>
-                    v:{this.props.templateInfo.currentVersion?.version}
-                  </Tag>
-                </Tooltip>
-                <Tooltip title="版本发布时间">
-                  <Tag color="#f50">
-                    {util.dateTimeFormat(new Date(this.props.templateInfo.createTime))}
-                  </Tag>
-                </Tooltip>
-              </Description>
-              <Description
-                label="全局配置"
-                labelWidth={labelWidth}
-                display="flex"
-                className={styles.gitConfigs}>
-                <>
-                  <TemplateGlobalConfigComponent
-                    store={this.props.templateInfo.currentVersion.globalConfigList}
-                    afterDelConfig={this.afterDelGlobalConfig}
-                  ></TemplateGlobalConfigComponent>
-                  <Button onClick={this.onAddGlobalConfig}>添加配置项</Button>
-                </>
-              </Description>
-              <Description
-                label="配置项"
-                labelWidth={labelWidth}
-                display="flex"
-                className={styles.gitConfigs}>
-                <TemplateConfigPanel
-                  templateId={this.props.templateInfo.id}
-                  templateVersionId={this.props.templateInfo.currentVersion.id}
-                  globalConfigs={this.props.templateInfo.currentVersion.globalConfigList}
-                  gitList={this.props.templateInfo.currentVersion.gitList}
-                  afterChangeConfig={this.afterChangeConfig}
-                ></TemplateConfigPanel>
-              </Description>
+        
+        {
+          // 是否显示创建模板
+          this.state.showCreateTemplate && (
+            <CreateTemplate onCommit={this.afterCreateTemplate}></CreateTemplate>
+          )
+        }
 
-              <Tabs defaultActiveKey="readme" style={{ margin: '10px 0 10px 85px' }}>
-                <Tabs.TabPane tab="使用文档" key="readme">
-                  {this.props.templateInfo.currentVersion ? (
-                    <Markdown
-                      onChange={this.onChangeReadme}
-                      content={this.props.templateInfo.currentVersion.readmeDoc || ''}
-                    ></Markdown>
-                  ) : null}
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="部署文档" key="build">
-                  {this.props.templateInfo.currentVersion ? (
-                    <Markdown
-                      onChange={this.onChangeBuild}
-                      content={this.props.templateInfo.currentVersion.buildDoc || ''}
-                    ></Markdown>
-                  ) : null}
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="更新内容" key="update">
-                  {this.props.templateInfo.currentVersion ? (
-                    <Markdown
-                      onChange={this.onChangeUpdate}
-                      content={this.props.templateInfo.currentVersion.updateDoc || ''}
-                    ></Markdown>
-                  ) : null}
-                </Tabs.TabPane>
-              </Tabs>
+        {
+          this.props.templateInfo && (
+            <div className={styles.gitPanelCenter}>
+              <TimeLinePanel
+                templateInfo={this.props.templateInfo}
+              ></TimeLinePanel>
+              <div className={styles.gitDetail}>
+                <Description label="项目名称" labelWidth={labelWidth}>
+                  {this.props.templateInfo.name}
+                  <Tooltip title="版本" placement="bottom">
+                    <Tag color="#87d068" style={{ marginLeft: '5px' }}>
+                      v:{this.props.templateInfo.currentVersion?.version}
+                    </Tag>
+                  </Tooltip>
+                  <Tooltip title="版本发布时间">
+                    <Tag color="#f50">
+                      {util.dateTimeFormat(new Date(this.props.templateInfo.createTime))}
+                    </Tag>
+                  </Tooltip>
+                </Description>
+
+                <Description
+                  label="全局配置"
+                  labelWidth={labelWidth}
+                  display="flex"
+                  className={styles.gitConfigs}>
+                    
+                    {/* 全局配置组件 */}
+                    <TemplateGlobalConfigComponent
+                      templateId={this.props.templateInfo.id} //模板id
+                      templateVersionId={this.props.templateInfo.currentVersion.id} //模板版本id
+                      //全局配置项
+                      globalConfigList={this.props.templateInfo.currentVersion.globalConfigList}/>
+                </Description>
+
+                <Description
+                  label="配置项"
+                  labelWidth={labelWidth}
+                  display="flex"
+                  className={styles.gitConfigs}>
+                  
+                  {/* 配置组件 */}
+                  <TemplateConfigPanel
+                    templateId={this.props.templateInfo.id} //模板id
+                    templateVersionId={this.props.templateInfo.currentVersion.id} //模板版本id
+                    globalConfigs={this.props.templateInfo.currentVersion.globalConfigList} //全局配置项
+                    gitList={this.props.templateInfo.currentVersion.gitList} //版本git项
+                  ></TemplateConfigPanel>
+
+                </Description>
+
+                <Tabs defaultActiveKey="readme" style={{ margin: '10px 0 10px 85px' }}>
+                  <Tabs.TabPane tab="使用文档" key="readme">
+                    {
+                      this.props.templateInfo.currentVersion && (
+                        <Markdown
+                          onChange={this.onChangeReadme}
+                          content={this.props.templateInfo.currentVersion.readmeDoc || ''}
+                        ></Markdown>
+                      )
+                    }
+                  </Tabs.TabPane>
+                  <Tabs.TabPane tab="部署文档" key="build">
+                    {
+                      this.props.templateInfo.currentVersion && (
+                        <Markdown
+                          onChange={this.onChangeBuild}
+                          content={this.props.templateInfo.currentVersion.buildDoc || ''}
+                        ></Markdown>
+                      )
+                    }
+                  </Tabs.TabPane>
+                  <Tabs.TabPane tab="更新内容" key="update">
+                    {
+                      this.props.templateInfo.currentVersion && (
+                        <Markdown
+                          onChange={this.onChangeUpdate}
+                          content={this.props.templateInfo.currentVersion.updateDoc || ''}
+                        ></Markdown>
+                      )
+                    }
+                  </Tabs.TabPane>
+                </Tabs>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }
       </div>
-    );
+    )
   }
 }
 

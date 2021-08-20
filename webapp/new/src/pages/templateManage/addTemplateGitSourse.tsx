@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-19 18:55:02
+ * @LastEditTime: 2021-08-20 11:56:06
  */
-import { Form, Modal, Select } from 'antd';
+import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from 'dva';
@@ -60,16 +60,22 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   }
 
   onCommit() {
+    const { gitId, version } = this.state.form
+
+    if( !gitId || !version){
+      message.error('数据未填写完整！', 1);
+      return
+    }
     const data: CreateTemplateVersionGitParams = {
       templateId: this.props.templateId,
       templateVersionId: this.props.templateVersionId,
-      gitSourceId: this.state.form.gitId,
-      gitSourceVersionId: this.state.form.version,
+      gitSourceId: gitId,
+      gitSourceVersionId: version,
     };
     this.props.dispatch({
       type: 'template/addVersionGit',
       payload: data,
-      callback: (git: TemplateVersionGit) => {
+      callback: () => {
         if (this.props.onCancel) this.props.onCancel();
       }
     });
@@ -131,7 +137,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
                   ))}
                 </Select>
               </Form.Item>
-              <Form.Item label="git源版本" name="version">
+              <Form.Item label="git源版本" name="version" >
                 <Select>
                   {gitInfo?.versionList.map((item) => (
                     <Option value={item.id} key={item.id} title={item.name}>
