@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 15:17:06
+ * @LastEditTime: 2021-08-20 18:08:18
  */
 
 import { connect } from 'dva';
@@ -188,7 +188,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
             <LeftOutlined />
             返回
           </a>
-          <span style={{ marginLeft: '20px' }}>
+          <span>
             <Progress
               percent={this.state.savePercent}
               size="small"
