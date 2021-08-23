@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-19 14:24:07
+ * @LastEditTime: 2021-08-23 10:06:26
  */
 import { Table, Button, Spin } from 'antd';
 import { connect } from 'dva';
@@ -16,7 +16,6 @@ import { Dispatch, IRouteComponentProps } from 'umi';
 import { ConnectState } from '@/models/connect';
 import { withRouter } from 'react-router';
 import util from '@/utils/utils';
-import { getTimeProps } from 'antd/lib/date-picker/generatePicker';
 
 interface State {
   form: {

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 11:56:06
+ * @LastEditTime: 2021-08-23 10:07:31
  */
 import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
@@ -119,6 +119,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
             visible={this.state.show}
             cancelText="取消"
             okText="保存"
+            centered
             onCancel={this.onCancel}
             onOk={this.onCommit}
           >

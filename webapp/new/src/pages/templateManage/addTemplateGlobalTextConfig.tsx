@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 15:57:37
+ * @LastEditTime: 2021-08-23 10:07:14
  */
 import { Form, Input, message, Modal } from 'antd';
 import React from 'react';
@@ -119,6 +119,7 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
           </a>
           ) : "修改配置"
         }
+        centered
         closable={false}
         visible={true}
         cancelText="取消"

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-20 16:05:14
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 16:25:28
+ * @LastEditTime: 2021-08-23 10:06:43
  */
 /*
  * @Descripttion:
@@ -82,6 +82,7 @@ class EditTemplateConfig extends React.Component<Props, States> {
     return (
       <Modal
         title="修改配置"
+        centered
         closable={false}
         visible={true}
         cancelText="取消"

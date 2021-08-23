@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 18:08:18
+ * @LastEditTime: 2021-08-20 18:34:53
  */
 
 import { connect } from 'dva';
@@ -18,7 +18,6 @@ import { GitInstance } from '@/models/git';
 import {
   TemplateInfo,
   UpdateTemplateVersion,
-  ConfigInstance,
 } from '@/models/template';
 import TimeLinePanel from './templateTimeLine';
 import Description from '@/components/description/description';

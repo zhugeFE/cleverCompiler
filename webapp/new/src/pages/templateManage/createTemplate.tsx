@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-05 09:58:53
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-18 18:31:31
+ * @LastEditTime: 2021-08-23 10:07:05
  */
 import React from 'react';
 import { Modal, Form, Input, message } from 'antd';
@@ -89,6 +89,7 @@ class CreateTemplate extends React.Component<Props, States> {
     return (
       <Modal
         title="新建模板"
+        centered
         visible={show}
         okText="保存"
         cancelText="取消"

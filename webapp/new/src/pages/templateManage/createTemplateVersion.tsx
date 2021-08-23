@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 16:38:07
+ * @LastEditTime: 2021-08-23 10:06:56
  */
 
 import { Form, Input, Modal, Select } from 'antd';
@@ -99,6 +99,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
       <Modal
         title='添加版本'
         closable={false}
+        centered
         visible={this.state.show}
         cancelText="取消"
         okText="保存"
