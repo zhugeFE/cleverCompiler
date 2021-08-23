@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 16:30:23
+ * @LastEditTime: 2021-08-23 10:16:02
  */
 /**
  * 模板
@@ -28,7 +28,6 @@ import {
 } from '../types/template'
 import * as _ from 'lodash'
 import pool from './pool'
-import logger from '../utils/logger'
 import util from '../utils/util'
 
 interface GitVersionDoc {
@@ -127,13 +126,6 @@ class TemplateDao {
     ])) as TemplateInfo[]
     const templateInfo = infoList.length ? infoList[0] : null
 
-    // const comConfigSql = `select
-    //   sc.*
-    //   from template_source_config as sc
-    //   where
-    //     sc.template_id = ?
-    // `
-    // templateInfo.comConfigList = await pool.query<TemplateGlobalConfig>(comConfigSql ,[id])
     templateInfo.versionList = await this.getVersionbyTemplateId(
       templateInfo.id
     )

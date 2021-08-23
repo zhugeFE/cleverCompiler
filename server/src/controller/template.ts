@@ -4,12 +4,23 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-17 17:21:26
+ * @LastEditTime: 2021-08-23 10:16:52
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
-import { CreateTemplateConfigParams, CreateTemplateGlobalConfigParams, CreateTemplateVersionGitParams, CreateTemplateVersionParams, TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersion, TemplateVersionGit, UpdateConfigParam } from '../types/template'
+import { 
+  CreateTemplateConfigParams, 
+  CreateTemplateGlobalConfigParams, 
+  CreateTemplateVersionGitParams, 
+  CreateTemplateVersionParams, 
+  TemplateConfig, 
+  TemplateGlobalConfig, 
+  TemplateInfo, 
+  TemplateInstance, 
+  TemplateVersion, 
+  TemplateVersionGit, 
+  UpdateConfigParam } from '../types/template'
 const router = Router()
 
 //添加模板
