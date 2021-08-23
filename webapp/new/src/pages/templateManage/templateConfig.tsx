@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 16:40:59
+ * @LastEditTime: 2021-08-23 10:48:28
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -157,6 +157,12 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             <Select
               defaultValue={this.globalConfigMap[record.globalConfigId]?.name || "无"}
               style={{ width: '100px' }}
+              optionFilterProp="children"
+              showSearch
+              filterOption={(input, option) =>{
+                  return option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+              }
               onChange={this.onChangeConfig.bind(this, record, 'globalConfig')}
             >
               <Select.Option value="0" key="0" title="无">无</Select.Option>

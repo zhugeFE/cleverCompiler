@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 16:25:59
+ * @LastEditTime: 2021-08-23 10:27:06
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -129,19 +129,6 @@ export interface CreateTemplateGlobalConfigParams {
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
 }
-
-
-// export interface TextConfigParam {
-//   name: string;
-//   filePath: string;
-//   reg: {
-//     source: string;
-//     global: boolean;
-//     ignoreCase: boolean;
-//   };
-//   value: string;
-//   description: string;
-// }
 
 
 

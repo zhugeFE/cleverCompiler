@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-05 09:58:53
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:07:05
+ * @LastEditTime: 2021-08-23 10:13:28
  */
 import React from 'react';
 import { Modal, Form, Input, message } from 'antd';
-import { TemplateCreateParam, TemplateInfo, TemplateInstance } from '@/models/template';
+import { TemplateCreateParam, TemplateInfo } from '@/models/template';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 

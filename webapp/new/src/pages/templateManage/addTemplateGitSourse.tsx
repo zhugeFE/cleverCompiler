@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:07:31
+ * @LastEditTime: 2021-08-23 10:49:25
  */
 import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
@@ -130,7 +130,14 @@ class CreateTemplateVersion extends React.Component<Props, States> {
               layout="horizontal"
               onValuesChange={this.onChangeForm}>
               <Form.Item label="git源" name="gitId">
-                <Select>
+                <Select
+                  optionFilterProp="children"
+                  showSearch
+                  filterOption={(input, option) =>{
+                      return option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                  }
+                >
                   {gitList.map((item) => (
                     <Option value={item.id} key={item.id} title={item.name}>
                       {item.name}
