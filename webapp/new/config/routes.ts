@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-04 15:12:13
+ * @LastEditTime: 2021-08-25 15:32:28
  */
 export default [
   {
@@ -67,10 +67,48 @@ export default [
               }
             ]
           },
-          // {
-          //   path: '/compile',
-          //   name: 'compileManage'
-          // }
+          {
+            path: '/compile',
+            name: 'compileManage',
+            routes: [
+              {
+                path: '/compile/customer/list',
+                name: '客户列表',
+                component: "./compileManage/customerList"
+              },
+              {
+                path: '/compile/customer/:id',
+                name: 'customerEdit',
+                hideInMenu: true,
+                component: './compileManage/customerEdit'
+              },
+              {
+                path: '/compile/project/list',
+                name: '项目列表',
+                component: './compileManage/projectList'
+              },
+              {
+                path: '/compile/project/:id',
+                name: 'projectEdit',
+                hideInMenu: true,
+                component: './compileManage/projectEdit'
+              },
+              {
+                path: '/compile/list',
+                name: '编译列表',
+                component: './compileManage/compileList'
+              },
+              {
+                path: '/compile/edit',
+                name: 'compileEdit',
+                hideInMenu: true,
+                component: './compileManage/compileEdit'
+              },
+              {
+                component: './404',
+              }
+            ]
+          },
           {
             component: './404',
           }

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-17 14:37:45
+ * @LastEditTime: 2021-08-24 10:21:52
  */
 import * as React from 'react'
 import * as ReactMarkdown from 'react-markdown'
@@ -14,6 +14,7 @@ import { EditOutlined, FileMarkdownOutlined, FullscreenOutlined } from '@ant-des
 
 interface Props {
   content: string;
+  DisabledEdit?: boolean;
   onChange ?(content: string): void;
 }
 enum Mode {
@@ -42,6 +43,9 @@ class Markdown extends React.Component<Props, State> {
     return null
   }
   onTogleMode () {
+    if( this.props.DisabledEdit ) {
+      return
+    }
     this.setState({
       mode: this.state.mode === Mode.preview ? Mode.edit : Mode.preview
     })
@@ -59,7 +63,7 @@ class Markdown extends React.Component<Props, State> {
       <div className="markdown">
       <span className="markdown-handles">
         {
-          this.state.mode === Mode.preview ? (
+          !this.props.DisabledEdit && this.state.mode === Mode.preview ? (
             <EditOutlined onClick={this.onTogleMode.bind(this)}/>
           ) : (
             <FileMarkdownOutlined onClick={this.onTogleMode.bind(this)}/>

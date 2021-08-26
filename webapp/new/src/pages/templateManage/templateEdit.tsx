@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 18:34:53
+ * @LastEditTime: 2021-08-24 11:28:51
  */
 
 import { connect } from 'dva';
@@ -188,12 +188,15 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
             返回
           </a>
           <span>
-            <Progress
-              percent={this.state.savePercent}
-              size="small"
-              strokeWidth={2}
-              format={(percent) => (percent === 100 ? 'saved' : 'saving')}
-            ></Progress>
+            {
+              this.state.savePercent !== 100 && <Progress
+                percent={this.state.savePercent}
+                size="small"
+                strokeWidth={2}
+                format={(percent) => (percent === 100 ? 'saved' : 'saving')}
+              ></Progress>
+            }
+
           </span>
         </div>
         
@@ -260,7 +263,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                     {
                       this.props.templateInfo.currentVersion && (
                         <Markdown
-                          onChange={this.onChangeReadme}
+                          // onChange={this.onChangeReadme}
+                          DisabledEdit={true}
                           content={this.props.templateInfo.currentVersion.readmeDoc || ''}
                         ></Markdown>
                       )
@@ -270,7 +274,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                     {
                       this.props.templateInfo.currentVersion && (
                         <Markdown
-                          onChange={this.onChangeBuild}
+                          // onChange={this.onChangeBuild}
+                          DisabledEdit={true}
                           content={this.props.templateInfo.currentVersion.buildDoc || ''}
                         ></Markdown>
                       )
@@ -280,7 +285,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                     {
                       this.props.templateInfo.currentVersion && (
                         <Markdown
-                          onChange={this.onChangeUpdate}
+                          // onChange={this.onChangeUpdate}
                           content={this.props.templateInfo.currentVersion.updateDoc || ''}
                         ></Markdown>
                       )

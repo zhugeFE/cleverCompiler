@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:48:28
+ * @LastEditTime: 2021-08-24 11:25:31
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -52,6 +52,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.remove = this.remove.bind(this);
     this.hideAddGitSource = this.hideAddGitSource.bind(this);
     this.onHideEditConfig = this.onHideEditConfig.bind(this);
+    this.afterAddGitSource = this.afterAddGitSource.bind(this);
   }
 
   onChange(activeKey: string) {
@@ -134,6 +135,13 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     })
   }
 
+  //增加git源
+  afterAddGitSource(){
+    this.setState({
+      activeKey: this.props.gitList.length > 0 ? this.props.gitList[this.props.gitList.length-1].id : ""
+    })
+    this.hideAddGitSource()
+  }
 
   render() {
     const columns: ColumnProps<ConfigInstance>[] = [
@@ -239,20 +247,22 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             existGits={this.props.gitList}
             templateId={this.props.templateId}
             templateVersionId={this.props.templateVersionId}
+            afterAdd={this.afterAddGitSource}
             onCancel={this.hideAddGitSource} />
         }
         { !gitList.length ? (
-          <Tabs type="editable-card" onEdit={this.onEdit}>
+          <Tabs type="editable-card" className={styles.cardBg} onEdit={this.onEdit}>
             <Tabs.TabPane tab="引导页">引导页面</Tabs.TabPane>
           </Tabs>
         ) : (
           <Tabs
             type="editable-card"
+            className={styles.cardBg}
             onChange={this.onChange}
             activeKey={this.state.activeKey}
             onEdit={this.onEdit}>
             {gitList.map((item, index) => (
-              <Tabs.TabPane tab={item.name} key={item.id}>
+              <Tabs.TabPane  tab={item.name} key={item.id}>
                 <Table
                   columns={columns}
                   dataSource={item.configList}

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:06:56
+ * @LastEditTime: 2021-08-23 11:04:17
  */
 
 import { Form, Input, Modal, Select } from 'antd';
@@ -118,7 +118,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
                   {item.title}
                 </Option>
               ))}
-            </Select>
+            </Select>              
           </Form.Item>
           <Form.Item label="版本号">
             <Input

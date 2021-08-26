@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:06:26
+ * @LastEditTime: 2021-08-24 11:37:15
  */
 import { Table, Button, Spin } from 'antd';
 import { connect } from 'dva';
@@ -105,31 +105,24 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         title: '更新时间',
         width: 150,
         dataIndex: 'createTime',
-        defaultSortOrder: 'descend',
+        // defaultSortOrder: 'descend',
         sorter: (a, b) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
         render(text: string) {
           return util.dateTimeFormat(new Date(text)) || '-';
         },
       },
       {
-        title: '使用文档',
+        title: '文档地址',
         dataIndex: 'versionId',
+        width:80,
         render(text: string) {
-          return <a href={`?id=${text}type=readmeDoc`}> {`?id=${text}type=readmeDoc` || '-'} </a>;
-        },
-      },
-      {
-        title: '更新文档',
-        dataIndex: 'versionId',
-        render(text: string) {
-          return <a href={`?id=${text}type=updateDoc`}> {`?id=${text}type=updateDoc` || '-'} </a>;
-        },
-      },
-      {
-        title: '部署文档',
-        dataIndex: 'versionId',
-        render(text: string) {
-          return <a href={`?id=${text}type=buildDoc`}> {`?id=${text}type=buildDoc` || '-'} </a>;
+          return (
+            <>
+              <a href={`?id=${text}type=readmeDoc`}> 说明文档 </a><br />
+              <a href={`?id=${text}type=updateDoc`}> 更新文档 </a><br />
+              <a href={`?id=${text}type=buildDoc`}> 部署文档 </a>
+            </>
+          )
         },
       },
       {
@@ -143,6 +136,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
               <a  onClick={this.onClickEdit.bind(this, record)}>
                 编辑{' '}
               </a>
+              <br />
               <a onClick={this.onClickEnable.bind(this, record)}>
                 {record.enable ? '禁用' : '启用'}{' '}
               </a>

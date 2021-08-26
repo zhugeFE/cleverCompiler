@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-13 16:57:36
+ * @LastEditTime: 2021-08-25 17:11:52
  */
 export default {
   user: {
@@ -48,5 +48,23 @@ export default {
     addComConfig: '/template/comconfig/add',
     updateComConfig: '/template/comconfig/update',
     delComConfig: '/template/comconfig'
+  },
+  compile: {
+    createCompile: '/compile/add',
+    compileList: '/compile/list',
+
+  },
+  project: {
+    getInfo: '/project/{{id}}/info',
+    createProject: '/project/add',
+    updateProject: '/project/update',
+    projectList: '/project/list'
+  },
+  customer: {
+    getInfo: '/customer/{{id}}/info',
+    createCustomer: '/customer/add',
+    customerList: '/customer/list',
+    updateCustomer: '/customer/update'
   }
+  
 }

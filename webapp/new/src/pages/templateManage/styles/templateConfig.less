@@ -2,4 +2,20 @@
 .templateConfigPanel {
   display: inline-block;
   width: 100%;
+  .cardBg {
+    :global {
+      .ant-tabs-nav{
+        margin: 0 ;
+        .ant-tabs-tab + .ant-tabs-tab{
+          margin-left: 0;
+        }
+        .ant-tabs-nav-add {
+          margin-left: 0;
+        }
+      }
+
+    }
+  }
+    
+
 }

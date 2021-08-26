@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:49:25
+ * @LastEditTime: 2021-08-24 09:55:41
  */
 import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
@@ -29,6 +29,7 @@ interface Props {
   templateVersionId: string;
   existGits: TemplateVersionGit[];
   gitList: GitInstance[];
+  afterAdd(): void;
   onCancel(): void;
   dispatch: Dispatch;
 }
@@ -76,7 +77,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
       type: 'template/addVersionGit',
       payload: data,
       callback: () => {
-        if (this.props.onCancel) this.props.onCancel();
+        if (this.props.afterAdd) this.props.afterAdd();
       }
     });
     
