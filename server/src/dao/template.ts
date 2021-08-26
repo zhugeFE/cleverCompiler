@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:16:02
+ * @LastEditTime: 2021-08-23 11:29:20
  */
 /**
  * 模板
@@ -466,7 +466,8 @@ class TemplateDao {
        template_version_id , 
        template_id ,
        default_value,
-       is_hidden,name,
+       is_hidden,
+       name,
        description) 
        values(?,?,?,?,?,?,?)`
     const comConfigId = util.uuid()
