@@ -4,13 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 17:17:03
+ * @LastEditTime: 2021-08-26 16:50:24
  */
 
 import pool from './pool'
 import {
   ProjectCustomer,
   AddCustomerParams,
+  ProjectCustomerInstance,
 } from "../types/customer"
 import util from '../utils/util'
 import _ = require('lodash')
@@ -19,28 +20,29 @@ import _ = require('lodash')
 class Customer {
   //客户列表
   async customerList (): Promise<ProjectCustomer[]>{
-    const sql = `SELECT c.id as id, 
-      c.name as name, 
-      c.description as description, 
-      c.creator_id as creator_id,  
-      u.name as creator_name 
-      LEFT JOIN \`user\` as u 
-      ON \`user\`.id = c.creator_id`
+    const sql = `SELECT
+      c.id AS id,
+      c.NAME AS NAME,
+      c.description AS description,
+      c.creator_id AS creator_id,
+      u.NAME AS creator_name 
+    FROM
+      customer AS c
+      LEFT JOIN USER AS u ON u.id = c.creator_id`
     return await pool.query(sql)
   }
 
   //客户新建
   async customerAdd (params: AddCustomerParams): Promise<ProjectCustomer>{
-    const sql = `INSERT INTO customer ( id, NAME, description, project_id, creator_id )
+    const sql = `INSERT INTO customer ( id, name, description, creator_id )
       VALUES
-        ( ?, ?, ?, ?, ? )`
+        ( ?, ?, ?, ? )`
     
     const id = util.uuid()
     await pool.write(sql,[
       id,
       params.name,
       params.description,
-      params.projectId,
       params.creatorId
     ])
     return await this.getCustomerById(id)
@@ -71,7 +73,7 @@ class Customer {
   }
 
   //客户信息更新
-  async updateCustomer (data: ProjectCustomer): Promise<void> {
+  async updateCustomer (data: ProjectCustomerInstance): Promise<void> {
     const props = []
     const params = []
     for (const key in data) {

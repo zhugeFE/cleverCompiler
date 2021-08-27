@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:12:23
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 09:06:24
+ * @LastEditTime: 2021-08-26 16:50:34
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import CustomerSerive from "../service/customer"
-import { AddCustomerParams, ProjectCustomer } from '../types/customer'
+import { AddCustomerParams, ProjectCustomer, ProjectCustomerInstance } from '../types/customer'
 
 const router = Router()
 
@@ -38,7 +38,7 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
 
 //客户信息更改
 router.post('/update', (req: Request, res: Response, next: NextFunction) => {
-  const customer = req.body as ProjectCustomer
+  const customer = req.body as ProjectCustomerInstance
   if( !customer.id ){
     res.json(new ApiResult(ResponseStatus.fail, null , "客户id不能为空！"))
     return
@@ -51,7 +51,7 @@ router.post('/update', (req: Request, res: Response, next: NextFunction) => {
 })
 
 // 客户详细信息待完成
-router.post('/:id/info', (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id
 })
 

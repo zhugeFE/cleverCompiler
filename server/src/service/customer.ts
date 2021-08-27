@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:13:53
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 17:20:53
+ * @LastEditTime: 2021-08-26 16:50:21
  */
 import customerDao from "../dao/customer";
-import { AddCustomerParams, ProjectCustomer } from "../types/customer";
+import { AddCustomerParams, ProjectCustomer, ProjectCustomerInstance } from "../types/customer";
 
 class CustomerService {
   
@@ -22,7 +22,7 @@ class CustomerService {
   }
   
   //更新客户信息
-  async updateCustomer(data: ProjectCustomer): Promise<void>{
+  async updateCustomer(data: ProjectCustomerInstance): Promise<void>{
     await customerDao.updateCustomer(data)
   }
 }
