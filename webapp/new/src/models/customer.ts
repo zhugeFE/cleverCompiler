@@ -4,12 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:38:06
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 18:54:50
+ * @LastEditTime: 2021-08-26 17:04:15
  */
 
 import { Effect } from "@/.umi/plugin-dva/connect"
 import { Reducer } from "redux"
 import customerService from "@/services/customer"
+import util from "@/utils/utils"
 
 export interface Customer {
   id: string; //客户id
@@ -17,17 +18,14 @@ export interface Customer {
   description: string; //客户描述
   projectId: string; //项目id
   creatorId: string; //创建者id
-  creatorName: string; //创建者名称
+  creatorName?: string; //创建者名称
 }
 
 export interface AddCustomerParams {
-  projectId: any;
   name: string; //客户名称
   description: string; //客户描述
   creatorId: string; //创建者id
 }
-
-
 
 export type CustomerModelState = {
   customerList: Customer[] | null;
@@ -55,34 +53,47 @@ const CustomerModel: CustomerModelType = {
   },
   effects: {
     *getCustomerList (_ , {put , call}){
-      const res = yield call(customerService.queryTemplateList)
+      const res = yield call(customerService.customerList)
       if (res.status === -1)return
       yield put({
-        type: "setList",
+        type: "setCustomerList",
         payload: res.data
       })
     },
     *getCustomerInfo ({payload}, {put , call}) {
-      const res = yield call(customerService.getInfo, payload as string)
+      const res = yield call(customerService.customerInfo, payload as string)
       if (res.status === -1) return
       res.data.currentVersion = res.data.versionList[0] || {}
       yield put({
-        type: "setTemplateInfo",
+        type: "setcustomerInfo",
         payload: res.data
       })
     },
-    *addCustomer ({payload, callback}, {call}) {
-      const res = yield call(customerService.createTemplate, payload)
+    *addCustomer ({payload, callback}, {select, put, call}) {
+      const res = yield call(customerService.addCustomer, payload)
       if (res.status === -1) return
+      const data = util.clone(yield select((_: { customer: { customerList: Customer[]; }; }) => _.customer.customerList));
+      data.push( res.data )
+      yield put ({
+        type: "setCustomerList",
+        payload: data
+      })
       if (callback) callback(res.data)
     },
-    *updateCustomer ({payload}, {put ,call}) {
-      const res = yield call(customerService.updateTemplateStatus, payload)
+    *updateCustomer ({payload, callback}, {select, put ,call}) {
+      const res = yield call(customerService.updataCustomer, payload)
       if (res.status === -1) return
-      yield put({
-        type: "setTemplateInfo",
-        payload: res.data
+      const data: Customer[] = util.clone(yield select((_: {customer: { customerList: Customer[]; }; }) => _.customer.customerList));
+      data.map( (item, index) => {
+        if( item.id === payload.id) {
+          item.description = payload.description
+        }
       })
+      yield put({
+        type: "setCustomerList",
+        payload: data
+      })
+      if (callback) callback()
     },
 
   },

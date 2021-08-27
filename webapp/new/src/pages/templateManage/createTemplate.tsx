@@ -4,13 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-05 09:58:53
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:13:28
+ * @LastEditTime: 2021-08-26 16:02:18
  */
 import React from 'react';
 import { Modal, Form, Input, message } from 'antd';
 import { TemplateCreateParam, TemplateInfo } from '@/models/template';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
+import TextArea from 'antd/lib/input/TextArea';
 
 interface FormData {
   name: string;
@@ -115,7 +116,7 @@ class CreateTemplate extends React.Component<Props, States> {
             name="description"
             rules={[{ required: true, message: '请输入模板描述!' }]}
           >
-            <Input></Input>
+            <TextArea rows={3}/>
           </Form.Item>
 
           <Form.Item
@@ -131,7 +132,7 @@ class CreateTemplate extends React.Component<Props, States> {
             name="versionDescription"
             rules={[{ required: true, message: '请输入版本描述!' }]}
           >
-            <Input />
+            <TextArea rows={3}/>
           </Form.Item>
         </Form>
       </Modal>
