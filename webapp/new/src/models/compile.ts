@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 15:40:34
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 18:54:11
+ * @LastEditTime: 2021-08-26 10:55:08
  */
 
 import { Effect } from "@/.umi/plugin-dva/connect"
@@ -59,34 +59,34 @@ const CompileModel: CompileModelType = {
   },
   effects: {
     *getCompileList (_ , {put , call}){
-      const res = yield call(compileService.queryTemplateList)
+      const res = yield call(compileService.compileList)
       if (res.status === -1)return
       yield put({
         type: "setList",
         payload: res.data
       })
     },
-    *getCompileInfo ({payload}, {put , call}) {
-      const res = yield call(compileService.getInfo, payload as string)
-      if (res.status === -1) return
-      res.data.currentVersion = res.data.versionList[0] || {}
-      yield put({
-        type: "setTemplateInfo",
-        payload: res.data
-      })
-    },
     *addCompile ({payload, callback}, {call}) {
-      const res = yield call(compileService.createTemplate, payload)
+      const res = yield call(compileService.addCompile, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
+    *getCompileInfo ({payload}, {put , call}) {
+      // const res = yield call(compileService.getInfo, payload as string)
+      // if (res.status === -1) return
+      // res.data.currentVersion = res.data.versionList[0] || {}
+      // yield put({
+      //   type: "setTemplateInfo",
+      //   payload: res.data
+      // })
+    },
     *updateCompile ({payload}, {put ,call}) {
-      const res = yield call(compileService.updateTemplateStatus, payload)
-      if (res.status === -1) return
-      yield put({
-        type: "setTemplateInfo",
-        payload: res.data
-      })
+      // const res = yield call(compileService.updateTemplateStatus, payload)
+      // if (res.status === -1) return
+      // yield put({
+      //   type: "setTemplateInfo",
+      //   payload: res.data
+      // })
     },
 
   },

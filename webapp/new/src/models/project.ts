@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 18:53:16
+ * @LastEditTime: 2021-08-26 10:53:47
  */
 
 import { Effect } from "@/.umi/plugin-dva/connect"
@@ -112,7 +112,7 @@ const ProjectModel: ProjectModelType = {
   },
   effects: {
     *getProjectList (_ , {put , call}){
-      const res = yield call(projectService.queryTemplateList)
+      const res = yield call(projectService.projectList)
       if (res.status === -1)return
       yield put({
         type: "setList",
@@ -120,7 +120,7 @@ const ProjectModel: ProjectModelType = {
       })
     },
     *getProjectInfo ({payload}, {put , call}) {
-      const res = yield call(projectService.getInfo, payload as string)
+      const res = yield call(projectService.projectInfo, payload as string)
       if (res.status === -1) return
       res.data.currentVersion = res.data.versionList[0] || {}
       yield put({
@@ -129,12 +129,12 @@ const ProjectModel: ProjectModelType = {
       })
     },
     *addProject ({payload, callback}, {call}) {
-      const res = yield call(projectService.createTemplate, payload)
+      const res = yield call(projectService.addProject, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
     *updateProject ({payload}, {put ,call}) {
-      const res = yield call(projectService.updateTemplateStatus, payload)
+      const res = yield call(projectService.updateProject, payload)
       if (res.status === -1) return
       yield put({
         type: "setTemplateInfo",
@@ -144,9 +144,9 @@ const ProjectModel: ProjectModelType = {
 
   },
   reducers: {
-    setCustomerList (state, {payload}): CustomerModelState {
+    setCustomerList (state, {payload}): ProjectModelState {
       return {
-        customerList: payload,
+        projectList: payload,
       }
     }
   }

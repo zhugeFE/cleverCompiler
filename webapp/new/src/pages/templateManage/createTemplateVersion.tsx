@@ -4,13 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 11:04:17
+ * @LastEditTime: 2021-08-26 16:04:11
  */
 
 import { Form, Input, Modal, Select } from 'antd';
 import React from 'react';
 import { Dispatch, TemplateVersion } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
+import TextArea from 'antd/lib/input/TextArea';
 const { Option } = Select;
 
 const VersionType = [
@@ -130,7 +131,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
             />
           </Form.Item>
           <Form.Item label="版本描述" name="desc">
-            <Input placeholder="这个版本主要支持..." />
+            <TextArea rows={4}></TextArea>
           </Form.Item>
         </Form>
       </Modal>

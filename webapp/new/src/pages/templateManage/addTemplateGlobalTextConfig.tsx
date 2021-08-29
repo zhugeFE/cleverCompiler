@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:07:14
+ * @LastEditTime: 2021-08-26 16:03:29
  */
 import { Form, Input, message, Modal } from 'antd';
 import React from 'react';
@@ -13,6 +13,7 @@ import { connect } from 'dva';
 import util from '@/utils/utils';
 import { CreateTemplateGlobalConfigParams, TemplateGlobalConfig } from '@/models/template';
 import { LeftOutlined } from '@ant-design/icons';
+import TextArea from 'antd/lib/input/TextArea';
 
 interface FormData {
   name: string;
@@ -138,7 +139,7 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
                   <Input></Input>
                 </Form.Item>
                 <Form.Item label="描述" name="description">
-                  <Input></Input>
+                  <TextArea rows={4}></TextArea>
                 </Form.Item>
                 <Form.Item label="默认值" name="value">
                   <Input></Input>

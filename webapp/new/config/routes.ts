@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 15:32:28
+ * @LastEditTime: 2021-08-26 18:46:57
  */
 export default [
   {
@@ -73,29 +73,29 @@ export default [
             routes: [
               {
                 path: '/compile/customer/list',
-                name: '客户列表',
-                component: "./compileManage/customerList"
+                name: 'customerList',
+                component: "./customerManage/customerList"
               },
               {
-                path: '/compile/customer/:id',
+                path: '/compile/customer/edit/:id',
                 name: 'customerEdit',
                 hideInMenu: true,
-                component: './compileManage/customerEdit'
+                component: './customerManage/customerEdit'
               },
               {
                 path: '/compile/project/list',
-                name: '项目列表',
-                component: './compileManage/projectList'
+                name: 'projectList',
+                component: './projectManage/projectList'
               },
               {
-                path: '/compile/project/:id',
+                path: '/compile/project/edit/:id',
                 name: 'projectEdit',
                 hideInMenu: true,
-                component: './compileManage/projectEdit'
+                component: './projectManage/projectEdit'
               },
               {
                 path: '/compile/list',
-                name: '编译列表',
+                name: 'compileList',
                 component: './compileManage/compileList'
               },
               {

@@ -28,6 +28,7 @@ class InitForm extends React.Component<Props, State>{
     this.onSubmit = this.onSubmit.bind(this)
   }
 
+  
   onSubmit (values: FormData) {
     this.props.dispatch({
       type: 'sys/init',
