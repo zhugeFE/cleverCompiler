@@ -1,10 +1,9 @@
 /*
  * @Descripttion: 
- * @version: 
+ * @version: 给i他
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:38
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-27 18:22:02
  */
 import { ConnectState } from '@/models/connect';
 import LeftOutlined from '@ant-design/icons/lib/icons/LeftOutlined';
@@ -308,12 +307,12 @@ class ProjectEdit extends React.Component<Props, States> {
               <Button type="primary">保存</Button>
               <Button>取消</Button>
             </Row>
+
         </div>
       </div>
     )
   }
 }
-
 
 export default connect( ( { customer, template }: ConnectState) => {
   return {
@@ -322,3 +321,5 @@ export default connect( ( { customer, template }: ConnectState) => {
     templateInfo: template.templateInfo
   }
 })(withRouter(ProjectEdit))
+
+
