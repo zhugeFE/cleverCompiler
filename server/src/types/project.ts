@@ -1,10 +1,12 @@
+import { TemplateGlobalConfig, TemplateVersionGit } from "./template";
+
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 17:14:31
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 18:16:42
+ * @LastEditTime: 2021-08-30 14:19:29
  */
 export interface ProjectInstance {
   id: string; //项目id
@@ -46,8 +48,12 @@ export interface ProjectType {
 export interface CreateProjectParams {
   name: string; //名称
   templateId: string; //模板id
-  templateVersion: string; //模板版本id
+  templateVersionId: string; //模板版本id
   compileType: number; //编译类型 0私有部署 1常规迭代 2发布测试
+  publicType: number; //发布方式 0发布到git 1下载 2自动
+  configList: TemplateGlobalConfig[];
+  gitList: TemplateVersionGit[];
+  shareNumber: string[];
   description: string; //描述
 }
 

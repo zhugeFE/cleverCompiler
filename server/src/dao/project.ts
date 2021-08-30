@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 18:22:53
+ * @LastEditTime: 2021-08-30 15:59:32
  */
 import _ = require("lodash");
 import { CreateConfigParams, CreateProjectParams, CreateShareProject, ProjectConfig, ProjectInfo, ProjectInstance, ProjectShare, ProjectType } from "../types/project";
@@ -19,19 +19,22 @@ class Project {
       p.id AS id,
       p.\`name\` AS NAME,
       p.create_time AS create_time,
+      p.compile_type AS compile_type,
       c.compile_time AS last_compile_time,
       c.compile_result AS last_compile_result,
       u.NAME AS compileUser 
     FROM
       project AS p
-      LEFT JOIN ( SELECT project_id, compile_result, compile_user, max( create_time ) AS create_time FROM compile GROUP BY compile.project_id ) AS c
-      LEFT JOIN \`user\` AS u ON p.id = c.project_id ON u.id = c.compile_user
+      LEFT JOIN (
+        ( SELECT project_id, compile_result, compile_user, max( compile_time ) AS compile_time FROM compile GROUP BY compile.project_id ) AS c
+      LEFT JOIN \`user\` AS u ON u.id = c.compile_user 
+      ) ON p.id = c.project_id
     `
     return await pool.query<ProjectInstance>(sql)
   }
 
   //编译项目创建
-  async createProject(params: CreateProjectParams): Promise<ProjectType>{
+  async createProject(params: CreateProjectParams, userId: string): Promise<ProjectType>{
     //传入名称 模板id 模板版本id 编译类型 描述进行创建  生成id、时间
     const sql = `INSERT INTO project ( id, NAME, template_id, template_version, compile_type, description, create_time )
       VALUES
@@ -41,11 +44,43 @@ class Project {
       id,
       params.name,
       params.templateId,
-      params.templateVersion,
+      params.templateVersionId,
       params.compileType,
       params.description,
       new Date()
     ])
+
+    //创建config
+    const configParams = []
+    params.gitList.map(git => {
+      git.configList.map( item => {
+        configParams.push({
+          configId: item.id,
+          projectId: id,
+          value: ""
+        })
+      })
+    })
+    await this.addConfig(configParams)
+    
+    //创建全局config
+    const globalConfigParams = []
+    params.configList.map( item => {
+      globalConfigParams.push({
+        configId: item.id,
+        projectId: id,
+        value: ""
+      })
+    })
+    await this.addGlobalConfig(globalConfigParams)
+
+    //创建分享成员
+    await this.addProjectShareNumber({
+      projectId: id,
+      userId: userId,
+      receiverUserIds: params.shareNumber
+    })
+
     return this.getProjectById(id)
   }
 
@@ -173,20 +208,20 @@ class Project {
       await pool.query(sql, params)
     }
   
-    //项目分享
-    async shareProject (data: CreateShareProject): Promise<void>{
+    // //项目分享
+    // async shareProject (data: CreateShareProject): Promise<void>{
   
-      await this.deletShareProjectByProjectId(data.projectId)
+    //   await this.deletShareProjectByProjectId(data.projectId)
   
-      Promise.all(data.receiverUserIds.map(async rid => {
-        await this.addProjectShareNumber({
-          receiverUserId: rid,
-          projectId: data.projectId,
-          userId: data.userId  
-        })
-      }))
+    //   Promise.all(data.receiverUserIds.map(async rid => {
+    //     await this.addProjectShareNumber({
+    //       receiverUserId: rid,
+    //       projectId: data.projectId,
+    //       userId: data.userId  
+    //     })
+    //   }))
   
-    }
+    // }
   
     //项目分享添加成员
     async addProjectShareNumber (data: CreateShareProject): Promise<void> {
@@ -196,7 +231,7 @@ class Project {
       const id = util.uuid()
       await pool.query(sql, [
         id,
-        data.receiverUserId,
+        JSON.stringify(data.receiverUserIds),
         data.projectId,
         data.userId
       ])

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:12:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 18:32:26
+ * @LastEditTime: 2021-08-30 14:57:10
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -25,7 +25,7 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
 //项目添加
 router.post('/add', (req: Request, res: Response, next: NextFunction) => {
   const project = req.body as CreateProjectParams
-  ProjectService.addProject(project)
+  ProjectService.addProject(project, req.session.currentUser.id)
   .then((project: ProjectType) => {
     res.json(new ApiResult(ResponseStatus.success, project))
   })
