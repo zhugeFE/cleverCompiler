@@ -32,7 +32,6 @@ export interface Props extends IRouteComponentProps<{
 
 interface States {
   activeKey: string;
-  savePercent: number;
   name: string;
   description: string;
   shareNumber: string[];
@@ -48,7 +47,6 @@ class ProjectEdit extends React.Component<Props, States> {
     super(prop)
     this.state = {
       activeKey: "",
-      savePercent: 0,
       name: "",
       description: "",
       shareNumber: [],
@@ -212,16 +210,6 @@ class ProjectEdit extends React.Component<Props, States> {
             <LeftOutlined />
             返回
           </a>
-          <span>
-            {
-              this.state.savePercent !== 100 && <Progress
-                percent={this.state.savePercent}
-                size="small"
-                strokeWidth={2}
-                format={(percent) => (percent === 100 ? 'saved' : 'saving')}
-              ></Progress>
-            }
-          </span>
         </div>
 
         <div className={styles.projectEditContent}>
