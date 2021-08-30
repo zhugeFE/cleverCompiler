@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 10:53:47
+ * @LastEditTime: 2021-08-30 15:52:38
  */
 
-import { Effect } from "@/.umi/plugin-dva/connect"
+import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
 import { Reducer } from "redux"
 import projectService from "@/services/project"
 
@@ -52,8 +52,12 @@ export interface Project {
 export interface CreateProjectParams {
   name: string; //名称
   templateId: string; //模板id
-  templateVersion: string; //模板版本id
+  templateVersionId: string; //模板版本id
   compileType: number; //编译类型 0私有部署 1常规迭代 2发布测试
+  publicType: number; //发布方式 0发布到git 1下载 2自动
+  configList: TemplateGlobalConfig[];
+  gitList: TemplateVersionGit[];
+  shareNumber: string[];
   description: string; //描述
 }
 
@@ -101,7 +105,7 @@ export type ProjectModelType = {
     updateProject: Effect;
   };
   reducers: {
-    setCustomerList: Reducer<ProjectModelState>;
+    setProjectList: Reducer<ProjectModelState>;
   };
 }
 
@@ -115,7 +119,7 @@ const ProjectModel: ProjectModelType = {
       const res = yield call(projectService.projectList)
       if (res.status === -1)return
       yield put({
-        type: "setList",
+        type: "setProjectList",
         payload: res.data
       })
     },
@@ -144,7 +148,7 @@ const ProjectModel: ProjectModelType = {
 
   },
   reducers: {
-    setCustomerList (state, {payload}): ProjectModelState {
+    setProjectList (state, {payload}): ProjectModelState {
       return {
         projectList: payload,
       }

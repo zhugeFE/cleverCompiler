@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-24 11:25:31
+ * @LastEditTime: 2021-08-30 09:52:10
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -261,19 +261,21 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             onChange={this.onChange}
             activeKey={this.state.activeKey}
             onEdit={this.onEdit}>
-            {gitList.map((item, index) => (
-              <Tabs.TabPane  tab={item.name} key={item.id}>
-                <Table
-                  columns={columns}
-                  dataSource={item.configList}
-                  pagination={{
-                    pageSize: 3,
-                    showTotal(totle: number) {
-                      return `总记录数${totle}`;
-                    },
-                  }}/>
-              </Tabs.TabPane>
-            ))}
+            {gitList.map((item, index) => {
+              return (
+                <Tabs.TabPane  tab={item.name} key={item.id}>
+                  <Table
+                    columns={columns}
+                    dataSource={item.configList}
+                    pagination={{
+                      pageSize: 3,
+                      showTotal(totle: number) {
+                        return `总记录数${totle}`;
+                      },
+                    }}/>
+                </Tabs.TabPane>
+              )
+            })}
           </Tabs>
         )}
       </div>

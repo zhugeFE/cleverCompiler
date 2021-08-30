@@ -12,11 +12,8 @@
       .colFlex {
         display: flex;
         align-items: center;
-        div:nth-child( n+2 ){
-          margin-left: 20px;
-          .radio {
-            display: inline-block; 
-          }
+        :global(.ant-select){
+          margin-right: 20px;
         }
       }
     }

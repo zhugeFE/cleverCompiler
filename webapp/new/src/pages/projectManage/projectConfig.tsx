@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-27 19:42:36
+ * @LastEditTime: 2021-08-30 10:00:33
  */
 
 import { ConfigInstance, TemplateConfig, TemplateVersionGit } from "@/models/template";
@@ -15,11 +15,12 @@ import React from "react"
 import projectConfigEdit from './projectConfigEdit';
 
 interface Props {
-  gitList: TemplateVersionGit[] | null;
+  gitList: TemplateVersionGit[];
+  activeKey: string;
+  onChangeActiveKey(key: string): void;
 }
 
 interface States {
-  activeKey: string | undefined;
   showEditConfig: boolean;
   currentConfig: ConfigInstance | null
 }
@@ -28,7 +29,6 @@ class ProjectConfig extends React.Component <Props, States> {
   constructor(prop: Props){
     super(prop)
     this.state = {
-      activeKey: prop.gitList[0].id ,
       showEditConfig: false,
       currentConfig: null
     }
@@ -42,9 +42,7 @@ class ProjectConfig extends React.Component <Props, States> {
   }
 
   onChange(activeKey: string) {
-    this.setState({
-      activeKey,
-    });
+    this.props.onChangeActiveKey(activeKey)
   }
 
 
@@ -134,20 +132,22 @@ class ProjectConfig extends React.Component <Props, States> {
             type="editable-card"
             // className={styles.cardBg}
             onChange={this.onChange}
-            activeKey={this.state.activeKey}>
-            {gitList.map((item, index) => (
-              <Tabs.TabPane  tab={item.name} key={item.id}>
-                <Table
-                  columns={columns}
-                  dataSource={item.configList}
-                  pagination={{
-                    pageSize: 3,
-                    showTotal(totle: number) {
-                      return `总记录数${totle}`;
-                    },
-                  }}/>
-              </Tabs.TabPane>
-            ))}
+            activeKey={this.props.activeKey}>
+            {gitList.map((item, index) => {
+              return (
+                <Tabs.TabPane  tab={item.name} key={item.id}>
+                  <Table
+                    columns={columns}
+                    dataSource={item.configList}
+                    pagination={{
+                      pageSize: 3,
+                      showTotal(totle: number) {
+                        return `总记录数${totle}`;
+                      },
+                    }}/>
+                </Tabs.TabPane>
+              )
+            })}
           </Tabs>
         )}
 

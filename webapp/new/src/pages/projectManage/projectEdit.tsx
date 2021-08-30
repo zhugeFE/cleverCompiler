@@ -9,7 +9,7 @@ import { ConnectState } from '@/models/connect';
 import LeftOutlined from '@ant-design/icons/lib/icons/LeftOutlined';
 import { Button, Col, Input, Progress, Radio, Row, Select } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
+import { CreateProjectParams, Dispatch } from '@/.umi/plugin-dva/connect';
 import React from 'react';
 import { Customer } from "@/models/customer"
 import { TemplateInfo, TemplateInstance, TemplateVersion } from "@/models/template"
@@ -29,11 +29,9 @@ export interface Props extends IRouteComponentProps<{
   dispatch: Dispatch;
 }
 
-interface FormData {
-  test: ""
-}
 
 interface States {
+  activeKey: string;
   savePercent: number;
   name: string;
   description: string;
@@ -49,6 +47,7 @@ class ProjectEdit extends React.Component<Props, States> {
   constructor(prop: Props){
     super(prop)
     this.state = {
+      activeKey: "",
       savePercent: 0,
       name: "",
       description: "",
@@ -65,6 +64,8 @@ class ProjectEdit extends React.Component<Props, States> {
     this.onTemplateVersionSelectChange = this.onTemplateVersionSelectChange.bind(this)
     this.onCompileTypeSelectChange = this.onCompileTypeSelectChange.bind(this)
     this.onRadioChange = this.onRadioChange.bind(this)
+    this.onChangeActiveKey = this.onChangeActiveKey.bind(this)
+    this.onClickSave = this.onClickSave.bind(this)
   }
 
   componentDidMount () {
@@ -80,14 +81,12 @@ class ProjectEdit extends React.Component<Props, States> {
     const target = e.target
     switch ( target.dataset.type ) {
       case "name": {
-        console.log(e.target.value)
         this.setState({
           name: e.target.value
         })
         break;
       }
       case "description": {
-        console.log(e.target.value)
         this.setState({
           description: e.target.value
         })
@@ -106,7 +105,6 @@ class ProjectEdit extends React.Component<Props, States> {
     this.setState({
      templateId: value 
     })
-    console.log(value)
     this.props.dispatch({
       type: "template/getInfo",
       payload: value
@@ -124,7 +122,8 @@ class ProjectEdit extends React.Component<Props, States> {
 
       this.setState({
         templateVersionId: value,
-        currentTemplateVersionInfo: current ? current : null
+        currentTemplateVersionInfo: current ? current : null ,
+        activeKey: current.gitList.length > 0 ? current.gitList[0].id : "0"
       })
 
     }
@@ -141,6 +140,34 @@ class ProjectEdit extends React.Component<Props, States> {
   onRadioChange (e: any) {
     this.setState({
       publicType: e.target.value
+    })
+  }
+
+  onChangeActiveKey (key: string){
+    this.setState({
+      activeKey: key
+    })
+  }
+
+  onClickSave () {
+    const data = {
+      name: this.state.name,
+      templateId: this.state.templateId,
+      templateVersionId: this.state.templateVersionId,
+      compileType: this.state.compileType,
+      publicType: this.state.publicType,
+      configList: this.state.currentTemplateVersionInfo?.globalConfigList,
+      gitList: this.state.currentTemplateVersionInfo?.gitList,
+      shareNumber: this.state.shareNumber,
+      description: this.state.description
+    } as CreateProjectParams
+    console.log(data)
+    this.props.dispatch({
+      type:"project/addProject",
+      payload: data,
+      callback: ()=>{
+        
+      }
     })
   }
 
@@ -266,9 +293,10 @@ class ProjectEdit extends React.Component<Props, States> {
             <Row className={styles.rowMargin}>
               <Col span={labelCol}>项目配置：</Col>
               <Col span={wrapperCol}>
-                <ConfigBox
-                  gitList={this.state.currentTemplateVersionInfo ? this.state.currentTemplateVersionInfo.gitList : null}
-                ></ConfigBox>
+                  <ConfigBox
+                    activeKey={this.state.activeKey}
+                    gitList={this.state.currentTemplateVersionInfo ? this.state.currentTemplateVersionInfo.gitList : []}
+                    onChangeActiveKey={this.onChangeActiveKey}/>
               </Col>
             </Row>
 
@@ -304,7 +332,7 @@ class ProjectEdit extends React.Component<Props, States> {
             </Row>
 
             <Row className={styles.rowMargin}>
-              <Button type="primary">保存</Button>
+              <Button type="primary" onClick={this.onClickSave}>保存</Button>
               <Button>取消</Button>
             </Row>
 

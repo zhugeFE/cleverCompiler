@@ -4,19 +4,24 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 18:46:22
+ * @LastEditTime: 2021-08-30 16:02:50
  */
+import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
+import util from '@/utils/utils';
 import { Button, Table } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { IRouteComponentProps } from 'umi';
+import { Dispatch, IRouteComponentProps } from 'umi';
 import styles from "./styles/projectList.less";
 
-interface Props extends IRouteComponentProps{
-
+interface Props extends IRouteComponentProps<{
+  
+}>{
+  projectList: ProjectInstance[] | null;
+  dispatch: Dispatch;
 }
 interface States {
 }
@@ -29,6 +34,15 @@ class ProjectList extends React.Component<Props, States> {
     this.onClickAddProject = this.onClickAddProject.bind(this)
   }
 
+  componentDidMount () {
+    this.props.dispatch({
+      type: "project/getProjectList"
+    })
+  }
+
+  componentWillReceiveProps(props:any){
+    console.log(props)
+  }
 
   onClickAddProject () {
     this.props.history.push("/compile/project/edit/addProject")
@@ -49,12 +63,14 @@ class ProjectList extends React.Component<Props, States> {
   }
 
   render() {
+    const compileType = ['私有部署','常规迭代','发布测试']
     const columns: ColumnProps<ProjectInstance>[] = [
       {
         title: '名称',
         dataIndex: 'name',
         fixed: 'left',
-        width: 150,
+        ellipsis:true,
+        width: 100,
         render(text: string, record: ProjectInstance) {
           return <div> {text || '-' || record.name} </div>;
         },
@@ -62,9 +78,9 @@ class ProjectList extends React.Component<Props, States> {
       {
         title: '编译类型',
         dataIndex: 'compileType',
-        width: 200,
-        render(text: string, record: ProjectInstance) {
-          return <div> {text || '-' || record.compileType} </div>;
+        width: 100,
+        render(text: string) {
+          return <div> {compileType[Number(text)] || '-' } </div>;
         },
       },
       {
@@ -95,8 +111,8 @@ class ProjectList extends React.Component<Props, States> {
         title: '创建时间',
         width: 150,
         dataIndex: 'createTime',
-        render(text: string, record: ProjectInstance) {
-          return <div> {text || '-' || record.createTime} </div>;
+        render(text: string) {
+          return <div> {util.dateTimeFormat(new Date(text)) || '-'} </div>;
         },
       },
       {
@@ -130,7 +146,7 @@ class ProjectList extends React.Component<Props, States> {
         <Table
           rowKey="id"
           columns={columns}
-          // dataSource={}
+          dataSource={this.props.projectList ? this.props.projectList : []}
           pagination={{
             pageSize: 5,
             showTotal(totle: number) {
@@ -144,4 +160,8 @@ class ProjectList extends React.Component<Props, States> {
 }
 
 
-export default connect()(withRouter(ProjectList))
+export default connect( ( { project } : ConnectState) => {
+  return {
+    projectList: project.projectList
+  }
+})(withRouter(ProjectList))
