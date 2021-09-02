@@ -4,14 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 14:35:38
+ * @LastEditTime: 2021-09-01 21:39:15
  */
 export default {
   'menu.configManage': '配置管理',
-  'menu.compileManage.projectList': "项目列表",
-  'menu.compileManage.projectEdit': "项目编辑",
+  'menu.compileManage.configList': "配置列表",
+  'menu.compileManage.configEdit': "配置编辑",
   'menu.compileManage.compileList': "编译列表",
-  'menu.compileManage.compileEdit': "编译编辑",
+  'menu.compileManage.compileEdit': "编译",
   'menu.compileManage.customerList': "用户列表",
   'menu.compileManage.customerEdit': "用户编辑",
   'menu.compileManage': '编译管理',

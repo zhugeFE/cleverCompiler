@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-27 17:43:04
+ * @LastEditTime: 2021-09-02 22:27:12
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -179,7 +179,7 @@ const TemplateModel: TemplateModelType = {
         payload: res.data
       })
     },
-    *getInfo ({payload}, {put , call}) {
+    *getInfo ({payload, callback}, {put , call}) {
       const res = yield call(templateService.getInfo, payload as string)
       if (res.status === -1) return
       res.data.currentVersion = res.data.versionList[0] || {}
@@ -187,6 +187,7 @@ const TemplateModel: TemplateModelType = {
         type: "setTemplateInfo",
         payload: res.data
       })
+      if (callback) callback()
     },
     *createTemplate ({payload, callback}, {call}) {
       const res = yield call(templateService.createTemplate, payload)

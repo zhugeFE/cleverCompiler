@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 18:46:57
+ * @LastEditTime: 2021-09-01 21:56:58
  */
 export default [
   {
@@ -84,12 +84,12 @@ export default [
               },
               {
                 path: '/compile/project/list',
-                name: 'projectList',
+                name: 'configList',
                 component: './projectManage/projectList'
               },
               {
                 path: '/compile/project/edit/:id',
-                name: 'projectEdit',
+                name: 'configEdit',
                 hideInMenu: true,
                 component: './projectManage/projectEdit'
               },

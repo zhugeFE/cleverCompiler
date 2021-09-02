@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-30 15:52:38
+ * @LastEditTime: 2021-09-02 23:03:42
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -31,6 +31,7 @@ export interface ProjectInfo {
   templateVersion: string; //项目来源模板版本id
   compileType: number; //编译类型 0私有部署 1常规迭代 2发布测试
   createTime: Date; //创建时间
+  gitList: TemplateVersionGit[] // git
   shareNumber: string[]; //分享成员
   globalConfigList: ProjectConfig[];//全局配置
 }
@@ -92,6 +93,7 @@ export interface CreateShareProject {
 
 export type ProjectModelState = {
   projectList: ProjectInstance[] | null;
+  projectInfo: ProjectInfo | null ;
 }
 
 
@@ -106,6 +108,7 @@ export type ProjectModelType = {
   };
   reducers: {
     setProjectList: Reducer<ProjectModelState>;
+    setProjectInfo: Reducer<ProjectModelState>;
   };
 }
 
@@ -113,6 +116,7 @@ const ProjectModel: ProjectModelType = {
   namespace: 'project',
   state: {
     projectList: [],
+    projectInfo: null
   },
   effects: {
     *getProjectList (_ , {put , call}){
@@ -126,9 +130,10 @@ const ProjectModel: ProjectModelType = {
     *getProjectInfo ({payload}, {put , call}) {
       const res = yield call(projectService.projectInfo, payload as string)
       if (res.status === -1) return
-      res.data.currentVersion = res.data.versionList[0] || {}
+      // res.data.currentVersion = res.data.versionList[0] || {}
+      console.log(res.data)
       yield put({
-        type: "setTemplateInfo",
+        type: "setProjectInfo",
         payload: res.data
       })
     },
@@ -141,7 +146,7 @@ const ProjectModel: ProjectModelType = {
       const res = yield call(projectService.updateProject, payload)
       if (res.status === -1) return
       yield put({
-        type: "setTemplateInfo",
+        type: "setProjectInfo",
         payload: res.data
       })
     },
@@ -151,6 +156,13 @@ const ProjectModel: ProjectModelType = {
     setProjectList (state, {payload}): ProjectModelState {
       return {
         projectList: payload,
+        projectInfo: state?.projectInfo || null
+      }
+    },
+    setProjectInfo (state, {payload}): ProjectModelState {
+      return {
+        projectList: state?.projectList || [],
+        projectInfo: payload
       }
     }
   }

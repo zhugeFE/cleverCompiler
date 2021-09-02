@@ -7,9 +7,9 @@
  */
 import { ConnectState } from '@/models/connect';
 import LeftOutlined from '@ant-design/icons/lib/icons/LeftOutlined';
-import { Button, Col, Input, Progress, Radio, Row, Select } from 'antd';
+import { Button, Col, Input, Radio, Row, Select, Spin } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
-import { CreateProjectParams, Dispatch } from '@/.umi/plugin-dva/connect';
+import { CreateProjectParams, Dispatch, ProjectInfo } from '@/.umi/plugin-dva/connect';
 import React from 'react';
 import { Customer } from "@/models/customer"
 import { TemplateInfo, TemplateInstance, TemplateVersion } from "@/models/template"
@@ -23,6 +23,7 @@ import ConfigBox from "./projectConfig";
 export interface Props extends IRouteComponentProps<{
   id: string;
 }>{
+  projectInfo: ProjectInfo | null;
   templateList: TemplateInstance[] | null;
   templateInfo: TemplateInfo | null;
   customerList: Customer[] | null;
@@ -40,12 +41,14 @@ interface States {
   compileType: number;
   publicType: number;
   currentTemplateVersionInfo: TemplateVersion | null;
+  showLoading: boolean;
 }
 
 class ProjectEdit extends React.Component<Props, States> {
   constructor(prop: Props){
     super(prop)
     this.state = {
+      showLoading: false,
       activeKey: "",
       name: "",
       description: "",
@@ -66,13 +69,47 @@ class ProjectEdit extends React.Component<Props, States> {
     this.onClickSave = this.onClickSave.bind(this)
   }
 
-  componentDidMount () {
-    this.props.dispatch({
+  async componentDidMount () {
+    const id = this.props.match.params.id
+    if( id !== 'addProject') {
+      this.setState({
+        showLoading: true
+      })
+      this.props.dispatch({
+        type: "project/getProjectInfo",
+        payload: id
+      })
+    }
+    await this.props.dispatch({
       type:"customer/getCustomerList"
     })
-    this.props.dispatch({
+    await this.props.dispatch({
       type:"template/query"
     })
+    if( this.props.projectInfo) {
+      this.props.dispatch({
+        type: "template/getInfo",
+        payload: this.props.projectInfo.templateId,
+        callback: ()=>{
+          const {projectInfo, templateInfo} = this.props
+
+          const templateVersionId = projectInfo ? projectInfo.templateVersion : " "
+          const currentTemplateVersionInfo = templateInfo ? templateInfo.versionList.filter(
+            item => item.id === projectInfo?.templateVersion
+          )[0] : null
+
+          const activeKey = (currentTemplateVersionInfo && currentTemplateVersionInfo.gitList.length > 0) ? currentTemplateVersionInfo.gitList[0].id : "0"
+          
+          this.setState({
+              templateVersionId ,
+              currentTemplateVersionInfo,
+              activeKey,
+              showLoading: false
+            })
+          }
+        }
+      )
+    }
   }
 
   onChangeEdit (e: any ) {
@@ -200,6 +237,15 @@ class ProjectEdit extends React.Component<Props, States> {
         text: "发布测试"
       }
     ]
+    // 模式切换
+    const disableEdit = this.props.location.query.mode === 'info' && this.props.projectInfo ? true : false;
+    
+    if (this.state.showLoading) {
+      return (
+        <Spin className={styles.gitEditLoading} tip="项目配置详情获取中..." size="large"></Spin>
+      )
+    }
+
     return (
       <div className={styles.projectEditPanel}>
         <div className={styles.projectPanelTop}>
@@ -211,11 +257,13 @@ class ProjectEdit extends React.Component<Props, States> {
             返回
           </a>
         </div>
-
-        <div className={styles.projectEditContent}>
+        
+        {
+          disableEdit ? 
+          (<div className={styles.projectEditContent}>
             <Row className={styles.rowMarginin}>
               <Col span={labelCol}>名称：</Col>
-              <Col span={8}> <Input onChange={this.onChangeEdit} data-type="name"></Input></Col>
+              <Col span={8}> <Input onChange={this.onChangeEdit} data-type="name" value={this.props.projectInfo?.name}></Input></Col>
             </Row>
 
             <Row className={styles.rowMargin}>
@@ -223,6 +271,7 @@ class ProjectEdit extends React.Component<Props, States> {
               <Col span={wrapperCol} className={styles.colFlex}>
                 <div>
                   <Select
+                    defaultValue={this.props.projectInfo?.templateId}
                     style={{ width: 100 }}
                     onChange={this.onTemplateSelectChange}
                   >
@@ -233,6 +282,7 @@ class ProjectEdit extends React.Component<Props, States> {
                     }
                   </Select>
                   <Select
+                    defaultValue={this.props.projectInfo?.templateVersion}
                     style={{width: 100}}
                     onChange={this.onTemplateVersionSelectChange}
                   >
@@ -246,7 +296,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 <div>
                   <span> 编译类型：</span>
                   <Select 
-                    defaultValue={this.state.compileType}
+                    defaultValue={this.props.projectInfo?.compileType || this.state.compileType}
                     style={{width: 120}}
                     onChange={this.onCompileTypeSelectChange}
                   >
@@ -323,15 +373,130 @@ class ProjectEdit extends React.Component<Props, States> {
               <Button type="primary" onClick={this.onClickSave}>保存</Button>
               <Button>取消</Button>
             </Row>
+          </div> 
+          ) : (
+          <div className={styles.projectEditContent}>
+            <Row className={styles.rowMarginin}>
+              <Col span={labelCol}>名称：</Col>
+              <Col span={8}> <Input onChange={this.onChangeEdit} data-type="name" ></Input></Col>
+            </Row>
 
-        </div>
+            <Row className={styles.rowMargin}>
+              <Col span={labelCol}>模板：</Col>
+              <Col span={wrapperCol} className={styles.colFlex}>
+                <div>
+                  <Select
+                    style={{ width: 100 }}
+                    onChange={this.onTemplateSelectChange}
+                  >
+                    {
+                      this.props.templateList?.map( item => {
+                        return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                      })
+                    }
+                  </Select>
+                  <Select
+                    style={{width: 100}}
+                    onChange={this.onTemplateVersionSelectChange}
+                  >
+                    {
+                      this.props.templateInfo?.versionList.map( item => {
+                        return <Select.Option key={item.id} value={item.id}> {item.version} </Select.Option>
+                      })
+                    }
+                  </Select>
+                </div>
+                <div>
+                  <span> 编译类型：</span>
+                  <Select 
+                    style={{width: 120}}
+                    onChange={this.onCompileTypeSelectChange}
+                  >
+                    {
+                      compileType.map( item => {
+                        return <Select.Option key={item.value} value={item.value}> {item.text} </Select.Option>
+                      })
+                    }
+                  </Select>
+                </div>
+                <div>
+                  <span>发布方式：</span>
+                  <Radio.Group className={styles.radio} onChange={this.onRadioChange} defaultValue={this.state.publicType}>
+                    {
+                      pubilshType.map( item => 
+                        <Radio key={item.value} value={item.value}>{item.text}</Radio>
+                      )
+                    }
+                  </Radio.Group>
+                </div>
+              </Col>
+            </Row>
+
+            <Row className={styles.rowMargin}>
+              <Col span={labelCol}>全局配置：</Col>
+              <Col span={wrapperCol}>
+                <GlobalConfig
+                  globalConfigList={this.state.currentTemplateVersionInfo ? this.state.currentTemplateVersionInfo.globalConfigList : null}/>
+              </Col>
+            </Row>
+
+            <Row className={styles.rowMargin}>
+              <Col span={labelCol}>项目配置：</Col>
+              <Col span={wrapperCol}>
+                  <ConfigBox
+                    activeKey={this.state.activeKey}
+                    gitList={this.state.currentTemplateVersionInfo ? this.state.currentTemplateVersionInfo.gitList : []}
+                    onChangeActiveKey={this.onChangeActiveKey}/>
+              </Col>
+            </Row>
+
+            <Row className={styles.rowMargin}>
+              <Col span={labelCol}>分享成员：</Col>
+              <Col span={wrapperCol}>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  showSearch
+                  style={{ width: 200 }}
+                  placeholder="Select a person"
+                  optionFilterProp="children"
+                  onChange={this.onShareSelectChange}
+                  filterOption={(input, option) =>
+                    option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }>
+                  {
+                    this.props.customerList?.map( item => {
+                      return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                    })
+                  }
+                </Select>
+              </Col>
+            </Row>
+
+            
+            <Row className={styles.rowMargin}>
+              <Col span={labelCol}>描述：</Col>
+              <Col span={wrapperCol}>
+                <TextArea rows={10} datatype="description" onChange={this.onChangeEdit}></TextArea>
+              </Col>
+            </Row>
+
+            <Row className={styles.rowMargin}>
+              <Button type="primary" onClick={this.onClickSave}>保存</Button>
+              <Button>取消</Button>
+            </Row>
+          </div>
+          )  
+        }
+        
       </div>
     )
   }
 }
 
-export default connect( ( { customer, template }: ConnectState) => {
+export default connect( ( { customer, template, project }: ConnectState) => {
   return {
+    projectInfo: project.projectInfo,
     customerList: customer.customerList,
     templateList: template.templateList,
     templateInfo: template.templateInfo

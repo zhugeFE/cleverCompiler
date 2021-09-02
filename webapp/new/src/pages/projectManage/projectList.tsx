@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-30 16:02:50
+ * @LastEditTime: 2021-09-02 23:18:47
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -45,18 +45,21 @@ class ProjectList extends React.Component<Props, States> {
   }
 
   onClickAddProject () {
-    this.props.history.push("/compile/project/edit/addProject")
+    this.props.history.push("/compile/project/edit/addProject?mode=add")
   }
 
   //项目编辑
   onClickEdit(data: ProjectInstance, type: string){
     switch (type) {
       case "edit": {
+        // console.log(data)
+        
         break
       }
       case "info": {
-        console.log("info")
-        console.log(data)
+        // console.log(`compile/edit/${data.id}`)
+        this.props.history.push(`/compile/project/edit/${data.id}?mode=info`)
+        // console.log(data)
       }
     }
     
@@ -128,7 +131,7 @@ class ProjectList extends React.Component<Props, States> {
               </a>
               
               <a style={{marginLeft: "5px"}}  onClick={this.onClickEdit.bind(this, record, "info")}>
-                删除
+                详情
               </a>
               <a href="">
                 操作记录
