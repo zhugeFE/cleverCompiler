@@ -4,12 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-30 15:59:32
+ * @LastEditTime: 2021-09-02 23:02:07
  */
 import _ = require("lodash");
 import { CreateConfigParams, CreateProjectParams, CreateShareProject, ProjectConfig, ProjectInfo, ProjectInstance, ProjectShare, ProjectType } from "../types/project";
+import logger from "../utils/logger";
 import util from "../utils/util";
 import pool from "./pool";
+import templateDao from "../dao/template"
 
 class Project {
 
@@ -88,11 +90,14 @@ class Project {
     const projectData = await this.getProjectById(id)
     const shareNumber = await this.getShareProjectByProjectId(id)
     const globalConfig = await this.getGlobalConfigByProjectId(id)
+    const templateVersionInfo = await templateDao.getVersionbyId(projectData.templateVersion)
     const data: ProjectInfo = {
       ...projectData,
       shareNumber: shareNumber.map(item=>item.receiveUserId),
-      globalConfigList: globalConfig
+      globalConfigList: globalConfig,
+      gitList: templateVersionInfo.gitList
     }
+    logger.error(data)
     return data
   }
 

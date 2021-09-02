@@ -6,7 +6,7 @@ import { TemplateGlobalConfig, TemplateVersionGit } from "./template";
  * @Author: Adxiong
  * @Date: 2021-08-25 17:14:31
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-30 14:19:29
+ * @LastEditTime: 2021-09-02 19:10:13
  */
 export interface ProjectInstance {
   id: string; //项目id
@@ -28,6 +28,7 @@ export interface ProjectInfo {
   compileType: number; //编译类型 0私有部署 1常规迭代 2发布测试
   createTime: Date; //创建时间
   shareNumber: string[]; //分享成员
+  gitList: TemplateVersionGit[];
   globalConfigList: ProjectConfig[];//全局配置
 }
 

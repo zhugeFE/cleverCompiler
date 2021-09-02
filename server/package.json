@@ -33,5 +33,8 @@
     "prettier": "^1.19.1",
     "typescript": "^3.7.4",
     "uuid": "^7.0.1"
+  },
+  "dependencies": {
+    "socket.io": "^4.2.0"
   }
 }

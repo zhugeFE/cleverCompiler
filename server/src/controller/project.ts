@@ -4,12 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:12:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-30 14:57:10
+ * @LastEditTime: 2021-09-02 19:02:39
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import ProjectService from "../service/project"
 import { CreateProjectParams, ProjectInfo, ProjectInstance, ProjectType } from '../types/project'
+import logger from '../utils/logger'
 const router = Router()
 
 
@@ -47,7 +48,7 @@ router.post('/update', (req: Request, res: Response, next: NextFunction) => {
 })
 
 //项目信息
-router.post('/:id/info', (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id
   ProjectService.projectInfo(id)
   .then( (projectInfo: ProjectInfo) => {

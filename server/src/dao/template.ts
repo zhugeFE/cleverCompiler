@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 11:29:20
+ * @LastEditTime: 2021-09-02 19:41:21
  */
 /**
  * 模板
@@ -130,14 +130,7 @@ class TemplateDao {
       templateInfo.id
     )
 
-    await Promise.all(
-      templateInfo.versionList.map(async item => {
-        item.gitList = await this.getGitByTemplateVersionId(item.id)
-        item.globalConfigList = await this.getComConfigByTemplateVersionId(
-          item.id
-        )
-      })
-    )
+    
     return templateInfo
   }
 
@@ -169,8 +162,8 @@ class TemplateDao {
     const sql = 'select template_version.* from template_version where id = ?'
     const list = await pool.query<TemplateVersion>(sql, [id])
     if( list.length ){
-      list[0].gitList = []
-      list[0].globalConfigList = []
+      list[0].gitList = await this.getGitByTemplateVersionId(id)
+      list[0].globalConfigList = await this.getComConfigByTemplateVersionId(id)
     }
     return list.length ? list[0] : null
   }
@@ -178,7 +171,16 @@ class TemplateDao {
   async getVersionbyTemplateId(templateid: string): Promise<TemplateVersion[]> {
     const sql =
       'select version.* from template_version as version where version.template_id = ? order by version.publish_time desc'
-    return await pool.query<TemplateVersion>(sql, [templateid])
+    const versionList =  await pool.query<TemplateVersion>(sql, [templateid])
+    await Promise.all(
+      versionList.map(async item => {
+        item.gitList = await this.getGitByTemplateVersionId(item.id)
+        item.globalConfigList = await this.getComConfigByTemplateVersionId(
+          item.id
+        )
+      })
+    )
+    return versionList
   }
 
   async updateVersion(template: TemplateVersion): Promise<void> {
@@ -493,7 +495,8 @@ class TemplateDao {
     id: string
   ): Promise<TemplateGlobalConfig[]> {
     const sql = `select * from template_global_config where template_version_id = ?`
-    return await pool.query<TemplateGlobalConfig>(sql, [id])
+    const data = await pool.query<TemplateGlobalConfig>(sql, [id])
+    return data.length > 0 ? data : []
   }
 
   async updateComConfig(config: TemplateGlobalConfig): Promise<void> {

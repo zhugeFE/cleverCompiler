@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:56:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 18:29:19
+ * @LastEditTime: 2021-09-02 19:09:02
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -21,6 +21,7 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
   })
   .catch(next)
 })
+
 
 //编译记录
 router.get('/list', (req: Request, res: Response, next: NextFunction) => {

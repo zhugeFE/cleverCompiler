@@ -6,7 +6,7 @@ import { Version } from "./common";
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 14:47:40
+ * @LastEditTime: 2021-09-01 09:33:29
  */
 
 export interface TemplateInstance {
@@ -17,7 +17,7 @@ export interface TemplateInstance {
   createTime: Date;
   enable: number;
   version: string; //最新版本号
-  versionId: string; //最新版本id
+  versionId?: string; //最新版本id
 }
 
 export interface TemplateInfo extends TemplateInstance {
