@@ -9,10 +9,10 @@ import { ConnectState } from '@/models/connect';
 import LeftOutlined from '@ant-design/icons/lib/icons/LeftOutlined';
 import { Button, Col, Input, Radio, Row, Select, Spin } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
-import { CreateProjectParams, Dispatch, ProjectInfo } from '@/.umi/plugin-dva/connect';
+import { Dispatch } from '@/.umi/plugin-dva/connect';
 import React from 'react';
-import { Customer } from "@/models/customer"
 import { TemplateInfo, TemplateInstance, TemplateVersion } from "@/models/template"
+import { Member, ProjectInfo, CreateProjectParams } from "@/models/project"
 import { IRouteComponentProps } from '@umijs/renderer-react';
 import { withRouter } from 'react-router';
 import { connect } from 'dva';
@@ -26,7 +26,7 @@ export interface Props extends IRouteComponentProps<{
   projectInfo: ProjectInfo | null;
   templateList: TemplateInstance[] | null;
   templateInfo: TemplateInfo | null;
-  customerList: Customer[] | null;
+  memberList: Member[] | null;
   dispatch: Dispatch;
 }
 
@@ -81,7 +81,7 @@ class ProjectEdit extends React.Component<Props, States> {
       })
     }
     await this.props.dispatch({
-      type:"customer/getCustomerList"
+      type:"project/getMemberList"
     })
     await this.props.dispatch({
       type:"template/query"
@@ -245,7 +245,6 @@ class ProjectEdit extends React.Component<Props, States> {
         <Spin className={styles.gitEditLoading} tip="项目配置详情获取中..." size="large"></Spin>
       )
     }
-
     return (
       <div className={styles.projectEditPanel}>
         <div className={styles.projectPanelTop}>
@@ -353,7 +352,8 @@ class ProjectEdit extends React.Component<Props, States> {
                     option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }>
                   {
-                    this.props.customerList?.map( item => {
+                    
+                    this.props.memberList?.map( item => {
                       return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
                     })
                   }
@@ -465,7 +465,7 @@ class ProjectEdit extends React.Component<Props, States> {
                     option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }>
                   {
-                    this.props.customerList?.map( item => {
+                    this.props.memberList?.map( item => {
                       return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
                     })
                   }
@@ -494,10 +494,10 @@ class ProjectEdit extends React.Component<Props, States> {
   }
 }
 
-export default connect( ( { customer, template, project }: ConnectState) => {
+export default connect( ( { template, project }: ConnectState) => {
   return {
     projectInfo: project.projectInfo,
-    customerList: customer.customerList,
+    memberList: project.memberList,
     templateList: template.templateList,
     templateInfo: template.templateInfo
   }

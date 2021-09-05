@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-02 23:14:57
+ * @LastEditTime: 2021-09-04 19:17:24
  */
 import { ConnectState } from '@/models/connect'
 import { LeftOutlined } from '@ant-design/icons'
@@ -22,6 +22,9 @@ interface Props extends IRouteComponentProps{
 }
 interface States {
   publicType: number;
+  projectId: string;
+  compileGit: string[];
+  description: string;
 }
 
 class CompileEdit extends React.Component<Props, States> {
@@ -29,10 +32,15 @@ class CompileEdit extends React.Component<Props, States> {
     super(prop)
     this.state = {
       publicType: 0,
+      projectId: "",
+      compileGit: [],
+      description: "",
     }
     this.onRadioChange = this.onRadioChange.bind(this)
     this.selectProject = this.selectProject.bind(this)
     this.onCheckBoxChange = this.onCheckBoxChange.bind(this)
+    this.onClickCompile = this.onClickCompile.bind(this)
+    this.TextAreaChange = this.TextAreaChange.bind(this)
   }
 
   componentDidMount () {
@@ -48,7 +56,9 @@ class CompileEdit extends React.Component<Props, States> {
   }
 
   selectProject (value: string) {
-    console.log(value)
+    this.setState({
+      projectId: value
+    })
     this.props.dispatch({
       type: "project/getProjectInfo",
       payload: value
@@ -56,9 +66,24 @@ class CompileEdit extends React.Component<Props, States> {
   }
 
   onCheckBoxChange (checkedValues: CheckboxValueType[]) {
-    console.log(checkedValues)
+    this.setState({
+      compileGit: checkedValues as string[]
+    })
   }
 
+  onClickCompile () {
+    console.log(this.state.compileGit)
+    console.log(this.state.description)
+    console.log(this.state.projectId)
+    console.log(this.state.publicType)
+  }
+
+
+  TextAreaChange (e: any) {
+    this.setState({
+      description: e.target.value
+    })
+  }
   render() {
     const publicType = [
       {
@@ -133,9 +158,9 @@ class CompileEdit extends React.Component<Props, States> {
                 </Form.Item>
 
                 <Form.Item label="描述">
-                  <TextArea rows={6}></TextArea>
+                  <TextArea rows={6} onChange={this.TextAreaChange}></TextArea>
                 </Form.Item>
-                <Button type="primary">编译</Button>
+                <Button type="primary" onClick={this.onClickCompile}>编译</Button>
               </>
             )
           }

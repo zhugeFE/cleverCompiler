@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-02 23:03:42
+ * @LastEditTime: 2021-09-04 17:38:58
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -76,6 +76,11 @@ export interface ProjectConfig {
   value: string; //默认值
 }
 
+export interface Member {
+  id: string;
+  name: string;
+}
+
 export interface ProjectShare {
   id: string; //项目分享id
   receiveUserId: string; //接收者id
@@ -92,8 +97,9 @@ export interface CreateShareProject {
 
 
 export type ProjectModelState = {
-  projectList: ProjectInstance[] | null;
+  projectList: ProjectInstance[];
   projectInfo: ProjectInfo | null ;
+  memberList: Member[] ;
 }
 
 
@@ -105,10 +111,13 @@ export type ProjectModelType = {
     getProjectInfo: Effect;
     addProject: Effect;
     updateProject: Effect;
+    getMemberList: Effect;
   };
   reducers: {
     setProjectList: Reducer<ProjectModelState>;
     setProjectInfo: Reducer<ProjectModelState>;
+    setMemberList: Reducer<ProjectModelState>;
+
   };
 }
 
@@ -116,9 +125,18 @@ const ProjectModel: ProjectModelType = {
   namespace: 'project',
   state: {
     projectList: [],
-    projectInfo: null
+    projectInfo: null,
+    memberList: []
   },
   effects: {
+    *getMemberList (_, {put, call}){
+      const res = yield call(projectService.memberList)
+      if (res.status === -1)return
+      yield put({
+        type: "setMemberList",
+        payload: res.data
+      })
+    },
     *getProjectList (_ , {put , call}){
       const res = yield call(projectService.projectList)
       if (res.status === -1)return
@@ -131,7 +149,7 @@ const ProjectModel: ProjectModelType = {
       const res = yield call(projectService.projectInfo, payload as string)
       if (res.status === -1) return
       // res.data.currentVersion = res.data.versionList[0] || {}
-      console.log(res.data)
+      // console.log(res.data)
       yield put({
         type: "setProjectInfo",
         payload: res.data
@@ -156,14 +174,23 @@ const ProjectModel: ProjectModelType = {
     setProjectList (state, {payload}): ProjectModelState {
       return {
         projectList: payload,
-        projectInfo: state?.projectInfo || null
+        projectInfo: state?.projectInfo || null,
+        memberList: state?.memberList || [],
       }
     },
     setProjectInfo (state, {payload}): ProjectModelState {
       return {
         projectList: state?.projectList || [],
-        projectInfo: payload
+        projectInfo: payload,
+        memberList: state?.memberList || []
       }
+    },
+    setMemberList (state, {payload}): ProjectModelState {
+      return {
+        projectInfo: state?.projectInfo || null,
+        projectList: state?.projectList || [],
+        memberList: payload
+      } 
     }
   }
 }

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 09:14:14
+ * @LastEditTime: 2021-09-03 23:11:05
  */
 export default {
   user: {
@@ -58,7 +58,8 @@ export default {
     getInfo: '/project/{{id}}/info',
     createProject: '/project/add',
     updateProject: '/project/update',
-    projectList: '/project/list'
+    projectList: '/project/list',
+    getMemberList: "/project/members",
   },
   customer: {
     getInfo: '/customer/{{id}}/info',
