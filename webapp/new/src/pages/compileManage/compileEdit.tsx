@@ -4,23 +4,24 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-12 23:34:12
+ * @LastEditTime: 2021-09-13 00:11:24
  */
 import { ConnectState } from '@/models/connect'
 import { LeftOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Form, Radio, Select } from 'antd'
+import { Button, Checkbox, Form, message, Radio, Select } from 'antd'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import TextArea from 'antd/lib/input/TextArea'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
-import { connect, Dispatch, IRouteComponentProps, ProjectInfo, ProjectInstance } from 'umi'
+import { connect, CurrentUser, Dispatch, IRouteComponentProps, ProjectInfo, ProjectInstance } from 'umi'
 import SocketIO from "socket.io-client"
 
-const socket = SocketIO('http://localhost:5000')
+const socket = SocketIO('http://localhost:3000/', {transports:["websocket"]})
 
 interface Props extends IRouteComponentProps{
   projectInfo: ProjectInfo | null ;
   projectList: ProjectInstance[] | null;
+  currentUser: CurrentUser | null;
   dispatch: Dispatch;
 }
 interface States {
@@ -46,7 +47,19 @@ class CompileEdit extends React.Component<Props, States> {
     this.TextAreaChange = this.TextAreaChange.bind(this)
   }
   
+  initSocket () {
+    socket.on("message", (data) => {
+      console.log(data)
+    })
+  }
+
   componentDidMount () {
+    this.initSocket()
+    if( !this.props.currentUser) {
+      this.props.dispatch({
+        type: "user/fetchCurrent"
+      })
+    }
     this.props.dispatch({
       type: "project/getProjectList"
     })
@@ -75,10 +88,27 @@ class CompileEdit extends React.Component<Props, States> {
   }
 
   onClickCompile () {
-    console.log(this.state.compileGit)
-    console.log(this.state.description)
-    console.log(this.state.projectId)
-    console.log(this.state.publicType)
+    const {compileGit, description, projectId, publicType} = this.state
+    
+    !compileGit.length && message.warning("未选择编译git")
+
+    !(description && projectId ) && message.warning("信息描述不完整")
+
+    const GitMap = {}
+    this.props.projectInfo?.gitList.map( item => {
+      GitMap[item.name] = item.id
+    })
+
+    const data = {
+      userId: this.props.currentUser?.id,
+      projectId,
+      publicType,
+      description,
+      gitIds: [...compileGit.map(item => GitMap[item])]
+    }
+
+    socket.emit("startCompile", data)
+    
   }
 
 
@@ -176,8 +206,9 @@ class CompileEdit extends React.Component<Props, States> {
 }
 
 
-export default connect( ( {project}: ConnectState) => {
+export default connect( ( {user, project}: ConnectState) => {
   return {
+    currentUser: user.currentUser,
     projectList: project.projectList,
     projectInfo: project.projectInfo,
   }

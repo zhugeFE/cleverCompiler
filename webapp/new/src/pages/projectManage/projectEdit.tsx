@@ -9,13 +9,14 @@ import { ConnectState } from '@/models/connect';
 import LeftOutlined from '@ant-design/icons/lib/icons/LeftOutlined';
 import { Button, Col, Input, Radio, Row, Select, Spin } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
-import { Customer, Dispatch } from '@/.umi/plugin-dva/connect';
+import { Dispatch } from '@/.umi/plugin-dva/connect';
 import React from 'react';
 import { TemplateInfo, TemplateInstance, TemplateVersion } from "@/models/template"
 import { Member, ProjectInfo, CreateProjectParams } from "@/models/project"
 import { IRouteComponentProps } from '@umijs/renderer-react';
 import { withRouter } from 'react-router';
 import { connect } from 'dva';
+import { Customer } from "@/models/customer";
 import styles from './styles/projectEdit.less';
 import GlobalConfig from "./projectGlobalConfig";
 import ConfigBox from "./projectConfig";
@@ -26,8 +27,8 @@ export interface Props extends IRouteComponentProps<{
   projectInfo: ProjectInfo | null;
   templateList: TemplateInstance[] | null;
   templateInfo: TemplateInfo | null;
-  customerList: Customer[] | null;
   memberList: Member[] | null;
+  customerList: Customer[] | null;
   dispatch: Dispatch;
 }
 
@@ -43,6 +44,7 @@ interface States {
   publicType: number;
   currentTemplateVersionInfo: TemplateVersion | null;
   showLoading: boolean;
+  customer: string;
 }
 
 class ProjectEdit extends React.Component<Props, States> {
@@ -58,7 +60,8 @@ class ProjectEdit extends React.Component<Props, States> {
       templateVersionId: "",
       compileType: 0,
       publicType: 0,
-      currentTemplateVersionInfo: null
+      currentTemplateVersionInfo: null,
+      customer: ""
     }
     this.onChangeEdit = this.onChangeEdit.bind(this)
     this.onShareSelectChange = this.onShareSelectChange.bind(this)
@@ -68,6 +71,7 @@ class ProjectEdit extends React.Component<Props, States> {
     this.onRadioChange = this.onRadioChange.bind(this)
     this.onChangeActiveKey = this.onChangeActiveKey.bind(this)
     this.onClickSave = this.onClickSave.bind(this)
+    this.onCustomerSelectChange = this.onCustomerSelectChange.bind(this)
   }
 
   async componentDidMount () {
@@ -82,7 +86,10 @@ class ProjectEdit extends React.Component<Props, States> {
       })
     }
     await this.props.dispatch({
-      type:"customer/getCustomerList"
+      type: "customer/getCustomerList"
+    })
+    await this.props.dispatch({
+      type:"project/getMemberList"
     })
     await this.props.dispatch({
       type:"template/query"
@@ -112,7 +119,11 @@ class ProjectEdit extends React.Component<Props, States> {
       )
     }
   }
-
+  onCustomerSelectChange (value: string) {
+    this.setState({
+      customer: value
+    })
+  }
   onChangeEdit (e: any ) {
     const target = e.target
     switch ( target.dataset.type ) {
@@ -191,7 +202,8 @@ class ProjectEdit extends React.Component<Props, States> {
       configList: this.state.currentTemplateVersionInfo?.globalConfigList,
       gitList: this.state.currentTemplateVersionInfo?.gitList,
       shareNumber: this.state.shareNumber,
-      description: this.state.description
+      description: this.state.description,
+      customer: this.state.customer
     } as CreateProjectParams
     console.log(data)
     this.props.dispatch({
@@ -257,9 +269,27 @@ class ProjectEdit extends React.Component<Props, States> {
         {
           disableEdit ? 
           (<div className={styles.projectEditContent}>
-            <Row className={styles.rowMarginin}>
+            <Row className={styles.rowMargin}>
               <Col span={labelCol}>名称：</Col>
-              <Col span={8}> <Input onChange={this.onChangeEdit} data-type="name" value={this.props.projectInfo?.name}></Input></Col>
+              <Col span={wrapperCol} className={styles.colFlex}> 
+                <div >
+                  <Input onChange={this.onChangeEdit} data-type="name" value={this.props.projectInfo?.name}></Input>
+                </div>
+                <div style={{marginLeft:10}}>
+                  <span> 客户：</span>
+                  <Select
+                      defaultValue={this.props.projectInfo?.customer}
+                      style={{ width: 100 }}
+                      onChange={this.onCustomerSelectChange}
+                    >
+                      {
+                        this.props.customerList?.map( item => {
+                          return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                        })
+                      }
+                    </Select>
+                </div>
+              </Col>
             </Row>
 
             <Row className={styles.rowMargin}>
@@ -350,7 +380,7 @@ class ProjectEdit extends React.Component<Props, States> {
                   }>
                   {
                     
-                    this.props.customerList?.map( item => {
+                    this.props.memberList?.map( item => {
                       return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
                     })
                   }
@@ -373,9 +403,26 @@ class ProjectEdit extends React.Component<Props, States> {
           </div> 
           ) : (
           <div className={styles.projectEditContent}>
-            <Row className={styles.rowMarginin}>
+            <Row className={styles.rowMargin}>
               <Col span={labelCol}>名称：</Col>
-              <Col span={8}> <Input onChange={this.onChangeEdit} data-type="name" ></Input></Col>
+              <Col span={wrapperCol} className={styles.colFlex}> 
+                <div >
+                  <Input onChange={this.onChangeEdit} data-type="name" value={this.props.projectInfo?.name}></Input>
+                </div>
+                <div style={{marginLeft:10}}>
+                  <span> 客户：</span>
+                  <Select
+                      style={{ width: 100 }}
+                      onChange={this.onCustomerSelectChange}
+                    >
+                      {
+                        this.props.customerList?.map( item => {
+                          return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                        })
+                      }
+                    </Select>
+                </div>
+              </Col>
             </Row>
 
             <Row className={styles.rowMargin}>
@@ -462,7 +509,7 @@ class ProjectEdit extends React.Component<Props, States> {
                     option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }>
                   {
-                    this.props.customerList?.map( item => {
+                    this.props.memberList?.map( item => {
                       return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
                     })
                   }
@@ -491,10 +538,11 @@ class ProjectEdit extends React.Component<Props, States> {
   }
 }
 
-export default connect( ( { customer, template, project }: ConnectState) => {
+export default connect( ( {customer, template, project }: ConnectState) => {
   return {
-    projectInfo: project.projectInfo,
     customerList: customer.customerList,
+    projectInfo: project.projectInfo,
+    memberList: project.memberList,
     templateList: template.templateList,
     templateInfo: template.templateInfo
   }

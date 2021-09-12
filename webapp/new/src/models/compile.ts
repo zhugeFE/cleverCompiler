@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 15:40:34
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 10:55:08
+ * @LastEditTime: 2021-09-13 00:49:20
  */
 
 import { Effect } from "@/.umi/plugin-dva/connect"
@@ -62,7 +62,7 @@ const CompileModel: CompileModelType = {
       const res = yield call(compileService.compileList)
       if (res.status === -1)return
       yield put({
-        type: "setList",
+        type: "setCompileList",
         payload: res.data
       })
     },

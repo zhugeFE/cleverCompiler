@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-04 17:38:58
+ * @LastEditTime: 2021-09-13 00:31:16
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -33,6 +33,7 @@ export interface ProjectInfo {
   createTime: Date; //创建时间
   gitList: TemplateVersionGit[] // git
   shareNumber: string[]; //分享成员
+  customer: string; //客户id
   globalConfigList: ProjectConfig[];//全局配置
 }
 
@@ -60,6 +61,7 @@ export interface CreateProjectParams {
   gitList: TemplateVersionGit[];
   shareNumber: string[];
   description: string; //描述
+  customer: string;
 }
 
 
