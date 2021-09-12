@@ -5,8 +5,8 @@ import { TemplateGlobalConfig, TemplateVersionGit } from "./template";
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 17:14:31
- * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-02 19:10:13
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-09-09 08:59:23
  */
 export interface ProjectInstance {
   id: string; //项目id
@@ -16,20 +16,14 @@ export interface ProjectInstance {
   lastCompileTime: string; //上次编译时间
   lastCompileResult: number; // 上次编译结果
   lastCompileUser: string; //上次编译人
-  createTime: Date; //创建时间
+  createTime: Date; //创建时间,
+  customer: string;
 }
 
-export interface ProjectInfo {
-  id: string; //项目id
-  name: string; //项目名称
-  description: string; //描述
-  templateId: string; // 项目来源模板id
-  templateVersion: string; //项目来源模板版本id
-  compileType: number; //编译类型 0私有部署 1常规迭代 2发布测试
-  createTime: Date; //创建时间
+export interface ProjectInfo extends ProjectType{
   shareNumber: string[]; //分享成员
   gitList: TemplateVersionGit[];
-  globalConfigList: ProjectConfig[];//全局配置
+  globalConfigList: ProjectGlobalConfig[];//全局配置
 }
 
 
@@ -41,7 +35,8 @@ export interface ProjectType {
   compileType: number; //编译类型 0私有部署 1常规迭代 2发布测试
   publishType: number; //发布方式 0发布到git 1下载  2自动
   description: string; //项目描述
-  createTime: Date; //创建时间
+  createTime: Date; //创建时间,
+  customer: string; //客户id
 }
 
 
@@ -56,6 +51,7 @@ export interface CreateProjectParams {
   gitList: TemplateVersionGit[];
   shareNumber: string[];
   description: string; //描述
+  customer: string; //客户id
 }
 
 
@@ -65,12 +61,17 @@ export interface CreateConfigParams {
   value: string; //默认值
 }
 
-export interface ProjectConfig {
+export interface ProjectGlobalConfig {
   id: string; //项目配置id
   configId: string; //模板版本配置id
   projectId: string; //项目id
-  value: string; //默认值
+  value: string; //默认值,
 }
+
+export interface ProjectConfig extends ProjectGlobalConfig {
+  globalConfigId: string; //全局配置id
+}
+
 
 export interface ProjectShare {
   id: string; //项目分享id

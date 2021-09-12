@@ -18,7 +18,6 @@
     "@types/js-beautify": "^1.11.0",
     "@types/lodash": "^4.14.149",
     "@types/mysql": "^2.15.8",
-    "@types/socket.io": "^4.2.0",
     "@types/uuid": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
@@ -36,6 +35,7 @@
     "uuid": "^7.0.1"
   },
   "dependencies": {
-    "socket.io": "^4.2.0"
+    "@types/socket.io": "^3.0.2",
+    "socket.io": "3.0.2"
   }
 }
