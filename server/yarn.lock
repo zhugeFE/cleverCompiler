@@ -173,6 +173,13 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
+"@types/socket.io@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.nlark.com/@types/socket.io/download/@types/socket.io-3.0.2.tgz#606c9639e3f93bb8454cba8f5f0a283d47917759"
+  integrity sha1-YGyWOeP5O7hFTLqPXwooPUeRd1k=
+  dependencies:
+    socket.io "*"
+
 "@types/uuid@^7.0.0":
   version "7.0.0"
   resolved "https://registry.npm.taobao.org/@types/uuid/download/@types/uuid-7.0.0.tgz#9f6993ccc8210efa90bda7e1afabbb06a9f860cd"
@@ -1531,7 +1538,7 @@ socket.io-parser@~4.0.4:
     component-emitter "~1.3.0"
     debug "~4.3.1"
 
-socket.io@^4.2.0:
+socket.io@*, socket.io@^4.2.0:
   version "4.2.0"
   resolved "https://registry.nlark.com/socket.io/download/socket.io-4.2.0.tgz?cache=0&sync_timestamp=1630308313729&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fsocket.io%2Fdownload%2Fsocket.io-4.2.0.tgz#9e1c09d3ea647e24963a2e7ba8ea5c847778e2ed"
   integrity sha1-nhwJ0+pkfiSWOi57qOpchHd44u0=

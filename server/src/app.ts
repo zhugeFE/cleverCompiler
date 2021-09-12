@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-01 22:41:02
+ * @LastEditTime: 2021-09-03 17:37:51
  */
 import * as express from 'express'
 import config from './config'
@@ -49,5 +49,5 @@ app.listen(config.port, () => {
 io.on('connect', (socket) => {
   logger.info("socket 连接成功")
   logger.info(socket.data)
-  Compile.start(socket)
+  // Compile.start(socket)
 })

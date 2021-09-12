@@ -1,5 +1,5 @@
 Arguments: 
-  D:\Software\nodejs\node.exe D:\Software\nodejs\node_global\node_modules\yarn\bin\yarn.js add @type/socket.io
+  D:\Software\nodejs\node.exe D:\Software\nodejs\node_global\node_modules\yarn\bin\yarn.js add @types/socket-io -D
 
 PATH: 
   C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;D:\Software\MinGW\bin;D:\Software\Git\cmd;D:\Software\Java\jdk13\bin;D:\Important\mysql-8.0.20-winx64\bin;D:\Software\nodejs\;D:\Software\nodejs\node_modules;D:\Software\nodejs\node_global;D:\Software\nodejs\node_global\bin;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files (x86)\GtkSharp\2.12\bin;D:\Software\FormatFactory\;D:\Software\python\Scripts\;D:\Software\python\;C:\Users\XT\AppData\Local\Microsoft\WindowsApps;D:\Software\Microsoft VS Code\bin;D:\Software\PyCharm 2020.1\bin;;C:\Users\XT\AppData\Roaming\npm;D:\Software\nodejs\node_global;D:\Software\IntelliJ IDEA Community Edition 2020.2.2\bin;;D:\Software\JetBrains Rider\bin;;D:\Software\MinGW\bin;
@@ -14,7 +14,7 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: https://registry.npm.taobao.org/@type%2fsocket.io: Not found
+  Error: https://registry.npm.taobao.org/@types%2fsocket-io: Not found
       at Request.params.callback [as _callback] (D:\Software\nodejs\node_global\node_modules\yarn\lib\cli.js:66992:18)
       at Request.self.callback (D:\Software\nodejs\node_global\node_modules\yarn\lib\cli.js:140763:22)
       at Request.emit (events.js:315:20)

@@ -4,12 +4,19 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:13:39
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-30 14:57:40
+ * @LastEditTime: 2021-09-03 23:16:41
  */
 import projectDao from "../dao/project";
 import { CreateProjectParams, ProjectType, ProjectInfo, ProjectInstance } from "../types/project";
+import { Member } from "../types/user";
+import userDao from "../dao/user";
 
 class Project {
+
+  //获取分享成员
+  async getMemberList (): Promise<Member[]> {
+    return await userDao.getMemberList()
+  }
 
   //项目列表
   async projectList(): Promise<ProjectInstance[]>{

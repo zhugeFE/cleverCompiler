@@ -1,4 +1,13 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-08-03 16:47:43
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-09-04 09:34:10
+ */
 import * as fs from 'fs'
+import { reject } from 'lodash';
 import * as pt from 'path'
 import { DirNode } from '../types/common';
 
@@ -6,7 +15,7 @@ class FsUtil {
   async mkdir (path: string): Promise<void> {
     const pathExist = await this.pathExist(path)
     if (!pathExist) {
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         fs.mkdir(path, err => {
           if (err) {
             reject(err)
@@ -17,6 +26,7 @@ class FsUtil {
       })
     }
   }
+
   pathExist (path: string): Promise<boolean> {
     return new Promise((resolve) => {
       fs.stat(path, (err) => {
