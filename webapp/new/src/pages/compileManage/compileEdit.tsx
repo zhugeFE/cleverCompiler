@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-04 19:17:24
+ * @LastEditTime: 2021-09-12 23:34:12
  */
 import { ConnectState } from '@/models/connect'
 import { LeftOutlined } from '@ant-design/icons'
@@ -14,6 +14,9 @@ import TextArea from 'antd/lib/input/TextArea'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect, Dispatch, IRouteComponentProps, ProjectInfo, ProjectInstance } from 'umi'
+import SocketIO from "socket.io-client"
+
+const socket = SocketIO('http://localhost:5000')
 
 interface Props extends IRouteComponentProps{
   projectInfo: ProjectInfo | null ;
@@ -42,7 +45,7 @@ class CompileEdit extends React.Component<Props, States> {
     this.onClickCompile = this.onClickCompile.bind(this)
     this.TextAreaChange = this.TextAreaChange.bind(this)
   }
-
+  
   componentDidMount () {
     this.props.dispatch({
       type: "project/getProjectList"

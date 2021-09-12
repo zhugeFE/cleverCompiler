@@ -1,6 +1,6 @@
 /*
  * @Descripttion: 
- * @version: 给i他
+ * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:38
  * @LastEditors: Adxiong
@@ -150,11 +150,7 @@ class ProjectEdit extends React.Component<Props, States> {
   onTemplateVersionSelectChange(value: string) {
 
     if( this.props.templateInfo){
-      const current = this.props.templateInfo.versionList.filter( item => {
-        if( item.id === value){
-          return item
-        }
-      })[0]
+      const current = this.props.templateInfo.versionList.filter( item =>item.id === value)[0]
 
       this.setState({
         templateVersionId: value,
