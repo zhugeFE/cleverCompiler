@@ -3,8 +3,8 @@
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
- * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-10 17:45:18
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-09-11 16:46:03
  */
 import { Version } from './common';
 
@@ -79,5 +79,16 @@ export interface GitVersion extends Version{
   sourceValue: string; // 版本来源值
   description: string; // 版本描述
   configs: GitConfig[];
-  compileOrders: string[]; // 编译命令组
+  compileOrders: string; // 编译命令组
+}
+
+
+export interface CompileParams {
+  readmeDoc: string;
+  buildDoc: string;
+  updateDoc: string;
+  compileOrders: string[];
+  gitType: string;
+  gitValue: string;
+  gitSsh: string;
 }

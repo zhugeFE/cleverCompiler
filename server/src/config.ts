@@ -28,10 +28,10 @@ interface ServerConfig{
 let config: ServerConfig = {
   port: 3000,
   database: {
-    host: '127.0.0.1',
+    host: '10.84.193.141',
     port: 3306,
     user: 'root',
-    password: 'Dong_1013501639',
+    password: '123456',
     database: 'clever_compile',
     connectionLimit: 20
   },

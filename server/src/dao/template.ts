@@ -3,8 +3,8 @@
  * @version:
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
- * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-02 19:41:21
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-09-09 08:33:41
  */
 /**
  * 模板
@@ -422,6 +422,7 @@ class TemplateDao {
          sc.id = tc.git_source_config_id
        where tc.template_version_git_id = ?`
     return await pool.query<ConfigInstance>(sql, [versionGitId])
+    
   }
 
   async getConfigsByVersionGitId(id: string): Promise<TemplateConfig[]> {

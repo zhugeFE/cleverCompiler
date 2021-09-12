@@ -36,6 +36,7 @@
     "uuid": "^7.0.1"
   },
   "dependencies": {
-    "socket.io": "^4.2.0"
+    "@types/socket.io": "^3.0.2",
+    "socket.io": "3.0.2"
   }
 }

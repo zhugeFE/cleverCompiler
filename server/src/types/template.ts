@@ -5,8 +5,8 @@ import { Version } from "./common";
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
- * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-01 09:33:29
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-09-09 09:20:12
  */
 
 export interface TemplateInstance {
@@ -77,6 +77,7 @@ export interface ConfigInstance {
   reg: string; // 正则表达式
   filePath: string; // 原始文件路径
   sourceValue: string;
+  realValue: string; //真实被替换的值
 }
 
 export interface GitConfig {
