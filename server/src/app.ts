@@ -5,7 +5,7 @@ import { CompileConfig } from './types/compile';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-12 23:19:50
+ * @LastEditTime: 2021-09-13 00:11:47
  */
 
 import * as express from 'express'
@@ -65,9 +65,10 @@ io.on('connect', socket => {
      * 3. 查询出git 仓库地址  版本值  
      * 4. 线程锁/顺序 调用start
      */
+    logger.info(ctx)
 
     const compileInfo: ProjectInfo = await ProjectService.projectInfo(ctx.projectId)
-    compileInfo.gitList =  compileInfo.gitList.filter(item => ctx.GitIds.includes(item.id))
+    compileInfo.gitList =  compileInfo.gitList.filter(item => ctx.gitIds.includes(item.id))
 
     const CompileList: CompileConfig[] = []
     await Promise.all(compileInfo.gitList.map(async item => {
