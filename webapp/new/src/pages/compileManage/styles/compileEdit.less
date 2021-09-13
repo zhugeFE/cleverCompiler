@@ -1,0 +1,22 @@
+.tabsForm {
+  :global(.ant-tabs) {
+    border: 1px solid rgba(0, 0, 0, .1);
+
+    background-color: white;
+    :global(.ant-tabs-nav){
+      width: 150px;
+      :global(.ant-tabs-tab-btn){
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+    :global(.ant-tabs-content-holder){
+      :global(.ant-tabs-tabpane){
+        div{
+          padding-top: 10px;
+        }
+      }
+    }
+  }
+}

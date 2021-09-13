@@ -4,17 +4,19 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-13 00:11:24
+ * @LastEditTime: 2021-09-13 21:44:57
  */
 import { ConnectState } from '@/models/connect'
 import { LeftOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Form, message, Radio, Select } from 'antd'
+import { Button, Checkbox, Form, message, Radio, Select, Tabs } from 'antd'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import TextArea from 'antd/lib/input/TextArea'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect, CurrentUser, Dispatch, IRouteComponentProps, ProjectInfo, ProjectInstance } from 'umi'
 import SocketIO from "socket.io-client"
+import styles from "./styles/compileEdit.less"
+import util from '@/utils/utils'
 
 const socket = SocketIO('http://localhost:3000/', {transports:["websocket"]})
 
@@ -29,6 +31,7 @@ interface States {
   projectId: string;
   compileGit: string[];
   description: string;
+  GitMap: {}
 }
 
 class CompileEdit extends React.Component<Props, States> {
@@ -39,6 +42,7 @@ class CompileEdit extends React.Component<Props, States> {
       projectId: "",
       compileGit: [],
       description: "",
+      GitMap: {},
     }
     this.onRadioChange = this.onRadioChange.bind(this)
     this.selectProject = this.selectProject.bind(this)
@@ -98,7 +102,6 @@ class CompileEdit extends React.Component<Props, States> {
     this.props.projectInfo?.gitList.map( item => {
       GitMap[item.name] = item.id
     })
-
     const data = {
       userId: this.props.currentUser?.id,
       projectId,
@@ -192,6 +195,22 @@ class CompileEdit extends React.Component<Props, States> {
 
                 <Form.Item label="描述">
                   <TextArea rows={6} onChange={this.TextAreaChange}></TextArea>
+                </Form.Item>
+
+                <Form.Item label="编译结果" className={styles.tabsForm}>
+                  <Tabs tabPosition="left">
+                    {
+                      this.state.compileGit.map( item => {
+                        return (
+                          <Tabs.TabPane tab={item} key={item}>
+                            <div className={styles.tabpane_content}>
+                              content1 {item}
+                            </div>
+                          </Tabs.TabPane>
+                        )
+                      })
+                    }
+                  </Tabs>
                 </Form.Item>
                 <Button type="primary" onClick={this.onClickCompile}>编译</Button>
               </>
