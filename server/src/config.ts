@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-03 17:35:29
+ * @LastEditTime: 2021-09-13 11:56:28
  */
 import * as path from 'path'
 import * as fs from 'fs'
@@ -28,7 +28,7 @@ interface ServerConfig{
 let config: ServerConfig = {
   port: 3000,
   database: {
-    host: '10.84.193.141',
+    host: '192.168.133.141',
     port: 3306,
     user: 'root',
     password: '123456',

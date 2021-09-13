@@ -46,25 +46,29 @@ class WorkFlow {
     await DashUtil.exec(`git reset --hard FETCH_HEAD`, {cwd: srcRepoDir}).catch( err => {
       logger.info(err)
     })
-
+    let currentRemoteBranchName: string
+    await DashUtil.exec(`git branch -r`, {cwd: srcRepoDir} , (data: string) =>{
+       currentRemoteBranchName = data.split('/')[3] 
+    })
     //删除没有git add的文件和目录
     await DashUtil.exec(`git clean -df`, {cwd: srcRepoDir})
-    await DashUtil.exec(`git checkout main`, {cwd: srcRepoDir})
+    await DashUtil.exec(`git checkout ${currentRemoteBranchName}`, {cwd: srcRepoDir})
     await DashUtil.exec(`git fetch`, {cwd: srcRepoDir})
     await DashUtil.exec(`git reset --hard FETCH_HEAD`, {cwd: srcRepoDir})
 
     //删除非main以外的其它分支
-    await DashUtil.exec(`git branch | grep -v "^[*| ]*main$" | xargs git branch -D`).catch( err => {
+    await DashUtil.exec(`git branch | grep -v "^[*| ]*${currentRemoteBranchName}$" | xargs git branch -D`).catch( err => {
       logger.info(err)
     })
 
     await DashUtil.exec(`git pull`, {cwd: srcRepoDir})
 
-    if (sourceValue !== 'main') {
-      let cmdStr = `git checkout ${sourceValue}`
+    if (sourceValue !== currentRemoteBranchName) {
+      let cmdStr = `git checkout `
       
       switch (sourceType) {
         case "branch": {
+          cmdStr += sourceValue
           break
         }
         case "tag": {
@@ -72,6 +76,7 @@ class WorkFlow {
           break;
         }
         case "commit": {
+          cmdStr += sourceValue
           break;
         }
       }
@@ -111,7 +116,7 @@ class WorkFlow {
     let fileDir = ''
     const srcRepoDir = path.join(workDir, gitName)
     logger.info (`Step: 开始执行定制文件修改动作`)
-    for (const item of JSON.parse(configList)){
+    for (const item of configList){
       fileDir = path.join(srcRepoDir, item.filePath)
       logger.info(`Step: 开始定制修改文件 =》 ${item.filePath}`)
 
