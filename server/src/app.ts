@@ -5,7 +5,7 @@ import { CompileConfig } from './types/compile';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-13 00:11:47
+ * @LastEditTime: 2021-09-14 11:02:45
  */
 
 import * as express from 'express'
@@ -47,7 +47,7 @@ app.use(bodyParser.json())
 app.use('/api', api)
 app.use(errorHandle)
 app.use(notFound)
-
+app.use(express.static(__dirname + '/www'))
 
 server.listen(config.port, () => {
   logger.info(`listen on port ${config.port};\nclick http://localhost:${config.port} to visit server;`)
@@ -65,7 +65,6 @@ io.on('connect', socket => {
      * 3. 查询出git 仓库地址  版本值  
      * 4. 线程锁/顺序 调用start
      */
-    logger.info(ctx)
 
     const compileInfo: ProjectInfo = await ProjectService.projectInfo(ctx.projectId)
     compileInfo.gitList =  compileInfo.gitList.filter(item => ctx.gitIds.includes(item.id))
@@ -84,7 +83,6 @@ io.on('connect', socket => {
       } )
 
     }))
-    logger.info(CompileList)
     const compileInstance: ProjectCompile = await CompileDao.addProjectCompile({
       compileUser: ctx.userId, //编译者id
       compileResult: "开始编译", //编译结果

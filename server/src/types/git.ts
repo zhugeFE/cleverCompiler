@@ -3,8 +3,8 @@
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-11 16:46:03
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-09-14 09:29:43
  */
 import { Version } from './common';
 
@@ -87,7 +87,7 @@ export interface CompileParams {
   readmeDoc: string;
   buildDoc: string;
   updateDoc: string;
-  compileOrders: string[];
+  compileOrders: string;
   gitType: string;
   gitValue: string;
   gitSsh: string;

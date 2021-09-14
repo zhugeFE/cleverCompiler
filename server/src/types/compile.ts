@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:55:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-12 16:36:37
+ * @LastEditTime: 2021-09-14 09:26:52
  */
 
 import { ConfigInstance } from "./template";
@@ -32,7 +32,7 @@ export interface CompileConfig {
   gitSsh: string; //仓库地址
   gitValue: string; //来源值
   gitType: string; //来源类型
-  compileOrders: string[]; //编译命令
+  compileOrders: string; //编译命令
   configList: ConfigInstance[]; //配置
   compileType: number ; //编译类型
   templateId: string;
