@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-13 21:44:57
+ * @LastEditTime: 2021-09-14 11:21:04
  */
 import { ConnectState } from '@/models/connect'
 import { LeftOutlined } from '@ant-design/icons'
@@ -52,7 +52,7 @@ class CompileEdit extends React.Component<Props, States> {
   }
   
   initSocket () {
-    socket.on("message", (data) => {
+    socket.on("compileMessage", (data) => {
       console.log(data)
     })
   }
