@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:18:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-25 18:28:02
+ * @LastEditTime: 2021-09-15 11:10:07
  */
 
 import pool from './pool'
@@ -54,14 +54,23 @@ class Compile {
   //查询全部编译记录
   async getProjectCompile (): Promise<ProjectCompile[]>{
     const sql = `SELECT
-      id,
-      compile_time,
-      compile_user,
-      compile.compile_result,
-      project_id,
-      description 
+      c.id as id,
+      c.compile_time as compile_time,
+      c.compile_user as compile_user, 
+      c.compile_result as compile_result,
+      c.project_id as project_id,
+      c.description as description ,
+      p.name as projectName,
+      p.description as projectDesc,
+      cus.name as cusName
     FROM
-      compile 
+      compile as c
+    LEFT JOIN project as p
+    ON c.project_id = p.id
+    LEFT JOIN customer as cus
+    ON p.customer = cus.id
+    ORDER BY
+      compile_time DESC
     `
     return await pool.query<ProjectCompile>(sql)
   }

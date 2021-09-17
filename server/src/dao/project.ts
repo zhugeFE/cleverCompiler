@@ -286,6 +286,7 @@ class Project {
   async deletShareProjectByProjectId (projectId: string): Promise<void> {
     const sql = `DELETE FROM project_share WHERE project_id = ?`
     await pool.query(sql, [projectId])
+    
   }
 
 
