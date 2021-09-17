@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:36:14
+ * @LastEditTime: 2021-09-14 23:43:27
  */
 import { Customer } from '@/models/customer';
 import { Button, Table } from 'antd';
@@ -150,7 +150,7 @@ class CustomerList extends React.Component<Props, States> {
             columns={columns}
             dataSource={this.props.customerList ? this.props.customerList : []}
             pagination={{
-              pageSize: 5,
+              pageSize: 10,
               showTotal(totle: number) {
                 return `总记录数${totle}`;
               },

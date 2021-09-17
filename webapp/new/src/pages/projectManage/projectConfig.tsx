@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-30 10:00:33
+ * @LastEditTime: 2021-09-15 14:23:34
  */
 
 import { ConfigInstance, TemplateConfig, TemplateVersionGit } from "@/models/template";
@@ -12,7 +12,8 @@ import { Table, Tabs } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
-import projectConfigEdit from './projectConfigEdit';
+import ProjectConfigEdit from './projectConfigEdit';
+import styles from './styles/projectConfig.less';
 
 interface Props {
   gitList: TemplateVersionGit[];
@@ -21,7 +22,6 @@ interface Props {
 }
 
 interface States {
-  showEditConfig: boolean;
   currentConfig: ConfigInstance | null
 }
 
@@ -29,16 +29,17 @@ class ProjectConfig extends React.Component <Props, States> {
   constructor(prop: Props){
     super(prop)
     this.state = {
-      showEditConfig: false,
       currentConfig: null
     }
-    this.onHideEditConfig = this.onHideEditConfig.bind(this)
+    this.onCancelEditConfig = this.onCancelEditConfig.bind(this)
     this.onChange = this.onChange.bind(this)
     this.onClickConfig = this.onClickConfig.bind(this)
   }
 
-  onHideEditConfig () {
-
+  onCancelEditConfig () {
+    this.setState({
+      currentConfig: null
+    })
   }
 
   onChange(activeKey: string) {
@@ -50,7 +51,6 @@ class ProjectConfig extends React.Component <Props, States> {
     switch (type) {
       case "edit": {
         this.setState({
-          showEditConfig: true,
           currentConfig: config
         })
         return 
@@ -113,24 +113,24 @@ class ProjectConfig extends React.Component <Props, States> {
     const { gitList } = this.props
     return (
       <div>
-        {/* {
-          this.state.showEditConfig && this.state.currentConfig && (
-            <projectConfigEdit
+        {
+          this.state.currentConfig && (
+            <ProjectConfigEdit
               config={this.state.currentConfig}
-              onCancel={this.onHideEditConfig}
-            ></projectConfigEdit>
+              onCancel={this.onCancelEditConfig}
+            ></ProjectConfigEdit>
           )
-        } */}
+        }
         { !gitList || !gitList.length ? (
-          <Tabs type="editable-card" 
-          // className={styles.cardBg} 
+          <Tabs type="card" 
+          className={styles.cardBg} 
           >
             <Tabs.TabPane tab="引导页">引导页面</Tabs.TabPane>
           </Tabs>
         ) : (
           <Tabs
-            type="editable-card"
-            // className={styles.cardBg}
+            type="card"
+            className={styles.cardBg}
             onChange={this.onChange}
             activeKey={this.props.activeKey}>
             {gitList.map((item, index) => {

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-27 18:18:29
+ * @LastEditTime: 2021-09-15 14:11:05
  */
 import { TemplateGlobalConfig } from "@/models/template";
 import { ColumnProps  } from "antd/lib/table";
@@ -21,20 +21,22 @@ export interface Props {
 }
 
 interface States {
-  currentGlobalConfig: TemplateGlobalConfig | null
+  currentGlobalConfig: TemplateGlobalConfig | null;
 }
 
 class ProjectGlobalConfig  extends React.Component<Props, States> {
     constructor(prop: Props){
       super(prop)
       this.state = {
-        currentGlobalConfig: null
+        currentGlobalConfig: null,
       }
-      this.onCancelTextConfig = this.onCancelTextConfig.bind(this)
+      this.onCancelConfig = this.onCancelConfig.bind(this)
     }
 
-    onCancelTextConfig() {
-
+    onCancelConfig() {
+      this.setState({
+        currentGlobalConfig: null
+      })
     }
 
     onEdit(config: TemplateGlobalConfig , type: string){
@@ -77,7 +79,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
             this.state.currentGlobalConfig &&(
               <ProjectGlobalConfigEdit
                 globalConfig={this.state.currentGlobalConfig}
-                onCancel={this.onCancelTextConfig}
+                onCancel={this.onCancelConfig}
               ></ProjectGlobalConfigEdit>
             )
           }

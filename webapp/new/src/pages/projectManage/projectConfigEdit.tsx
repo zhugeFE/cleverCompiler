@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:57:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-27 17:15:41
+ * @LastEditTime: 2021-09-15 14:43:29
  */
-import { ConfigInstance } from "@/models/template";
+import { ConfigInstance, UpdateConfigParam } from "@/models/template";
 import util from "@/utils/utils";
 import { Form, Input, Modal } from "antd";
 import { connect } from "dva";
@@ -49,18 +49,17 @@ class ProjectConfigEdit extends React.Component <Props, States> {
 
   onCommit() {
     const data = util.clone(this.props.config)
-      // this.props.dispatch({
-      //   type: 'template/updateConfig',
-      //   payload: {
-      //     id: data.id,
-      //     defaultValue: this.state.form.value,
-      //     isHidden: data.isHidden,
-      //     globalConfigId: data.globalConfigId,
-      //   } as UpdateConfigParam,
-      //   callback: () => {
-      //     this.props.onCancel()
-      //   }
-      // });
+      this.props.dispatch({
+        type: 'template/updateConfig',
+        payload: {
+          id: data.id,
+          defaultValue: this.state.form.value,
+          globalConfigId: data.globalConfigId,
+        } as UpdateConfigParam,
+        callback: () => {
+          this.props.onCancel()
+        }
+      });
   }
 
   onChangeForm(chanedValue: any, values: FormData) {

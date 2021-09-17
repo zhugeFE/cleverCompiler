@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-14 11:21:04
+ * @LastEditTime: 2021-09-15 16:17:29
  */
 import { ConnectState } from '@/models/connect'
 import { LeftOutlined } from '@ant-design/icons'
@@ -20,7 +20,9 @@ import util from '@/utils/utils'
 
 const socket = SocketIO('http://localhost:3000/', {transports:["websocket"]})
 
-interface Props extends IRouteComponentProps{
+interface Props extends IRouteComponentProps<{
+  id: string;
+}>{
   projectInfo: ProjectInfo | null ;
   projectList: ProjectInstance[] | null;
   currentUser: CurrentUser | null;
@@ -31,7 +33,8 @@ interface States {
   projectId: string;
   compileGit: string[];
   description: string;
-  GitMap: {}
+  GitMap: {};
+  compileLog: {};
 }
 
 class CompileEdit extends React.Component<Props, States> {
@@ -43,6 +46,7 @@ class CompileEdit extends React.Component<Props, States> {
       compileGit: [],
       description: "",
       GitMap: {},
+      compileLog: {},
     }
     this.onRadioChange = this.onRadioChange.bind(this)
     this.selectProject = this.selectProject.bind(this)
@@ -52,12 +56,21 @@ class CompileEdit extends React.Component<Props, States> {
   }
   
   initSocket () {
+    const compileLog =  util.clone(this.state.compileLog)
     socket.on("compileMessage", (data) => {
-      console.log(data)
+      if (!compileLog[data.gitName]) {
+        compileLog[data.gitName] = []
+      }
+      compileLog[data.gitName].push({message: data.message.toString()})
+      this.setState({
+        compileLog
+      })
     })
   }
 
   componentDidMount () {
+    const id: string = this.props.location.query.id as string
+
     this.initSocket()
     if( !this.props.currentUser) {
       this.props.dispatch({
@@ -67,6 +80,7 @@ class CompileEdit extends React.Component<Props, States> {
     this.props.dispatch({
       type: "project/getProjectList"
     })
+    
   }
 
   onRadioChange (e: any) {
@@ -94,9 +108,15 @@ class CompileEdit extends React.Component<Props, States> {
   onClickCompile () {
     const {compileGit, description, projectId, publicType} = this.state
     
-    !compileGit.length && message.warning("未选择编译git")
+    if (!compileGit.length) {
+      message.warning("未选择编译git")
+      return
+    }
 
-    !(description && projectId ) && message.warning("信息描述不完整")
+    if (!description || !projectId) {
+      message.warning("信息描述不完整")
+      return
+    }
 
     const GitMap = {}
     this.props.projectInfo?.gitList.map( item => {
@@ -164,7 +184,7 @@ class CompileEdit extends React.Component<Props, States> {
           <Form.Item 
             label="配置名称"
           >
-             <Select onChange={this.selectProject}>
+             <Select onChange={this.selectProject}> 
                 {
                   this.props.projectList?.map( item => {
                     return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
@@ -204,7 +224,11 @@ class CompileEdit extends React.Component<Props, States> {
                         return (
                           <Tabs.TabPane tab={item} key={item}>
                             <div className={styles.tabpane_content}>
-                              content1 {item}
+                              {
+                                this.state.compileLog[item] ?
+                                this.state.compileLog[item].map((item: { message: string}, index: number) => <p key={index}>{item.message}</p>)
+                                : `content ${item}`
+                              }
                             </div>
                           </Tabs.TabPane>
                         )

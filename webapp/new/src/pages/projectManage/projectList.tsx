@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-02 23:18:47
+ * @LastEditTime: 2021-09-15 22:48:14
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -32,6 +32,7 @@ class ProjectList extends React.Component<Props, States> {
     this.state = {
     }
     this.onClickAddProject = this.onClickAddProject.bind(this)
+    this.navigationToEdit = this.navigationToEdit.bind(this)
   }
 
   componentDidMount () {
@@ -48,12 +49,15 @@ class ProjectList extends React.Component<Props, States> {
     this.props.history.push("/compile/project/edit/addProject?mode=add")
   }
 
+  navigationToEdit (id:string) {
+    this.props.history.push(`/compile/edit?id=${id}`)
+  }
   //项目编辑
   onClickEdit(data: ProjectInstance, type: string){
     switch (type) {
       case "edit": {
         // console.log(data)
-        
+        this.navigationToEdit(data.id)
         break
       }
       case "info": {
@@ -91,7 +95,7 @@ class ProjectList extends React.Component<Props, States> {
         dataIndex: 'lastCompileTime',
         width: 150,
         render(text: string, record: ProjectInstance) {
-          return <div> {text || '-' || record.lastCompileTime} </div>;
+          return <div> { util.dateTimeFormat(new Date(text)) || '-'} </div>;
         },
       },
       {
@@ -105,7 +109,7 @@ class ProjectList extends React.Component<Props, States> {
       {
         title: '上次编译人',
         width: 150,
-        dataIndex: 'lastCompileUser',
+        dataIndex: 'compileUser',
         render(text: string, record: ProjectInstance) {
           return <div> {text || '-' || record.lastCompileUser} </div>;
         },
@@ -133,9 +137,6 @@ class ProjectList extends React.Component<Props, States> {
               <a style={{marginLeft: "5px"}}  onClick={this.onClickEdit.bind(this, record, "info")}>
                 详情
               </a>
-              <a href="">
-                操作记录
-              </a>
             </div>
           );
         },
@@ -151,7 +152,7 @@ class ProjectList extends React.Component<Props, States> {
           columns={columns}
           dataSource={this.props.projectList ? this.props.projectList : []}
           pagination={{
-            pageSize: 5,
+            pageSize: 10,
             showTotal(totle: number) {
               return `总记录数${totle}`;
             },

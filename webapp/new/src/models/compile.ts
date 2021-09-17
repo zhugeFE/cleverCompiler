@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 15:40:34
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-13 00:49:20
+ * @LastEditTime: 2021-09-15 11:10:37
  */
 
 import { Effect } from "@/.umi/plugin-dva/connect"
@@ -19,6 +19,9 @@ export interface ProjectCompile {
   compileResult: string; //编译结果
   projectId: string; //项目id
   description: string; //编译描述
+  projectName: string; //项目名称
+  projectDesc: string; //项目描述
+  cusName: string; // 客户名称
 }
 
 export interface CompileParam {
@@ -58,13 +61,14 @@ const CompileModel: CompileModelType = {
     compileInfo: null 
   },
   effects: {
-    *getCompileList (_ , {put , call}){
+    *getCompileList ( { _, callback} , {put , call}){
       const res = yield call(compileService.compileList)
       if (res.status === -1)return
       yield put({
         type: "setCompileList",
         payload: res.data
       })
+      if (callback) callback()
     },
     *addCompile ({payload, callback}, {call}) {
       const res = yield call(compileService.addCompile, payload)

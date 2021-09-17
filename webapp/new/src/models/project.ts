@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-13 00:31:16
+ * @LastEditTime: 2021-09-15 16:11:13
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -147,15 +147,14 @@ const ProjectModel: ProjectModelType = {
         payload: res.data
       })
     },
-    *getProjectInfo ({payload}, {put , call}) {
+    *getProjectInfo ({payload, callback}, {put , call}) {
       const res = yield call(projectService.projectInfo, payload as string)
       if (res.status === -1) return
-      // res.data.currentVersion = res.data.versionList[0] || {}
-      // console.log(res.data)
       yield put({
         type: "setProjectInfo",
         payload: res.data
       })
+      if (callback) callback(res.data)
     },
     *addProject ({payload, callback}, {call}) {
       const res = yield call(projectService.addProject, payload)

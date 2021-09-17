@@ -82,7 +82,30 @@ class ProjectEdit extends React.Component<Props, States> {
       })
       this.props.dispatch({
         type: "project/getProjectInfo",
-        payload: id
+        payload: id,
+        callback: (data) => {
+          this.props.dispatch({
+            type: "template/getInfo",
+            payload: data.templateId,
+            callback: ()=>{
+              const {projectInfo, templateInfo} = this.props
+    
+              const templateVersionId = projectInfo ? projectInfo.templateVersion : " "
+              const currentTemplateVersionInfo = templateInfo ? templateInfo.versionList.filter(
+                item => item.id === projectInfo?.templateVersion
+              )[0] : null
+    
+              const activeKey = (currentTemplateVersionInfo && currentTemplateVersionInfo.gitList.length > 0) ? currentTemplateVersionInfo.gitList[0].id : "0"
+              this.setState({
+                  templateVersionId ,
+                  currentTemplateVersionInfo,
+                  activeKey,
+                  showLoading: false
+                })
+              }
+            }
+          )
+        }
       })
     }
     await this.props.dispatch({
@@ -94,30 +117,6 @@ class ProjectEdit extends React.Component<Props, States> {
     await this.props.dispatch({
       type:"template/query"
     })
-    if( this.props.projectInfo) {
-      this.props.dispatch({
-        type: "template/getInfo",
-        payload: this.props.projectInfo.templateId,
-        callback: ()=>{
-          const {projectInfo, templateInfo} = this.props
-
-          const templateVersionId = projectInfo ? projectInfo.templateVersion : " "
-          const currentTemplateVersionInfo = templateInfo ? templateInfo.versionList.filter(
-            item => item.id === projectInfo?.templateVersion
-          )[0] : null
-
-          const activeKey = (currentTemplateVersionInfo && currentTemplateVersionInfo.gitList.length > 0) ? currentTemplateVersionInfo.gitList[0].id : "0"
-          
-          this.setState({
-              templateVersionId ,
-              currentTemplateVersionInfo,
-              activeKey,
-              showLoading: false
-            })
-          }
-        }
-      )
-    }
   }
   onCustomerSelectChange (value: string) {
     this.setState({
@@ -205,7 +204,6 @@ class ProjectEdit extends React.Component<Props, States> {
       description: this.state.description,
       customer: this.state.customer
     } as CreateProjectParams
-    console.log(data)
     this.props.dispatch({
       type:"project/addProject",
       payload: data,
@@ -251,7 +249,7 @@ class ProjectEdit extends React.Component<Props, States> {
     
     if (this.state.showLoading) {
       return (
-        <Spin className={styles.gitEditLoading} tip="项目配置详情获取中..." size="large"></Spin>
+        <Spin className={styles.loading} tip="项目配置详情获取中..." size="large"></Spin>
       )
     }
     return (
@@ -337,9 +335,9 @@ class ProjectEdit extends React.Component<Props, States> {
                   <span>发布方式：</span>
                   <Radio.Group className={styles.radio} onChange={this.onRadioChange} defaultValue={this.state.publicType}>
                     {
-                      pubilshType.map( item => 
-                        <Radio key={item.value} value={item.value}>{item.text}</Radio>
-                      )
+                      pubilshType.map( item => {
+                        return <Radio key={item.value} value={item.value}>{item.text}</Radio>
+                      })
                     }
                   </Radio.Group>
                 </div>
@@ -467,9 +465,9 @@ class ProjectEdit extends React.Component<Props, States> {
                   <span>发布方式：</span>
                   <Radio.Group className={styles.radio} onChange={this.onRadioChange} defaultValue={this.state.publicType}>
                     {
-                      pubilshType.map( item => 
-                        <Radio key={item.value} value={item.value}>{item.text}</Radio>
-                      )
+                      pubilshType.map( item => {
+                        return <Radio key={item.value} value={item.value}>{item.text}</Radio>
+                      })
                     }
                   </Radio.Group>
                 </div>
