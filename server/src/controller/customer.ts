@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:12:23
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:50:34
+ * @LastEditTime: 2021-09-20 15:35:07
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -33,7 +33,11 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   .then((customerList: ProjectCustomer[]) => {
     res.json(new ApiResult(ResponseStatus.success, customerList))
   }) 
-  .catch(next)
+  .catch( () => {
+    const err = new Error()
+    err.message = "获取客户列表失败"
+    next(err)
+  })
 })
 
 //客户信息更改

@@ -23,13 +23,5 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
 })
 
 
-//编译记录
-router.get('/list', (req: Request, res: Response, next: NextFunction) => {
-  CompileService.compileList()
-  .then( (compileList: ProjectCompile[]) => {
-    res.json(new ApiResult(ResponseStatus.success, compileList))
-  })
-  .catch(next)
-})
 
 export default router

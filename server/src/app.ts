@@ -1,13 +1,12 @@
-import { CompileConfig } from './types/compile';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 08:51:48
+ * @LastEditTime: 2021-09-18 18:08:49
  */
-
+import { CompileConfig } from './types/compile';
 import * as express from 'express'
 import config from './config'
 import api from './controller/index'

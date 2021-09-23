@@ -3,16 +3,14 @@
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-11 10:34:24
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-09-18 18:07:21
  */
 import _ = require("lodash");
 import { CreateConfigParams, CreateProjectParams, CreateShareProject, ProjectConfig, ProjectGlobalConfig, ProjectInfo, ProjectInstance, ProjectShare, ProjectType } from "../types/project";
-import logger from "../utils/logger";
 import util from "../utils/util";
 import pool from "./pool";
 import templateDao from "../dao/template"
-import { remove } from "lodash";
 
 class Project {
 

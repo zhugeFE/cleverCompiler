@@ -7,8 +7,11 @@
 import {Router, Response, Request, NextFunction} from 'express'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import ProjectService from "../service/project"
+import CompileService from "../service/compile"
 import { CreateProjectParams, ProjectInfo, ProjectInstance, ProjectType } from '../types/project'
 import { Member } from '../types/user'
+import logger from '../utils/logger'
+import { ProjectCompile } from '../types/compile'
 const router = Router()
 
 
@@ -18,7 +21,13 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   .then((projectList: ProjectInstance[]) => {
     res.json(new ApiResult(ResponseStatus.success, projectList))
   })
-  .catch(next)
+  .catch( (err) => {
+    // const err = new Error()
+    // err.message = "获取project列表失败"
+    // next(err)
+    logger.info(err)
+    next
+  })
 })
 
 //项目添加
@@ -54,6 +63,21 @@ router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
   })
   .catch(next)
 })
+
+//项目编译记录
+router.get('/:id/list', (req: Request, res: Response, next: NextFunction) => {
+  const id = req.params.id
+  if ( !id ) {
+    res.json(new ApiResult(ResponseStatus.fail, null , "项目id不能为空!"))
+    return
+  }
+  CompileService.compileList(id)
+  .then( (compileList: ProjectCompile[]) => {
+    res.json(new ApiResult(ResponseStatus.success, compileList))
+  })
+  .catch(next)
+})
+
 
 
 router.get('/members', (req: Request, res: Response, next: NextFunction) => {

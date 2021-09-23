@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:16:52
+ * @LastEditTime: 2021-09-20 16:08:34
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
@@ -21,6 +21,7 @@ import {
   TemplateVersion, 
   TemplateVersionGit, 
   UpdateConfigParam } from '../types/template'
+import logger from '../utils/logger'
 const router = Router()
 
 //添加模板
@@ -45,8 +46,11 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   .then((templateList: TemplateInstance[]) => {
     res.json(new ApiResult(ResponseStatus.success, templateList))
   })
-  .catch(err => {
-    next(err)
+  .catch( (err) => {
+    // const err = new Error()
+    // err.message = '获取template列表失败'
+    logger.info(err)
+    next
   })
 })
 

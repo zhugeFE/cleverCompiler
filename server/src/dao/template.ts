@@ -3,8 +3,8 @@
  * @version:
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-09 08:33:41
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-09-20 16:16:28
  */
 /**
  * 模板
@@ -29,6 +29,7 @@ import {
 import * as _ from 'lodash'
 import pool from './pool'
 import util from '../utils/util'
+import logger from '../utils/logger'
 
 interface GitVersionDoc {
   name: string;
@@ -58,7 +59,7 @@ class TemplateDao {
       FROM template_version 
       GROUP BY template_id ) AS b 
     ON a.id = b.template_id`
-    return (await pool.query<TemplateInstance>(sql)) as TemplateInstance[]
+    return await pool.query<TemplateInstance>(sql)
   }
 
   async create(

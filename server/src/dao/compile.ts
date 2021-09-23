@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:18:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 11:10:07
+ * @LastEditTime: 2021-09-21 17:08:44
  */
 
 import pool from './pool'
@@ -51,8 +51,9 @@ class Compile {
     return list.length > 0 ? list[0] : null
   }
 
-  //查询全部编译记录
-  async getProjectCompile (): Promise<ProjectCompile[]>{
+
+  //查询编译记录根据项目配置id
+  async getProjectCompile (id: string): Promise<ProjectCompile[]>{
     const sql = `SELECT
       c.id as id,
       c.compile_time as compile_time,
@@ -69,10 +70,11 @@ class Compile {
     ON c.project_id = p.id
     LEFT JOIN customer as cus
     ON p.customer = cus.id
+    WHERE p.id = ?
     ORDER BY
       compile_time DESC
     `
-    return await pool.query<ProjectCompile>(sql)
+    return await pool.query<ProjectCompile>(sql, [id])
   }
 
   //编译状态更新
