@@ -1,6 +1,14 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-09-13 11:53:25
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-09-18 17:07:31
+ */
 import React from 'react';
 import { PageLoading } from '@ant-design/pro-layout';
-import type { ConnectProps } from 'umi';
+import { ConnectProps } from 'umi';
 import { Redirect, connect } from 'umi';
 import { stringify } from 'querystring';
 import type { ConnectState } from '@/models/connect';
@@ -48,7 +56,8 @@ class SecurityLayout extends React.Component<SecurityLayoutProps, SecurityLayout
     if (!isLogin && window.location.pathname !== '/user/login') {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
-    return children;
+    return children
+      
   }
 }
 
@@ -56,3 +65,4 @@ export default connect(({ user, loading }: ConnectState) => ({
   currentUser: user.currentUser,
   loading: loading.models.user,
 }))(SecurityLayout);
+

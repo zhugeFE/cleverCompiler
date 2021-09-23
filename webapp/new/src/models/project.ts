@@ -4,13 +4,26 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 16:11:13
+ * @LastEditTime: 2021-09-21 17:30:51
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
 import { Reducer } from "redux"
 import projectService from "@/services/project"
+import compileService from "@/services/compile"
 
+
+export interface ProjectCompile {
+  id: string; //编译id
+  compileTime: Date; //编译时间
+  compileUser: string; //编译者id
+  compileResult: string; //编译结果
+  projectId: string; //项目id
+  description: string; //编译描述
+  projectName: string; //项目名称
+  projectDesc: string; //项目描述
+  cusName: string; // 客户名称
+}
 
 export interface ProjectInstance {
   id: string; //项目id
@@ -102,6 +115,7 @@ export type ProjectModelState = {
   projectList: ProjectInstance[];
   projectInfo: ProjectInfo | null ;
   memberList: Member[] ;
+  compileInfo: ProjectCompile[] | null;
 }
 
 
@@ -114,12 +128,13 @@ export type ProjectModelType = {
     addProject: Effect;
     updateProject: Effect;
     getMemberList: Effect;
+    getCompileInfo: Effect;
   };
   reducers: {
     setProjectList: Reducer<ProjectModelState>;
     setProjectInfo: Reducer<ProjectModelState>;
     setMemberList: Reducer<ProjectModelState>;
-
+    setCompileInfo: Reducer<ProjectModelState>;
   };
 }
 
@@ -128,9 +143,19 @@ const ProjectModel: ProjectModelType = {
   state: {
     projectList: [],
     projectInfo: null,
-    memberList: []
+    memberList: [],
+    compileInfo: [],
   },
   effects: {
+    *getCompileInfo ( { payload, callback} , {put , call}){
+      const res = yield call(projectService.compileInfo, payload)
+      if (res.status === -1)return
+      yield put({
+        type: "setCompileInfo",
+        payload: res.data
+      })
+      if (callback) callback()
+    },
     *getMemberList (_, {put, call}){
       const res = yield call(projectService.memberList)
       if (res.status === -1)return
@@ -172,25 +197,36 @@ const ProjectModel: ProjectModelType = {
 
   },
   reducers: {
+    setCompileInfo (state , {payload}): ProjectModelState {
+      return {
+        projectInfo: state?.projectInfo || null,
+        compileInfo: payload,
+        projectList: state?.projectList || [],
+        memberList: state?.memberList || []
+      }
+    },
     setProjectList (state, {payload}): ProjectModelState {
       return {
         projectList: payload,
         projectInfo: state?.projectInfo || null,
         memberList: state?.memberList || [],
+        compileInfo: state?.compileInfo || null
       }
     },
     setProjectInfo (state, {payload}): ProjectModelState {
       return {
         projectList: state?.projectList || [],
         projectInfo: payload,
-        memberList: state?.memberList || []
+        memberList: state?.memberList || [],
+        compileInfo: state?.compileInfo || null
       }
     },
     setMemberList (state, {payload}): ProjectModelState {
       return {
         projectInfo: state?.projectInfo || null,
         projectList: state?.projectList || [],
-        memberList: payload
+        memberList: payload,
+        compileInfo: state?.compileInfo || null
       } 
     }
   }

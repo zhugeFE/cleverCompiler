@@ -16,7 +16,8 @@ interface State {
   form: {
     name: string,
     version: string
-  }
+  },
+  searchVaild: boolean
 }
 class GitList extends React.Component<GitListProps, State> {
   constructor (props: GitListProps) {
@@ -25,7 +26,8 @@ class GitList extends React.Component<GitListProps, State> {
       form: {
         name: '',
         version: ''
-      }
+      },
+      searchVaild: true
     }
     this.onClickEdit = this.onClickEdit.bind(this)
     this.onSearch = this.onSearch.bind(this)
@@ -42,12 +44,22 @@ class GitList extends React.Component<GitListProps, State> {
   }
 
   onSearch (changedValues: any, values: any) {
+    // 防抖处理 300ms
+    if ( !this.state.searchVaild ) {
+      return 
+    } 
     this.setState({
-      form: {
-        ...this.state.form,
-        ...values
-      }
+      searchVaild: false
     })
+    setTimeout(() => {
+      this.setState({
+        searchVaild: true,
+        form: {
+          ...this.state.form,
+          ...values
+        }
+      })
+    }, 300)
   }
 
   render () {

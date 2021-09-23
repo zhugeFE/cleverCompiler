@@ -320,10 +320,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion!.publishTime))}</Tag>
                   </Tooltip>
                 </Description>
-                <Description label="git地址" labelWidth={labelWidth} className={styles.gitAddr}>
+                <Description label="git地址" labelWidth={labelWidth} className={styles.gitAddr}>ç
                   <a>{this.state.gitInfo.gitRepo}</a>
                 </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className={styles.gitConfigs}>
+                  
                   <GitConfigPanel 
                     store={this.state.currentVersion?.configs || []}
                     afterDelConfig={this.afterDelConfig}></GitConfigPanel>

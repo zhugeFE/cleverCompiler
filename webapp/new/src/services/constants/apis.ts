@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-03 23:11:05
+ * @LastEditTime: 2021-09-21 17:29:18
  */
 export default {
   user: {
@@ -51,7 +51,6 @@ export default {
   },
   compile: {
     createCompile: '/compile/add',
-    compileList: '/compile/list',
 
   },
   project: {
@@ -60,6 +59,7 @@ export default {
     updateProject: '/project/update',
     projectList: '/project/list',
     getMemberList: "/project/members",
+    compileInfo: '/project/{{id}}/list',
   },
   customer: {
     getInfo: '/customer/{{id}}/info',

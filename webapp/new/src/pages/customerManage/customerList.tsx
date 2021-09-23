@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-14 23:43:27
+ * @LastEditTime: 2021-09-19 15:07:44
  */
 import { Customer } from '@/models/customer';
-import { Button, Table } from 'antd';
+import { Button, Form, Input, Select, Table } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import React from 'react'
 import { withRouter } from 'react-router-dom';
@@ -24,6 +24,11 @@ export interface Props extends IRouteComponentProps{
 interface States {
   showUpdateCustomer: boolean;
   currentUpdateData: Customer | null;
+  form: {
+    customerName: string,
+    projectName: string
+  },
+  searchVaild: boolean
 }
 
 class CustomerList extends React.Component<Props, States> {
@@ -31,10 +36,16 @@ class CustomerList extends React.Component<Props, States> {
     super(prop)
     this.state = {
       showUpdateCustomer: false,
-      currentUpdateData: null
+      currentUpdateData: null,
+      form: {
+        customerName: "",
+        projectName: ""
+      },
+      searchVaild: true
     }
     this.onClickAddCustomer = this.onClickAddCustomer.bind(this)
     this.hideUpdateCustomer = this.hideUpdateCustomer.bind(this)
+    this.onSearch = this.onSearch.bind(this)
   }
 
   componentDidMount () {
@@ -77,7 +88,32 @@ class CustomerList extends React.Component<Props, States> {
     })
   }
 
+  // 表单搜索
+  onSearch (changedValues: any, values: any) {
+    // 防抖处理 300ms
+    if ( !this.state.searchVaild ) {
+      return 
+    } 
+    this.setState({
+      searchVaild: false
+    })
+    setTimeout(() => {
+      this.setState({
+        searchVaild: true,
+        form: {
+          ...this.state.form,
+          ...values
+        }
+      })
+    }, 300)
+  }
   render() {
+
+    const formData = this.state.form
+    const showList = this.props.customerList?.filter(item => {
+      return new RegExp(formData.projectName, 'i').test(item.projectId) && new RegExp(formData.customerName, 'i').test(item.name)
+    })
+
     const columns: ColumnProps<Customer>[] = [
       {
         title: '名称',
@@ -143,12 +179,23 @@ class CustomerList extends React.Component<Props, States> {
           )
         }
         <div className={styles.customerTopTool}> 
-          <Button type="primary" size="large" onClick={this.onClickAddCustomer}>新建客户</Button>
+          <Form layout="inline" onValuesChange={this.onSearch}>
+            <Form.Item label="客户名称" name="customerName">
+              <Input/>
+            </Form.Item>
+            <Form.Item label="项目名称" name="projectName">
+              <Input/>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" onClick={this.onClickAddCustomer}>新建客户</Button>
+            </Form.Item>
+          </Form>
+          
         </div>
         <Table
             rowKey="id"
             columns={columns}
-            dataSource={this.props.customerList ? this.props.customerList : []}
+            dataSource={showList}
             pagination={{
               pageSize: 10,
               showTotal(totle: number) {

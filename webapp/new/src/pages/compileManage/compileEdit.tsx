@@ -4,10 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 16:17:29
+ * @LastEditTime: 2021-09-18 17:30:55
  */
 import { ConnectState } from '@/models/connect'
-import { LeftOutlined } from '@ant-design/icons'
 import { Button, Checkbox, Form, message, Radio, Select, Tabs } from 'antd'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import TextArea from 'antd/lib/input/TextArea'
@@ -168,15 +167,6 @@ class CompileEdit extends React.Component<Props, States> {
     
     return (
       <div>
-        <div >
-          <a
-            onClick={() => {
-              this.props.history.goBack();
-            }}>
-            <LeftOutlined />
-            返回
-          </a>
-        </div> 
         <Form
           labelCol={{span:4}}
           wrapperCol={{span:16}}

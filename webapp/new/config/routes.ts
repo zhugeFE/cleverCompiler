@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-01 21:56:58
+ * @LastEditTime: 2021-09-17 20:04:00
  */
 export default [
   {
@@ -93,15 +93,15 @@ export default [
                 hideInMenu: true,
                 component: './projectManage/projectEdit'
               },
+              // {
+              //   path: '/compile/list',
+              //   name: 'compileList',
+              //   component: './compileManage/compileList'
+              // },
               {
-                path: '/compile/list',
-                name: 'compileList',
-                component: './compileManage/compileList'
-              },
-              {
-                path: '/compile/edit',
-                name: 'compileEdit',
-                hideInMenu: true,
+                path: '/compile/compileEdit',
+                name: 'compile',
+                hideInMenu: false,
                 component: './compileManage/compileEdit'
               },
               {

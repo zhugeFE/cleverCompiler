@@ -10,7 +10,7 @@ import type {
 } from '@ant-design/pro-layout';
 import ProLayout, { DefaultFooter } from '@ant-design/pro-layout';
 import React, { useEffect, useMemo, useRef } from 'react';
-import type { Dispatch } from 'umi';
+import { Dispatch } from 'umi';
 import { Link, useIntl, connect, history } from 'umi';
 import { GithubOutlined } from '@ant-design/icons';
 import { Result, Button } from 'antd';
@@ -19,6 +19,7 @@ import RightContent from '@/components/GlobalHeader/RightContent';
 import type { ConnectState } from '@/models/connect';
 import { getMatchMenu } from '@umijs/route-utils';
 import logo from '../assets/logo.svg';
+import { TransitionGroup , CSSTransition} from "react-transition-group"
 
 const noMatch = (
   <Result
@@ -171,7 +172,11 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
       }}
     >
       <Authorized authority={authorized!.authority} noMatch={noMatch}>
-        {children}
+        <TransitionGroup>
+          <CSSTransition key={location.pathname} classNames="fade" timeout={250}>
+            {children}
+          </CSSTransition>
+        </TransitionGroup>
       </Authorized>
     </ProLayout>
   );

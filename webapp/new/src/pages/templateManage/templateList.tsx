@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-24 11:37:15
+ * @LastEditTime: 2021-09-19 15:09:03
  */
-import { Table, Button, Spin } from 'antd';
+import { Table, Button, Spin, Form, Input } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
 import styles from './styles/templateList.less';
@@ -20,8 +20,10 @@ import util from '@/utils/utils';
 interface State {
   form: {
     name: string;
+    version: string;
   };
   showAddModal: boolean;
+  searchVaild: boolean;
 }
 
 export interface TemplateListProps extends IRouteComponentProps {
@@ -35,9 +37,12 @@ class TemplateList extends React.Component<TemplateListProps, State> {
     this.state = {
       form: {
         name: '',
+        version: ''
       },
       showAddModal: false,
-    };
+      searchVaild: true
+    }
+    this.onSearch = this.onSearch.bind(this)
   }
 
   componentDidMount() {
@@ -74,7 +79,29 @@ class TemplateList extends React.Component<TemplateListProps, State> {
     });
   }
 
+  onSearch (changedValues: any, values: any) {
+    // 防抖处理 300ms
+    if ( !this.state.searchVaild ) {
+      return 
+    } 
+    this.setState({
+      searchVaild: false
+    })
+    setTimeout(() => {
+      this.setState({
+        searchVaild: true,
+        form: {
+          ...this.state.form,
+          ...values
+        }
+      })
+    }, 300)
+  }
   render() {
+    const FormData =  this.state.form
+    const showList = this.props.templateList?.filter(item => {
+      return new RegExp(FormData.name, 'i').test(item.name) && new RegExp(FormData.version, 'i').test(item.version)
+    })
     const columns: ColumnProps<TemplateInstance>[] = [
       {
         title: '名称',
@@ -151,25 +178,33 @@ class TemplateList extends React.Component<TemplateListProps, State> {
     }
     return (
       <div className={styles.main}>
-        <div>
-          <div className={styles.topButtons}>
-            <Button type="primary" onClick={this.onClickEdit.bind(this, null)}>
-              新建模板
-            </Button>
-          </div>
-          <Table
-            className={styles.tablePanel}
-            rowKey="id"
-            columns={columns}
-            dataSource={this.props.templateList}
-            pagination={{
-              pageSize: 5,
-              showTotal(totle: number) {
-                return `总记录数${totle}`;
-              },
-            }}
-          ></Table>
+        <div className={styles.topButtons} >
+          <Form layout="inline" onValuesChange={this.onSearch}> 
+            <Form.Item label="名称" name="name">
+              <Input/>
+            </Form.Item>
+            <Form.Item label="最新版本" name="version">
+              <Input/>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" onClick={this.onClickEdit.bind(this, null)}>
+                新建模板
+              </Button>
+            </Form.Item>
+          </Form>
         </div>
+        <Table
+          className={styles.tablePanel}
+          rowKey="id"
+          columns={columns}
+          dataSource={showList}
+          pagination={{
+            pageSize: 5,
+            showTotal(totle: number) {
+              return `总记录数${totle}`;
+            },
+          }}
+        />
       </div>
     );
   }

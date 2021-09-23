@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 22:48:14
+ * @LastEditTime: 2021-09-19 15:06:26
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
 import util from '@/utils/utils';
-import { Button, Table } from 'antd';
+import { Button, Form, Input, Table } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import React from 'react';
@@ -24,15 +24,26 @@ interface Props extends IRouteComponentProps<{
   dispatch: Dispatch;
 }
 interface States {
+  form: {
+    projectName: string;
+    compileType: string;
+  },
+  searchVaild: boolean;
 }
 
 class ProjectList extends React.Component<Props, States> {
   constructor(prop: Props){
     super(prop)
     this.state = {
+      form: {
+        projectName: "",
+        compileType: ""
+      },
+      searchVaild: true
     }
     this.onClickAddProject = this.onClickAddProject.bind(this)
     this.navigationToEdit = this.navigationToEdit.bind(this)
+    this.onSearch = this.onSearch.bind(this)
   }
 
   componentDidMount () {
@@ -69,8 +80,32 @@ class ProjectList extends React.Component<Props, States> {
     
   }
 
+  onSearch (changedValues: any , values: any) {
+    // 防抖处理 300ms
+    if ( !this.state.searchVaild ) {
+      return 
+    } 
+    this.setState({
+      searchVaild: false
+    })
+    setTimeout(() => {
+      this.setState({
+        searchVaild: true,
+        form: {
+          ...this.state.form,
+          ...values
+        }
+      })
+    }, 300)
+  }
+
   render() {
+
     const compileType = ['私有部署','常规迭代','发布测试']
+    const formData = this.state.form
+    const showList = this.props.projectList?.filter(item => {
+      return new RegExp(formData.projectName , 'i').test(item.name) && new RegExp(formData.compileType, 'i').test(compileType[item.compileType])
+    }) 
     const columns: ColumnProps<ProjectInstance>[] = [
       {
         title: '名称',
@@ -145,12 +180,22 @@ class ProjectList extends React.Component<Props, States> {
     return (
       <div className={styles.projectListPanel}>
         <div className={styles.projectTopTool}> 
-          <Button type="primary" size="large" onClick={this.onClickAddProject}>新建项目</Button>
+          <Form layout="inline" onValuesChange={this.onSearch}>
+            <Form.Item label="项目名称" name="projectName">
+              <Input/>
+            </Form.Item>
+            <Form.Item label="编译类型" name="compileType">
+              <Input/>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" onClick={this.onClickAddProject}>新建项目</Button>
+            </Form.Item>
+          </Form>
         </div>
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={this.props.projectList ? this.props.projectList : []}
+          dataSource={showList}
           pagination={{
             pageSize: 10,
             showTotal(totle: number) {

@@ -7,7 +7,7 @@
  */
 import { ConnectState } from '@/models/connect';
 import LeftOutlined from '@ant-design/icons/lib/icons/LeftOutlined';
-import { Button, Col, Input, Radio, Row, Select, Spin } from 'antd';
+import { Button, Col, Input, Radio, Row, Select, Spin, Tabs } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import React from 'react';
@@ -20,6 +20,7 @@ import { Customer } from "@/models/customer";
 import styles from './styles/projectEdit.less';
 import GlobalConfig from "./projectGlobalConfig";
 import ConfigBox from "./projectConfig";
+import CompileInfo from "./compileInfo";
 
 export interface Props extends IRouteComponentProps<{
   id: string;
@@ -252,6 +253,274 @@ class ProjectEdit extends React.Component<Props, States> {
         <Spin className={styles.loading} tip="项目配置详情获取中..." size="large"></Spin>
       )
     }
+
+    const configComponents = 
+       disableEdit ? 
+        (<div className={styles.projectEditContent}>
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>名称：</Col>
+            <Col span={wrapperCol} className={styles.colFlex}> 
+              <div >
+                <Input onChange={this.onChangeEdit} data-type="name" value={this.props.projectInfo?.name}></Input>
+              </div>
+              <div style={{marginLeft:10}}>
+                <span> 客户：</span>
+                <Select
+                    defaultValue={this.props.projectInfo?.customer}
+                    style={{ width: 100 }}
+                    onChange={this.onCustomerSelectChange}
+                  >
+                    {
+                      this.props.customerList?.map( item => {
+                        return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                      })
+                    }
+                  </Select>
+              </div>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>模板：</Col>
+            <Col span={wrapperCol} className={styles.colFlex}>
+              <div>
+                <Select
+                  defaultValue={this.props.projectInfo?.templateId}
+                  style={{ width: 100 }}
+                  onChange={this.onTemplateSelectChange}
+                >
+                  {
+                    this.props.templateList?.map( item => {
+                      return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                    })
+                  }
+                </Select>
+                <Select
+                  defaultValue={this.props.projectInfo?.templateVersion}
+                  style={{width: 100}}
+                  onChange={this.onTemplateVersionSelectChange}
+                >
+                  {
+                    this.props.templateInfo?.versionList.map( item => {
+                      return <Select.Option key={item.id} value={item.id}> {item.version} </Select.Option>
+                    })
+                  }
+                </Select>
+              </div>
+              <div>
+                <span> 编译类型：</span>
+                <Select 
+                  defaultValue={this.props.projectInfo?.compileType || this.state.compileType}
+                  style={{width: 120}}
+                  onChange={this.onCompileTypeSelectChange}
+                >
+                  {
+                    compileType.map( item => {
+                      return <Select.Option key={item.value} value={item.value}> {item.text} </Select.Option>
+                    })
+                  }
+                </Select>
+              </div>
+              <div>
+                <span>发布方式：</span>
+                <Radio.Group className={styles.radio} onChange={this.onRadioChange} defaultValue={this.state.publicType}>
+                  {
+                    pubilshType.map( item => {
+                      return <Radio key={item.value} value={item.value}>{item.text}</Radio>
+                    })
+                  }
+                </Radio.Group>
+              </div>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>全局配置：</Col>
+            <Col span={wrapperCol}>
+              <GlobalConfig
+                globalConfigList={this.state.currentTemplateVersionInfo ? this.state.currentTemplateVersionInfo.globalConfigList : null}/>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>项目配置：</Col>
+            <Col span={wrapperCol}>
+                <ConfigBox
+                  activeKey={this.state.activeKey}
+                  gitList={this.state.currentTemplateVersionInfo ? this.state.currentTemplateVersionInfo.gitList : []}
+                  onChangeActiveKey={this.onChangeActiveKey}/>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>分享成员：</Col>
+            <Col span={wrapperCol}>
+              <Select
+                mode="multiple"
+                allowClear
+                showSearch
+                style={{ width: 200 }}
+                placeholder="Select a person"
+                optionFilterProp="children"
+                onChange={this.onShareSelectChange}
+                filterOption={(input, option) =>
+                  option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }>
+                {
+                  
+                  this.props.memberList?.map( item => {
+                    return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                  })
+                }
+              </Select>
+            </Col>
+          </Row>
+
+          
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>描述：</Col>
+            <Col span={wrapperCol}>
+              <TextArea rows={10} datatype="description" onChange={this.onChangeEdit}></TextArea>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Button type="primary" onClick={this.onClickSave}>保存</Button>
+            <Button>取消</Button>
+          </Row>
+        </div> 
+        ) : (
+        <div className={styles.projectEditContent}>
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>名称：</Col>
+            <Col span={wrapperCol} className={styles.colFlex}> 
+              <div >
+                <Input onChange={this.onChangeEdit} data-type="name" value={this.props.projectInfo?.name}></Input>
+              </div>
+              <div style={{marginLeft:10}}>
+                <span> 客户：</span>
+                <Select
+                    style={{ width: 100 }}
+                    onChange={this.onCustomerSelectChange}
+                  >
+                    {
+                      this.props.customerList?.map( item => {
+                        return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                      })
+                    }
+                  </Select>
+              </div>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>模板：</Col>
+            <Col span={wrapperCol} className={styles.colFlex}>
+              <div>
+                <Select
+                  style={{ width: 100 }}
+                  onChange={this.onTemplateSelectChange}
+                >
+                  {
+                    this.props.templateList?.map( item => {
+                      return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                    })
+                  }
+                </Select>
+                <Select
+                  style={{width: 100}}
+                  onChange={this.onTemplateVersionSelectChange}
+                >
+                  {
+                    this.props.templateInfo?.versionList.map( item => {
+                      return <Select.Option key={item.id} value={item.id}> {item.version} </Select.Option>
+                    })
+                  }
+                </Select>
+              </div>
+              <div>
+                <span> 编译类型：</span>
+                <Select 
+                  style={{width: 120}}
+                  onChange={this.onCompileTypeSelectChange}
+                >
+                  {
+                    compileType.map( item => {
+                      return <Select.Option key={item.value} value={item.value}> {item.text} </Select.Option>
+                    })
+                  }
+                </Select>
+              </div>
+              <div>
+                <span>发布方式：</span>
+                <Radio.Group className={styles.radio} onChange={this.onRadioChange} defaultValue={this.state.publicType}>
+                  {
+                    pubilshType.map( item => {
+                      return <Radio key={item.value} value={item.value}>{item.text}</Radio>
+                    })
+                  }
+                </Radio.Group>
+              </div>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>全局配置：</Col>
+            <Col span={wrapperCol}>
+              <GlobalConfig
+                globalConfigList={this.state.currentTemplateVersionInfo ? this.state.currentTemplateVersionInfo.globalConfigList : null}/>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>项目配置：</Col>
+            <Col span={wrapperCol}>
+                <ConfigBox
+                  activeKey={this.state.activeKey}
+                  gitList={this.state.currentTemplateVersionInfo ? this.state.currentTemplateVersionInfo.gitList : []}
+                  onChangeActiveKey={this.onChangeActiveKey}/>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>分享成员：</Col>
+            <Col span={wrapperCol}>
+              <Select
+                mode="multiple"
+                allowClear
+                showSearch
+                style={{ width: 200 }}
+                placeholder="Select a person"
+                optionFilterProp="children"
+                onChange={this.onShareSelectChange}
+                filterOption={(input, option) =>
+                  option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }>
+                {
+                  this.props.memberList?.map( item => {
+                    return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                  })
+                }
+              </Select>
+            </Col>
+          </Row>
+
+          
+          <Row className={styles.rowMargin}>
+            <Col span={labelCol}>描述：</Col>
+            <Col span={wrapperCol}>
+              <TextArea rows={10} datatype="description" onChange={this.onChangeEdit}></TextArea>
+            </Col>
+          </Row>
+
+          <Row className={styles.rowMargin}>
+            <Button type="primary" onClick={this.onClickSave}>保存</Button>
+            <Button>取消</Button>
+          </Row>
+        </div>
+        )  
+    
+
     return (
       <div className={styles.projectEditPanel}>
         <div className={styles.projectPanelTop}>
@@ -262,9 +531,17 @@ class ProjectEdit extends React.Component<Props, States> {
             <LeftOutlined />
             返回
           </a>
+          <Tabs type='card'>
+            <Tabs.TabPane tab="配置" key="config">{configComponents}</Tabs.TabPane>
+            <Tabs.TabPane tab="编译记录" key="compile">
+              <CompileInfo
+                id={this.props.match.params.id}
+              ></CompileInfo>
+            </Tabs.TabPane>
+          </Tabs>
         </div>
         
-        {
+        {/* {
           disableEdit ? 
           (<div className={styles.projectEditContent}>
             <Row className={styles.rowMargin}>
@@ -529,7 +806,7 @@ class ProjectEdit extends React.Component<Props, States> {
             </Row>
           </div>
           )  
-        }
+        } */}
         
       </div>
     )

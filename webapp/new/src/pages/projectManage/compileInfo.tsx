@@ -4,20 +4,18 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 22:46:12
+ * @LastEditTime: 2021-09-21 21:22:55
  */
 import { ConnectState } from '@/models/connect'
 import util from '@/utils/utils'
-import { Button, Table } from 'antd'
+import { Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { connect, Dispatch } from 'dva'
 import React from 'react'
-import { withRouter } from 'react-router-dom'
-import { IRouteComponentProps, Member, ProjectCompile } from 'umi'
+import { Member, ProjectCompile } from 'umi'
 
-interface Props extends IRouteComponentProps<{
-
-}>{
+interface Props {
+  id: string;
   memberList: Member[] | null;
   compileList: ProjectCompile[];
   dispatch: Dispatch;
@@ -32,10 +30,10 @@ class CompileList extends React.Component<Props, States> {
     this.state = {
       tableLoading: false
     }
-    this.navigationToEdit = this.navigationToEdit.bind(this)
   }
 
   async componentDidMount () {
+    const id = this.props.id
     this.setState({
       tableLoading: true
     })
@@ -43,20 +41,16 @@ class CompileList extends React.Component<Props, States> {
       type:"project/getMemberList"
     })
     await this.props.dispatch({
-      type: "compile/getCompileList",
+      type: "project/getCompileInfo",
+      payload: id,
       callback: () => { 
         this.setState({
           tableLoading: false
         })
       }
     })
-    
   }
 
-
-  navigationToEdit () {
-    this.props.history.push('/compile/edit')
-  }
   render() {
 
     const UserMap = {}
@@ -116,7 +110,6 @@ class CompileList extends React.Component<Props, States> {
     ]
     return (
       <div>
-        <Button type="primary" size="large" onClick={this.navigationToEdit} style={{marginBottom:10}}>新建编译</Button>
         <Table
           columns={columns}
           dataSource={this.props.compileList}
@@ -128,7 +121,6 @@ class CompileList extends React.Component<Props, States> {
             )
           }}}
         >
-          
         </Table>
       </div>
     )
@@ -139,6 +131,6 @@ class CompileList extends React.Component<Props, States> {
 export default connect( ({compile, project}:ConnectState) => {
   return {
     memberList: project.memberList,
-    compileList: compile.compileList || []
+    compileList: project.compileInfo || []
   }
-})(withRouter(CompileList))
+})(CompileList)
