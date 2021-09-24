@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-18 18:07:21
+ * @LastEditTime: 2021-09-24 11:08:05
  */
 import _ = require("lodash");
 import { CreateConfigParams, CreateProjectParams, CreateShareProject, ProjectConfig, ProjectGlobalConfig, ProjectInfo, ProjectInstance, ProjectShare, ProjectType } from "../types/project";
@@ -94,25 +94,34 @@ class Project {
 
     const templateGlobalConfigMap = {} //模版全局配置映射
     const projectGlobalConfigMap = {} //项目全局配置映射
+    const projetcConfigMap = {} //项目最终配置值映射
 
     templateVersionInfo.globalConfigList.map( item => {
-      templateGlobalConfigMap[item.id] = item.defaultValue
+      if ( !item.isHidden) {
+        templateGlobalConfigMap[item.id] = item.defaultValue
+      }
     })
+
     globalConfig.map( item => {
       projectGlobalConfigMap[item.id] = item.value
     })
-    
-    //  realValue = teplate 全局 || template 局部 || 源值
+
     Configs.map( item => {
-      projectGlobalConfigMap[item.configId] = projectGlobalConfigMap[item.globalConfigId] || item.value 
+      //项目配置最终值 = 项目全局 || 项目配置值   用template_config 的id作为key
+      projetcConfigMap[item.configId] = projectGlobalConfigMap[item.globalConfigId] || item.value 
     })
 
+    //  realValue = 项目配置值 || teplate 全局 || template 局部 || 源值
     templateVersionInfo.gitList.map( git => {
       git.configList.map( config => {
-        config.realValue = projectGlobalConfigMap[config.id] || templateGlobalConfigMap[config.id] || config.value || config.sourceValue
+        config.realValue = projetcConfigMap[config.id] || templateGlobalConfigMap[config.globalConfigId] || config.value || config.sourceValue
       })
     })
 
+
+    
+
+    
     const data: ProjectInfo = {
       ...projectData,
       shareNumber: shareNumber.map(item=>item.receiveUserId),

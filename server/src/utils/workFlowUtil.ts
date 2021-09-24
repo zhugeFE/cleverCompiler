@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-14 12:30:19
+ * @LastEditTime: 2021-09-24 10:14:17
  */
 
 import * as fs from 'fs';
@@ -107,6 +107,7 @@ class WorkFlow {
     const srcRepoDir = path.join(workDir, gitName)
     SocketLogge(socket, gitName, `Step: 开始执行定制文件修改动作`)
     for (const item of configList){
+      if (item.isHidden) { return } //隐藏配置不做编辑
       fileDir = path.join(srcRepoDir, item.filePath)
       SocketLogge(socket, gitName, `Step: 开始定制修改文件 =》 ${item.filePath}`)
       text = fs.readFileSync(fileDir, 'utf-8')
