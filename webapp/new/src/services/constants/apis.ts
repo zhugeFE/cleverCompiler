@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-21 17:29:18
+ * @LastEditTime: 2021-10-18 17:27:07
  */
 export default {
   user: {
@@ -19,6 +19,7 @@ export default {
     queryRoles: '/sys/roles'
   },
   git: {
+    queryRemoteGitList: '/git/remotelist',
     queryGitList: '/git/list',
     getFileTree: '/git/filetree',
     getInfo: '/git/{{id}}/info',
@@ -37,6 +38,7 @@ export default {
     getInfo: '/template/{{id}}/info',
     queryTemplateList: '/template/list',
     updateTemplateStatus: "/template/update",
+    getVersionInfo: '/template/version/{{id}}/info',
     addVersion: '/template/version/add',
     delVersion: '/template/version',
     updateVersion: '/template/version/update',
@@ -65,7 +67,12 @@ export default {
     getInfo: '/customer/{{id}}/info',
     createCustomer: '/customer/add',
     customerList: '/customer/list',
-    updateCustomer: '/customer/update'
+    updateCustomer: '/customer/update',
+    deleteCustomer: '/customer/delete'
+  },
+  download: {
+    getDownloadFilePath: '/download/info',
+    downloadFile: '/download'
   }
   
 }

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:03:29
+ * @LastEditTime: 2021-10-18 16:26:00
  */
 import { Form, Input, message, Modal } from 'antd';
 import React from 'react';
@@ -50,6 +50,7 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
     };
     this.onCancel = this.onCancel.bind(this);
     this.onCommit = this.onCommit.bind(this);
+    this.onBack = this.onBack.bind(this);
     this.onChangeForm = this.onChangeForm.bind(this);
   }
 

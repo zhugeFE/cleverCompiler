@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:49:01
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 18:56:32
+ * @LastEditTime: 2021-10-18 16:52:49
  */
 import { LeftOutlined } from '@ant-design/icons';
 import { Progress } from 'antd';
@@ -51,6 +51,7 @@ class CustomerEdit extends React.Component<Props, States> {
     this.setState ({
       showAddCustomer: false
     })
+    this.props.history.goBack()
   }
 
   //客户添加之后

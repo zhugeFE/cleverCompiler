@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-26 14:39:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:19:54
+ * @LastEditTime: 2021-10-18 18:25:15
  */
 import { Form, Input, message, Modal } from "antd"
 import TextArea from "antd/lib/input/TextArea"
@@ -20,6 +20,7 @@ interface Props {
 
 interface FormData {
   name: string;
+  tel: string;
   description: string;
 }
 
@@ -33,6 +34,7 @@ class AddCustomer extends React.Component<Props, States> {
     this.state = {
       form: {
         name: "",
+        tel: "",
         description: ""
       }
     }
@@ -42,7 +44,7 @@ class AddCustomer extends React.Component<Props, States> {
   }
 
   handleOk () {
-    const { name , description } = this.state.form
+    const { name , description, tel } = this.state.form
     if ( !name || !description ) {
       message.warn({
         content: "信息未填写完整！",
@@ -55,6 +57,7 @@ class AddCustomer extends React.Component<Props, States> {
       type: "customer/addCustomer",
       payload: {
         name,
+        tel,
         description
       },
       callback: ()=>{
@@ -64,8 +67,7 @@ class AddCustomer extends React.Component<Props, States> {
   }
 
   handleCancel () {
-    this.props.onCancel()
-    console.log("取消")
+    if(this.props.onCancel) this.props.onCancel()
   }
 
   //表单修改
@@ -97,6 +99,12 @@ class AddCustomer extends React.Component<Props, States> {
                 name="name"
                 rules={[{ required: true, message: '请输入客户名称!' }]}> 
                 <Input/> 
+              </Form.Item>
+              <Form.Item
+                label="联系方式"
+                name="tel"
+              >
+                <Input/>
               </Form.Item>
               <Form.Item 
                 label="描述" 

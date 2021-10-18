@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-19 15:07:44
+ * @LastEditTime: 2021-10-18 17:44:46
  */
 import { Customer } from '@/models/customer';
 import { Button, Form, Input, Select, Table } from 'antd';
@@ -68,6 +68,13 @@ class CustomerList extends React.Component<Props, States> {
         })
         break
       }
+      case "delete": {
+        this.props.dispatch({
+          type: 'customer/deleteCustomer',
+          payload: data.id
+        })
+        break
+      }
       case "info": {
         console.log("info")
         console.log(data)
@@ -125,6 +132,14 @@ class CustomerList extends React.Component<Props, States> {
         },
       },
       {
+        title: '联系方式',
+        dataIndex: 'tel',
+        width: 200,
+        render(text: string, record: Customer) {
+          return <div>{ text || '-' }</div>
+        }
+      },
+      {
         title: '描述',
         dataIndex: 'description',
         width: 280,
@@ -135,14 +150,14 @@ class CustomerList extends React.Component<Props, States> {
       {
         title: '项目',
         dataIndex: 'prjectId',
-        width: 150,
+        width: 250,
         render(text: string, record: Customer) {
           return <div> {text || '-' || record.projectId} </div>;
         },
       },
       {
         title: '创建者',
-        width: 150,
+        width: 250,
         dataIndex: 'creatorName',
         render(text: string, record: Customer) {
           return <div> {text || '-' || record.creatorName} </div>;
@@ -151,18 +166,29 @@ class CustomerList extends React.Component<Props, States> {
       {
         title: '操作',
         dataIndex: 'handle',
-        width: 80,
         fixed: 'right',
         render: (text, record: Customer) => {
           return (
             <div>
-              <a  onClick={this.onClickEdit.bind(this, record, "edit")}>
+              <Button 
+                style={{marginRight:5}}
+                type="primary" 
+                danger 
+                onClick={this.onClickEdit.bind(this, record, 'delete')}>
+                删除
+              </Button>
+
+              <Button 
+                style={{marginRight:5}}
+                type="primary"  
+                onClick={this.onClickEdit.bind(this, record, "edit")}>
                 编辑
-              </a>
+              </Button>
               
-              <a style={{marginLeft: "5px"}}  onClick={this.onClickEdit.bind(this, record, "info")}>
+              <Button
+                onClick={this.onClickEdit.bind(this, record, "info")}>
                 详情
-              </a>
+              </Button>
             </div>
           );
         },

@@ -16,8 +16,9 @@ interface State {
   form: {
     name: string,
     version: string
-  },
-  searchVaild: boolean
+  };
+  searchVaild: boolean;
+  selectedRowKeys: string[]
 }
 class GitList extends React.Component<GitListProps, State> {
   constructor (props: GitListProps) {
@@ -27,10 +28,13 @@ class GitList extends React.Component<GitListProps, State> {
         name: '',
         version: ''
       },
-      searchVaild: true
+      searchVaild: true,
+      selectedRowKeys: []
     }
     this.onClickEdit = this.onClickEdit.bind(this)
     this.onSearch = this.onSearch.bind(this)
+    this.onCreateGit = this.onCreateGit.bind(this)
+    this.rowSelectChange = this.rowSelectChange.bind(this)
   }
 
   componentDidMount () {
@@ -42,7 +46,9 @@ class GitList extends React.Component<GitListProps, State> {
   onClickEdit (git: GitInstance) {
     this.props.history.push(`/manage/git/${git.id}`)
   }
-
+  onCreateGit () {
+    this.props.history.push(`/manage/git/createGit`)
+  }
   onSearch (changedValues: any, values: any) {
     // 防抖处理 300ms
     if ( !this.state.searchVaild ) {
@@ -60,6 +66,13 @@ class GitList extends React.Component<GitListProps, State> {
         }
       })
     }, 300)
+  }
+  rowSelectChange (selectedRowKeys: React.Key[], selectedRows: GitInstance[]) {
+    // console.log(selectedRowKeys)
+    var arr = selectedRowKeys.map(item => String(item))
+    this.setState({
+      selectedRowKeys: arr
+    })
   }
 
   render () {
@@ -149,9 +162,16 @@ class GitList extends React.Component<GitListProps, State> {
             <Form.Item>
               <Button danger>批量禁用</Button>
             </Form.Item>
+            <Form.Item>
+              <Button onClick={this.onCreateGit}>创建项目</Button>
+            </Form.Item>
           </Form>
         </div>
-        <Table 
+        <Table
+          rowSelection={{
+            type: "checkbox",
+            onChange: this.rowSelectChange
+          }}
           rowKey="id"
           columns={columns} 
           dataSource={showList}

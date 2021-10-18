@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-18 17:30:55
+ * @LastEditTime: 2021-10-15 16:21:23
  */
 import { ConnectState } from '@/models/connect'
-import { Button, Checkbox, Form, message, Radio, Select, Tabs } from 'antd'
+import { Button, Checkbox, Form, message, Modal, Radio, Select, Tabs } from 'antd'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import TextArea from 'antd/lib/input/TextArea'
 import React from 'react'
@@ -16,6 +16,9 @@ import { connect, CurrentUser, Dispatch, IRouteComponentProps, ProjectInfo, Proj
 import SocketIO from "socket.io-client"
 import styles from "./styles/compileEdit.less"
 import util from '@/utils/utils'
+import CompileResult from "./compileResult"
+import DownloadService from "@/services/download"
+
 
 const socket = SocketIO('http://localhost:3000/', {transports:["websocket"]})
 
@@ -31,9 +34,16 @@ interface States {
   publicType: number;
   projectId: string;
   compileGit: string[];
+  compileResult: {
+    title: string;
+    subTitle: string;
+    fileaddr: string;
+    successGitNames: string[];
+  } | null;
   description: string;
   GitMap: {};
   compileLog: {};
+  showResult: boolean;
 }
 
 class CompileEdit extends React.Component<Props, States> {
@@ -43,15 +53,20 @@ class CompileEdit extends React.Component<Props, States> {
       publicType: 0,
       projectId: "",
       compileGit: [],
+      compileResult: null,
       description: "",
       GitMap: {},
       compileLog: {},
+      showResult: false,
     }
     this.onRadioChange = this.onRadioChange.bind(this)
     this.selectProject = this.selectProject.bind(this)
     this.onCheckBoxChange = this.onCheckBoxChange.bind(this)
     this.onClickCompile = this.onClickCompile.bind(this)
     this.TextAreaChange = this.TextAreaChange.bind(this)
+    this.onCancelShowResult = this.onCancelShowResult.bind(this)
+    this.onDownload = this.onDownload.bind(this)
+    this.showResult = this.showResult.bind(this)
   }
   
   initSocket () {
@@ -63,6 +78,27 @@ class CompileEdit extends React.Component<Props, States> {
       compileLog[data.gitName].push({message: data.message.toString()})
       this.setState({
         compileLog
+      })
+    })
+    socket.on("result", (data) =>{
+      console.log(data)
+      var title = ""
+      var subTitle = ""
+      if(this.state.compileGit.length == data.successGitNames.length){
+        title = `全部编译成功！`
+      }else{
+        title = `${data.successGitNames.length} / ${this.state.compileGit.length} 编程成功`
+        subTitle = `编译成功项：${data.successGitNames.toString()}`
+      }
+      var compileRes = {
+        title,
+        subTitle,
+        fileaddr: data.fileaddr,
+        successGitNames: data.successGitNames
+      }
+      this.setState({
+        compileResult: compileRes,
+        showResult: true
       })
     })
   }
@@ -80,6 +116,25 @@ class CompileEdit extends React.Component<Props, States> {
       type: "project/getProjectList"
     })
     
+  }
+
+  onCancelShowResult () {
+    this.setState({
+      showResult: false
+    })
+  }
+
+  showResult () {
+    this.setState({
+      showResult: true
+    })
+  }
+
+  onDownload () {
+    if( this.state.compileResult){
+      const res = DownloadService.getDownloadFilePath(this.state.compileResult.fileaddr)
+      console.log(res)
+    }
   }
 
   onRadioChange (e: any) {
@@ -106,7 +161,6 @@ class CompileEdit extends React.Component<Props, States> {
 
   onClickCompile () {
     const {compileGit, description, projectId, publicType} = this.state
-    
     if (!compileGit.length) {
       message.warning("未选择编译git")
       return
@@ -227,10 +281,31 @@ class CompileEdit extends React.Component<Props, States> {
                   </Tabs>
                 </Form.Item>
                 <Button type="primary" onClick={this.onClickCompile}>编译</Button>
+                {
+                  this.state.compileResult&&
+                  <Button type="primary" onClick={this.showResult}>编译结果</Button>
+                }
               </>
             )
           }
         </Form>
+
+        <Modal 
+          title="编译结果"
+          visible={this.state.showResult}
+          onCancel={this.onCancelShowResult}
+          onOk = {this.onDownload}
+          okText="下载"
+          cancelText="取消"
+        >
+          {
+            this.state.compileResult && 
+            <CompileResult 
+              resultData = {this.state.compileResult}
+            ></CompileResult>
+          }
+        </Modal>
+
         
         
       </div>

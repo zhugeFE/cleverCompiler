@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:04:11
+ * @LastEditTime: 2021-10-18 15:05:27
  */
 
 import { Form, Input, Modal, Select } from 'antd';
@@ -12,13 +12,9 @@ import React from 'react';
 import { Dispatch, TemplateVersion } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
 import TextArea from 'antd/lib/input/TextArea';
+import { VersionType } from '@/models/common'
 const { Option } = Select;
 
-const VersionType = [
-  { title: '大版本', key: '0' },
-  { title: '中版本', key: '1' },
-  { title: '小版本', key: '2' },
-];
 
 interface FormData {
   option: string;

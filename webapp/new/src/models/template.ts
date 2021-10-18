@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-02 22:27:12
+ * @LastEditTime: 2021-09-26 15:33:42
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -160,6 +160,7 @@ export type TemplateModelType = {
   reducers: {
     setList: Reducer<TemplateModelState>;
     setTemplateInfo: Reducer<TemplateModelState>;
+    setCurrentVersion: Reducer<TemplateModelState>;
   };
 }
 
@@ -167,8 +168,8 @@ export type TemplateModelType = {
 const TemplateModel: TemplateModelType = {
   namespace: 'template',
   state: {
-    templateList: [],
-    templateInfo: null 
+    templateList: null,
+    templateInfo: null ,
   },
   effects: {
     *query (_ , {put , call}){
@@ -187,7 +188,7 @@ const TemplateModel: TemplateModelType = {
         type: "setTemplateInfo",
         payload: res.data
       })
-      if (callback) callback()
+      if (callback) callback(res.data)
     },
     *createTemplate ({payload, callback}, {call}) {
       const res = yield call(templateService.createTemplate, payload)
@@ -353,13 +354,23 @@ const TemplateModel: TemplateModelType = {
     setList (state, {payload}): TemplateModelState {
       return {
         templateList: payload,
-        templateInfo: null
+        templateInfo: null,
       }
     },
     setTemplateInfo (state , {payload}): TemplateModelState {
       return {
-        templateList: state?.templateList || [],
-        templateInfo: payload || {}
+        templateList: state?.templateList || null,
+        templateInfo: payload || {},
+      }
+    },
+    setCurrentVersion (state, {payload}): TemplateModelState {
+      const templateInfo = util.clone(state?.templateInfo) || null
+      if (templateInfo !== null) {
+        templateInfo.currentVersion = templateInfo.versionList.filter(item => item.id === payload)[0]
+      }
+      return {
+        templateList: state?.templateList || null,
+        templateInfo: templateInfo
       }
     }
   }

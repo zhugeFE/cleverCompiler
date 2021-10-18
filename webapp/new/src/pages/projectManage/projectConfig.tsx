@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 14:23:34
+ * @LastEditTime: 2021-09-26 16:13:19
  */
 
-import { ConfigInstance, TemplateConfig, TemplateVersionGit } from "@/models/template";
+import { ConfigInstance, TemplateVersionGit } from "@/models/template";
 import { Table, Tabs } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
@@ -17,22 +17,19 @@ import styles from './styles/projectConfig.less';
 
 interface Props {
   gitList: TemplateVersionGit[];
-  activeKey: string;
-  onChangeActiveKey(key: string): void;
 }
 
 interface States {
-  currentConfig: ConfigInstance | null
+  currentConfig: ConfigInstance | null,
 }
 
 class ProjectConfig extends React.Component <Props, States> {
   constructor(prop: Props){
     super(prop)
     this.state = {
-      currentConfig: null
+      currentConfig: null,
     }
     this.onCancelEditConfig = this.onCancelEditConfig.bind(this)
-    this.onChange = this.onChange.bind(this)
     this.onClickConfig = this.onClickConfig.bind(this)
   }
 
@@ -40,10 +37,6 @@ class ProjectConfig extends React.Component <Props, States> {
     this.setState({
       currentConfig: null
     })
-  }
-
-  onChange(activeKey: string) {
-    this.props.onChangeActiveKey(activeKey)
   }
 
 
@@ -66,7 +59,7 @@ class ProjectConfig extends React.Component <Props, States> {
         width: 200,
         dataIndex:"value",
         ellipsis: true,
-        render: (record: ConfigInstance) => {
+        render: (text: string, record: ConfigInstance) => {
           return (
             <span>{record.value || record.sourceValue}</span>
           );
@@ -121,7 +114,7 @@ class ProjectConfig extends React.Component <Props, States> {
             ></ProjectConfigEdit>
           )
         }
-        { !gitList || !gitList.length ? (
+        { !gitList.length ? (
           <Tabs type="card" 
           className={styles.cardBg} 
           >
@@ -131,8 +124,7 @@ class ProjectConfig extends React.Component <Props, States> {
           <Tabs
             type="card"
             className={styles.cardBg}
-            onChange={this.onChange}
-            activeKey={this.props.activeKey}>
+            >
             {gitList.map((item, index) => {
               return (
                 <Tabs.TabPane  tab={item.name} key={item.id}>

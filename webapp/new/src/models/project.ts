@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-21 17:30:51
+ * @LastEditTime: 2021-10-15 15:32:56
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -23,6 +23,7 @@ export interface ProjectCompile {
   projectName: string; //项目名称
   projectDesc: string; //项目描述
   cusName: string; // 客户名称
+  file: string; 
 }
 
 export interface ProjectInstance {
@@ -45,7 +46,7 @@ export interface ProjectInfo {
   compileType: number; //编译类型 0私有部署 1常规迭代 2发布测试
   createTime: Date; //创建时间
   gitList: TemplateVersionGit[] // git
-  shareNumber: string[]; //分享成员
+  shareNumber: string; //分享成员
   customer: string; //客户id
   globalConfigList: ProjectConfig[];//全局配置
 }
@@ -149,6 +150,7 @@ const ProjectModel: ProjectModelType = {
   effects: {
     *getCompileInfo ( { payload, callback} , {put , call}){
       const res = yield call(projectService.compileInfo, payload)
+      console.log(res)
       if (res.status === -1)return
       yield put({
         type: "setCompileInfo",

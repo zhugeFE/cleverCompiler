@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-05 09:58:53
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:02:18
+ * @LastEditTime: 2021-10-18 14:57:52
  */
 import React from 'react';
 import { Modal, Form, Input, message } from 'antd';
@@ -77,6 +77,7 @@ class CreateTemplate extends React.Component<Props, States> {
     this.setState({
       show: false,
     });
+    if (this.props.onCancel) this.props.onCancel()
   }
 
   onChangeForm(changeValue: any, values: FormData) {

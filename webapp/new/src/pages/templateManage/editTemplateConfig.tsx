@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-20 16:05:14
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:06:43
+ * @LastEditTime: 2021-10-18 16:49:56
  */
 /*
  * @Descripttion:
@@ -20,6 +20,7 @@ import { Dispatch } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
 import util from '@/utils/utils';
 import { ConfigInstance, UpdateConfigParam } from '@/models/template';
+import TextArea from 'antd/lib/input/TextArea';
 
 interface FormData {
   path: string;
@@ -27,6 +28,7 @@ interface FormData {
 }
 
 interface Props {
+  fileContent: string;
   config: ConfigInstance;
   onCancel(): void;
   dispatch: Dispatch;
@@ -97,6 +99,11 @@ class EditTemplateConfig extends React.Component<Props, States> {
             onValuesChange={this.onChangeForm}>
             <Form.Item label="文件位置" name="path">
               <Input disabled></Input>
+            </Form.Item>
+            <Form.Item label="内容">
+              <TextArea 
+                rows={10}
+                value={this.props.fileContent}></TextArea>
             </Form.Item>
             <Form.Item label="默认值" name="value">
               <Input></Input>

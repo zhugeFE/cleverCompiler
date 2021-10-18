@@ -28,6 +28,7 @@ class TimeLinePanel extends React.Component<Props, State> {
       filter: ''
     }
     this.toAddVersion = this.toAddVersion.bind(this)
+    this.onHideAddVersion = this.onHideAddVersion.bind(this)
     this.onChooseVersion = this.onChooseVersion.bind(this)
     this.afterAdd = this.afterAdd.bind(this)
     this.onFilter = this.onFilter.bind(this)
@@ -59,6 +60,11 @@ class TimeLinePanel extends React.Component<Props, State> {
       showCreate: true
     })
   }
+  onHideAddVersion () {
+    this.setState({
+      showCreate: false
+    })
+  }
   afterAdd (version: Version) {
     this.setState({
       currentVersion: version,
@@ -72,10 +78,11 @@ class TimeLinePanel extends React.Component<Props, State> {
         {
           this.state.showCreate ? (
             <CreateGitVersion 
+              mode='add'
               gitId={this.props.gitId} 
               repoId={this.props.repoId}
               versionList={this.props.versionList}
-              onCancel={this.toAddVersion}
+              onCancel={this.onHideAddVersion}
               afterAdd={this.afterAdd}></CreateGitVersion>
           ) : null
         }
@@ -93,7 +100,7 @@ class TimeLinePanel extends React.Component<Props, State> {
           }></TimelineItem>
           {
             this.props.versionList.filter(version => {
-              return new RegExp(this.state.filter).test(version.name)
+              return new RegExp(this.state.filter).test(version.name!)
             }).map(version => {
               if (version === this.state.currentVersion) {
                 return (

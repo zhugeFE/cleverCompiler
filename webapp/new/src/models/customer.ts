@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:38:06
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 17:04:15
+ * @LastEditTime: 2021-10-18 18:21:34
  */
 
 import { Effect } from "@/.umi/plugin-dva/connect"
@@ -17,12 +17,14 @@ export interface Customer {
   name: string; // 客户名称
   description: string; //客户描述
   projectId: string; //项目id
+  tel: string; //联系方式
   creatorId: string; //创建者id
   creatorName?: string; //创建者名称
 }
 
 export interface AddCustomerParams {
   name: string; //客户名称
+  tel: string; //联系方式
   description: string; //客户描述
   creatorId: string; //创建者id
 }
@@ -40,6 +42,7 @@ export type CustomerModelType = {
     updateCustomer: Effect;
     getCustomerInfo: Effect;
     getCustomerList: Effect;
+    deleteCustomer: Effect;
   };
   reducers: {
     setCustomerList: Reducer<CustomerModelState>;
@@ -95,7 +98,16 @@ const CustomerModel: CustomerModelType = {
       })
       if (callback) callback()
     },
-
+    *deleteCustomer ({payload, callback}, {select, call, put}) {
+      const res = yield call(customerService.deleteCustomer, payload)
+      if (res.status == -1) return
+      const data: Customer[] = util.clone(yield select((_: {customer: { customerList: Customer[]; }; }) => _.customer.customerList));
+      yield put({
+        type: "setCustomerList",
+        payload: data.filter( (item, index) => item.id !== payload)
+      })
+      if (callback) callback() 
+    }
   },
   reducers: {
     setCustomerList (state, {payload}): CustomerModelState {

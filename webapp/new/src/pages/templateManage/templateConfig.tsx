@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-30 09:52:10
+ * @LastEditTime: 2021-10-18 16:42:29
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -31,6 +31,7 @@ export interface ConfigPanelProps {
 }
 interface State {
   activeKey: string | undefined;
+  fileContent: string;
   showAddGitSource: boolean;
   showEditConfig: boolean;
   currentConfig: ConfigInstance | null;
@@ -42,6 +43,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     super(props);
     this.props.globalConfigs.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
     this.state = {
+      fileContent: "",
       showAddGitSource: false,
       activeKey: props.gitList.length > 0 ? props.gitList[0].id : "",
       showEditConfig: false,
@@ -108,6 +110,15 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         break;
       }
       case "edit": {
+        this.props.dispatch({
+          type: 'git/getFileContent',
+          payload: config.filePath,
+          callback: fileContent => {
+            this.setState({
+              fileContent
+            })
+          }
+        })
         this.setState({
           showEditConfig: true,
           currentConfig: data
@@ -185,7 +196,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           )
         }
       },
-      { title: '描述', width: 100, dataIndex: 'description' },
+      { title: '描述', width: 200, dataIndex: 'description' , ellipsis: true },
       {
         title: '类型',
         width: 60,
@@ -235,6 +246,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         {
           this.state.showEditConfig && this.state.currentConfig && (
             <EditeTemplateConfig
+              fileContent={this.state.fileContent}
               config={this.state.currentConfig}
               onCancel={this.onHideEditConfig}
             ></EditeTemplateConfig>

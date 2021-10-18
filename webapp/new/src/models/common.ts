@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:58:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-27 15:59:35
+ * @LastEditTime: 2021-10-18 15:03:29
  */
 export enum VersionStatus {
   deprecated = 0, // 已废弃
@@ -50,3 +50,39 @@ export interface DirNode {
   children: DirNode[];
   fileType: string;
 }
+
+export const compileType = [
+  {
+    value: 0,
+    text: "私有部署"
+  },
+  {
+    value: 1,
+    text: "常规迭代"
+  },
+  {
+    value: 2,
+    text: "发布测试"
+  }
+]
+
+export const publicType = [
+  {
+    value: 0,
+    text: "发布到git"
+  },
+  {
+    value: 1,
+    text: "下载"
+  },
+  {
+    value: 2,
+    text: "自动"
+  }
+]
+
+export const VersionType = [
+  { title: '大版本', key: '0' },
+  { title: '中版本', key: '1' },
+  { title: '小版本', key: '2' },
+];

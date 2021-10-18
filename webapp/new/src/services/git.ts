@@ -1,9 +1,12 @@
-import { ConfigType } from '@/models/common';
 import { GitCreateVersionParam, GitTextConfigParam, GitUpdateVersionParam } from '@/models/git';
 import request from '@/utils/request';
 import apis from './constants/apis';
 
 class GitService {
+  async queryRemoteGitList() {
+    return request(apis.git.queryRemoteGitList)
+  }
+
   async query () {
     return request(apis.git.queryGitList)
   }

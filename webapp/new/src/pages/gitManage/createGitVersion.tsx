@@ -1,14 +1,17 @@
 import * as React from 'react'
-import { Modal, Form, Input, Radio, message, Select } from 'antd'
+import { Modal, Form, Input, Radio, message, Select, Spin } from 'antd'
 import { Version } from '@/models/common';
-import { GitBranch, GitCommit, GitCreateVersionParam, GitTag, GitVersion } from '@/models/git';
+import { GitBranch, GitCommit, GitCreateVersionParam, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
 import util from '@/utils/utils';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
-
+import styles from './styles/createGitVersion.less';
+import { ConnectState } from '@/models/connect';
+import { VersionType } from "@/models/common";
 interface FormData {
+  option: string;
   source: string;
-  version: string;
+  repoId: string;
   branch: string;
   tag: string;
   commit: string;
@@ -16,10 +19,12 @@ interface FormData {
   parentId: string;
 }
 interface Props {
-  gitId: string;
-  repoId: string;
+  mode: string;
+  gitList: GitInstance[]; 
+  gitId?: string;
+  repoId?: string;
   title?: string;
-  versionList: Version[];
+  versionList?: Version[];
   dispatch: Dispatch;
   onCancel? (): void;
   afterAdd? (version: Version): void;
@@ -27,7 +32,9 @@ interface Props {
 interface States {
   show: boolean;
   form: FormData;
-  branchList: GitBranch[];
+  version: string;
+  gitList: GitList[] | null;
+  branchList: GitBranch[] ;
   tags: GitTag[];
   commits: GitCommit[];
   ready: {
@@ -42,15 +49,18 @@ class CreateGitVersion extends React.Component<Props, States> {
     super(props)
     this.state = {
       show: true,
+      version: '',
       form: {
-        version: '',
+        option: '',
         description: '',
         source: 'branch',
+        repoId: '',
         branch: '',
         tag: '',
         commit: '',
         parentId: ''
       },
+      gitList: null,
       branchList: [],
       tags: [],
       commits: [],
@@ -65,15 +75,39 @@ class CreateGitVersion extends React.Component<Props, States> {
     this.onChangeForm = this.onChangeForm.bind(this)
   }
   componentDidMount () {
-    this.getBranchList()
-    this.getTags()
-    this.getCommits()
-  }
+    if (this.props.mode == 'init') {
+      if (this.props.gitList.length == 0) {
+        this.props.dispatch({
+          type: 'git/query'
+        })
+      }
+      this.getRemoteList()
+    }
 
-  getBranchList () {
+    if (this.props.mode == 'add') {
+      this.getBranchList(this.props.repoId!)
+      this.getTags(this.props.repoId!)
+      this.getCommits(this.props.repoId!)
+    }
+    
+    
+  }
+  getRemoteList () {
+    this.props.dispatch({
+      type: 'git/queryRemoteGitList',
+      callback: (list: GitList[]) => {
+        let gitListMap = this.props.gitList.map(item => item.repoId)
+        list = list.filter( item => !gitListMap.includes(Number(item.id)))
+        this.setState({
+          gitList: list
+        })
+      }
+    })
+  }
+  getBranchList (id: string) {
     this.props.dispatch({
       type: 'git/queryBranchs',
-      payload: this.props.repoId,
+      payload: id,
       callback: (list: GitBranch[]) => {
         this.setState({
           branchList: list
@@ -82,10 +116,10 @@ class CreateGitVersion extends React.Component<Props, States> {
     })
   }
 
-  getTags () {
+  getTags (id: string) {
     this.props.dispatch({
       type: 'git/queryTags',
-      payload: this.props.repoId,
+      payload: id,
       callback: (list: GitTag[]) => {
         this.setState({
           tags: list
@@ -93,10 +127,10 @@ class CreateGitVersion extends React.Component<Props, States> {
       }
     })
   }
-  getCommits () {
+  getCommits (id: string) {
     this.props.dispatch({
       type: 'git/queryCommits',
-      payload: this.props.repoId,
+      payload: id,
       callback: (list: GitCommit[]) => {
         this.setState({
           commits: list
@@ -108,15 +142,40 @@ class CreateGitVersion extends React.Component<Props, States> {
     return new RegExp(value.toLowerCase()).test(optionData.title.toLowerCase())
   }
   onChangeForm (chanedValue: any, values: FormData) {
+    if( chanedValue['repoId']) {
+      this.getBranchList(chanedValue['repoId'])
+      this.getTags(chanedValue['repoId'])
+      this.getCommits(chanedValue['repoId'])
+    }
+    if (chanedValue['option']) {
+      const str = this.props.versionList![0].name!.split('.');
+      str[chanedValue['option']] = Number(str[chanedValue['option']]) + 1 + '';
+      switch (chanedValue['option']) {
+        case '0': {
+          str[1] = '0';
+          str[2] = '0';
+        }
+        case '1': {
+          str[2] = '0';
+        }
+      }
+      this.setState({
+        version : str.join('.')
+      });
+    }
     this.setState({
       form: values
     })
   }
   onCommit () {
     const source = this.state.form.source as 'branch' | 'tag' | 'commit'
+    if (!this.props.gitId && !this.state.form.repoId){
+      return
+    }
     const data: GitCreateVersionParam = {
-      gitId: this.props.gitId,
-      version: this.state.form.version,
+      gitId: this.props.gitId || "",
+      repoId: this.state.form.repoId || "",
+      version: this.props.mode == 'init' ? '1.0.0' : this.state.version,
       source: source,
       value: this.state.form[source],
       description: this.state.form.description,
@@ -127,6 +186,9 @@ class CreateGitVersion extends React.Component<Props, States> {
       type: 'git/createVersion',
       payload: data,
       callback: (version: GitVersion) => {
+        this.setState({
+          show: false
+        })
         if (this.props.afterAdd) this.props.afterAdd(version)
       }
     })
@@ -142,6 +204,11 @@ class CreateGitVersion extends React.Component<Props, States> {
     const branchDisplay = source === 'branch' ? 'flex' : 'none'
     const tagDisplay = source === 'tag' ? 'flex' : 'none'
     const commitDisplay = source === 'commit' ? 'flex' : 'none'
+    if ( !this.state.gitList && this.props.mode == 'init' ){
+      return(
+        <Spin className={styles.gitEditLoading} tip="git列表获取中..." size="large"></Spin>
+      )
+    }
     return (
       <Modal
         className="create-git-version"
@@ -158,9 +225,46 @@ class CreateGitVersion extends React.Component<Props, States> {
           initialValues={this.state.form}
           layout="horizontal"
           onValuesChange={this.onChangeForm}>
-          <Form.Item label="版本号" name="version">
-            <Input addonBefore="v" placeholder="x.x.x"/>
+          {
+            this.props.mode == 'init' &&
+            <Form.Item label="git" name="repoId">
+              <Select>
+                {
+                  this.state.gitList!.map(item => 
+                    <Select.Option value={item.id} key={item.id}>{item.name}</Select.Option>)
+                }
+              </Select>
           </Form.Item>
+          }
+
+          {
+            this.props.mode !== 'init' ? 
+            <Form.Item label="版本类型" name="option">
+              <Select>
+                {VersionType.map((item) => (
+                  <Select.Option value={item.key} key={item.key} title={item.title}>
+                    {item.title}
+                  </Select.Option>
+                ))}
+              </Select>              
+            </Form.Item> : null
+          }
+          
+          <Form.Item label="版本号">
+            {
+              this.props.mode == 'init' ? <Input addonBefore="v" placeholder="1.0.0" disabled/>
+              :
+              <Input
+                type="text"
+                value={this.state.version}
+                addonBefore="v"
+                disabled
+                placeholder="x.x.x"
+              />
+            }
+          </Form.Item>
+            
+        
           <Form.Item label="描述" name="description">
             <Input></Input>
           </Form.Item>
@@ -215,7 +319,7 @@ class CreateGitVersion extends React.Component<Props, States> {
           </Form.Item>
           <Form.Item label="父版本" name="parentId">
             <Select>
-              {this.props.versionList.map(version => {
+              {this.props.versionList?.map(version => {
                 return (
                 <Select.Option 
                   value={version.id} 
@@ -233,4 +337,8 @@ class CreateGitVersion extends React.Component<Props, States> {
     )
   }
 }
-export default connect()(CreateGitVersion)
+export default connect(({git}: ConnectState) => {
+  return {
+    gitList: git.gitList
+  }
+})(CreateGitVersion)

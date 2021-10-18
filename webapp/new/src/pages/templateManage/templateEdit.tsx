@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-24 11:28:51
+ * @LastEditTime: 2021-10-18 14:57:29
  */
 
 import { connect } from 'dva';
@@ -56,6 +56,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     };
 
     this.afterCreateTemplate = this.afterCreateTemplate.bind(this);
+    this.onCancelCreateTemplate = this.onCancelCreateTemplate.bind(this);
     this.onChangeReadme = this.onChangeReadme.bind(this);
     this.onChangeBuild = this.onChangeBuild.bind(this);
     this.onChangeUpdate = this.onChangeUpdate.bind(this);
@@ -94,6 +95,10 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       type: 'template/setTemplateInfo',
       payload: templateInfo,
     });
+  }
+  // 取消新建模版
+  onCancelCreateTemplate () {
+    this.props.history.goBack()
   }
 
   //异步更新版本里的文档
@@ -203,7 +208,9 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
         {
           // 是否显示创建模板
           this.state.showCreateTemplate && (
-            <CreateTemplate onCommit={this.afterCreateTemplate}></CreateTemplate>
+            <CreateTemplate 
+              onCommit={this.afterCreateTemplate} 
+              onCancel={this.onCancelCreateTemplate}></CreateTemplate>
           )
         }
 

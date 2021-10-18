@@ -56,7 +56,9 @@ class InitForm extends React.Component<Props, State>{
     }
     return (
       <div className={styles.initGuide}>
+          
         <Form ref={this.formRef} {...formItemLayout} onFinish={this.onSubmit}>
+          <div className={styles.title}>初始化信息</div>
           <div className={styles.formLine}>
           git绑定信息
           </div>
@@ -69,7 +71,7 @@ class InitForm extends React.Component<Props, State>{
           <Form.Item label="ssh token" name="sshToken" rules={[{required: true, message: '请输入ssh token'}]}>
             <Input.TextArea rows={4}></Input.TextArea>
           </Form.Item>
-          <Form.Item label="git account" name="account" rules={[{ required: true, message: '请输入git账户名' }]}>
+          <Form.Item label="git account：" name="account" rules={[{ required: true, message: '请输入git账户名' }]}>
             <Input placeholder="account"/>
           </Form.Item>
           <div className={styles.formLine}>

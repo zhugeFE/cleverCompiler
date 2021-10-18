@@ -62,9 +62,15 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   componentDidMount () {
+    if (this.props.match.params.id != "createGit") {
+      this.getInfo(this.props.match.params.id)
+    }
+  }
+
+  getInfo (id: string) {
     this.props.dispatch({
       type: 'git/getInfo',
-      payload: this.props.match.params.id,
+      payload: id,
       callback: (info: GitInfo) => {
         const currentVersion = info.versionList.length ? info.versionList[0] : null
         this.setState({
@@ -211,7 +217,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   onCancelAddVersion () {
-
+    this.props.history.goBack()
   }
 
   afterAddConfig (config: GitConfig) {
@@ -231,13 +237,18 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   afterCreateVersion (version: GitVersion) {
-    const gitInfo = util.clone(this.state.gitInfo)
-    gitInfo?.versionList.unshift(version)
-    this.setState({
-      currentVersion: version,
-      gitInfo
-    })
-    this.initDelInterval(version)
+    if (this.props.match.params.id == 'createGit') {
+      this.props.history.replace(`/manage/git/${version.sourceId}`)
+    }else{
+      this.getInfo(version.sourceId)
+    
+      this.props.match.params.id = version.sourceId
+      this.setState({
+        currentVersion: version
+      })
+      this.initDelInterval(version)
+    }
+    
   }
 
   afterDelConfig (configId: string) {
@@ -261,7 +272,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   render () {
     const labelWidth = 75
-    if (!this.state.gitInfo) {
+    if (!this.state.gitInfo && this.props.match.params.id != 'createGit') {
       return (
         <Spin className={styles.gitEditLoading} tip="git详情获取中..." size="large"></Spin>
       )
@@ -320,7 +331,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion!.publishTime))}</Tag>
                   </Tooltip>
                 </Description>
-                <Description label="git地址" labelWidth={labelWidth} className={styles.gitAddr}>ç
+                <Description label="git地址" labelWidth={labelWidth} className={styles.gitAddr}>
                   <a>{this.state.gitInfo.gitRepo}</a>
                 </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className={styles.gitConfigs}>
@@ -349,10 +360,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
           ) : (
             <div className={styles.gitPanelCenter}>
               <CreateGitVersion 
+                mode='init'
                 title="创建初始版本"
-                versionList={this.state.gitInfo?.versionList}
-                gitId={this.state.gitInfo?.id} 
-                repoId={this.state.gitInfo.gitId}
                 onCancel={this.onCancelAddVersion}
                 afterAdd={this.afterCreateVersion}></CreateGitVersion>
             </div>

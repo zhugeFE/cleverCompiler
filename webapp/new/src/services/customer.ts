@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:41:40
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:59:51
+ * @LastEditTime: 2021-10-18 17:28:05
  */
 import { AddCustomerParams, Customer } from "@/models/customer";
 import request from "@/utils/request";
@@ -32,6 +32,15 @@ class CustomerService {
 
   async customerInfo (id: string) {
     return request(api.customer.getInfo, {
+      params: {
+        id
+      }
+    })
+  }
+  
+  async deleteCustomer (id: string) {
+    return request(api.customer.deleteCustomer, {
+      method: "delete",
       params: {
         id
       }

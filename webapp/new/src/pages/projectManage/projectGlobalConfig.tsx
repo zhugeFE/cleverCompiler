@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 14:11:05
+ * @LastEditTime: 2021-09-26 16:16:21
  */
 import { TemplateGlobalConfig } from "@/models/template";
 import { ColumnProps  } from "antd/lib/table";
@@ -16,7 +16,7 @@ import ProjectGlobalConfigEdit from "./projectGlobalConfigEdit";
 import styles from "./styles/projectGlobalConfig.less"
 
 export interface Props {
-  globalConfigList: TemplateGlobalConfig[] | null;
+  globalConfigList: TemplateGlobalConfig[];
   dispatch: Dispatch;
 }
 
@@ -83,7 +83,6 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
               ></ProjectGlobalConfigEdit>
             )
           }
-
           <Table
             bordered
             columns={columns}

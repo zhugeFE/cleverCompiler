@@ -3,13 +3,14 @@ import { TextConfigParam } from '@/pages/gitManage/gitTextConfig';
 import gitService from '@/services/git';
 import { ConfigType, Version } from './common';
 
+
+export interface GitList {
+  id: string;
+  name: string;
+}
+
 export interface GitSelectParams {
-  git:[
-    {
-      id:string,
-      name:string
-    }
-  ];
+  git: GitList[];
   version:{
     [propName:string]:string[]
   }
@@ -38,6 +39,7 @@ export interface GitConfig {
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
 }
 export interface GitVersion extends Version{
+  sourceId: string;
   sourceType: string;
   sourceValue: string;
   compileOrders: string[]; // 编译命令组
@@ -68,6 +70,7 @@ export interface GitTag {
 }
 export interface GitCreateVersionParam {
   gitId: string; // git id（这里指编译平台里面的id）
+  repoId: string;
   version: string; // 版本号
   source: string; // 版本来源：branch/tag/commit
   value: string; // 版本来源值
@@ -98,6 +101,7 @@ export type GitModelType = {
     query: Effect;
     getInfo: Effect;
     getFileTree: Effect;
+    queryRemoteGitList: Effect;
     queryBranchs: Effect;
     queryCommits: Effect;
     queryTags: Effect;
@@ -136,6 +140,11 @@ const GitModel: GitModelType = {
       const res = yield call(gitService.getFileTree, payload)
       if (res.status === -1) return
       callback(res.data)
+    },
+    *queryRemoteGitList ({callback}, {call}) {
+      const res = yield call(gitService.queryRemoteGitList)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
     },
     *queryBranchs ({payload, callback}, {call}) {
       const res = yield call(gitService.queryBranchs, payload)

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:21:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-27 16:50:48
+ * @LastEditTime: 2021-09-26 16:19:48
  */
 import { Form, Input, Modal } from 'antd';
 import React from 'react';
@@ -22,7 +22,6 @@ interface FormData {
 interface Props {
   globalConfig?: TemplateGlobalConfig;
   onCancel(): void;
-  onBack?(): void;
   dispatch: Dispatch;
 }
 
@@ -57,7 +56,7 @@ class ProjectGlobalConfig extends React.Component<Props, States> {
       type: 'template/updateComConfig',
       payload: data,
       callback: ()=>{
-        if(this.props.onCancel) this.props.onCancel()
+        this.onCancel()
       }
     })
     
@@ -70,11 +69,6 @@ class ProjectGlobalConfig extends React.Component<Props, States> {
     });
   }
 
-  onBack() {
-    if (this.props.onBack) {
-      this.props.onBack();
-    }
-  }
 
   render() {
     return (
