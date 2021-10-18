@@ -1,9 +1,20 @@
+import { GitList } from './../types/git';
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitConfig } from '../types/git';
 import { DirNode } from '../types/common';
 const router = Router()
+
+router.get('/remotelist', (req: Request, res: Response, next: NextFunction) => {
+  gitService.getRemoteGitList()
+  .then( (gitList: GitList[]) => {
+    res.json(new ApiResult(ResponseStatus.success, gitList))
+  })
+  .catch(err => {
+    next(err)
+  })
+})
 
 router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   gitService.query()

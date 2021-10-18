@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : XT
+ Source Server         : localhost_3306
  Source Server Type    : MySQL
- Source Server Version : 80020
- Source Host           : 10.84.193.141:3306
+ Source Server Version : 80025
+ Source Host           : localhost:3306
  Source Schema         : clever_compile
 
  Target Server Type    : MySQL
- Target Server Version : 80020
+ Target Server Version : 80025
  File Encoding         : 65001
 
- Date: 20/09/2021 16:06:05
+ Date: 18/10/2021 18:58:28
 */
 
 SET NAMES utf8mb4;
@@ -28,12 +28,13 @@ CREATE TABLE `compile` (
   `compile_result` varchar(50) NOT NULL COMMENT '编译结果',
   `project_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '编译项目id',
   `description` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '描述',
+  `file` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '文件地址',
   PRIMARY KEY (`id`),
   KEY `compile_ibfk_1` (`compile_user`),
   KEY `compile_ibfk_2` (`project_id`),
   CONSTRAINT `compile_ibfk_1` FOREIGN KEY (`compile_user`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `compile_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Table structure for config_type
@@ -44,7 +45,7 @@ CREATE TABLE `config_type` (
   `label` varchar(100) DEFAULT NULL COMMENT '类型描述',
   `key` varchar(10) DEFAULT NULL COMMENT '英文标识',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文本、文件替换、json';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='文本、文件替换、json';
 
 -- ----------------------------
 -- Table structure for customer
@@ -55,10 +56,11 @@ CREATE TABLE `customer` (
   `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '客户名称',
   `description` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '描述',
   `creator_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '创建者id',
+  `tel` varchar(11) DEFAULT NULL COMMENT '联系方式',
   PRIMARY KEY (`id`),
   KEY `customer_ibfk_2` (`creator_id`),
   CONSTRAINT `customer_ibfk_2` FOREIGN KEY (`creator_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='客户表';
 
 -- ----------------------------
 -- Table structure for git_source
@@ -72,7 +74,7 @@ CREATE TABLE `git_source` (
   `enable` tinyint(1) DEFAULT NULL COMMENT '是否启用为源',
   `git_id` int DEFAULT NULL COMMENT 'git库中的id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='git源\n会将当前git账号有权限的所有git库都导入进来';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='git源\n会将当前git账号有权限的所有git库都导入进来';
 
 -- ----------------------------
 -- Table structure for project
@@ -95,7 +97,7 @@ CREATE TABLE `project` (
   CONSTRAINT `project_ibfk_1` FOREIGN KEY (`template_id`) REFERENCES `template` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `project_ibfk_2` FOREIGN KEY (`template_version`) REFERENCES `template_version` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `project_ibfk_3` FOREIGN KEY (`customer`) REFERENCES `customer` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目表。';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='项目表。';
 
 -- ----------------------------
 -- Table structure for project_config
@@ -114,7 +116,7 @@ CREATE TABLE `project_config` (
   CONSTRAINT `project_config_ibfk_1` FOREIGN KEY (`config_id`) REFERENCES `template_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `project_config_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `project_config_ibfk_3` FOREIGN KEY (`global_config_id`) REFERENCES `project_global_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='编译项目配置';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='编译项目配置';
 
 -- ----------------------------
 -- Table structure for project_global_config
@@ -130,7 +132,7 @@ CREATE TABLE `project_global_config` (
   KEY `project_global_config_ibfl_3` (`config_id`),
   CONSTRAINT `project_global_config_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `project_global_config_ibfl_3` FOREIGN KEY (`config_id`) REFERENCES `template_global_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Table structure for project_share
@@ -146,7 +148,7 @@ CREATE TABLE `project_share` (
   KEY `project_share_ibfk_2` (`user_id`),
   CONSTRAINT `project_share_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `project_share_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分享成员表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='分享成员表';
 
 -- ----------------------------
 -- Table structure for role
@@ -156,7 +158,7 @@ CREATE TABLE `role` (
   `id` int NOT NULL,
   `name` varchar(100) DEFAULT NULL COMMENT '角色名称',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Table structure for source_config
@@ -178,7 +180,7 @@ CREATE TABLE `source_config` (
   CONSTRAINT `source_config_ibfk_1` FOREIGN KEY (`source_id`) REFERENCES `git_source` (`id`),
   CONSTRAINT `source_config_ibfk_2` FOREIGN KEY (`version_id`) REFERENCES `source_version` (`id`),
   CONSTRAINT `source_config_ibfk_3` FOREIGN KEY (`type_id`) REFERENCES `config_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Table structure for source_version
@@ -204,7 +206,7 @@ CREATE TABLE `source_version` (
   KEY `creator_id` (`creator_id`),
   CONSTRAINT `source_version_ibfk_1` FOREIGN KEY (`source_id`) REFERENCES `git_source` (`id`),
   CONSTRAINT `source_version_ibfk_2` FOREIGN KEY (`creator_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='gitSource版本';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='gitSource版本';
 
 -- ----------------------------
 -- Table structure for sys
@@ -218,7 +220,7 @@ CREATE TABLE `sys` (
   `git_host` varchar(100) DEFAULT NULL COMMENT 'git库host地址,用于API调用',
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Table structure for template
@@ -234,7 +236,7 @@ CREATE TABLE `template` (
   PRIMARY KEY (`id`),
   KEY `creator_id_user_id` (`creator_id`),
   CONSTRAINT `creator_id_user_id` FOREIGN KEY (`creator_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Table structure for template_config
@@ -260,7 +262,7 @@ CREATE TABLE `template_config` (
   CONSTRAINT `template_config_ibfk_7` FOREIGN KEY (`template_version_id`) REFERENCES `template_version` (`id`),
   CONSTRAINT `template_config_ibfk_8` FOREIGN KEY (`template_version_git_id`) REFERENCES `template_version_git` (`id`),
   CONSTRAINT `template_config_ibfk_9` FOREIGN KEY (`git_source_config_id`) REFERENCES `source_config` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='模板对应git源局部配置';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='模板对应git源局部配置';
 
 -- ----------------------------
 -- Table structure for template_global_config
@@ -279,7 +281,7 @@ CREATE TABLE `template_global_config` (
   KEY `template_id` (`template_id`),
   CONSTRAINT `template_source_config_ibfk_1` FOREIGN KEY (`template_version_id`) REFERENCES `template_version` (`id`),
   CONSTRAINT `template_source_config_ibfk_2` FOREIGN KEY (`template_id`) REFERENCES `template` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='模板中全局配置信息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='模板中全局配置信息';
 
 -- ----------------------------
 -- Table structure for template_version
@@ -298,7 +300,7 @@ CREATE TABLE `template_version` (
   PRIMARY KEY (`id`),
   KEY `template_id` (`template_id`),
   CONSTRAINT `template_version_ibfk_3` FOREIGN KEY (`template_id`) REFERENCES `template` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='模板版本';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='模板版本';
 
 -- ----------------------------
 -- Table structure for template_version_git
@@ -319,7 +321,7 @@ CREATE TABLE `template_version_git` (
   CONSTRAINT `template_config_ibfk_2` FOREIGN KEY (`template_version_id`) REFERENCES `template_version` (`id`),
   CONSTRAINT `template_config_ibfk_3` FOREIGN KEY (`git_source_id`) REFERENCES `git_source` (`id`),
   CONSTRAINT `template_config_ibfk_4` FOREIGN KEY (`git_source_version_id`) REFERENCES `source_version` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='模板版本中git源';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='模板版本中git源';
 
 -- ----------------------------
 -- Table structure for user
@@ -331,7 +333,7 @@ CREATE TABLE `user` (
   `password` varchar(50) DEFAULT NULL COMMENT '密码',
   `email` varchar(100) DEFAULT NULL COMMENT '邮箱',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Table structure for user_role
@@ -346,6 +348,6 @@ CREATE TABLE `user_role` (
   KEY `role_id` (`role_id`),
   CONSTRAINT `user_role_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `user_role_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 SET FOREIGN_KEY_CHECKS = 1;

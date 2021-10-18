@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:55:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-15 11:10:04
+ * @LastEditTime: 2021-09-29 18:19:26
  */
 
 import { ConfigInstance } from "./template";
@@ -20,6 +20,7 @@ export interface ProjectCompile {
   projectName: string; //项目名称
   projectDesc: string; //项目描述
   cusName: string; // 客户名称
+  file: string; //文件位置
 }
 
 export interface CompileParam {

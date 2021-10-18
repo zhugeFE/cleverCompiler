@@ -1,3 +1,4 @@
+import { GitList } from './../types/git';
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
@@ -12,6 +13,7 @@ interface Repo {
   name: string;
   'ssh_url_to_repo': string;
   description: string;
+  name_with_namespace: string;
 }
 class GitDao {
   /**
@@ -61,6 +63,37 @@ class GitDao {
     }
     return repoList
   }
+  async getRemoteGitList (): Promise<GitList[]> {
+    logger.info('同步git库数据')
+    const sysInfo = await sysDao.getSysInfo()
+    if (!sysInfo) return null
+    const res = await axios({
+      url: 'api/v3/projects',
+      method: 'GET',
+      baseURL: sysInfo.gitHost,
+      headers: {
+        'PRIVATE-TOKEN': sysInfo.gitToken
+      },
+      params: {
+        'per_page': 100
+      }
+    }) as {
+      data: Repo[];
+    }
+    const repoList = res.data.length > 0  ? res.data : []
+    
+    const gitListInfo = []
+    repoList.map( item => {
+      gitListInfo.push({
+        id: item.id,
+        name: item.name_with_namespace
+      })
+    })
+    
+    return gitListInfo
+  }
+
+  
   async getBranchsById (id: string | number): Promise<GitBranch[]> {
     const res = await gitUtil.ajax<GitBranch[]>(`projects/${id}/repository/branches`, 'GET')
     return res.map(item => {
@@ -141,6 +174,38 @@ class GitDao {
     return gitInfo
   }
   async addVersion (param: GitCreateVersionParam): Promise<GitVersion> {
+    let gitId = param.gitId
+    if ( param.repoId !== "" && param.gitId == "") {
+      const sysInfo = await sysDao.getSysInfo()
+      if (!sysInfo) return null
+      const connect = await pool.beginTransaction()
+      try {
+        const res = await axios({
+          url: `api/v3/projects/${param.repoId}`,
+          method: 'GET',
+          baseURL: sysInfo.gitHost,
+          headers: {
+            'PRIVATE-TOKEN': sysInfo.gitToken
+          }
+        }) as {
+          data: Repo;
+        }
+        const sql = `insert into git_source(\`id\`, \`name\`, \`git\`, \`git_id\`, \`description\`, \`enable\`) values(?, ?, ?, ?, ?, ${false})`
+        gitId = util.uuid() //编译平台里的gitid
+        await pool.writeInTransaction(connect, sql, [
+          gitId,
+          res.data.name,
+          res.data.ssh_url_to_repo,
+          res.data.id,
+          res.data.description
+        ])
+        await pool.commit(connect)
+      } catch (e) {
+        pool.rollback(connect)
+        logger.error('向git表插入数据失败', e)
+        throw e
+      }
+    }
     // todo 版本号重复校验
     const sql = `insert into source_version(
       id, source_id, parent_id, version, publish_time, status, source_type, source_value, description
@@ -150,7 +215,7 @@ class GitDao {
     const id = util.uuid()
     await pool.write(sql, [
       id,
-      param.gitId,
+      gitId,
       param.parentId,
       param.version,
       new Date().getTime(),
@@ -164,6 +229,7 @@ class GitDao {
   async getVersionById (versionId: string): Promise<GitVersion> {
     const sql = `select 
       v.id,
+      v.source_id,
       v.version as name,
       v.description,
       v.status,

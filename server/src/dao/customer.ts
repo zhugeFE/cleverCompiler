@@ -4,14 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:50:24
+ * @LastEditTime: 2021-10-18 18:26:42
  */
 
 import pool from './pool'
 import {
   ProjectCustomer,
   AddCustomerParams,
-  ProjectCustomerInstance,
 } from "../types/customer"
 import util from '../utils/util'
 import _ = require('lodash')
@@ -24,6 +23,7 @@ class Customer {
       c.id AS id,
       c.NAME AS NAME,
       c.description AS description,
+      c.tel AS tel,
       c.creator_id AS creator_id,
       u.NAME AS creator_name 
     FROM
@@ -34,15 +34,16 @@ class Customer {
 
   //客户新建
   async customerAdd (params: AddCustomerParams): Promise<ProjectCustomer>{
-    const sql = `INSERT INTO customer ( id, name, description, creator_id )
+    const sql = `INSERT INTO customer ( id, name, description, tel, creator_id )
       VALUES
-        ( ?, ?, ?, ? )`
+        ( ?, ?, ?, ?, ? )`
     
     const id = util.uuid()
     await pool.write(sql,[
       id,
       params.name,
       params.description,
+      params.tel,
       params.creatorId
     ])
     return await this.getCustomerById(id)
@@ -55,7 +56,7 @@ class Customer {
       id,
       NAME,
       description,
-      project_id,
+      tel,
       creator_id 
     FROM
       customer 
@@ -73,7 +74,7 @@ class Customer {
   }
 
   //客户信息更新
-  async updateCustomer (data: ProjectCustomerInstance): Promise<void> {
+  async updateCustomer (data: ProjectCustomer): Promise<void> {
     const props = []
     const params = []
     for (const key in data) {

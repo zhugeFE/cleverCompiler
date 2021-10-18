@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-20 16:08:34
+ * @LastEditTime: 2021-09-26 09:56:11
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
@@ -82,6 +82,13 @@ router.post('/update', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
+router.get('/version/:id/info', (req: Request, res: Response, next: NextFunction) => {
+  templateService.getVersionInfo(req.params.id)
+  .then((version: TemplateVersion) => {
+    res.json(new ApiResult(ResponseStatus.success, version))
+  })
+  .catch(next)
+})
 router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
   templateService.addVersion(req.body as CreateTemplateVersionParams)
   .then((version: TemplateVersion) => {

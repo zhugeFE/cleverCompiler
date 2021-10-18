@@ -4,9 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-12 23:16:47
+ * @LastEditTime: 2021-10-15 18:01:05
  */
 import * as fs from 'fs'
+import { reject } from 'lodash';
 import * as pt from 'path'
 import { DirNode } from '../types/common';
 
@@ -92,6 +93,18 @@ class FsUtil {
           reject(err)
         } else {
           resolve(data.toString())
+        }
+      })
+    })
+  }
+  readDir (filePath: string): Promise<string[]> {
+    return new Promise( (resolve, reject) => {
+      fs.readdir(filePath, (err, data: string[]) => {
+        if(err){
+          reject(err)
+        } else {
+          const res = data.map( item => `${filePath}/${item}`)
+          resolve(res)
         }
       })
     })

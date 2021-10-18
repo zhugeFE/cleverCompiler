@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-03 23:33:05
+ * @LastEditTime: 2021-10-15 16:06:04
  */
 import sys from './sys'
 import user from './user'
@@ -13,6 +13,7 @@ import template from './template'
 import compile from './compile'
 import project from './project'
 import customer from './customer'
+import download from './download'
 import { Router } from 'express'
 const router = Router()
 
@@ -23,4 +24,5 @@ router.use('/template', template)
 router.use('/compile', compile)
 router.use('/project', project)
 router.use('/customer', customer)
+router.use('/download', download)
 export default router

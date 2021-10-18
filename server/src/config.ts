@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-18 09:41:29
+ * @LastEditTime: 2021-10-18 11:39:22
  */
 import * as path from 'path'
 import * as fs from 'fs'
@@ -19,10 +19,20 @@ interface Database {
   password: string;
   database: string;
 }
+interface RedisCofig {
+  ip: string;
+  port: number;
+  password?: string;
+}
 interface ServerConfig{
   database: Database;
   port: number;
   compileDir: string;
+  redis: {
+    default: RedisCofig;
+    poolSize: number;
+    maxPoolSize: number;
+  };
 }
 
 let config: ServerConfig = {
@@ -34,6 +44,15 @@ let config: ServerConfig = {
     password: '123456',
     database: 'clever_compile',
     connectionLimit: 20
+  },
+  redis: {
+    poolSize: 10,
+    maxPoolSize: 100,
+    default: {
+      ip: '127.0.0.1',
+      port: 6379,
+      password: ''
+    } 
   },
   compileDir: path.resolve(__dirname, '../.compile')
 }

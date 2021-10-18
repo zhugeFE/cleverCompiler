@@ -5,8 +5,8 @@ import { TemplateGlobalConfig, TemplateVersionGit } from "./template";
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 17:14:31
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-09 08:59:23
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-09-26 16:36:15
  */
 export interface ProjectInstance {
   id: string; //项目id
@@ -21,7 +21,7 @@ export interface ProjectInstance {
 }
 
 export interface ProjectInfo extends ProjectType{
-  shareNumber: string[]; //分享成员
+  shareNumber: string; //分享成员
   gitList: TemplateVersionGit[];
   globalConfigList: ProjectGlobalConfig[];//全局配置
 }

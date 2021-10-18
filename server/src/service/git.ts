@@ -1,10 +1,11 @@
+import { GitList } from './../types/git';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-11 14:38:31
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-10-17 12:04:16
  */
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig, CompileParams } from '../types/git';
@@ -16,12 +17,13 @@ import fsUtil from '../utils/fsUtil';
 import dashUtil from '../utils/dashUtil';
 
 class GitService {
+  async getRemoteGitList (): Promise<GitList[]>{
+    const gitList = await gitDao.getRemoteGitList()
+    return gitList
+  }
   async query (): Promise<GitInstance[]> {
-    let gitList = await gitDao.query()
-    if (!gitList.length) { // 如果一个库都没查到，则默认同步一下git数据
-      await gitDao.syncRep()
-      gitList = await gitDao.query()
-    }
+    // await gitDao.syncRep()
+    const gitList = await gitDao.query()
     return gitList
   }
   async getInfoById (repoId: string): Promise<GitInfo> {

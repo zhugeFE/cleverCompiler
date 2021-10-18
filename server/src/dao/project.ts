@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-24 12:37:47
+ * @LastEditTime: 2021-09-24 18:27:27
  */
 import _ = require("lodash");
 import { CreateConfigParams, CreateProjectParams, CreateShareProject, ProjectConfig, ProjectGlobalConfig, ProjectInfo, ProjectInstance, ProjectShare, ProjectType } from "../types/project";
@@ -97,9 +97,10 @@ class Project {
     const projetcConfigMap = {} //项目最终配置值映射
 
     templateVersionInfo.globalConfigList.map( item => {
-      if ( !item.isHidden) {
-        templateGlobalConfigMap[item.id] = item.defaultValue
-      }
+      // if ( !item.isHidden) {
+        
+      // }
+      templateGlobalConfigMap[item.id] = item.defaultValue
     })
 
     globalConfig.map( item => {
@@ -118,13 +119,10 @@ class Project {
       })
     })
 
-
-    
-
     
     const data: ProjectInfo = {
       ...projectData,
-      shareNumber: shareNumber.map(item=>item.receiveUserId),
+      shareNumber: shareNumber[0].receiveUserId,
       globalConfigList: globalConfig,
       gitList: templateVersionInfo.gitList
     }

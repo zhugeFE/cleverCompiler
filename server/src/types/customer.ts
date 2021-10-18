@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:14:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:49:14
+ * @LastEditTime: 2021-10-18 18:19:50
  */
 
 
@@ -12,21 +12,15 @@ export interface ProjectCustomer {
   id: string; //客户id
   name: string; // 客户名称
   description: string; //客户描述
-  projectId: string; //项目id
   creatorId: string; //创建者id
-  creatorName: string; //创建者名称
+  creatorName?: string; //创建者名称,
+  tel: string; //联系方式
 }
 
-export interface ProjectCustomerInstance {
-  id: string; //客户id
-  name: string; //客户名称
-  description: string; //客户描述
-  projectId: string; //项目id
-  creatorId: string; //创建者id
-}
 
 export interface AddCustomerParams {
   name: string; //客户名称
+  tel: string; //联系方式
   description: string; //客户描述
   creatorId: string; //创建者id
 }

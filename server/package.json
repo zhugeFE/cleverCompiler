@@ -37,6 +37,9 @@
   },
   "dependencies": {
     "@types/socket.io": "^3.0.2",
+    "connect-redis": "^6.0.0",
+    "cookie-parser": "^1.4.5",
+    "redis": "^3.1.2",
     "socket.io": "3.0.2"
   }
 }

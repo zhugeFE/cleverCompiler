@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:18:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-21 17:08:44
+ * @LastEditTime: 2021-09-29 18:20:59
  */
 
 import pool from './pool'
@@ -42,7 +42,8 @@ class Compile {
       compile_user,
       compile.compile_result,
       project_id,
-      description 
+      description,
+      file
     FROM
       compile 
     WHERE
@@ -59,6 +60,7 @@ class Compile {
       c.compile_time as compile_time,
       c.compile_user as compile_user, 
       c.compile_result as compile_result,
+      c.file as file,
       c.project_id as project_id,
       c.description as description ,
       p.name as projectName,

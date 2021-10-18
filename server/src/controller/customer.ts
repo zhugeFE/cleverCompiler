@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:12:23
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-20 15:35:07
+ * @LastEditTime: 2021-10-18 18:20:37
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import CustomerSerive from "../service/customer"
-import { AddCustomerParams, ProjectCustomer, ProjectCustomerInstance } from '../types/customer'
+import { AddCustomerParams, ProjectCustomer } from '../types/customer'
 
 const router = Router()
 
@@ -18,6 +18,7 @@ const router = Router()
 router.post('/add', (req: Request, res: Response, next: NextFunction) => {
   const param =  req.body as {
     name: string; 
+    tel: string;
     description: string;
   }
   CustomerSerive.addCustomer({creatorId: req.session.currentUser.id, ...param} as AddCustomerParams)
@@ -40,9 +41,19 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   })
 })
 
+//客户删除
+router.delete('/delete', (req: Request, res: Response, next: NextFunction) => {
+  CustomerSerive.deleteCustomer(req.query.id)
+  .then(()=>{
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
+
 //客户信息更改
 router.post('/update', (req: Request, res: Response, next: NextFunction) => {
-  const customer = req.body as ProjectCustomerInstance
+  const customer = req.body as ProjectCustomer
   if( !customer.id ){
     res.json(new ApiResult(ResponseStatus.fail, null , "客户id不能为空！"))
     return

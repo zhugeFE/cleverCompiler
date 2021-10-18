@@ -4,9 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-14 09:29:43
+ * @LastEditTime: 2021-10-17 22:46:50
  */
 import { Version } from './common';
+
+export interface GitList {
+  id: string;
+  name: string;
+}
 
 export interface GitInstance {
   id: string;
@@ -44,6 +49,7 @@ export interface GitTag {
 }
 export interface GitCreateVersionParam {
   gitId: string; // git id（这里指编译平台里面的id）
+  repoId: string;
   version: string; // 版本号
   source: string; // 版本来源：branch/tag/commit
   value: string; // 版本来源值
@@ -75,6 +81,7 @@ export interface GitConfig {
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
 }
 export interface GitVersion extends Version{
+  sourceId: string; 
   sourceType: string; // 版本来源类型：branch/tag/commit
   sourceValue: string; // 版本来源值
   description: string; // 版本描述

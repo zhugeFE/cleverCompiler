@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-23 10:17:37
+ * @LastEditTime: 2021-09-26 09:55:57
  */
 import { 
   CreateTemplateConfigParams, 
@@ -43,6 +43,9 @@ class TemplateService {
     return await templateDao.getInfo(id)
   }
 
+  async getVersionInfo(id: string): Promise<TemplateVersion>{
+    return await templateDao.getVersionbyId(id)
+  }
   async addVersion (param: CreateTemplateVersionParams): Promise<TemplateVersion> {
     return await templateDao.createVersion(param)
     
