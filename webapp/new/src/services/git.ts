@@ -1,4 +1,5 @@
-import { GitCreateVersionParam, GitTextConfigParam, GitUpdateVersionParam } from '@/models/git';
+import { UpdateGitStatus } from './../models/git';
+import { GitCreateVersionParam, GitTextConfigParam, GitUpdateVersionParam, GitConfig } from '@/models/git';
 import request from '@/utils/request';
 import apis from './constants/apis';
 
@@ -66,6 +67,7 @@ class GitService {
 
   async addConfig (data: GitTextConfigParam) {
     return request(apis.git.addConfig, {
+      requestType: 'form',
       method: 'post',
       data: data
     })
@@ -101,6 +103,35 @@ class GitService {
       method: 'delete',
       params: {
         id: versionId
+      }
+    })
+  }
+
+  async updateGitStatus (gitList: UpdateGitStatus[]) {
+    return request(apis.git.updateGitStatus, {
+      method: 'post',
+      data: gitList
+    })
+  }
+
+  async updateGitVersionStatus (data: {id: string, status: number}) {
+    return request(apis.git.updateGitVersionStatus, {
+      method: "post",
+      data
+    })
+  }
+  async updateConfig(config: GitConfig) {
+    return request(apis.git.updateConfig, {
+      requestType: "form",
+      method: "post",
+      data: config
+    })
+  }
+  async deletGitInfo (id: string) {
+    return request(apis.git.deleteGit, {
+      method: "delete",
+      params: {
+        id
       }
     })
   }

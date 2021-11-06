@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { Modal, Card, Row, Col } from 'antd';
-import GitTextConfig from './gitTextConfig'
+import GitTextConfig from './gitTextConfig';
+import GitFileConfig from './gitFileConfig';
 import styles from './styles/gitAddConfig.less'
-import { ConfigType, Version } from '@/models/common';
+import { ConfigType, EditMode, Version } from '@/models/common';
 import { connect } from 'dva'
 import { GitConfig } from '@/models/git';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { ConnectState } from '@/models/connect';
+import e from '@umijs/deps/compiled/express';
 
 interface Props {
   gitId: string;
@@ -50,14 +52,21 @@ class GitAddConfig extends React.Component<Props, State> {
   }
 
   onSubmitForm (formData: any) {
+    const form = new FormData()
+    for (let key of Object.keys(formData)) {
+      if (key == 'file') {
+        console.log(formData[key])
+        form.append("files", formData[key]['file'])
+      } else {
+        form.append(key, formData[key])
+      }
+    }
+    form.append("sourceId", this.props.gitId)
+    form.append("versionId", this.props.version.id)
+    form.append("typeId", String(this.state.type!.id))
     this.props.dispatch({
       type: 'git/addConfig',
-      payload: {
-        sourceId: this.props.gitId,
-        versionId: this.props.version.id,
-        typeId: this.state.type!.id,
-        ...formData
-      },
+      payload: form,
       callback: (config: GitConfig) => {
         if (this.props.onSubmit) this.props.onSubmit(config)
       }
@@ -81,16 +90,24 @@ class GitAddConfig extends React.Component<Props, State> {
         case 'text':
           return (
             <GitTextConfig 
+              mode={EditMode.create}
               gitId={this.props.gitId}
-              versionId={this.props.version.id}
+              gitVersionId={this.props.version.id}
               onSubmit={this.onSubmitForm}
               onBack={this.onBack}
               onCancel={this.onCancel}></GitTextConfig>
           )
         case 'file':
           return (
-            // <GitFileConfig></GitFileConfig>
-            'git file config'
+            <GitFileConfig
+              mode={EditMode.create}
+              gitId={this.props.gitId}
+              gitVersionId={this.props.version.id}
+              onSubmit={this.onSubmitForm}
+              onBack={this.onBack}
+              onCancel={this.onCancel}
+            ></GitFileConfig>
+            // 'git file config'
           )
         case 'json':
           return (

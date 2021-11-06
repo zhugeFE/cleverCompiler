@@ -8,32 +8,32 @@ import styles from './styles/textConfig.less'
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from 'dva';
 import GitFileEditor from './fileEditor';
+import { EditMode } from '@/models/common';
+import { GitConfig } from '@/models/git';
 
 interface FormData {
   filePath?: string;
   reg?: string;
-  value?: string;
-  desc?: string;
+  targetValue?: string;
+  description?: string;
   global?: boolean;
   ignoreCase?: boolean;
 }
 export interface TextConfigParam {
   filePath: string;
-  reg: {
-    source: string;
-    global: boolean;
-    ignoreCase: boolean;
-  };
-  value: string;
-  desc: string;
+  reg: string
+  targetValue: string;
+  description: string;
 }
 interface Props {
-  dispatch: Dispatch;
+  mode: EditMode;
   gitId: string;
-  versionId: string;
+  gitVersionId: string;
+  configInfo?: GitConfig;
   onCancel (): void;
   onSubmit (data: TextConfigParam): void;
-  onBack (): void;
+  onBack? (): void;
+  dispatch: Dispatch;
 }
 interface State {
   filePath: string;
@@ -47,9 +47,16 @@ class GitTextConfig extends React.Component<Props, State> {
   constructor (props: Props) {
     super(props)
     this.state = {
-      filePath: '',
+      filePath: props.configInfo?.filePath || "",
       fileContent: '',
-      formData: {},
+      formData: {
+        filePath: props.configInfo?.filePath || "",
+        description: props.configInfo?.description || "",
+        targetValue: props.configInfo?.targetValue || "",
+        reg: props.configInfo ? JSON.parse(props.configInfo.reg)['source'] : "",
+        global: props.configInfo ? JSON.parse(props.configInfo.reg)['global'] : false,
+        ignoreCase: props.configInfo ? JSON.parse(props.configInfo.reg)['ignoreCase'] : false
+      },
       displayContent: ''
     }
     this.onSelectFile = this.onSelectFile.bind(this)
@@ -59,6 +66,12 @@ class GitTextConfig extends React.Component<Props, State> {
     this.onSubmit = this.onSubmit.bind(this)
     this.onCancel = this.onCancel.bind(this)
     this.onBack = this.onBack.bind(this)
+  }
+
+  componentDidMount () {
+    if (this.props.mode === EditMode.update) {
+      this.onSelectFile(this.state.filePath)
+    }
   }
   onSelectFile (filePath: string) {
     this.props.dispatch({
@@ -90,7 +103,7 @@ class GitTextConfig extends React.Component<Props, State> {
   }
   onReplace () {
     this.setState({
-      displayContent: this.state.displayContent.replace(this.state.reg!, this.state.formData.value || '')
+      displayContent: this.state.displayContent.replace(this.state.reg!, this.state.formData.targetValue || '')
     })
   }
   onReset () {
@@ -109,13 +122,13 @@ class GitTextConfig extends React.Component<Props, State> {
       const reg = this.state.reg
       this.props.onSubmit({
         filePath: this.state.filePath,
-        reg: {
+        reg: JSON.stringify({
           source: reg!.source,
           global: reg!.global,
           ignoreCase: reg!.ignoreCase
-        },
-        value: this.state.formData.value!,
-        desc: this.state.formData.desc!
+        }),
+        targetValue: this.state.formData.targetValue!,
+        description: this.state.formData.description!
       })
     })
     .catch((err) => {
@@ -134,18 +147,20 @@ class GitTextConfig extends React.Component<Props, State> {
         className={configStyles.gitConfigModal} 
         visible={true} 
         title={<a onClick={this.onBack}><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>} 
-        width="90%" 
+        width="60%" 
         okText="保存" 
         cancelText="取消"
         onCancel={this.onCancel}
         onOk={this.onSubmit}>
         <FileTree 
+          defauleSelect={this.state.filePath}
           onSelect={this.onSelectFile} 
-          versionId={this.props.versionId}
+          versionId={this.props.gitVersionId}
           gitId={this.props.gitId}></FileTree>
         <div className={[configStyles.gitCmLeftPanel, styles.gitTextConfig].join(' ')}>
           <Form ref={this.form}
             layout="inline"
+            initialValues={this.state.formData}
             onValuesChange={this.onChange}>
             <Form.Item name="reg" label="匹配正则" className={styles.long}
               rules={[{
@@ -161,11 +176,11 @@ class GitTextConfig extends React.Component<Props, State> {
               <Checkbox>忽略大小写</Checkbox>
             </Form.Item>
             <div className={styles.formDivider}/>
-            <Form.Item label="替换为" name="value" className={styles.long}>
+            <Form.Item label="替换为" name="targetValue" className={styles.long}>
               <Input></Input>
             </Form.Item>
             <div className={styles.formDivider}/>
-            <Form.Item label="配置描述" name="desc" className={styles.long}
+            <Form.Item label="配置描述" name="description" className={styles.long}
               rules={[{
                 required: true,
                 message: '描述信息不能为空'

@@ -16,7 +16,6 @@ interface FormData {
   tag: string;
   commit: string;
   description: string;
-  parentId: string;
 }
 interface Props {
   mode: string;
@@ -58,7 +57,6 @@ class CreateGitVersion extends React.Component<Props, States> {
         branch: '',
         tag: '',
         commit: '',
-        parentId: ''
       },
       gitList: null,
       branchList: [],
@@ -177,9 +175,8 @@ class CreateGitVersion extends React.Component<Props, States> {
       repoId: this.state.form.repoId || "",
       version: this.props.mode == 'init' ? '1.0.0' : this.state.version,
       source: source,
-      value: this.state.form[source],
+      sourceValue: this.state.form[source],
       description: this.state.form.description,
-      parentId: this.state.form.parentId
     }
 
     this.props.dispatch({
@@ -315,21 +312,6 @@ class CreateGitVersion extends React.Component<Props, States> {
                 )
               })
             }
-            </Select>
-          </Form.Item>
-          <Form.Item label="父版本" name="parentId">
-            <Select>
-              {this.props.versionList?.map(version => {
-                return (
-                <Select.Option 
-                  value={version.id} 
-                  key={version.id} 
-                  title={version.name}>
-                  {version.name}
-                  <div className='option-desc'>{version.description}</div>
-                </Select.Option>
-                )
-              })}
             </Select>
           </Form.Item>
         </Form>

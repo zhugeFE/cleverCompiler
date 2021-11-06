@@ -1,6 +1,6 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
-import { Version } from '@/models/common'
+import { Version, VersionStatus, VersionType } from '@/models/common'
 import { GitConfig, GitInfo, GitUpdateVersionParam, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import * as _ from 'lodash'
@@ -59,6 +59,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onChangeBuild = this.onChangeBuild.bind(this)
     this.onChangeUpdate = this.onChangeUpdate.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
+    this.onPlaceOnFile = this.onPlaceOnFile.bind(this)
+    this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
   }
 
   componentDidMount () {
@@ -66,7 +68,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
       this.getInfo(this.props.match.params.id)
     }
   }
-
+  componentWillUnmount () {
+    if (this.state.delInterval) clearInterval(this.state.delInterval)
+  }
   getInfo (id: string) {
     this.props.dispatch({
       type: 'git/getInfo',
@@ -84,7 +88,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   initDelInterval (version: GitVersion | null) {
     clearInterval(this.state.delInterval as unknown as number)
-    if (!version) {
+    if (!version || version.status == VersionStatus.placeOnFile) {
       this.setState({
         delTimeout: 0,
         delTooltip: ''
@@ -147,19 +151,13 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   onAddConfig () {
+    if ( this.state.currentVersion?.status !== VersionStatus.normal) return
     this.setState({
       showAddConfig: true
     })
   }
 
-  onChangeOrders (orders: string[]) {
-    const version = util.clone(this.state.currentVersion)
-    version!.compileOrders = orders
-    this.setState({
-      currentVersion: version
-    })
-    this.onUpdateVersion()
-  }
+  
 
   onUpdateVersion () {
     if (this.state.updateTimeout) {
@@ -220,9 +218,46 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.props.history.goBack()
   }
 
+  onChangeOrders (orders: string[]) {
+    const version = util.clone(this.state.currentVersion)
+    version!.compileOrders = orders
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo?.versionList.forEach((item, i) => {
+      if (item.id === version!.id) {
+        gitInfo.versionList[i] = version!
+      }
+    })
+    this.setState({
+      gitInfo,
+      currentVersion: version
+    })
+    this.onUpdateVersion()
+  }
+
   afterAddConfig (config: GitConfig) {
     const currentVersion = util.clone(this.state.currentVersion)
     currentVersion?.configs.push(config)
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo?.versionList.forEach((version, i) => {
+      if (version.id === currentVersion!.id) {
+        gitInfo.versionList[i] = currentVersion!
+      }
+    })
+    this.setState({
+      showAddConfig: false,
+      currentVersion,
+      gitInfo
+    })
+  }
+
+  afterUpdateConfig (config: GitConfig) {
+    console.log(config)
+    const currentVersion = util.clone(this.state.currentVersion)
+    currentVersion?.configs.map( (item, index) => {
+      if (item.id == config.id) {
+        currentVersion.configs[index] = config
+      }
+    })
     const gitInfo = util.clone(this.state.gitInfo)
     gitInfo?.versionList.forEach((version, i) => {
       if (version.id === currentVersion!.id) {
@@ -240,15 +275,43 @@ class GitEdit extends React.Component<GitEditProps, State> {
     if (this.props.match.params.id == 'createGit') {
       this.props.history.replace(`/manage/git/${version.sourceId}`)
     }else{
-      this.getInfo(version.sourceId)
-    
+      // this.getInfo(version.sourceId)
+      const gitInfo = util.clone(this.state.gitInfo)
+      gitInfo!.versionList.unshift(version)
       this.props.match.params.id = version.sourceId
       this.setState({
+        gitInfo,
         currentVersion: version
       })
       this.initDelInterval(version)
     }
     
+  }
+  onPlaceOnFile () {
+    if (!this.state.currentVersion) return
+    this.props.dispatch({
+      type: "git/updateGitVersionStatus",
+      payload: {
+        id: this.state.currentVersion.id,
+        status: Number(VersionStatus.placeOnFile)
+      },
+      callback: () => {
+        const currentVersion = util.clone( this.state.currentVersion )
+        currentVersion!.status = Number(VersionStatus.placeOnFile)
+
+        const gitInfo = util.clone(this.state.gitInfo)
+        gitInfo?.versionList.map( (version, index) => {
+          if (version.id == currentVersion!.id) {
+            gitInfo.versionList[index] = currentVersion!
+          }
+        })
+        this.setState({
+          currentVersion,
+          gitInfo
+        })
+        this.initDelInterval(currentVersion)
+      }
+    })
   }
 
   afterDelConfig (configId: string) {
@@ -292,13 +355,17 @@ class GitEdit extends React.Component<GitEditProps, State> {
           <a onClick={() => {this.props.history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>
             <Tooltip title="归档后版本将变为只读状态">
-              <a style={{marginLeft: '10px', color: '#faad14'}}>归档</a>
+              {
+                this.state.currentVersion?.status === VersionStatus.placeOnFile ? (
+                   <a style={{marginLeft: '10px', color: '#faad14'}}>已发布</a>): (
+                   <a style={{marginLeft: '10px', color: '#faad14'}} onClick={this.onPlaceOnFile} >发布 </a> )
+              }
             </Tooltip>
             <Tooltip title="废弃后，新建项目中该版本将不可用">
               <a style={{marginLeft: '10px', color: '#f5222d'}}>废弃</a>
             </Tooltip>
             {
-              this.state.delTimeout > 0 ? (
+              this.state.delTimeout > 0 && this.state.currentVersion?.status === VersionStatus.normal ? (
                 <span>
                   <a onClick={this.onDeleteVersion} style={{marginLeft: '10px', color: '#f5222d', marginRight: '5px'}}>删除</a>
                   ({this.state.delTooltip})
@@ -319,6 +386,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 gitId={this.state.gitInfo.id} 
                 repoId={this.state.gitInfo.gitId}
                 versionList={this.state.gitInfo.versionList}
+                currentVersion={this.state.currentVersion!}
                 afterAdd={this.afterCreateVersion}
                 onChange={this.onChangeVersion}></TimeLinePanel>
               <div className={styles.gitDetail}>
@@ -331,18 +399,23 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <Tag color="#f50">{util.dateTimeFormat(new Date(this.state.currentVersion!.publishTime))}</Tag>
                   </Tooltip>
                 </Description>
-                <Description label="git地址" labelWidth={labelWidth} className={styles.gitAddr}>
+                <Description label="git地址"  className={styles.gitAddr}>
                   <a>{this.state.gitInfo.gitRepo}</a>
+                </Description>
+                <Description label="git来源" className={styles.gitAddr}>
+                  <a>{`${this.state.gitInfo.name}(${this.state.currentVersion?.sourceType}：${this.state.currentVersion?.sourceValue})`}</a>
                 </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className={styles.gitConfigs}>
                   
                   <GitConfigPanel 
                     store={this.state.currentVersion?.configs || []}
+                    mode={this.state.currentVersion!.status}
+                    onSubmit={this.afterUpdateConfig}
                     afterDelConfig={this.afterDelConfig}></GitConfigPanel>
-                  <Button className={styles.btnAddConfigItem} onClick={this.onAddConfig}>添加配置项</Button>
+                  {this.state.currentVersion?.status === VersionStatus.normal && <Button className={styles.btnAddConfigItem} onClick={this.onAddConfig}>添加配置项</Button>}
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
-                  {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} tags={this.state.currentVersion?.compileOrders}></Commands> : null}
+                  {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} mode={this.state.currentVersion.status} tags={this.state.currentVersion?.compileOrders}></Commands> : null}
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">

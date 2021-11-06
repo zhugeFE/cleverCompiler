@@ -2,9 +2,11 @@ import * as React from 'react'
 import './styles/commands.less'
 import { Input, Tag } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
+import { VersionStatus } from '@/models/common'
 
 interface Props {
   tags: string[];
+  mode: number;
   onChange ?(tags: string[]): void;
 }
 interface State {
@@ -62,6 +64,7 @@ class Commands extends React.Component<Props, State> {
     })
   }
   onShowInput () {
+    if (this.props.mode !== VersionStatus.normal) return
     this.setState({
       inputVisible: true
     }, () => {
@@ -103,6 +106,7 @@ class Commands extends React.Component<Props, State> {
             )
           } else {
             return (
+              this.props.mode === VersionStatus.normal &&
               <Tag onClick={this.onShowInput} 
                 style={{ background: '#fff', borderStyle: 'dashed' }}>
                 <PlusOutlined /> New Tag

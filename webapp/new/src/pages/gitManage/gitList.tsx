@@ -1,5 +1,6 @@
 import { ConnectState } from '@/models/connect'
 import { GitInstance } from '@/models/git'
+import { enable } from '@umijs/deps/compiled/signale'
 import { Button, Form, Input, Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { connect } from 'dva'
@@ -44,7 +45,21 @@ class GitList extends React.Component<GitListProps, State> {
   }
 
   onClickEdit (git: GitInstance) {
+    if (!git.enable) return
     this.props.history.push(`/manage/git/${git.id}`)
+  }
+
+  onChangeStatus (git: GitInstance) {
+    if (!git.enable) return
+    this.props.dispatch({
+      type: 'git/updateGitStatus',
+      payload: [{
+        id: git.id,
+        enable: Number(!git.enable)
+      }],
+      callback: () => {
+      }
+    })
   }
   onCreateGit () {
     this.props.history.push(`/manage/git/createGit`)
@@ -68,13 +83,30 @@ class GitList extends React.Component<GitListProps, State> {
     }, 300)
   }
   rowSelectChange (selectedRowKeys: React.Key[], selectedRows: GitInstance[]) {
-    // console.log(selectedRowKeys)
     var arr = selectedRowKeys.map(item => String(item))
     this.setState({
       selectedRowKeys: arr
     })
   }
+  onBatchOption (order: string) {
+    if (this.state.selectedRowKeys.length == 0) return
+    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 1 : 0}})
+    this.props.dispatch({
+      type: 'git/updateGitStatus',
+      payload: data,
+      callback: () => {
 
+      }
+    })
+  }
+  onClickDel (git: GitInstance) {
+    this.props.dispatch({
+      type: 'git/delGitInfo',
+      payload: git.id,
+      callback: () => {
+      }
+    })
+  }
   render () {
     const columns: ColumnProps<GitInstance>[] = [
       {
@@ -134,9 +166,18 @@ class GitList extends React.Component<GitListProps, State> {
         render: (text, record: GitInstance) => {
           return (
             <div className={styles.toHandle}>
-              <a onClick={this.onClickEdit.bind(this, record)}>编辑</a>
-              <a style={{marginRight: 5}}>版本记录</a>
-              <a>禁用</a>
+              <Button 
+                type="primary" 
+                style={{marginRight: 5}}
+                disabled={!record.enable}
+                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+              <Button 
+                type="primary"
+                danger 
+                style={{marginRight: 5}} 
+                disabled={!record.enable}
+                onClick={this.onClickDel.bind(this, record)}>删除</Button>
+              {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
             </div>
           )
         }
@@ -157,10 +198,16 @@ class GitList extends React.Component<GitListProps, State> {
               <Input/>
             </Form.Item>
             <Form.Item>
-              <Button type="primary">批量启用</Button>
+              <Button 
+                disabled={!this.state.selectedRowKeys.length}
+                type="primary" 
+                onClick={this.onBatchOption.bind(this, 'enable')}>批量启用</Button>
             </Form.Item>
             <Form.Item>
-              <Button danger>批量禁用</Button>
+              <Button 
+                danger 
+                disabled={!this.state.selectedRowKeys.length}
+                onClick={this.onBatchOption.bind(this, 'disable')}>批量禁用</Button>
             </Form.Item>
             <Form.Item>
               <Button onClick={this.onCreateGit}>创建项目</Button>
@@ -175,6 +222,7 @@ class GitList extends React.Component<GitListProps, State> {
           rowKey="id"
           columns={columns} 
           dataSource={showList}
+          rowClassName={ (record) => record.enable ? "" : styles.disable}
           pagination={{pageSize: 5, showTotal(totle: number) {
             return (
               `总记录数${totle}`

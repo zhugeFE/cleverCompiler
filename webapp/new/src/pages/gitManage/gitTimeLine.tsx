@@ -11,11 +11,12 @@ interface Props {
   gitId: string;
   repoId: string;
   versionList: Version[];
+  currentVersion: Version;
   onChange?: (version: Version) => void;
   afterAdd? (version: Version): void;
 }
 interface State {
-  currentVersion: Version;
+  // currentVersion: Version;
   showCreate: boolean;
   filter: string;
 }
@@ -23,7 +24,7 @@ class TimeLinePanel extends React.Component<Props, State> {
   constructor (props: Props) {
     super(props)
     this.state = {
-      currentVersion: this.props.versionList[0],
+      // currentVersion: this.props.versionList[0],
       showCreate: false,
       filter: ''
     }
@@ -33,19 +34,16 @@ class TimeLinePanel extends React.Component<Props, State> {
     this.afterAdd = this.afterAdd.bind(this)
     this.onFilter = this.onFilter.bind(this)
   }
-  static getDerivedStateFromProps(props:Props, state: State) {
-    const version = props.versionList.find(item => item.id === state.currentVersion?.id)
-    if (!_.isEqual(version, state.currentVersion)) {
-      return {
-        currentVersion: version || state.currentVersion
-      }
-    }
-    return null
-  }
+  // static getDerivedStateFromProps(props:Props, state: State) {
+  //   const version = props.versionList.find(item => item.id === state.currentVersion?.id)
+  //   if (!_.isEqual(version, state.currentVersion)) {
+  //     return {
+  //       currentVersion: version || state.currentVersion
+  //     }
+  //   }
+  //   return null
+  // }
   onChooseVersion (version: Version) {
-    this.setState({
-      currentVersion: version
-    })
     if (this.props.onChange) this.props.onChange(version)
   }
   onFilter (changedValues: {
@@ -67,7 +65,6 @@ class TimeLinePanel extends React.Component<Props, State> {
   }
   afterAdd (version: Version) {
     this.setState({
-      currentVersion: version,
       showCreate: false
     })
     if (this.props.afterAdd) this.props.afterAdd(version)
@@ -102,7 +99,7 @@ class TimeLinePanel extends React.Component<Props, State> {
             this.props.versionList.filter(version => {
               return new RegExp(this.state.filter).test(version.name!)
             }).map(version => {
-              if (version === this.state.currentVersion) {
+              if (version === this.props.currentVersion) {
                 return (
                   <TimelineItem key={version.id} color={version.status === VersionStatus.deprecated ? 'gray' : 'blue'}>
                     <a 

@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-11-05 20:08:04
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-11-06 16:55:33
+ */
 import * as React from 'react';
 import { Spin, Tree } from 'antd';
 import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
@@ -11,6 +19,7 @@ interface NodeData extends DataNode {
 export interface FileTreeProps {
   gitId: string;
   versionId: string;
+  defauleSelect?: string;
   dispatch: Dispatch;
   onSelect? (filePath: string, fileType: string): void
 }
@@ -81,6 +90,7 @@ class FileTree extends React.Component<FileTreeProps, State> {
           <Spin className={styles.treeLoading}></Spin>
         ) : (
           <Tree.DirectoryTree
+          defaultSelectedKeys={[this.props.defauleSelect!]}
           treeData={this.state.treeData}
           onSelect={this.onSelect}></Tree.DirectoryTree>
         )}

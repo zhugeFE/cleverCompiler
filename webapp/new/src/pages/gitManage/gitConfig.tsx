@@ -1,24 +1,38 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-11-05 20:08:04
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-11-07 00:19:55
+ */
 import * as React from 'react'
 import styles from './styles/gitConfig.less'
-import { Table } from 'antd'
+import { Button, Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { GitConfig } from '@/models/git'
 import { connect } from 'dva'
 import { Dispatch } from '@/.umi/plugin-dva/connect'
+import { EditMode, TypeMode, VersionStatus } from '@/models/common'
+import UpdateTextConfig from "./gitTextConfig";
+import UpdateFileConfig from "./gitFileConfig";
 
 export interface GitConfigPanelProps {
   store: GitConfig[],
+  mode: number;
+  onSubmit? (config: GitConfig): void,
   afterDelConfig? (configId: string): void;
   dispatch: Dispatch;
 }
 interface State {
+  currentConfig: GitConfig | null;
   columns: ColumnProps<GitConfig>[]
 }
 class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
   constructor (props: GitConfigPanelProps) {
     super(props)
-    const that = this
     this.state = {
+      currentConfig: null,
       columns: [
         {title: '文件位置', dataIndex: 'filePath', fixed: 'left'},
         {title: '类型', dataIndex: 'type'},
@@ -30,20 +44,41 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
             <span>{reg.toString()}</span>
           )
         }},
-        {title: '目标内容', dataIndex: 'targetValue'},
-        {title: '描述', dataIndex: 'desc'},
-        {title: '操作', render (value: any, record: GitConfig) {
+        {title: '目标内容', dataIndex: 'targetValue', render: (text: string, record) => {
+          if (record.typeId == TypeMode.text) {
+            return record.targetValue
+          }else {
+            return JSON.parse(record.targetValue)['originalFilename']
+          }
+        }},
+        {title: '描述', dataIndex: 'description'},
+        {title: '操作', render: (value: any, record: GitConfig) =>{
           return (
             <div>
-              <a>编辑</a>
-              <a style={{marginLeft: '5px'}} onClick={that.onDel.bind(that, record)}>删除</a>
+              <Button 
+                type="primary"
+                style={{marginLeft: '5px'}} 
+                disabled={this.props.mode != VersionStatus.normal}
+                onClick={this.onTableClick.bind(this, 'edit', record)}>编辑</Button>
+              <Button danger style={{marginLeft: '5px'}} onClick={this.onTableClick.bind(this, 'delete', record)}>删除</Button>
             </div>
           )
         }}
       ]
     }
+    this.onCancelEditConfig = this.onCancelEditConfig.bind(this)
+    this.afterEditConfig = this.afterEditConfig.bind(this)
   }
-  onDel (config: GitConfig) {
+  onTableClick ( order: string, config: GitConfig) {
+    if (this[order]) this[order](config)
+  }
+  edit (config: GitConfig) {
+    if (this.props.mode != VersionStatus.normal)return
+    this.setState({
+      currentConfig: config
+    })
+  }
+  delete (config: GitConfig) {
     this.props.dispatch({
       type: 'git/delConfig',
       payload: config.id,
@@ -52,9 +87,62 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
       }
     })
   }
+
+  onCancelEditConfig () {
+    this.setState({
+      currentConfig: null
+    })
+  }
+
+  afterEditConfig (formData: any) {
+    const form = new FormData()
+    for (let key of Object.keys(formData)) {
+      if (key == 'file') {
+        console.log(formData[key])
+        form.append("files", formData[key]['file'])
+      } else {
+        form.append(key, formData[key])
+      }
+    }
+    form.append("configId", this.state.currentConfig!.id)
+    this.props.dispatch({
+      type: 'git/updateConfig',
+      payload: form,
+      callback: (config: GitConfig) => {
+        this.setState({
+          currentConfig: null
+        })
+        if (this.props.onSubmit) this.props.onSubmit(config)
+      }
+    })
+  }
+
   render () {
     return (
       <div className={styles.gitConfigPanel}>
+        {
+          this.state.currentConfig && (
+            this.state.currentConfig.typeId === TypeMode.text ? (
+              <UpdateTextConfig
+                mode={EditMode.update}
+                gitId={this.state.currentConfig.sourceId}
+                gitVersionId={this.state.currentConfig.versionId}
+                configInfo={this.state.currentConfig}
+                onCancel={this.onCancelEditConfig}
+                onSubmit={this.afterEditConfig}
+              ></UpdateTextConfig>
+            ) : (
+              <UpdateFileConfig
+                mode={EditMode.update}
+                gitId={this.state.currentConfig.sourceId}
+                gitVersionId={this.state.currentConfig.versionId}
+                configInfo={this.state.currentConfig}
+                onCancel={this.onCancelEditConfig}
+                onSubmit={this.afterEditConfig}
+              ></UpdateFileConfig>
+            )
+          )
+        }
         <Table bordered 
           pagination={false}
           columns={this.state.columns} 

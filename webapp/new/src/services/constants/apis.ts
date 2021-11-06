@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 17:27:07
+ * @LastEditTime: 2021-11-06 23:36:52
  */
 export default {
   user: {
@@ -30,8 +30,12 @@ export default {
     fileCat: '/git/cat',
     addConfig: '/git/config/add',
     delConfig: '/git/config',
+    updateConfig: '/git/config/update',
     updateVersion: '/git/version/update',
-    deleteVersion: '/git/version'
+    deleteVersion: '/git/version',
+    updateGitStatus: '/git/status',
+    updateGitVersionStatus: '/git/version/status',
+    deleteGit: '/git/info'
   },
   template: {
     createTemplate: '/template/add',

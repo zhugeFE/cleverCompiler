@@ -2,6 +2,7 @@ import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
 import { TextConfigParam } from '@/pages/gitManage/gitTextConfig';
 import gitService from '@/services/git';
 import { ConfigType, Version } from './common';
+import util from '@/utils/utils';
 
 
 export interface GitList {
@@ -15,7 +16,10 @@ export interface GitSelectParams {
     [propName:string]:string[]
   }
 }
-
+export interface UpdateGitStatus {
+  id: string;
+  enable: number;
+}
 
 export interface GitInstance {
   id: string;
@@ -33,7 +37,7 @@ export interface GitConfig {
   versionId: string;
   typeId: number; // 类型id
   type: string; // 类型名称
-  desc: string; // 描述信息
+  description: string; // 描述信息
   reg: string; // 正则表达式
   filePath: string; // 原始文件路径
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
@@ -73,9 +77,8 @@ export interface GitCreateVersionParam {
   repoId: string;
   version: string; // 版本号
   source: string; // 版本来源：branch/tag/commit
-  value: string; // 版本来源值
+  sourceValue: string; // 版本来源值
   description: string; // 版本描述
-  parentId?: string; // 父版本id
 }
 
 export interface GitTextConfigParam extends TextConfigParam{
@@ -107,9 +110,13 @@ export type GitModelType = {
     queryTags: Effect;
     createVersion: Effect;
     delConfig: Effect;
+    delGitInfo: Effect;
     addConfig: Effect;
     getFileContent: Effect;
+    updateConfig: Effect;
+    updateGitVersionStatus: Effect;
     updateVersion: Effect;
+    updateGitStatus: Effect;
     deleteVersion: Effect;
   };
   reducers: {
@@ -176,19 +183,63 @@ const GitModel: GitModelType = {
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
+    *updateConfig ({payload, callback}, {call}) {
+      const res = yield call(gitService.updateConfig, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
     *getFileContent ({payload, callback}, {call}) {
       const res = yield call(gitService.getFileContent, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
+    },
+    *updateGitVersionStatus ({payload, callback}, {call}) {
+      const res = yield call(gitService.updateGitVersionStatus, payload)
+      if (res.status === -1) return
+      if (callback) callback()
     },
     *updateVersion ({payload, callback}, {call}) {
       const res = yield call(gitService.updateVersion, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
+    *updateGitStatus ({payload, callback}, {call, select, put}) {
+      const res = yield call( gitService.updateGitStatus, payload as UpdateGitStatus[])
+      if (res.status === -1) return
+      const gitList: GitInstance[] = util.clone( yield select( (_: {git: {gitList: GitInstance[]}}) => _.git.gitList))
+      let payloadMap = {}
+      payload.map( (item: UpdateGitStatus) => {
+        payloadMap[item.id] = item.enable
+      })
+      gitList.map( (git, index) => {
+        if (Object.keys(payloadMap).includes(git.id)) {
+          git.enable = Boolean(payloadMap[git.id]) 
+        } 
+      })
+       yield put({
+        type: 'setList',
+        payload: gitList
+      })
+      if (callback) callback()
+    },
     *deleteVersion ({payload, callback}, {call}) {
       const res = yield call(gitService.deleteVersion, payload)
       if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
+    *delGitInfo ({payload, callback}, {call, select, put}) {
+      const res = yield call(gitService.deletGitInfo, payload)
+      if (res.status === -1) return
+      const gitList: GitInstance[] = util.clone( yield select( (_: {git: {gitList: GitInstance[]}}) => _.git.gitList))
+      gitList.map( (git, index) => {
+        if (git.id === payload) {
+          gitList.splice(index,1)
+        }
+      })
+      yield put({
+        type: 'setList',
+        payload: gitList
+      })
       if (callback) callback(res.data)
     }
   },

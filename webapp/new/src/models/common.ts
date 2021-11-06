@@ -4,12 +4,27 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:58:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 15:03:29
+ * @LastEditTime: 2021-11-06 09:33:54
  */
 export enum VersionStatus {
   deprecated = 0, // 已废弃
-  normal = 1 // 正常
+  normal, // 正常
+  placeOnFile
 }
+export enum EditMode {
+  create = 0 ,
+  update
+}
+export enum TypeMode {
+  text = 0,
+  file
+}
+
+export enum StatusMode {
+  enable = 0,
+  disable
+}
+
 export interface Version {
   id: string; // 版本id
   name?: string; // 版本名称
