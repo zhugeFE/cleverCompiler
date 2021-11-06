@@ -1,11 +1,11 @@
-import { GitList } from './../types/git';
+import { GitList, UpdateGitStatus, UpdateConfigParam } from './../types/git';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-17 12:04:16
+ * @LastEditTime: 2021-11-07 00:03:36
  */
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig, CompileParams } from '../types/git';
@@ -38,8 +38,8 @@ class GitService {
   async getCommitsById (repoId: string | number): Promise<GitCommit[]> {
     return await gitDao.getCommitsById(repoId)
   }
-  async addVersion (param: GitCreateVersionParam): Promise<GitVersion> {
-    return await gitDao.addVersion(param)
+  async addVersion (param: GitCreateVersionParam, creatorId: string): Promise<GitVersion> {
+    return await gitDao.addVersion(param, creatorId)
   }
   async initRepo (gitId: string, versionId: string, userId: string): Promise<string> {
     const gitInfo = await gitDao.getInfo(gitId)
@@ -91,6 +91,15 @@ class GitService {
   }
   async getCompileParams (id: string): Promise<CompileParams> {
     return await gitDao.getCompileParams(id)
+  }
+  async updateConfig (config: UpdateConfigParam ): Promise<GitConfig>{
+    return await gitDao.updateConfg(config)
+  }
+  async updateGitStatus (List: UpdateGitStatus[]): Promise<void> {
+    return await gitDao.updateGitStatus(List)
+  }
+  async deleteGit (id: string): Promise<void> {
+    return await gitDao.deleteGit(id)
   }
 }
 

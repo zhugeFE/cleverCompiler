@@ -1,9 +1,13 @@
-import { GitList } from './../types/git';
+import { GitList, UpdateGitStatus } from './../types/git';
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitConfig } from '../types/git';
 import { DirNode } from '../types/common';
+import { IncomingForm } from 'formidable';
+import * as path from 'path';
+import logger from '../utils/logger';
+import { reverse } from 'lodash';
 const router = Router()
 
 router.get('/remotelist', (req: Request, res: Response, next: NextFunction) => {
@@ -61,7 +65,7 @@ router.get('/:id/commits', (req: Request, res: Response, next: NextFunction) => 
   .catch(next)
 })
 router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
-  gitService.addVersion(req.body as GitCreateVersionParam)
+  gitService.addVersion(req.body as GitCreateVersionParam, req.session.currentUser.id)
   .then((version: GitVersion) => {
     res.json(new ApiResult(ResponseStatus.success, version))
   })
@@ -82,12 +86,55 @@ router.get('/cat', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 router.post('/config/add', (req: Request, res: Response, next: NextFunction) => {
-  gitService.addConfig(req.body)
-  .then((config: GitConfig) => {
-    res.json(new ApiResult(ResponseStatus.success, config))
+  const saveFilePath = path.resolve(__dirname, '../../file')
+  const form = new IncomingForm({keepExtensions:true, uploadDir:saveFilePath})
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      logger.info(err)
+      res.json(new ApiResult(ResponseStatus.fail, err))
+      return
+    }
+    gitService.addConfig({
+      sourceId: fields['sourceId'] as string,
+      versionId: fields['versionId'] as string,
+      typeId: fields['typeId'] as string,
+      reg: fields["reg"] as string,
+      filePath: fields['filePath'] as string,
+      targetValue: JSON.stringify(files) !== '{}' ? JSON.stringify({newFilename: files['files']['newFilename'], originalFilename: files['files']['originalFilename']}) : fields["targetValue"] as string,
+      description: fields['description'] as string
+    })
+    .then((config: GitConfig) => {
+      res.json(new ApiResult(ResponseStatus.success, config))
+    })
+    .catch(next)
   })
-  .catch(next)
+  
 })
+
+router.post('/config/update', (req: Request, res: Response, next: NextFunction) => {
+  const saveFilePath = path.resolve(__dirname, '../../file')
+  const form = new IncomingForm({keepExtensions:true, uploadDir:saveFilePath})
+  form.parse(req, (err, fields, files) => {
+    if (err || !fields['configId']) {
+      logger.info(err)
+      res.json(new ApiResult(ResponseStatus.fail, err || "configId不能为空"))
+      return
+    }
+    gitService.updateConfig({
+      configId: fields['configId'] as string,
+      reg: fields["reg"] as string,
+      filePath: fields['filePath'] as string,
+      targetValue: JSON.stringify(files) !== '{}' ? JSON.stringify({newFilename: files['files']['newFilename'], originalFilename: files['files']['originalFilename']}) : fields["targetValue"] as string,
+      description: fields['description'] as string
+    })
+    .then((config: GitConfig) => {
+      res.json(new ApiResult(ResponseStatus.success, config))
+    })
+    .catch(next)
+  })
+  
+})
+
 router.delete('/config', (req: Request, res: Response, next: NextFunction) => {
   gitService.deleteConfigById(req.query.configId)
   .then(() => {
@@ -109,6 +156,34 @@ router.post('/version/update', (req: Request, res: Response, next: NextFunction)
 })
 router.delete('/version', (req: Request, res: Response, next: NextFunction) => {
   gitService.deleteVersion(req.query.id)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+router.delete('/info', (req: Request, res: Response, next: NextFunction) => {
+  gitService.deleteGit(req.query.id)
+  .then( () => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
+router.post('/version/status', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+  }
+  gitService.updateVersion(req.body)
+  .then ( () => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+router.post('/status', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+  }
+  gitService.updateGitStatus(req.body as UpdateGitStatus[])
   .then(() => {
     res.json(new ApiResult(ResponseStatus.success))
   })

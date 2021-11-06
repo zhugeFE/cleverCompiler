@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-17 22:46:50
+ * @LastEditTime: 2021-11-06 23:44:12
  */
 import { Version } from './common';
 
@@ -22,6 +22,10 @@ export interface GitInstance {
   repo: string;
   repoId: number;
   enable: boolean;
+}
+export interface UpdateGitStatus {
+  id: string;
+  enable: number;
 }
 
 export interface GitInfo {
@@ -52,22 +56,26 @@ export interface GitCreateVersionParam {
   repoId: string;
   version: string; // 版本号
   source: string; // 版本来源：branch/tag/commit
-  value: string; // 版本来源值
+  sourceValue: string; // 版本来源值
   description: string; // 版本描述
-  parentId?: string; // 父版本id
 }
 export interface GitCreateConfigParam {
+  configId?: string;
   sourceId: string;
   versionId: string;
   typeId: string;
   filePath: string;
-  reg?: {
-    source: string;
-    global: boolean;
-    ignoreCase: boolean;
-  };
-  value: string;
-  desc: string;
+  reg?: string;
+  targetValue: string;
+  description: string;
+}
+
+export interface UpdateConfigParam {
+  configId: string;
+  reg: string;
+  filePath: string;
+  targetValue: string;
+  description: string;
 }
 export interface GitConfig {
   id: string; // 配置项id
@@ -75,7 +83,7 @@ export interface GitConfig {
   versionId: string;
   typeId: number; // 类型id
   type: string; // 类型名称
-  desc: string; // 描述信息
+  description: string; // 描述信息
   reg: string; // 正则表达式
   filePath: string; // 原始文件路径
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
