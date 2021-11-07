@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-19 15:09:03
+ * @LastEditTime: 2021-11-07 09:12:57
  */
 import { Table, Button, Spin, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -100,7 +100,10 @@ class TemplateList extends React.Component<TemplateListProps, State> {
   render() {
     const FormData =  this.state.form
     const showList = this.props.templateList?.filter(item => {
-      return new RegExp(FormData.name, 'i').test(item.name) && new RegExp(FormData.version, 'i').test(item.version)
+      try {
+        return new RegExp(FormData.name, 'i').test(item.name) && new RegExp(FormData.version, 'i').test(item.version)
+      }
+      catch (err){}
     })
     const columns: ColumnProps<TemplateInstance>[] = [
       {

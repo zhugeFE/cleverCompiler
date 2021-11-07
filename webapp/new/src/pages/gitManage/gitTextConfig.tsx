@@ -88,6 +88,7 @@ class GitTextConfig extends React.Component<Props, State> {
   }
   onChange (changedValues: FormData, formData: FormData) {
     let reg = null
+    
     try {
       reg =  new RegExp(formData.reg || '', `${formData.global ? 'g' : ''}${formData.ignoreCase ? 'i' : ''}`)
       this.setState({

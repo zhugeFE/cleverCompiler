@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-19 15:06:26
+ * @LastEditTime: 2021-11-07 09:13:30
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -104,7 +104,12 @@ class ProjectList extends React.Component<Props, States> {
     const compileType = ['私有部署','常规迭代','发布测试']
     const formData = this.state.form
     const showList = this.props.projectList?.filter(item => {
-      return new RegExp(formData.projectName , 'i').test(item.name) && new RegExp(formData.compileType, 'i').test(compileType[item.compileType])
+      try {
+        return new RegExp(formData.projectName , 'i').test(item.name) && new RegExp(formData.compileType, 'i').test(compileType[item.compileType])
+      }
+      catch (err) {
+        
+      }
     }) 
     const columns: ColumnProps<ProjectInstance>[] = [
       {

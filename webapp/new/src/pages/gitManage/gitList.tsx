@@ -184,8 +184,12 @@ class GitList extends React.Component<GitListProps, State> {
       }
     ]
     const formData = this.state.form
-    const showList = this.props.gitList.filter(item => {
-      return new RegExp(formData.name, 'i').test(item.name) && new RegExp(formData.version, 'i').test(item.version)
+    const showList = this.props.gitList.filter( item => {
+      try {
+        return new RegExp(formData.name, 'i').test(item.name) && new RegExp(formData.version, 'i').test(item.version)
+      }
+      catch (err) {
+      }
     })
     return (
       <div className={styles.gitSourceList}>
