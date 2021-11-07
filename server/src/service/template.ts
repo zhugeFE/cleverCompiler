@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-26 09:55:57
+ * @LastEditTime: 2021-11-07 10:04:00
  */
 import { 
   CreateTemplateConfigParams, 
@@ -18,7 +18,8 @@ import {
   TemplateInstance, 
   TemplateVersion, 
   TemplateVersionGit, 
-  UpdateConfigParam } from "../types/template"
+  UpdateConfigParam, 
+  UpdateTemplateStatus} from "../types/template"
 import templateDao from "../dao/template"
 
 class TemplateService {
@@ -79,6 +80,13 @@ class TemplateService {
   }
   async deleteComConfigById(configId: string): Promise<void> {
     await templateDao.deleteComConfigById(configId)
+  }
+
+  async deleteTemplate (id: string): Promise<void> {
+    await templateDao.deleteTemplateById(id)
+  }
+  async updateTemplateStatus (data: UpdateTemplateStatus[]): Promise<void> {
+    await templateDao.updateTemplateStatus(data)
   }
 }
 

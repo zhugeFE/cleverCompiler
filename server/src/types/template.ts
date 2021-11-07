@@ -5,8 +5,8 @@ import { Version } from "./common";
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-09 09:20:12
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-11-07 09:59:34
  */
 
 export interface TemplateInstance {
@@ -29,7 +29,10 @@ export interface CreateTemplateParams {
   description: string;
   creatorId: string;
 }
-
+export interface UpdateTemplateStatus {
+  id: string;
+  enable: number;
+}
 
 export interface TemplateVersion extends Version{
   templateId: string ; //模板版本id

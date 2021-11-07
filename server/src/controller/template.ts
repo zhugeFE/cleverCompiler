@@ -4,11 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-26 09:56:11
+ * @LastEditTime: 2021-11-07 10:33:29
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
+import { UpdateTemplateStatus } from '../types/template'
 import { 
   CreateTemplateConfigParams, 
   CreateTemplateGlobalConfigParams, 
@@ -186,6 +187,27 @@ router.post('/comconfig/update', (req: Request, res: Response, next: NextFunctio
 
 router.delete('/comconfig', (req: Request, res: Response, next: NextFunction) => {
   templateService.deleteComConfigById(req.query.configId)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
+router.delete('/info', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.query.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+    return
+  }
+  templateService.deleteTemplate(req.query.id)
+  .then( () => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
+
+router.post('/status', (req: Request, res: Response, next: NextFunction) => {
+  templateService.updateTemplateStatus(req.body as UpdateTemplateStatus[])
   .then(() => {
     res.json(new ApiResult(ResponseStatus.success))
   })

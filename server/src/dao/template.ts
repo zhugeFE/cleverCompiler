@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-20 16:16:28
+ * @LastEditTime: 2021-11-07 10:09:30
  */
 /**
  * 模板
@@ -24,7 +24,8 @@ import {
   TemplateInstance,
   TemplateVersion,
   TemplateVersionGit,
-  UpdateConfigParam
+  UpdateConfigParam,
+  UpdateTemplateStatus
 } from '../types/template'
 import * as _ from 'lodash'
 import pool from './pool'
@@ -520,6 +521,42 @@ class TemplateDao {
   async deleteComConfigById(configId: string): Promise<void> {
     const sql = `delete from template_global_config where id=?`
     await pool.query(sql, [configId])
+  }
+
+  async deleteTemplateById (id: string): Promise<void>{
+    const delTemplate = 'delete from template where id = ?'
+    const delTempletVersion = 'delete from template_version where template_id = ?'
+    const delTemplateVersionGit = 'delete from template_version_git where template_id = ?'
+    const delTemplateConfig = 'delete from template_config where template_id = ?'
+    const delTemplateGlobalConfig = `delete from template_global_config where template_id = ?`
+    const conn = await pool.beginTransaction()
+    try {
+      await pool.writeInTransaction(conn, delTemplateConfig, [id])
+      await pool.writeInTransaction(conn, delTemplateVersionGit, [id])
+      await pool.writeInTransaction(conn, delTemplateGlobalConfig, [id])
+      await pool.writeInTransaction(conn, delTempletVersion, [id])
+      await pool.writeInTransaction(conn, delTemplate, [id])
+      await pool.commit(conn)
+    } catch (e) {
+      pool.rollback(conn)
+      throw e
+    }
+  }
+
+  async updateTemplateStatus (List: UpdateTemplateStatus[]): Promise<void> {
+    const sql = 'update template set enable = ? where id = ?'
+    const connect = await pool.beginTransaction()
+    try {
+      await Promise.all( List.map( async git => {
+        await pool.writeInTransaction(connect, sql, [git.enable, git.id])
+      }))
+      await pool.commit(connect)
+    }
+    catch (e) {
+      await pool.rollback(connect)
+      logger.error('向git表插入数据失败', e)
+      throw (e)
+    }
   }
 }
 const templateDao = new TemplateDao()

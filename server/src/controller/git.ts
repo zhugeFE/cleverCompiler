@@ -162,6 +162,10 @@ router.delete('/version', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 router.delete('/info', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.query.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+    return
+  }
   gitService.deleteGit(req.query.id)
   .then( () => {
     res.json(new ApiResult(ResponseStatus.success))
@@ -172,6 +176,7 @@ router.delete('/info', (req: Request, res: Response, next: NextFunction) => {
 router.post('/version/status', (req: Request, res: Response, next: NextFunction) => {
   if (!req.body.id) {
     res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+    return
   }
   gitService.updateVersion(req.body)
   .then ( () => {
@@ -180,9 +185,6 @@ router.post('/version/status', (req: Request, res: Response, next: NextFunction)
   .catch(next)
 })
 router.post('/status', (req: Request, res: Response, next: NextFunction) => {
-  if (!req.body.id) {
-    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
-  }
   gitService.updateGitStatus(req.body as UpdateGitStatus[])
   .then(() => {
     res.json(new ApiResult(ResponseStatus.success))

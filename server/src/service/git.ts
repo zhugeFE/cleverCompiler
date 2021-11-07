@@ -5,7 +5,7 @@ import { GitList, UpdateGitStatus, UpdateConfigParam } from './../types/git';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 00:03:36
+ * @LastEditTime: 2021-11-07 10:01:47
  */
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig, CompileParams } from '../types/git';
@@ -96,10 +96,10 @@ class GitService {
     return await gitDao.updateConfg(config)
   }
   async updateGitStatus (List: UpdateGitStatus[]): Promise<void> {
-    return await gitDao.updateGitStatus(List)
+    await gitDao.updateGitStatus(List)
   }
   async deleteGit (id: string): Promise<void> {
-    return await gitDao.deleteGit(id)
+    await gitDao.deleteGit(id)
   }
 }
 
