@@ -1,21 +1,19 @@
+import { TemplateConfig } from './../types/template';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 10:33:29
+ * @LastEditTime: 2021-11-08 00:20:22
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import { UpdateTemplateStatus } from '../types/template'
 import { 
-  CreateTemplateConfigParams, 
-  CreateTemplateGlobalConfigParams, 
   CreateTemplateVersionGitParams, 
   CreateTemplateVersionParams, 
-  TemplateConfig, 
   TemplateGlobalConfig, 
   TemplateInfo, 
   TemplateInstance, 
@@ -23,24 +21,9 @@ import {
   TemplateVersionGit, 
   UpdateConfigParam } from '../types/template'
 import logger from '../utils/logger'
+import * as path from "path"
+import { IncomingForm } from "formidable"
 const router = Router()
-
-//添加模板
-// 传递name、description、version 、versionDescription
-router.post('/add', (req: Request, res: Response, next: NextFunction) => {
-  const params = req.body as {
-    name: string;
-    description: string;
-    version: string;
-    versionDescription: string;
-  }
-  templateService.add(req.session.currentUser.id, params.name, params.description, params.version,params.versionDescription)
-  .then((template: TemplateInstance) => {
-    res.json(new ApiResult(ResponseStatus.success, template))
-  })
-  .catch(next)
-})
-
 
 router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   templateService.query()
@@ -53,6 +36,14 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
     logger.info(err)
     next
   })
+})
+
+router.post('/status', (req: Request, res: Response, next: NextFunction) => {
+  templateService.updateTemplateStatus(req.body as UpdateTemplateStatus[])
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
 })
 
 router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
@@ -70,38 +61,31 @@ router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
   })
 })
 
-router.post('/update', (req: Request, res: Response, next: NextFunction) => {
-  const param = req.body as TemplateInstance
-  if (!param.id) {
-    res.json(new ApiResult(ResponseStatus.fail, null, "模板id不能为空"))
+router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
+  templateService.addVersion( req.body as CreateTemplateVersionParams, req.session.currentUser.id)
+  .then((version: TemplateVersion) => { 
+    res.json(new ApiResult(ResponseStatus.success, version))
+  })
+  .catch(next)
+})
+
+router.post('/version/status', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
     return
   }
-  templateService.updateTemplate(req.body)
-  .then(() => {
+  templateService.updateVersion(req.body)
+  .then ( () => {
     res.json(new ApiResult(ResponseStatus.success))
   })
   .catch(next)
 })
 
-router.get('/version/:id/info', (req: Request, res: Response, next: NextFunction) => {
-  templateService.getVersionInfo(req.params.id)
-  .then((version: TemplateVersion) => {
-    res.json(new ApiResult(ResponseStatus.success, version))
-  })
-  .catch(next)
-})
-router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
-  templateService.addVersion(req.body as CreateTemplateVersionParams)
-  .then((version: TemplateVersion) => {
-    res.json(new ApiResult(ResponseStatus.success, version))
-  })
-  .catch(next)
-})
 
 router.post('/version/update', (req: Request, res: Response, next: NextFunction) => {
   const param = req.body as TemplateVersion
   if (!param.id) {
-    res.json(new ApiResult(ResponseStatus.fail, null, '版本id不能为空'))
+    res.json(new ApiResult(ResponseStatus.fail, null, "模板id不能为空"))
     return
   }
   templateService.updateVersion(req.body)
@@ -119,6 +103,16 @@ router.delete('/version', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
+
+// router.get('/version/:id/info', (req: Request, res: Response, next: NextFunction) => {
+//   templateService.getVersionInfo(req.params.id)
+//   .then((version: TemplateVersion) => {
+//     res.json(new ApiResult(ResponseStatus.success, version))
+//   })
+//   .catch(next)
+// })
+
+
 router.post('/git/add', (req: Request, res: Response, next: NextFunction) => {
   templateService.addGit(req.body as CreateTemplateVersionGitParams)
   .then((version: TemplateVersionGit) => {
@@ -135,13 +129,6 @@ router.delete('/git', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
-router.post('/config/add', (req: Request, res: Response, next: NextFunction) => {
-  templateService.addConfig(req.body as CreateTemplateConfigParams)
-  .then((config: TemplateConfig) => {
-    res.json(new ApiResult(ResponseStatus.success, config))
-  })
-  .catch(next)
-})
 
 router.post('/config/update', (req: Request, res: Response, next: NextFunction) => {
   const param = req.body as UpdateConfigParam
@@ -150,8 +137,8 @@ router.post('/config/update', (req: Request, res: Response, next: NextFunction) 
     return
   }
   templateService.updateConfig(req.body)
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success))
+  .then((config: TemplateConfig) => {
+    res.json(new ApiResult(ResponseStatus.success, config))
   })
   .catch(next)
 })
@@ -164,29 +151,65 @@ router.delete('/config', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
-router.post('/comconfig/add', (req: Request, res: Response , next: NextFunction) => {
-  templateService.addComConfig(req.body as CreateTemplateGlobalConfigParams )
-  .then((config: TemplateGlobalConfig) => {
-    res.json(new ApiResult(ResponseStatus.success, config))
-  })
-  .catch(next)
+router.post('/globalconfig/add', (req: Request, res: Response , next: NextFunction) => {
+  const saveFilePath = path.resolve(__dirname, '../../file')
+  const form = new IncomingForm({keepExtensions:true, uploadDir:saveFilePath})
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      logger.info(err)
+      res.json(new ApiResult(ResponseStatus.fail, err))
+      return
+    }
+    templateService.addGlobalConfig({
+      name: fields['name'] as string,
+      targetValue: JSON.stringify(files) !== '{}' ? JSON.stringify({newFilename: files['files']['newFilename'], originalFilename: files['files']['originalFilename']}) : fields["targetValue"] as string,
+      description: fields['description'] as string,
+      templateId: fields['templateId'] as string, 
+      templateVersionId: fields['templateVersionId'] as string,
+      type: Number(fields['type'] as string),
+    })
+    .then((config: TemplateGlobalConfig) => {
+      res.json(new ApiResult(ResponseStatus.success, config))
+    })
+    .catch(next)
+    })
 })
 
-router.post('/comconfig/update', (req: Request, res: Response, next: NextFunction) => {
-  const param = req.body as TemplateGlobalConfig
-  if (!param.id) {
-    res.json(new ApiResult(ResponseStatus.fail, null, '配置id不能为空'))
+router.post('/globalconfig/status/update', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
     return
   }
-  templateService.updateComConfig(req.body)
-  .then(() => {
+  templateService.updateGlobalConfigStatus({id: req.body.id, status: req.body.status})
+  .then ( () => {
     res.json(new ApiResult(ResponseStatus.success))
   })
   .catch(next)
 })
 
-router.delete('/comconfig', (req: Request, res: Response, next: NextFunction) => {
-  templateService.deleteComConfigById(req.query.configId)
+router.post('/globalconfig/update', (req: Request, res: Response, next: NextFunction) => {
+  const saveFilePath = path.resolve(__dirname, '../../file')
+  const form = new IncomingForm({keepExtensions:true, uploadDir:saveFilePath})
+  form.parse(req, (err, fields, files) => {
+    if (err || !fields['configId']) {
+      logger.info(err)
+      res.json(new ApiResult(ResponseStatus.fail, err || "configId不能为空"))
+      return
+    }
+    templateService.updateGlobalConfig({
+      id: fields['configId'] as string,
+      description: fields['description'] as string,
+      targetValue: JSON.stringify(files) !== '{}' ? JSON.stringify({newFilename: files['files']['newFilename'], originalFilename: files['files']['originalFilename']}) : fields["targetValue"] as string,
+    })
+    .then((config: TemplateGlobalConfig) => {
+      res.json(new ApiResult(ResponseStatus.success, config))
+    })
+    .catch(next)
+  })
+})
+
+router.delete('/globalconfig', (req: Request, res: Response, next: NextFunction) => {
+  templateService.deleteGlobalConfigById(req.query.configId)
   .then(() => {
     res.json(new ApiResult(ResponseStatus.success))
   })
@@ -206,11 +229,6 @@ router.delete('/info', (req: Request, res: Response, next: NextFunction) => {
 })
 
 
-router.post('/status', (req: Request, res: Response, next: NextFunction) => {
-  templateService.updateTemplateStatus(req.body as UpdateTemplateStatus[])
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success))
-  })
-  .catch(next)
-})
+
+
 export default router

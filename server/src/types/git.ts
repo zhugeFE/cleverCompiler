@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-06 23:44:12
+ * @LastEditTime: 2021-11-07 17:45:06
  */
 import { Version } from './common';
 
@@ -88,6 +88,7 @@ export interface GitConfig {
   filePath: string; // 原始文件路径
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
 }
+
 export interface GitVersion extends Version{
   sourceId: string; 
   sourceType: string; // 版本来源类型：branch/tag/commit

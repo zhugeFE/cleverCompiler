@@ -1,13 +1,13 @@
+import { TemplateConfig } from './template';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-23 16:55:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-29 18:19:26
+ * @LastEditTime: 2021-11-07 17:59:33
  */
 
-import { ConfigInstance } from "./template";
 
 
 export interface ProjectCompile {
@@ -37,7 +37,7 @@ export interface CompileConfig {
   gitValue: string; //来源值
   gitType: string; //来源类型
   compileOrders: string; //编译命令
-  configList: ConfigInstance[]; //配置
+  configList: TemplateConfig[]; //配置
   compileType: number ; //编译类型
   templateId: string;
   templateVersionId: string;

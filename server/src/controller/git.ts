@@ -29,6 +29,14 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
     next(err)
   })
 })
+router.post('/status', (req: Request, res: Response, next: NextFunction) => {
+  gitService.updateGitStatus(req.body as UpdateGitStatus[])
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
 router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
   gitService.getInfoById(req.params.id)
   .then((gitInfo: GitInfo) => {
@@ -71,6 +79,39 @@ router.post('/version/add', (req: Request, res: Response, next: NextFunction) =>
   })
   .catch(next)
 })
+
+router.post('/version/status', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+    return
+  }
+  gitService.updateVersion(req.body)
+  .then ( () => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
+router.post('/version/update', (req: Request, res: Response, next: NextFunction) => {
+  const param = req.body as GitVersion
+  if (!param.id) {
+    res.json(new ApiResult(ResponseStatus.fail, null, '版本id不能为空'))
+    return
+  }
+  gitService.updateVersion(req.body)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+router.delete('/version', (req: Request, res: Response, next: NextFunction) => {
+  gitService.deleteVersion(req.query.id)
+  .then(() => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
 router.get('/filetree', (req: Request, res: Response, next: NextFunction) => {
   gitService.getFileTree(req.session, req.query.id, req.query.versionId, req.session.currentUser)
   .then((treeList: DirNode[]) => {
@@ -142,25 +183,7 @@ router.delete('/config', (req: Request, res: Response, next: NextFunction) => {
   })
   .catch(next)
 })
-router.post('/version/update', (req: Request, res: Response, next: NextFunction) => {
-  const param = req.body as GitVersion
-  if (!param.id) {
-    res.json(new ApiResult(ResponseStatus.fail, null, '版本id不能为空'))
-    return
-  }
-  gitService.updateVersion(req.body)
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success))
-  })
-  .catch(next)
-})
-router.delete('/version', (req: Request, res: Response, next: NextFunction) => {
-  gitService.deleteVersion(req.query.id)
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success))
-  })
-  .catch(next)
-})
+
 router.delete('/info', (req: Request, res: Response, next: NextFunction) => {
   if (!req.query.id) {
     res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
@@ -173,22 +196,4 @@ router.delete('/info', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
-router.post('/version/status', (req: Request, res: Response, next: NextFunction) => {
-  if (!req.body.id) {
-    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
-    return
-  }
-  gitService.updateVersion(req.body)
-  .then ( () => {
-    res.json(new ApiResult(ResponseStatus.success))
-  })
-  .catch(next)
-})
-router.post('/status', (req: Request, res: Response, next: NextFunction) => {
-  gitService.updateGitStatus(req.body as UpdateGitStatus[])
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success))
-  })
-  .catch(next)
-})
 export default router

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-24 18:27:27
+ * @LastEditTime: 2021-11-07 17:58:27
  */
 import _ = require("lodash");
 import { CreateConfigParams, CreateProjectParams, CreateShareProject, ProjectConfig, ProjectGlobalConfig, ProjectInfo, ProjectInstance, ProjectShare, ProjectType } from "../types/project";
@@ -20,6 +20,7 @@ class Project {
       p.id AS id,
       p.\`name\` AS NAME,
       p.create_time AS create_time,
+      p.enable AS enable,
       p.compile_type AS compile_type,
       c.compile_time AS last_compile_time,
       c.compile_result AS last_compile_result,
@@ -100,7 +101,7 @@ class Project {
       // if ( !item.isHidden) {
         
       // }
-      templateGlobalConfigMap[item.id] = item.defaultValue
+      templateGlobalConfigMap[item.id] = item.targetValue
     })
 
     globalConfig.map( item => {
@@ -113,11 +114,11 @@ class Project {
     })
 
     //  realValue = 项目配置值 || teplate 全局 || template 局部 || 源值
-    templateVersionInfo.gitList.map( git => {
-      git.configList.map( config => {
-        config.realValue = projetcConfigMap[config.id] || templateGlobalConfigMap[config.globalConfigId] || config.value || config.sourceValue
-      })
-    })
+    // templateVersionInfo.gitList.map( git => {
+    //   git.configList.map( config => {
+    //     config.targetValue = projetcConfigMap[config.id] || templateGlobalConfigMap[config.globalConfigId] || config.value || config.sourceValue
+    //   })
+    // })
 
     
     const data: ProjectInfo = {
@@ -137,6 +138,7 @@ class Project {
       id,
       name,
       template_id,
+      enable,
       template_version,
       compile_type,
       publish_type,

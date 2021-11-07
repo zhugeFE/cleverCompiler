@@ -215,9 +215,8 @@ class GitDao {
     }
 
     //查询配置项。插入
-    const Info = (await this.getInfo(gitId))
+    const Info = await this.getInfo(gitId)
     const lastVersionInfo = Info.versionList[Info.versionList.length-1]
-    logger.info(lastVersionInfo)
     // todo 版本号重复校验
     const sql = `INSERT INTO source_version ( id, source_id, version,
        description, publish_time, status, compile_orders, source_type, source_value, creator_id )
