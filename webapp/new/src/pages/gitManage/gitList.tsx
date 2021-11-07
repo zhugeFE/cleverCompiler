@@ -1,6 +1,5 @@
 import { ConnectState } from '@/models/connect'
 import { GitInstance } from '@/models/git'
-import { enable } from '@umijs/deps/compiled/signale'
 import { Button, Form, Input, Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { connect } from 'dva'
@@ -8,7 +7,8 @@ import React from 'react'
 import { withRouter } from 'react-router'
 import { Dispatch, IRouteComponentProps } from 'umi'
 import styles from './styles/gitList.less'
-export interface GitListProps extends IRouteComponentProps{
+
+interface GitListProps extends IRouteComponentProps{
   gitList: GitInstance[];
   dispatch: Dispatch;
 }
@@ -32,7 +32,6 @@ class GitList extends React.Component<GitListProps, State> {
       searchVaild: true,
       selectedRowKeys: []
     }
-    this.onClickEdit = this.onClickEdit.bind(this)
     this.onSearch = this.onSearch.bind(this)
     this.onCreateGit = this.onCreateGit.bind(this)
     this.rowSelectChange = this.rowSelectChange.bind(this)
@@ -50,7 +49,6 @@ class GitList extends React.Component<GitListProps, State> {
   }
 
   onChangeStatus (git: GitInstance) {
-    if (!git.enable) return
     this.props.dispatch({
       type: 'git/updateGitStatus',
       payload: [{
@@ -90,7 +88,7 @@ class GitList extends React.Component<GitListProps, State> {
   }
   onBatchOption (order: string) {
     if (this.state.selectedRowKeys.length == 0) return
-    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 1 : 0}})
+    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 0 : 1}})
     this.props.dispatch({
       type: 'git/updateGitStatus',
       payload: data,
@@ -114,6 +112,7 @@ class GitList extends React.Component<GitListProps, State> {
         dataIndex: 'name',
         fixed: 'left',
         width: 300,
+        ellipsis: true,
         render (text, record: GitInstance) {
           return (
             <div>
@@ -126,6 +125,8 @@ class GitList extends React.Component<GitListProps, State> {
       {
         title: '最新版本',
         dataIndex: 'version',
+        width: 120,
+        ellipsis: true,
         render (text) {
           return (
             text || '-'
@@ -135,6 +136,8 @@ class GitList extends React.Component<GitListProps, State> {
       {
         title: '使用文档',
         dataIndex: 'readmeDoc',
+        width: 120,
+        ellipsis: true,
         render (text) {
           return (
             <a>{text || '-'}</a>
@@ -144,6 +147,8 @@ class GitList extends React.Component<GitListProps, State> {
       {
         title: '部署文档',
         dataIndex: 'buildDoc',
+        width: 120,
+        ellipsis: true,
         render (text) {
           return (
             <a>{text || '-'}</a>
@@ -153,6 +158,8 @@ class GitList extends React.Component<GitListProps, State> {
       {
         title: '更新文档',
         dataIndex: 'updateDoc',
+        width: 120,
+        ellipsis: true,
         render (text) {
           return (
             <a>{text || '-'}</a>
@@ -198,7 +205,7 @@ class GitList extends React.Component<GitListProps, State> {
             <Form.Item label="项目名称" name="name">
               <Input/>
             </Form.Item>
-            <Form.Item label="版本" name="version">
+            <Form.Item label="最新版本" name="version">
               <Input/>
             </Form.Item>
             <Form.Item>

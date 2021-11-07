@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 09:12:57
+ * @LastEditTime: 2021-11-07 10:42:23
  */
 import { Table, Button, Spin, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -22,12 +22,12 @@ interface State {
     name: string;
     version: string;
   };
-  showAddModal: boolean;
+  selectedRowKeys: string[];
   searchVaild: boolean;
 }
 
-export interface TemplateListProps extends IRouteComponentProps {
-  templateList: TemplateInstance[] | null;
+interface TemplateListProps extends IRouteComponentProps {
+  templateList: TemplateInstance[];
   dispatch: Dispatch;
 }
 
@@ -39,10 +39,12 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         name: '',
         version: ''
       },
-      showAddModal: false,
+      selectedRowKeys: [],
       searchVaild: true
     }
     this.onSearch = this.onSearch.bind(this)
+    this.onCreateTemplate = this.onCreateTemplate.bind(this)
+    this.rowSelectChange = this.rowSelectChange.bind(this)
   }
 
   componentDidMount() {
@@ -51,34 +53,14 @@ class TemplateList extends React.Component<TemplateListProps, State> {
     });
   }
 
-  onClickEdit(template: TemplateInstance | null) {
-    const id = template?.id ? template.id : 'createTemplate';
-    this.props.history.push(`/manage/template/${id}`);
+  onClickEdit(template: TemplateInstance) {
+    if (!template.enable) return
+    this.props.history.push(`/manage/template/${template.id}`);
   }
 
-  onClickEnable(template: TemplateInstance) {
-    template.enable = template.enable ? 0 : 1;
-    const templateList = util.clone(this.props.templateList);
-    if (!templateList) {
-      return;
-    }
-    templateList.map((item) => {
-      if (item.id == template.id) {
-        item.enable = template.enable;
-      }
-    });
-    this.props.dispatch({
-      type: 'template/updateTemplate',
-      payload: template,
-      callback: () => {
-        this.props.dispatch({
-          type: 'template/setList',
-          payload: templateList,
-        });
-      },
-    });
+  onCreateTemplate () {
+    this.props.history.push(`/manage/template/createTemplate`);
   }
-
   onSearch (changedValues: any, values: any) {
     // 防抖处理 300ms
     if ( !this.state.searchVaild ) {
@@ -97,9 +79,45 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       })
     }, 300)
   }
+  rowSelectChange (selectedRowKeys: React.Key[], selectedRows: TemplateInstance[]) {
+    var arr = selectedRowKeys.map(item => String(item))
+    this.setState({
+      selectedRowKeys: arr
+    })
+  }
+  onBatchOption (order: string) {
+    if (this.state.selectedRowKeys.length == 0) return
+    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 0 : 1}})
+    this.props.dispatch({
+      type: 'template/updateTemplateStatus',
+      payload: data,
+      callback: () => {
+
+      }
+    })
+  }
+  onClickDel (template: TemplateInstance) {
+    this.props.dispatch({
+      type: 'template/delTemplateInfo',
+      payload: template.id,
+      callback: () => {
+      }
+    })
+  }
+  onChangeStatus (template: TemplateInstance) {
+    this.props.dispatch({
+      type: 'template/updateTemplateStatus',
+      payload: [{
+        id: template.id,
+        enable: Number(!template.enable)
+      }],
+      callback: () => {
+      }
+    })
+  }
   render() {
     const FormData =  this.state.form
-    const showList = this.props.templateList?.filter(item => {
+    const showList = this.props.templateList.filter(item => {
       try {
         return new RegExp(FormData.name, 'i').test(item.name) && new RegExp(FormData.version, 'i').test(item.version)
       }
@@ -111,6 +129,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         dataIndex: 'name',
         fixed: 'left',
         width: 250,
+        ellipsis: true,
         render(text: string, record: TemplateInstance) {
           return <div> {text || '-' || record.name} </div>;
         },
@@ -118,7 +137,8 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       {
         title: '描述',
         dataIndex: 'description',
-        width: 280,
+        width: 200,
+        ellipsis: true,
         render(text: string, record: TemplateInstance) {
           return <div> {text || '-' || record.description} </div>;
         },
@@ -126,7 +146,8 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       {
         title: '最新版本号',
         dataIndex: 'version',
-        width: 150,
+        width: 120,
+        ellipsis: true,
         render(text: string) {
           return text || '-';
         },
@@ -134,63 +155,74 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       {
         title: '更新时间',
         width: 150,
+        ellipsis: true,
         dataIndex: 'createTime',
         // defaultSortOrder: 'descend',
         sorter: (a, b) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
         render(text: string) {
-          return util.dateTimeFormat(new Date(text)) || '-';
+          return <div>{util.dateTimeFormat(new Date(text)) || '-'}</div>;
         },
       },
       {
         title: '文档地址',
         dataIndex: 'versionId',
-        width:80,
+        width:100,
         render(text: string) {
           return (
-            <>
-              <a href={`?id=${text}type=readmeDoc`}> 说明文档 </a><br />
-              <a href={`?id=${text}type=updateDoc`}> 更新文档 </a><br />
-              <a href={`?id=${text}type=buildDoc`}> 部署文档 </a>
-            </>
+            <a href={`?id=${text}type=readmeDoc`}> 说明文档 </a>
           )
         },
       },
       {
         title: '操作',
         dataIndex: 'handle',
-        width: 80,
         fixed: 'right',
         render: (text, record: TemplateInstance) => {
           return (
             <div>
-              <a  onClick={this.onClickEdit.bind(this, record)}>
-                编辑{' '}
-              </a>
-              <br />
-              <a onClick={this.onClickEnable.bind(this, record)}>
-                {record.enable ? '禁用' : '启用'}{' '}
-              </a>
+               <Button 
+                type="primary" 
+                style={{marginRight: 5}}
+                disabled={!record.enable}
+                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+              <Button 
+                type="primary"
+                danger 
+                style={{marginRight: 5}} 
+                disabled={!record.enable}
+                onClick={this.onClickDel.bind(this, record)}>删除</Button>
+              {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
             </div>
           );
         },
       },
     ];
 
-    if (!this.props.templateList) {
-      return <Spin className={styles.gitEditLoading} tip="git详情获取中..." size="large" />;
-    }
+
     return (
       <div className={styles.main}>
         <div className={styles.topButtons} >
           <Form layout="inline" onValuesChange={this.onSearch}> 
-            <Form.Item label="名称" name="name">
+            <Form.Item label="项目名称" name="name">
               <Input/>
             </Form.Item>
             <Form.Item label="最新版本" name="version">
               <Input/>
             </Form.Item>
             <Form.Item>
-              <Button type="primary" onClick={this.onClickEdit.bind(this, null)}>
+              <Button 
+                disabled={!this.state.selectedRowKeys.length}
+                type="primary" 
+                onClick={this.onBatchOption.bind(this, 'enable')}>批量启用</Button>
+            </Form.Item>
+            <Form.Item>
+              <Button 
+                danger 
+                disabled={!this.state.selectedRowKeys.length}
+                onClick={this.onBatchOption.bind(this, 'disable')}>批量禁用</Button>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" onClick={this.onCreateTemplate}>
                 新建模板
               </Button>
             </Form.Item>
@@ -198,6 +230,11 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         </div>
         <Table
           className={styles.tablePanel}
+          rowSelection={{
+            type: "checkbox",
+            onChange: this.rowSelectChange
+          }}
+          rowClassName={ (record) => record.enable ? "" : styles.disable}
           rowKey="id"
           columns={columns}
           dataSource={showList}

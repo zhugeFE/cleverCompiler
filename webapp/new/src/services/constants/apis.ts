@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-06 23:36:52
+ * @LastEditTime: 2021-11-07 09:56:01
  */
 export default {
   user: {
@@ -41,7 +41,7 @@ export default {
     createTemplate: '/template/add',
     getInfo: '/template/{{id}}/info',
     queryTemplateList: '/template/list',
-    updateTemplateStatus: "/template/update",
+    updateTemplateStatus: "/template/status",
     getVersionInfo: '/template/version/{{id}}/info',
     addVersion: '/template/version/add',
     delVersion: '/template/version',
@@ -53,7 +53,8 @@ export default {
     delConfig: '/template/config',
     addComConfig: '/template/comconfig/add',
     updateComConfig: '/template/comconfig/update',
-    delComConfig: '/template/comconfig'
+    delComConfig: '/template/comconfig',
+    deleteTemplate: '/template/info'
   },
   compile: {
     createCompile: '/compile/add',

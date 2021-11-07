@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-26 15:33:42
+ * @LastEditTime: 2021-11-07 10:27:49
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -22,6 +22,11 @@ export interface TemplateInstance {
   enable: number;
   version: string; //最新版本号
   versionId: string; //最新版本id
+}
+
+export interface UpdateTemplateStatus {
+  id: string;
+  enable: number;
 }
 
 
@@ -133,8 +138,7 @@ export interface CreateTemplateGlobalConfigParams {
 
 
 export type TemplateModelState = {
-  templateList: TemplateInstance[] | null ;
-  templateInfo: TemplateInfo | null ;
+  templateList: TemplateInstance[] ;
 }
 
 
@@ -144,6 +148,8 @@ export type TemplateModelType = {
   effects: {
     query: Effect;
     getInfo: Effect;
+    delTemplateInfo: Effect;
+    updateTemplateStatus: Effect;
     createTemplate: Effect;
     updateTemplate: Effect;
     addVersion: Effect;
@@ -159,8 +165,6 @@ export type TemplateModelType = {
   };
   reducers: {
     setList: Reducer<TemplateModelState>;
-    setTemplateInfo: Reducer<TemplateModelState>;
-    setCurrentVersion: Reducer<TemplateModelState>;
   };
 }
 
@@ -168,8 +172,7 @@ export type TemplateModelType = {
 const TemplateModel: TemplateModelType = {
   namespace: 'template',
   state: {
-    templateList: null,
-    templateInfo: null ,
+    templateList: []
   },
   effects: {
     *query (_ , {put , call}){
@@ -183,36 +186,55 @@ const TemplateModel: TemplateModelType = {
     *getInfo ({payload, callback}, {put , call}) {
       const res = yield call(templateService.getInfo, payload as string)
       if (res.status === -1) return
-      res.data.currentVersion = res.data.versionList[0] || {}
+      if (callback) callback(res.data)
+    },
+    *delTemplateInfo ({payload, callback}, {call, select, put}) {
+      const res = yield call(templateService.deleteTemplate, payload)
+      if (res.status === -1) return
+      const templateList: TemplateInstance[] = util.clone( yield select( (_: {template: {templateList: TemplateInstance[]}}) => _.template.templateList))
+      templateList.map( (template, index) => {
+        if (template.id === payload) {
+          templateList.splice(index,1)
+        }
+      })
       yield put({
-        type: "setTemplateInfo",
-        payload: res.data
+        type: 'setList',
+        payload: templateList
       })
       if (callback) callback(res.data)
+    },
+    *updateTemplateStatus ({payload, callback}, {call, select, put}) {
+      const res = yield call( templateService.updateTemplateStatus, payload as UpdateTemplateStatus[])
+      if (res.status === -1) return
+      const templateList: TemplateInstance[] = util.clone( yield select( (_: {template: {templateList: TemplateInstance[]}}) => _.template.templateList))
+      let payloadMap = {}
+      payload.map( (item: UpdateTemplateStatus) => {
+        payloadMap[item.id] = item.enable
+      })
+      templateList.map( (template, index) => {
+        if (Object.keys(payloadMap).includes(template.id)) {
+          template.enable = payloadMap[template.id]
+        } 
+      })
+       yield put({
+        type: 'setList',
+        payload: templateList
+      })
+      if (callback) callback()
     },
     *createTemplate ({payload, callback}, {call}) {
       const res = yield call(templateService.createTemplate, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
-    *updateTemplate ({payload}, {put ,call}) {
+    *updateTemplate ({payload,callback}, {call}) {
       const res = yield call(templateService.updateTemplateStatus, payload)
       if (res.status === -1) return
-      yield put({
-        type: "setTemplateInfo",
-        payload: res.data
-      })
+      if (callback) callback(res.data)
     },
-    *addVersion ({payload, callback},{put, select, call}){
+    *addVersion ({payload, callback},{call}){
       const res = yield call(templateService.addVersion, payload)
       if (res.status === -1) return
-      const templateInfo = util.clone( yield select((_: { template: { templateInfo: TemplateInfo; }; }) => _.template.templateInfo));
-      templateInfo.versionList.unshift(res.data);
-      templateInfo.currentVersion = res.data;
-      yield put({
-        type: 'setTemplateInfo',
-        payload: templateInfo,
-      });
       if(callback) callback(res.data)
     },
     *updateVersion ({payload, callback},{call}){
@@ -225,153 +247,115 @@ const TemplateModel: TemplateModelType = {
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
-    *addVersionGit({payload, callback},{select, put, call}){
+    *addVersionGit({payload, callback},{call}){
       const res = yield call(templateService.addVersionGit, payload)
       if (res.status === -1) return
-      const templateInfo = util.clone(yield select( (_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
-      templateInfo.currentVersion.gitList.push({
-        id: res.data.id,
-        templateId: res.data.templateId,
-        templateVersionId: res.data.templateVersionId,
-        gitSourceVersionId: res.data.gitSourceVersionId,
-        gitSourceId: res.data.gitSourceId,
-        name: res.data.name,
-        configList: res.data.configList,
-      } as TemplateVersionGit);
-      templateInfo.currentVersion.buildDoc = res.data.buildDoc || '';
-      templateInfo.currentVersion.readmeDoc = res.data.readmeDoc || '';
-      templateInfo.currentVersion.updateDoc = res.data.updateDoc || '';
-      templateInfo.versionList.map((item: TemplateVersion) => {
-        if (item.id === templateInfo.currentVersion.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-      yield put ({
-        type: 'setTemplateInfo',
-        payload: templateInfo,
-      });
+      // const templateInfo = util.clone(yield select( (_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
+      // templateInfo.currentVersion.gitList.push({
+      //   id: res.data.id,
+      //   templateId: res.data.templateId,
+      //   templateVersionId: res.data.templateVersionId,
+      //   gitSourceVersionId: res.data.gitSourceVersionId,
+      //   gitSourceId: res.data.gitSourceId,
+      //   name: res.data.name,
+      //   configList: res.data.configList,
+      // } as TemplateVersionGit);
+      // templateInfo.currentVersion.buildDoc = res.data.buildDoc || '';
+      // templateInfo.currentVersion.readmeDoc = res.data.readmeDoc || '';
+      // templateInfo.currentVersion.updateDoc = res.data.updateDoc || '';
+      // templateInfo.versionList.map((item: TemplateVersion) => {
+      //   if (item.id === templateInfo.currentVersion.id) {
+      //     item = templateInfo.currentVersion;
+      //   }
+      // });
       if (callback) callback(res.data)
     },
-    *delVersionGit ({payload}, {put, select, call}){
+    *delVersionGit ({payload,callback}, {call}){
       const res = yield call(templateService.delVersionGit, payload)
       if (res.status === -1) return
-      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo))
-      templateInfo.currentVersion.buildDoc = res.data.buildDoc,
-      templateInfo.currentVersion.readmeDoc = res.data.readmeDoc,
-      templateInfo.currentVersion.updateDoc = res.data.updateDoc;
-      templateInfo.currentVersion.gitList = templateInfo.currentVersion.gitList.filter(
-        (item: TemplateVersionGit) => item.id != payload,
-      );
-      templateInfo.versionList.map((item: TemplateVersion) => {
-        if (item.id === templateInfo.currentVersion?.id) {
-          item = templateInfo.currentVersion;
-        }
-      })
-      yield put ({
-        type: 'setTemplateInfo',
-        payload: templateInfo,
-      });
-    },
-    *updateConfig ({payload,callback},{select, put, call}){
-      const res = yield call(templateService.updateConfig, payload)
-      if (res.status === -1) return
-      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo))
-      templateInfo.currentVersion.gitList.map((item: TemplateVersionGit) => {
-        item.configList.map((config, index) => {
-          if (config.id == payload.id) {
-            item.configList[index].value = payload.defaultValue;
-            item.configList[index].isHidden = payload.isHidden;
-            item.configList[index].globalConfigId = payload.globalConfigId;
-          }
-        });
-      });
-      templateInfo.versionList.map((item: TemplateVersion) => {
-        if (item.id == templateInfo.currentVersion.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-      yield put ({
-        type: 'setTemplateInfo',
-        payload: templateInfo,
-      });
+      // const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo))
+      // templateInfo.currentVersion.buildDoc = res.data.buildDoc,
+      // templateInfo.currentVersion.readmeDoc = res.data.readmeDoc,
+      // templateInfo.currentVersion.updateDoc = res.data.updateDoc;
+      // templateInfo.currentVersion.gitList = templateInfo.currentVersion.gitList.filter(
+      //   (item: TemplateVersionGit) => item.id != payload,
+      // );
+      // templateInfo.versionList.map((item: TemplateVersion) => {
+      //   if (item.id === templateInfo.currentVersion?.id) {
+      //     item = templateInfo.currentVersion;
+      //   }
+      // })
       if (callback) callback(res.data)
     },
-    *addComConfig ({payload,callback},{select, put, call}){
+    *updateConfig ({payload,callback},{call}){
+      const res = yield call(templateService.updateConfig, payload)
+      if (res.status === -1) return
+      // const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo))
+      // templateInfo.currentVersion.gitList.map((item: TemplateVersionGit) => {
+      //   item.configList.map((config, index) => {
+      //     if (config.id == payload.id) {
+      //       item.configList[index].value = payload.defaultValue;
+      //       item.configList[index].isHidden = payload.isHidden;
+      //       item.configList[index].globalConfigId = payload.globalConfigId;
+      //     }
+      //   });
+      // });
+      // templateInfo.versionList.map((item: TemplateVersion) => {
+      //   if (item.id == templateInfo.currentVersion.id) {
+      //     item = templateInfo.currentVersion;
+      //   }
+      // });
+      if (callback) callback(res.data)
+    },
+    *addComConfig ({payload,callback},{call}){
       const res = yield call(templateService.addComConfig, payload)
       if (res.status === -1) return
-      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
-      templateInfo.currentVersion.globalConfigList.push(res.data);
-      templateInfo.versionList.map((item: TemplateVersion) => {
-        if (item.id === templateInfo.currentVersion.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-      yield put ({
-        type: 'setTemplateInfo',
-        payload: templateInfo,
-      });
+      // const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
+      // templateInfo.currentVersion.globalConfigList.push(res.data);
+      // templateInfo.versionList.map((item: TemplateVersion) => {
+      //   if (item.id === templateInfo.currentVersion.id) {
+      //     item = templateInfo.currentVersion;
+      //   }
+      // });
       if (callback) callback()
     },
-    *updateComConfig ({payload, callback}, {select, put, call}) {
+    *updateComConfig ({payload, callback}, {call}) {
       const res = yield call(templateService.updateComConfig, payload)
       if (res.status === -1) return
-      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
-      templateInfo.currentVersion.globalConfigList.map((item: TemplateGlobalConfig, index: number) => {
-        if( item.id === payload.id){
-          templateInfo.currentVersion.globalConfigList[index] = payload
-        }
-      });
-      templateInfo.versionList.map((item: TemplateVersion) => {
-        if (item.id === templateInfo.currentVersion.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-      yield put ({
-        type: 'setTemplateInfo',
-        payload: templateInfo,
-      });
+      // const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
+      // templateInfo.currentVersion.globalConfigList.map((item: TemplateGlobalConfig, index: number) => {
+      //   if( item.id === payload.id){
+      //     templateInfo.currentVersion.globalConfigList[index] = payload
+      //   }
+      // });
+      // templateInfo.versionList.map((item: TemplateVersion) => {
+      //   if (item.id === templateInfo.currentVersion.id) {
+      //     item = templateInfo.currentVersion;
+      //   }
+      // });
+
       if (callback) callback()
     },
-    *delComConfig ({payload, callback}, {select, put, call}) {
+    *delComConfig ({payload, callback}, {call}) {
       const res = yield call(templateService.delComConfig, payload)
       if (res.status === -1) return
-      const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
-      templateInfo.currentVersion.globalConfigList =
-      templateInfo.currentVersion.globalConfigList.filter((item: TemplateGlobalConfig) => item.id != payload);
-      templateInfo.versionList.map((item: TemplateVersion) => {
-        if (item.id === templateInfo.currentVersion.id) {
-          item = templateInfo.currentVersion;
-        }
-      });
-      yield put ({
-        type: 'setTemplateInfo',
-        payload: templateInfo,
-      });
+      // const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
+      // templateInfo.currentVersion.globalConfigList =
+      // templateInfo.currentVersion.globalConfigList.filter((item: TemplateGlobalConfig) => item.id != payload);
+      // templateInfo.versionList.map((item: TemplateVersion) => {
+      //   if (item.id === templateInfo.currentVersion.id) {
+      //     item = templateInfo.currentVersion;
+      //   }
+      // });
+      
       if (callback) callback()
     }
   },
   reducers: {
     setList (state, {payload}): TemplateModelState {
       return {
-        templateList: payload,
-        templateInfo: null,
-      }
-    },
-    setTemplateInfo (state , {payload}): TemplateModelState {
-      return {
-        templateList: state?.templateList || null,
-        templateInfo: payload || {},
-      }
-    },
-    setCurrentVersion (state, {payload}): TemplateModelState {
-      const templateInfo = util.clone(state?.templateInfo) || null
-      if (templateInfo !== null) {
-        templateInfo.currentVersion = templateInfo.versionList.filter(item => item.id === payload)[0]
-      }
-      return {
-        templateList: state?.templateList || null,
-        templateInfo: templateInfo
-      }
+        ...state,
+        templateList: payload,      }
     }
   }
 }

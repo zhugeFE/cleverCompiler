@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-26 10:10:07
+ * @LastEditTime: 2021-11-07 09:56:03
  */
 
 import request from "@/utils/request";
 import api from "./constants/apis";
-import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, TemplateConfig, TemplateInfo, TemplateInstance, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam } from "@/models/template";
+import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, TemplateConfig, TemplateInfo, TemplateInstance, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus } from "@/models/template";
 import { registerCustomQueryHandler } from "puppeteer-core";
 
 class TemplateService {
@@ -29,7 +29,15 @@ class TemplateService {
       data
     })
   }
-  async updateTemplateStatus (data: TemplateInstance) {
+  async deleteTemplate (id: string) {
+    return request(api.template.deleteTemplate, {
+      method: "delete",
+      params: {
+        id
+      }
+    })
+  }
+  async updateTemplateStatus (data: UpdateTemplateStatus) {
     return request(api.template.updateTemplateStatus, {
       method:"post",
       data

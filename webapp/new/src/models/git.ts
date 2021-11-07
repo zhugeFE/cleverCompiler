@@ -244,7 +244,7 @@ const GitModel: GitModelType = {
     }
   },
   reducers: {
-    setList (state, {payload}) {
+    setList (state, {payload}): GitModelState {
       return {
         ...state,
         gitList: payload
