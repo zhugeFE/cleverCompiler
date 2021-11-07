@@ -16,7 +16,6 @@ interface Props {
   afterAdd? (version: Version): void;
 }
 interface State {
-  // currentVersion: Version;
   showCreate: boolean;
   filter: string;
 }
@@ -24,7 +23,6 @@ class TimeLinePanel extends React.Component<Props, State> {
   constructor (props: Props) {
     super(props)
     this.state = {
-      // currentVersion: this.props.versionList[0],
       showCreate: false,
       filter: ''
     }
@@ -64,9 +62,7 @@ class TimeLinePanel extends React.Component<Props, State> {
     })
   }
   afterAdd (version: Version) {
-    this.setState({
-      showCreate: false
-    })
+    this.onHideAddVersion()
     if (this.props.afterAdd) this.props.afterAdd(version)
   }
   render () {

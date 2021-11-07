@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-24 09:55:41
+ * @LastEditTime: 2021-11-07 23:35:43
  */
 import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
@@ -17,6 +17,7 @@ import {
 } from '@/models/template';
 import { GitInfo, GitInstance } from '@/models/git';
 import { ConnectState } from '@/models/connect';
+import { VersionStatus, VersionType } from '@/models/common';
 
 const { Option } = Select;
 interface FormData {
@@ -29,7 +30,7 @@ interface Props {
   templateVersionId: string;
   existGits: TemplateVersionGit[];
   gitList: GitInstance[];
-  afterAdd(): void;
+  afterAdd(version: TemplateVersionGit): void;
   onCancel(): void;
   dispatch: Dispatch;
 }
@@ -76,8 +77,8 @@ class CreateTemplateVersion extends React.Component<Props, States> {
     this.props.dispatch({
       type: 'template/addVersionGit',
       payload: data,
-      callback: () => {
-        if (this.props.afterAdd) this.props.afterAdd();
+      callback: (version: TemplateVersionGit) => {
+        if (this.props.afterAdd) this.props.afterAdd(version);
       }
     });
     
@@ -109,11 +110,11 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   render() {
     const existGits = {}
     this.props.existGits.map(item => {existGits[String(item.gitSourceId)]=true})
-    const gitList = this.props.gitList.filter(item => !existGits[item.id])
+    const gitList = this.props.gitList.filter(item => !existGits[item.id] && item.enable)
     const gitInfo = this.state.gitInfo;
     return (
       <>
-        {gitList[0].name && (
+        {gitList.length && (
           <Modal
             title="添加Git源"
             closable={false}
@@ -149,6 +150,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
               <Form.Item label="git源版本" name="version" >
                 <Select>
                   {gitInfo?.versionList.map((item) => (
+                    item.status === VersionStatus.placeOnFile &&
                     <Option value={item.id} key={item.id} title={item.name}>
                       {item.name}
                     </Option>

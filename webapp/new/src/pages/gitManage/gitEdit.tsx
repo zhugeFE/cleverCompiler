@@ -1,6 +1,6 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
-import { Version, VersionStatus, VersionType } from '@/models/common'
+import { Version, VersionStatus } from '@/models/common'
 import { GitConfig, GitInfo, GitUpdateVersionParam, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import * as _ from 'lodash'
@@ -81,7 +81,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
           gitInfo: info,
           currentVersion
         })
-        this.initDelInterval(currentVersion!)
+        this.initDelInterval(currentVersion)
       }
     })
   }
@@ -346,7 +346,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
           this.state.showAddConfig ? (
             <GitAddConfig 
               gitId={this.props.match.params.id}
-              version={this.state.currentVersion!}
+              versionId={this.state.currentVersion!.id}
               onClose={this.onCancelConfig}
               onSubmit={this.afterAddConfig}></GitAddConfig>
           ) : null
@@ -354,7 +354,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
         <div className={styles.gitPanelTop}>
           <a onClick={() => {this.props.history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>
-            <Tooltip title="归档后版本将变为只读状态">
+            <Tooltip title="发布后版本将变为只读状态">
               {
                 this.state.currentVersion?.status === VersionStatus.placeOnFile ? (
                    <a style={{marginLeft: '10px', color: '#faad14'}}>已发布</a>): (
@@ -415,17 +415,17 @@ class GitEdit extends React.Component<GitEditProps, State> {
                   {this.state.currentVersion?.status === VersionStatus.normal && <Button className={styles.btnAddConfigItem} onClick={this.onAddConfig}>添加配置项</Button>}
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
-                  {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} mode={this.state.currentVersion.status} tags={this.state.currentVersion?.compileOrders}></Commands> : null}
+                  {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} mode={this.state.currentVersion.status} tags={this.state.currentVersion.compileOrders}></Commands> : null}
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
-                    {this.state.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.state.currentVersion?.readmeDoc}></Markdown> : null}
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.state.currentVersion.readmeDoc}></Markdown> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署文档" key="build">
-                    {this.state.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.state.currentVersion?.buildDoc}></Markdown> : null}
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.state.currentVersion.buildDoc}></Markdown> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
-                    {this.state.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.state.currentVersion?.updateDoc}></Markdown> : null}
+                    {this.state.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.state.currentVersion.updateDoc}></Markdown> : null}
                   </Tabs.TabPane>
                 </Tabs>
               </div>

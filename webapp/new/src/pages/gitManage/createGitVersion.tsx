@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Modal, Form, Input, Radio, message, Select, Spin } from 'antd'
+import { Modal, Form, Input, Radio, message, Select, Spin, FormInstance } from 'antd'
 import { Version } from '@/models/common';
 import { GitBranch, GitCommit, GitCreateVersionParam, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
 import util from '@/utils/utils';
@@ -44,6 +44,7 @@ interface States {
 }
 
 class CreateGitVersion extends React.Component<Props, States> {
+  createGitForm: React.RefObject<FormInstance> = React.createRef();
   constructor (props: Props) {
     super(props)
     this.state = {
@@ -87,8 +88,6 @@ class CreateGitVersion extends React.Component<Props, States> {
       this.getTags(this.props.repoId!)
       this.getCommits(this.props.repoId!)
     }
-    
-    
   }
   getRemoteList () {
     this.props.dispatch({
@@ -217,6 +216,7 @@ class CreateGitVersion extends React.Component<Props, States> {
         onCancel={this.onCancel}
         onOk={this.onCommit}>
         <Form 
+          ref={this.createGitForm}
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 14 }} 
           initialValues={this.state.form}

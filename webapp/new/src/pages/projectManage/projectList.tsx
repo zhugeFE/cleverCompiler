@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 09:13:30
+ * @LastEditTime: 2021-11-08 00:27:15
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -29,6 +29,7 @@ interface States {
     compileType: string;
   },
   searchVaild: boolean;
+  selectedRowKeys: string[];
 }
 
 class ProjectList extends React.Component<Props, States> {
@@ -39,11 +40,13 @@ class ProjectList extends React.Component<Props, States> {
         projectName: "",
         compileType: ""
       },
-      searchVaild: true
+      searchVaild: true,
+      selectedRowKeys: []
     }
-    this.onClickAddProject = this.onClickAddProject.bind(this)
-    this.navigationToEdit = this.navigationToEdit.bind(this)
+    this.onCreateProject = this.onCreateProject.bind(this)
     this.onSearch = this.onSearch.bind(this)
+    this.rowSelectChange = this.rowSelectChange.bind(this)
+    this.onClickCompileLog = this.onClickCompileLog.bind(this)
   }
 
   componentDidMount () {
@@ -52,32 +55,25 @@ class ProjectList extends React.Component<Props, States> {
     })
   }
 
-  componentWillReceiveProps(props:any){
-    console.log(props)
+  onClickEdit (project: ProjectInstance) {
+    if (!project.enable) return
+    this.props.history.push(`/compile/edit?id=${project.id}`)
   }
 
-  onClickAddProject () {
+  onChangeStatus (project: ProjectInstance) {
+    this.props.dispatch({
+      type: 'git/updateGitStatus',
+      payload: [{
+        id: project.id,
+        enable: Number(!project.enable)
+      }],
+      callback: () => {
+      }
+    })
+  }
+
+  onCreateProject () {
     this.props.history.push("/compile/project/edit/addProject?mode=add")
-  }
-
-  navigationToEdit (id:string) {
-    this.props.history.push(`/compile/edit?id=${id}`)
-  }
-  //项目编辑
-  onClickEdit(data: ProjectInstance, type: string){
-    switch (type) {
-      case "edit": {
-        // console.log(data)
-        this.navigationToEdit(data.id)
-        break
-      }
-      case "info": {
-        // console.log(`compile/edit/${data.id}`)
-        this.props.history.push(`/compile/project/edit/${data.id}?mode=info`)
-        // console.log(data)
-      }
-    }
-    
   }
 
   onSearch (changedValues: any , values: any) {
@@ -99,6 +95,39 @@ class ProjectList extends React.Component<Props, States> {
     }, 300)
   }
 
+  rowSelectChange (selectedRowKeys: React.Key[], selectedRows: ProjectInstance[]) {
+    var arr = selectedRowKeys.map(item => String(item))
+    this.setState({
+      selectedRowKeys: arr
+    })
+  }
+  onBatchOption (order: string) {
+    if (this.state.selectedRowKeys.length == 0) return
+    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 0 : 1}})
+    this.props.dispatch({
+      type: 'git/updateGitStatus',
+      payload: data,
+      callback: () => {
+
+      }
+    })
+  }
+
+  onClickDel (project: ProjectInstance) {
+    this.props.dispatch({
+      type: 'project/delProjectInfo',
+      payload: project.id,
+      callback: () => {
+      }
+    })
+  }
+  onClickCompile (project: ProjectInstance) {
+    
+  }
+
+  onClickCompileLog (project: ProjectInstance) {
+    
+  }
   render() {
 
     const compileType = ['私有部署','常规迭代','发布测试']
@@ -170,13 +199,26 @@ class ProjectList extends React.Component<Props, States> {
         render: (text, record: ProjectInstance) => {
           return (
             <div>
-              <a  onClick={this.onClickEdit.bind(this, record, "edit")}>
+              <Button  onClick={this.onClickCompile.bind(this, record)}>
                 编译
-              </a>
-              
-              <a style={{marginLeft: "5px"}}  onClick={this.onClickEdit.bind(this, record, "info")}>
-                详情
-              </a>
+              </Button>
+              <Button 
+              type="primary" 
+              style={{marginRight: 5}}
+              disabled={!record.enable}
+              onClick={this.onClickCompileLog.bind(this, record)}>编译记录</Button>
+              <Button 
+                type="primary" 
+                style={{marginRight: 5}}
+                disabled={!record.enable}
+                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+              <Button 
+                type="primary"
+                danger 
+                style={{marginRight: 5}} 
+                disabled={!record.enable}
+                onClick={this.onClickDel.bind(this, record)}>删除</Button>
+              {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
             </div>
           );
         },
@@ -193,12 +235,28 @@ class ProjectList extends React.Component<Props, States> {
               <Input/>
             </Form.Item>
             <Form.Item>
-              <Button type="primary" onClick={this.onClickAddProject}>新建项目</Button>
+              <Button 
+                disabled={!this.state.selectedRowKeys.length}
+                type="primary" 
+                onClick={this.onBatchOption.bind(this, 'enable')}>批量启用</Button>
+            </Form.Item>
+            <Form.Item>
+              <Button 
+                danger 
+                disabled={!this.state.selectedRowKeys.length}
+                onClick={this.onBatchOption.bind(this, 'disable')}>批量禁用</Button>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" onClick={this.onCreateProject}>新建项目</Button>
             </Form.Item>
           </Form>
         </div>
         <Table
           rowKey="id"
+          rowSelection={{
+            type: "checkbox",
+            onChange: this.rowSelectChange
+          }}
           columns={columns}
           dataSource={showList}
           pagination={{

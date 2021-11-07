@@ -1,10 +1,11 @@
+import { enable } from '@umijs/deps/compiled/signale';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-15 15:32:56
+ * @LastEditTime: 2021-11-07 11:17:17
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -35,6 +36,7 @@ export interface ProjectInstance {
   lastCompileResult: number; // 上次编译结果
   lastCompileUser: string; //上次编译人
   createTime: Date; //创建时间
+  enable: number;
 }
 
 export interface ProjectInfo {
@@ -49,6 +51,7 @@ export interface ProjectInfo {
   shareNumber: string; //分享成员
   customer: string; //客户id
   globalConfigList: ProjectConfig[];//全局配置
+  enable: number;
 }
 
 
@@ -61,6 +64,7 @@ export interface Project {
   publishType: number; //发布方式 0发布到git 1下载  2自动
   description: string; //项目描述
   createTime: Date; //创建时间
+  enable: number;
 }
 
 

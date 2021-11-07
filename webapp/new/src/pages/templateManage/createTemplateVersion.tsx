@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 15:05:27
+ * @LastEditTime: 2021-11-07 18:20:53
  */
 
-import { Form, Input, Modal, Select } from 'antd';
+import { Form, FormInstance, Input, Modal, Select } from 'antd';
 import React from 'react';
 import { Dispatch, TemplateVersion } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
@@ -17,15 +17,20 @@ const { Option } = Select;
 
 
 interface FormData {
+  name: string;
+  description: string;
+  versionDescription: string;
+  version: string;
   option: string;
-  desc: string;
 }
 
 interface Props {
-  version: string;
-  id: string;
-  onCancel(): void;
-  afterAdd(version: TemplateVersion): void;
+  mode: string;
+  title?: string;
+  templateId?: string;
+  versionList?: TemplateVersion[];
+  onCancel?(): void;
+  afterAdd?(version: TemplateVersion): void;
   dispatch: Dispatch;
 }
 
@@ -36,6 +41,7 @@ interface States {
 }
 
 class CreateTemplateVersion extends React.Component<Props, States> {
+  createTemplateForm: React.RefObject<FormInstance> = React.createRef();
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -43,7 +49,10 @@ class CreateTemplateVersion extends React.Component<Props, States> {
       version: '',
       form: {
         option: '',
-        desc: '',
+        name: '',
+        version: '',
+        description: "",
+        versionDescription: ""
       },
     };
     this.onCancel = this.onCancel.bind(this);
@@ -56,22 +65,31 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   }
 
   onCommit() {
-    this.props.dispatch({
-      type: 'template/addVersion',
-      payload: {
-        templateId: this.props.id,
-        description: this.state.form.desc,
-        version: this.state.version,
-      },
-      callback:(version: TemplateVersion) => {
-        if(this.props.afterAdd){this.props.afterAdd(version)}
+    this.createTemplateForm.current?.validateFields()
+    .then( (form: FormData) => {
+      const data = {
+        templateId: this.props.templateId || "",
+        name: form.name,
+        description: form.description,
+        version: this.props.mode == 'init' ? '1.0.0' : form.version,
+        versionDescription: form.versionDescription
       }
-    });
+      this.props.dispatch({
+        type: 'template/addVersion',
+        payload: data,
+        callback: (version: TemplateVersion) => {
+          this.setState({
+            show: false
+          })
+          if (this.props.afterAdd) this.props.afterAdd(version)
+        }
+      })
+    })
   }
 
   onChangeForm(chanedValue: any, values: FormData) {
     if (chanedValue['option']) {
-      const str = this.props.version.split('.');
+      const str = this.props.versionList![0].version!.split('.');
       str[chanedValue['option']] = Number(str[chanedValue['option']]) + 1 + '';
       switch (chanedValue['option']) {
         case '0': {
@@ -82,11 +100,11 @@ class CreateTemplateVersion extends React.Component<Props, States> {
           str[2] = '0';
         }
       }
-      this.setState({
-        version: str.join('.'),
-      });
+      this.createTemplateForm.current?.setFieldsValue({version: str.join('.')})
+      // this.setState({
+      //   version: str.join('.'),
+      // });
     }
-
     this.setState({
       form: values,
     });
@@ -94,7 +112,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   render() {
     return (
       <Modal
-        title='添加版本'
+        title={this.props.mode === 'init' ? "创建模版" : "新建版本"}
         closable={false}
         centered
         visible={this.state.show}
@@ -103,30 +121,67 @@ class CreateTemplateVersion extends React.Component<Props, States> {
         onCancel={this.onCancel}
         onOk={this.onCommit}>
         <Form
+          ref={this.createTemplateForm}
           labelCol={{ span: 6 }}
           wrapperCol={{ span: 14 }}
           initialValues={this.state.form}
           layout="horizontal"
           onValuesChange={this.onChangeForm}>
-          <Form.Item label="版本类型" name="option">
-            <Select>
-              {VersionType.map((item) => (
-                <Option value={item.key} key={item.key} title={item.title}>
-                  {item.title}
-                </Option>
-              ))}
-            </Select>              
+          {
+            this.props.mode == 'init' && (
+              <>
+                <Form.Item
+                  label="名称"
+                  name="name"
+                  rules={[{ required: true, message: '请输入模板名称!' }]}
+                >
+                  <Input type="text"></Input>
+                </Form.Item>
+                <Form.Item
+                  label="描述"
+                  name="description"
+                  rules={[{ required: true, message: '请输入模板描述!' }]}
+                >
+                  <TextArea rows={3}/>
+                </Form.Item> 
+              </>
+            )
+          }
+          {
+            this.props.mode !== 'init' && (
+              <Form.Item 
+                rules={[{ required: true, message: '请选择版本类型!' }]}
+                label="版本类型" 
+                name="option">
+                <Select>
+                  {VersionType.map((item) => (
+                    <Option value={item.key} key={item.key} title={item.title}>
+                      {item.title}
+                    </Option>
+                  ))}
+                </Select>              
+              </Form.Item>
+            )
+          }
+          <Form.Item 
+            name="version"
+            label="版本号">
+            {
+              this.props.mode == 'init' ? <Input addonBefore="v" placeholder="1.0.0" disabled/>
+              :
+              <Input
+                type="text"
+                value={this.state.version}
+                addonBefore="v"
+                disabled
+                placeholder="x.x.x"
+              />
+            }
           </Form.Item>
-          <Form.Item label="版本号">
-            <Input
-              type="text"
-              value={this.state.version}
-              addonBefore="v"
-              disabled
-              placeholder="x.x.x"
-            />
-          </Form.Item>
-          <Form.Item label="版本描述" name="desc">
+          <Form.Item 
+            rules={[{ required: true, message: '请输入版本描述!' }]}
+            label="版本描述"
+            name="versionDescription">
             <TextArea rows={4}></TextArea>
           </Form.Item>
         </Form>

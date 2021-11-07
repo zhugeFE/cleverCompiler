@@ -4,28 +4,27 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 21:22:00
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-20 16:37:43
+ * @LastEditTime: 2021-11-07 18:09:48
  */
 import * as React from 'react';
 import { Timeline, Tag, Input, Form } from 'antd';
 import TimelineItem from 'antd/lib/timeline/TimelineItem';
 import { PlusOutlined } from '@ant-design/icons';
 import * as _ from 'lodash';
-import { TemplateInfo, TemplateVersion } from '@/models/template';
+import { TemplateVersion } from '@/models/template';
 import CreateTemplateVersion from './createTemplateVersion';
 import styles from './styles/timeline.less';
-import util from '@/utils/utils';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from '@/.umi/plugin-dva/exports';
 
 interface Props {
-  templateInfo: TemplateInfo;
+  currentVersion: TemplateVersion;
+  versionList: TemplateVersion[]
   afterAdd?(version: TemplateVersion): void;
+  onChange?(version: TemplateVersion): void;
   dispatch: Dispatch;
 }
 interface State {
-  currentVersion: TemplateVersion;
-  versionList: TemplateVersion[];
   showCreate: boolean;
   filter: string;
 }
@@ -33,8 +32,6 @@ class TimeLinePanel extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      versionList: this.props.templateInfo.versionList,
-      currentVersion: this.props.templateInfo.versionList[0],
       showCreate: false,
       filter: '',
     };
@@ -46,26 +43,12 @@ class TimeLinePanel extends React.Component<Props, State> {
 
   //添加新版本后 更改state值
   afterAddVersion(version: TemplateVersion) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    this.setState({
-      versionList: templateInfo.versionList,
-      currentVersion: templateInfo.versionList[0],
-    });
     this.hideAddVersion()
+    if (this.props.afterAdd) this.props.afterAdd(version)
   }
   // 选中项
   onChangeVersion(version: TemplateVersion) {
-    const templateInfo = util.clone(this.props.templateInfo);
-    if (templateInfo) {
-      templateInfo.currentVersion = version;
-      this.props.dispatch({
-        type: 'template/setTemplateInfo',
-        payload: templateInfo,
-      });
-    }
-    this.setState({
-      currentVersion: version,
-    });
+    if (this.props.onChange) this.props.onChange(version)
   }
 
   onFilter(changedValues: { search: string }) {
@@ -89,8 +72,9 @@ class TimeLinePanel extends React.Component<Props, State> {
       <div className={styles.timeLinePanel}>
         {this.state.showCreate && (
           <CreateTemplateVersion
-            version={this.state.versionList[0].version}
-            id={this.props.templateInfo.id}
+            mode="add"
+            templateId={this.props.currentVersion.templateId}
+            versionList={this.props.versionList}
             onCancel={this.hideAddVersion}
             afterAdd={this.afterAddVersion}
           ></CreateTemplateVersion>
@@ -108,12 +92,12 @@ class TimeLinePanel extends React.Component<Props, State> {
               </a>
             }
           ></TimelineItem>
-          {this.state.versionList
+          {this.props.versionList
             .filter((version) => {
               return new RegExp(this.state.filter).test(version.version);
             })
             .map((version) => {
-              if (version === this.state.currentVersion) {
+              if (version === this.props.currentVersion) {
                 return (
                   <TimelineItem
                     key={version.id || 'i'}

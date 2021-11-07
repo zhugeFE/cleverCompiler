@@ -2,27 +2,26 @@
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
- * @Date: 2021-11-06 08:50:33
+ * @Date: 2021-11-07 19:14:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 01:46:18
+ * @LastEditTime: 2021-11-07 21:53:20
  */
 import { EditMode } from '@/models/common';
-import { GitConfig } from '@/models/git';
 import { InboxOutlined, LeftOutlined } from '@ant-design/icons';
-import { Form, FormInstance, Input, message, Modal } from 'antd';
+import { Form, FormInstance, Input, Modal } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
 import { connect, Dispatch } from 'dva';
 import React from 'react';
-import FileTree from "./fileTree";
-import configStyles from './styles/gitAddConfig.less'
+import configStyles from './styles/templateAddConfig.less'
 import styles from './styles/fileConfig.less';
+import { TemplateGlobalConfig } from '@/models/template';
 
 interface Props {
   mode: EditMode
-  gitId: string;
-  gitVersionId: string;
-  configInfo?: GitConfig;
+  templateId: string;
+  templateVersionId: string;
+  globalConfig?: TemplateGlobalConfig;
   onBack? (): void;
   onCancel (): void;
   onSubmit(form: FormData): void;
@@ -32,30 +31,26 @@ interface Props {
 interface FormData {
   file: File | null,
   description: string;
-  filePath: string;
+  name: string;
 }
 
 interface State {
   form: FormData
 }
 
-
-
-
-class GitFileConfig extends React.Component<Props, State> {
-  gitFileForm: React.RefObject<FormInstance> = React.createRef()
+class TemplateFileConfig extends React.Component<Props, State> {
+  templateFileForm: React.RefObject<FormInstance> = React.createRef()
   constructor (props: Props) {
     super(props)
     this.state = {
       form: {
         file: null,
-        description: props.configInfo?.description || "",
-        filePath: props.configInfo?.filePath || ""
+        description: props.globalConfig?.description || "",
+        name: props.globalConfig?.name || ""
       }
     }
     this.onBack = this.onBack.bind(this)
     this.onCancel = this.onCancel.bind(this)
-    this.onSelectFile = this.onSelectFile.bind(this)
     this.onFormChange = this.onFormChange.bind(this)
     this.onSubmit = this.onSubmit.bind(this)
   }
@@ -72,30 +67,18 @@ class GitFileConfig extends React.Component<Props, State> {
     }
   }
 
-  onSelectFile (filePath: string) {
-    this.gitFileForm.current!.setFieldsValue({filePath})
-  }
   onFormChange (changeValue: string, formData: FormData) {
     this.setState({
       form: formData
     })
   }
   onSubmit () {
-    if (!this.state.form.filePath) {
-      message.error('请选择目标文件')
-      return;
-    }
-
-    if (!this.state.form.file) {
-      message.error('请选择上传文件')
-      return;
-    }
-    this.gitFileForm.current?.validateFields()
+    this.templateFileForm.current?.validateFields()
     .then(() => {
       if (!this.props.onSubmit) return
       const {form} = this.state
       this.props.onSubmit({
-        filePath: form.filePath,
+        name: form.name,
         file: form.file,
         description: form.description
       })
@@ -111,35 +94,45 @@ class GitFileConfig extends React.Component<Props, State> {
         className={configStyles.gitConfigModal} 
         visible={true}
         title={
-          this.props.mode === EditMode.create &&
-          <a onClick={this.onBack}><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>
-        } 
-        width="60%"
+          this.props.mode ===  EditMode.create? (
+            <a onClick={this.onBack}>
+            <LeftOutlined style={{ marginRight: '5px' }} />
+            切换类型
+          </a>
+          ) : "修改配置"
+        }
+        width="40%"
         okText="保存" 
         cancelText="取消"
         onCancel={this.onCancel}
         onOk={this.onSubmit}
       >
-        <FileTree
-          gitId={this.props.gitId}
-          defauleSelect={this.props.configInfo?.filePath}
-          versionId={this.props.gitVersionId}
-          onSelect={this.onSelectFile}
-        ></FileTree>
         <div className={styles.gitFileConfig}>
           <Form
-            ref={this.gitFileForm}
+            ref={this.templateFileForm}
             initialValues={this.state.form}
             layout="inline"
             onValuesChange={this.onFormChange}
           >
-            <Form.Item required label="目标文件" name="filePath" className={styles.long}>
-              <Input></Input>
+            <Form.Item 
+              label="名称" 
+              name="name" 
+              rules={[{ required: true, message: '请输入配置名称!' }]}
+              className={styles.long}>
+              <Input disabled={this.props.mode != EditMode.create}></Input>
             </Form.Item>
-            <Form.Item required label="描述" name="description" className={styles.long}>
+            <Form.Item
+              label="描述" 
+              name="description" 
+              rules={[{ required: true, message: '请输入配置描述!' }]}
+              className={styles.long}>
               <TextArea rows={6}></TextArea>
             </Form.Item>
-            <Form.Item required label="上传文件" valuePropName="file" name="file">
+            <Form.Item 
+              label="上传文件" 
+              rules={[{ required: true, message: '请上传文件!' }]}
+              valuePropName="file" 
+              name="file">
               <Dragger 
                 beforeUpload={()=>false}
               >
@@ -162,4 +155,4 @@ class GitFileConfig extends React.Component<Props, State> {
 }
 
 
-export default connect()(GitFileConfig)
+export default connect()(TemplateFileConfig)

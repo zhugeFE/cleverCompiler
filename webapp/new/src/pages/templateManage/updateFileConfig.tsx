@@ -1,35 +1,33 @@
 /*
- * @Descripttion:
- * @version:
+ * @Descripttion: 
+ * @version: 
  * @Author: Adxiong
- * @Date: 2021-08-11 20:16:18
+ * @Date: 2021-11-07 22:27:54
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 21:46:20
+ * @LastEditTime: 2021-11-08 01:45:58
  */
+
+
 import { Form, FormInstance, Input, Modal } from 'antd';
 import React from 'react';
 import { Dispatch } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
-import util from '@/utils/utils';
-import { TemplateGlobalConfig } from '@/models/template';
-import { LeftOutlined } from '@ant-design/icons';
+import { TemplateConfig } from '@/models/template';
 import TextArea from 'antd/lib/input/TextArea';
 import { EditMode } from '@/models/common';
 
 interface FormData {
-  name: string;
+  file: File | null;
+  filePath: string;
   description: string;
-  targetValue: string;
 }
 
+
 interface Props {
-  templateId: string;
-  templateVersionId: string;
   mode: EditMode;
-  globalConfig?: TemplateGlobalConfig;
+  config: TemplateConfig;
   onSubmit (data: FormData): void;
   onCancel(): void;
-  onBack?(): void;
   dispatch: Dispatch;
 }
 
@@ -37,36 +35,34 @@ interface States {
   form: FormData;
 }
 
-class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
-  templateTextForm: React.RefObject<FormInstance> = React.createRef()
+class UpdateTextConfig extends React.Component<Props, States> {
+  updateFileConfigForm: React.RefObject<FormInstance> = React.createRef()
   constructor(props: Props) {
     super(props);
     this.state = {
       form: {
-        name: this.props.globalConfig?.name ? this.props.globalConfig.name : "",
-        description: this.props.globalConfig?.description ? this.props.globalConfig.description : "",
-        targetValue:this.props.globalConfig?.targetValue ? this.props.globalConfig.targetValue : "",
+        file: null,
+        filePath: props.config.filePath,
+        description: props.config.description,
       },
     };
     this.onCancel = this.onCancel.bind(this);
     this.onCommit = this.onCommit.bind(this);
-    this.onBack = this.onBack.bind(this);
-    this.onChangeForm = this.onChangeForm.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
-  onCancel() {
-    if (this.props.onCancel) this.props.onCancel();
+  componentDidMount () {
   }
+
 
   onCommit() {
-    const { name, description, targetValue } = this.state.form
-    this.templateTextForm.current?.validateFields()
-    .then((form) => {
+    this.updateFileConfigForm.current?.validateFields()
+    .then((form: FormData) => {
       if (!this.props.onSubmit) return
       this.props.onSubmit({
-        name: name,
-        description: description,
-        targetValue: targetValue,
+        filePath: form.filePath,
+        file: form.file,
+        description: form.description,
       })
     })
     .catch((err) => {
@@ -74,30 +70,20 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
     })
   }
 
-  onChangeForm(chanedValue: any, values: FormData) {
-    const form = util.clone(values);
+  onChange (changedValues: FormData, formData: FormData) {
     this.setState({
-      form,
-    });
+      form: formData
+    })
   }
 
-  onBack() {
-    if (this.props.onBack) {
-      this.props.onBack();
-    }
+  onCancel() {
+    if (this.props.onCancel) this.props.onCancel();
   }
 
   render() {
     return (
       <Modal
-        title={
-          this.props.mode ===  EditMode.create? (
-            <a onClick={this.onBack}>
-            <LeftOutlined style={{ marginRight: '5px' }} />
-            切换类型
-          </a>
-          ) : "修改配置"
-        }
+        title="修改配置"
         centered
         closable={false}
         visible={true}
@@ -106,12 +92,12 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
         onCancel={this.onCancel}
         onOk={this.onCommit}>
           <Form
-            ref={this.templateTextForm}
+            ref={this.updateFileConfigForm}
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 14 }}
             initialValues={this.state.form}
             layout="horizontal"
-            onValuesChange={this.onChangeForm}>
+            onValuesChange={this.onChange}>
             <Form.Item 
               label="名称" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
@@ -136,4 +122,4 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
   }
 }
 
-export default connect()(AddTemplateGlobalTextConfig);
+export default connect()(UpdateTextConfig);

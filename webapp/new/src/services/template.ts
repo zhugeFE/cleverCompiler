@@ -4,13 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 09:56:03
+ * @LastEditTime: 2021-11-08 00:20:53
  */
 
 import request from "@/utils/request";
 import api from "./constants/apis";
 import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, TemplateConfig, TemplateInfo, TemplateInstance, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus } from "@/models/template";
 import { registerCustomQueryHandler } from "puppeteer-core";
+import { RightSquareTwoTone } from "@ant-design/icons";
 
 class TemplateService {
   async queryTemplateList () {
@@ -37,6 +38,13 @@ class TemplateService {
       }
     })
   }
+  async updateTemplateVersionStatus (data: {id: string, status: number}) {
+    return request(api.template.updateVersionStatus, {
+      method: "post",
+      data
+    })
+  }
+  
   async updateTemplateStatus (data: UpdateTemplateStatus) {
     return request(api.template.updateTemplateStatus, {
       method:"post",
@@ -108,21 +116,32 @@ class TemplateService {
   // }
 
 
-  async addComConfig ( data: CreateTemplateGlobalConfigParams) {
-    return request(api.template.addComConfig, {
+  async addGlobalConfig ( data: CreateTemplateGlobalConfigParams) {
+    return request(api.template.addGlobalConfig, {
+      requestType: 'form',
       method:"post",
       data
     })
   }
-  async updateComConfig ( data: TemplateGlobalConfig) {
-    return request(api.template.updateComConfig, {
+  async updateGlobalConfig ( data: TemplateGlobalConfig) {
+    return request(api.template.updateGlobalConfig, {
+      requestType: 'form',
       method:"post",
       data
     })
   }
 
-  async delComConfig (configId: string) {
-    return request(api.template.delComConfig, {
+
+
+  async updateGlobalConfigStatus (data: {id: string; status: number}) {
+    return request(api.template.updateGlobalConfigStatus, {
+      method: "post",
+      data
+    })
+  }
+
+  async delGlobalConfig (configId: string) {
+    return request(api.template.delGlobalConfig, {
       method: 'delete',
       params: {
         configId

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 16:42:29
+ * @LastEditTime: 2021-11-08 01:46:53
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -13,63 +13,59 @@ import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import {
-  ConfigInstance,
+  TemplateConfig,
   TemplateGlobalConfig,
   TemplateVersionGit,
   UpdateConfigParam,
 } from '@/models/template';
 import util from '@/utils/utils';
 import AddTemplateGitSourse from './addTemplateGitSourse';
-import EditeTemplateConfig from "./editTemplateConfig";
+import { EditMode, TypeMode, VersionStatus } from '@/models/common';
+import UpdateTextConfig from "./updateTextConfig";
+import UpdateFileConfig from "./updateFileConfig";
 
 export interface ConfigPanelProps {
+  mode: VersionStatus;
+  globalConfigList: TemplateGlobalConfig[];
+  gitList: TemplateVersionGit[];
   templateId: string;
   templateVersionId: string;
-  globalConfigs: TemplateGlobalConfig[];
-  gitList: TemplateVersionGit[];
+  activeKey: string;
+  onChangeGit(activeKey: string): void;
+  onSubmit(config: TemplateConfig): void;
+  afterDelGit(id: string): void;
+  afterAddGit(git: TemplateVersionGit): void;
   dispatch: Dispatch;
 }
 interface State {
-  activeKey: string | undefined;
   fileContent: string;
   showAddGitSource: boolean;
-  showEditConfig: boolean;
-  currentConfig: ConfigInstance | null;
+  currentConfig: TemplateConfig | null;
 }
 
 class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
   globalConfigMap: { [propName: string]: TemplateGlobalConfig } = {};
   constructor(props: ConfigPanelProps) {
     super(props);
-    this.props.globalConfigs.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
+    this.props.globalConfigList.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
     this.state = {
       fileContent: "",
       showAddGitSource: false,
-      activeKey: props.gitList.length > 0 ? props.gitList[0].id : "",
-      showEditConfig: false,
       currentConfig: null,
     };
     this.onEdit = this.onEdit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.remove = this.remove.bind(this);
     this.hideAddGitSource = this.hideAddGitSource.bind(this);
-    this.onHideEditConfig = this.onHideEditConfig.bind(this);
+    this.onCancelUpdateConfig = this.onCancelUpdateConfig.bind(this);
     this.afterAddGitSource = this.afterAddGitSource.bind(this);
+    this.afterUpdateConfig = this.afterUpdateConfig.bind(this);
   }
 
   onChange(activeKey: string) {
-    this.setState({
-      activeKey,
-    });
+    if (this.props.onChangeGit) this.props.onChangeGit(activeKey)
   }
 
-  componentWillReceiveProps(props: any ){
-    this.setState({
-      activeKey: props.gitList.length > 0 ? props.gitList[0].id : ""
-    })
-    props.globalConfigs.map((item: any) => (this.globalConfigMap[String(item.id)] = item));
-
-  }
 
   onEdit(targetKey: any, action: any) {
     this[action](targetKey);
@@ -94,11 +90,14 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.props.dispatch({
       type: 'template/delVersionGit',
       payload: targetKey,
+      callback: () => {
+        if (this.props.afterDelGit) this.props.afterDelGit(targetKey)
+      }
     });
   }
   
   //配置修改
-  onChangeConfig(config: ConfigInstance, type: string, value: any) {
+  onChangeConfig(config: TemplateConfig, type: string, value: any) {
     const data = util.clone(config);
     switch (type) {
       case 'globalConfig': {
@@ -106,7 +105,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         break;
       }
       case 'hidden': {
-        data.isHidden = Number(!data.isHidden);
+        data.isHidden = Number(!config.isHidden)
         break;
       }
       case "edit": {
@@ -120,7 +119,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           }
         })
         this.setState({
-          showEditConfig: true,
           currentConfig: data
         })
         return 
@@ -130,48 +128,71 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       type: 'template/updateConfig',
       payload: {
         id: data.id,
-        defaultValue: data.value,
         isHidden: data.isHidden,
         globalConfigId: data.globalConfigId,
       } as UpdateConfigParam,
-      callback: () => {
+      callback: (config: TemplateConfig) => {
+        if( this.props.onSubmit) this.props.onSubmit(config)
       }
     });
   }
 
-  onHideEditConfig(){
+
+  //增加git源
+  afterAddGitSource(git: TemplateVersionGit){
+    this.hideAddGitSource()
+    if (this.props.afterAddGit) this.props.afterAddGit(git)
+  }
+
+  onCancelUpdateConfig () {
     this.setState({
-      showEditConfig: false,
       currentConfig: null
     })
   }
 
-  //增加git源
-  afterAddGitSource(){
-    this.setState({
-      activeKey: this.props.gitList.length > 0 ? this.props.gitList[this.props.gitList.length-1].id : ""
+  afterUpdateConfig (formData: any){
+    const form = new FormData()
+    for (let key of Object.keys(formData)) {
+      if (key == 'file') {
+        console.log(formData[key])
+        form.append("files", formData[key]['file'])
+      } else {
+        form.append(key, formData[key])
+      }
+    }
+    form.append("configId", this.state.currentConfig!.id)
+    this.props.dispatch({
+      type: 'template/updateTemplateConfig',
+      payload: form,
+      callback: (config: TemplateConfig) => {
+        this.setState({
+          currentConfig: null
+        })
+        if (this.props.onSubmit) this.props.onSubmit(config)
+      }
     })
-    this.hideAddGitSource()
   }
 
   render() {
-    const columns: ColumnProps<ConfigInstance>[] = [
+    const columns: ColumnProps<TemplateConfig>[] = [
       { title: '文件位置', width: 150, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
       {
         title: '默认值',
         width: 200,
         ellipsis: true,
-        render: (record: ConfigInstance) => {
-          return (
-            <span>{record.value || record.sourceValue}</span>
-          );
+        render: (record: TemplateConfig) => {
+          if (record.typeId == TypeMode.text) {
+            return record.targetValue
+          }else {
+            return JSON.parse(record.targetValue)['originalFilename']
+          }
         },
       },
       {
         title: "全局配置",
         width: 150,
         ellipsis: true,
-        render: (record: ConfigInstance) => {
+        render: (record: TemplateConfig) => {
           return (
             <Select
               defaultValue={this.globalConfigMap[record.globalConfigId]?.name || "无"}
@@ -185,7 +206,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
               onChange={this.onChangeConfig.bind(this, record, 'globalConfig')}
             >
               <Select.Option value="0" key="0" title="无">无</Select.Option>
-              {this.props.globalConfigs!.map((git) => {
+              {this.props.globalConfigList!.map((git) => {
                 return (
                   <Select.Option value={git.id} key={git.id} title={git.name}>
                     {git.name}
@@ -196,7 +217,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           )
         }
       },
-      { title: '描述', width: 200, dataIndex: 'description' , ellipsis: true },
+      { title: '描述', width: 100, dataIndex: 'description' , ellipsis: true },
       {
         title: '类型',
         width: 60,
@@ -209,7 +230,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       },
       {
         title: '匹配规则',
-        width: 200,
+        width: 150,
         ellipsis: true,
         dataIndex: 'reg',
         render(value) {
@@ -224,8 +245,9 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       },
       {
         title: '操作',
+        width:100,
         fixed: 'right',
-        render: (value: any, record: ConfigInstance) => {
+        render: (value: any, record: TemplateConfig) => {
           return (
             <div>
               <a onClick={this.onChangeConfig.bind(this, record , 'edit')}>编辑</a>
@@ -244,14 +266,26 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     return (
       <div className={styles.templateConfigPanel}>
         {
-          this.state.showEditConfig && this.state.currentConfig && (
-            <EditeTemplateConfig
-              fileContent={this.state.fileContent}
-              config={this.state.currentConfig}
-              onCancel={this.onHideEditConfig}
-            ></EditeTemplateConfig>
+          this.state.currentConfig && (
+            this.state.currentConfig.typeId == TypeMode.text ? (
+              <UpdateTextConfig
+                mode={EditMode.update}
+                config={this.state.currentConfig}
+                onCancel={this.onCancelUpdateConfig}
+                onSubmit={this.afterUpdateConfig}
+              ></UpdateTextConfig>
+            ) : (
+              <UpdateFileConfig
+                mode={EditMode.update}
+                config={this.state.currentConfig}
+                onCancel={this.onCancelUpdateConfig}
+                onSubmit={this.afterUpdateConfig}
+              ></UpdateFileConfig>
+            )
           )
+          
         }
+        
         {
           //显示添加git
           this.state.showAddGitSource && 
@@ -262,16 +296,16 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             afterAdd={this.afterAddGitSource}
             onCancel={this.hideAddGitSource} />
         }
-        { !gitList.length ? (
-          <Tabs type="editable-card" className={styles.cardBg} onEdit={this.onEdit}>
+        { !this.props.activeKey ? (
+          <Tabs type={this.props.mode == VersionStatus.normal ? 'editable-card' : 'card'} className={styles.cardBg} onEdit={this.onEdit}>
             <Tabs.TabPane tab="引导页">引导页面</Tabs.TabPane>
           </Tabs>
         ) : (
           <Tabs
-            type="editable-card"
+          type={this.props.mode == VersionStatus.normal ? 'editable-card' : 'card'}
             className={styles.cardBg}
             onChange={this.onChange}
-            activeKey={this.state.activeKey}
+            activeKey={this.props.activeKey}
             onEdit={this.onEdit}>
             {gitList.map((item, index) => {
               return (
@@ -279,6 +313,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                   <Table
                     columns={columns}
                     dataSource={item.configList}
+                    rowClassName={ (record) => record.isHidden ? styles.disable : ""}
                     pagination={{
                       pageSize: 3,
                       showTotal(totle: number) {

@@ -180,11 +180,11 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         render: (text, record: TemplateInstance) => {
           return (
             <div>
-               <Button 
-                type="primary" 
-                style={{marginRight: 5}}
-                disabled={!record.enable}
-                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+              <Button 
+              type="primary" 
+              style={{marginRight: 5}}
+              disabled={!record.enable}
+              onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
               <Button 
                 type="primary"
                 danger 

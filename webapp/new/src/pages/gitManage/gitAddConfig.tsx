@@ -3,17 +3,15 @@ import { Modal, Card, Row, Col } from 'antd';
 import GitTextConfig from './gitTextConfig';
 import GitFileConfig from './gitFileConfig';
 import styles from './styles/gitAddConfig.less'
-import { ConfigType, EditMode, Version } from '@/models/common';
+import { ConfigType, EditMode } from '@/models/common';
 import { connect } from 'dva'
 import { GitConfig } from '@/models/git';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { ConnectState } from '@/models/connect';
-import e from '@umijs/deps/compiled/express';
 
 interface Props {
   gitId: string;
-  mode: string;
-  version: Version;
+  versionId: string;
   configTypes: ConfigType[];
   dispatch: Dispatch;
   onClose ?(): void;
@@ -23,9 +21,6 @@ interface State {
   type?: ConfigType;
 }
 class GitAddConfig extends React.Component<Props, State> {
-  static defaultProps = {
-    mode: 'add'
-  }
 
   constructor (props: Props) {
     super(props)
@@ -62,7 +57,7 @@ class GitAddConfig extends React.Component<Props, State> {
       }
     }
     form.append("sourceId", this.props.gitId)
-    form.append("versionId", this.props.version.id)
+    form.append("versionId", this.props.versionId)
     form.append("typeId", String(this.state.type!.id))
     this.props.dispatch({
       type: 'git/addConfig',
@@ -84,7 +79,6 @@ class GitAddConfig extends React.Component<Props, State> {
   }
 
   render () {
-    let title = this.props.mode === 'add' ? '添加配置' : '修改配置'
     if (this.state.type) {
       switch (this.state.type.key) {
         case 'text':
@@ -92,7 +86,7 @@ class GitAddConfig extends React.Component<Props, State> {
             <GitTextConfig 
               mode={EditMode.create}
               gitId={this.props.gitId}
-              gitVersionId={this.props.version.id}
+              gitVersionId={this.props.versionId}
               onSubmit={this.onSubmitForm}
               onBack={this.onBack}
               onCancel={this.onCancel}></GitTextConfig>
@@ -102,7 +96,7 @@ class GitAddConfig extends React.Component<Props, State> {
             <GitFileConfig
               mode={EditMode.create}
               gitId={this.props.gitId}
-              gitVersionId={this.props.version.id}
+              gitVersionId={this.props.versionId}
               onSubmit={this.onSubmitForm}
               onBack={this.onBack}
               onCancel={this.onCancel}
@@ -122,7 +116,7 @@ class GitAddConfig extends React.Component<Props, State> {
     } else {
       return (
         <Modal 
-          title={title} 
+          title="添加配置"
           visible={true} 
           className={styles.addGitConfigModal}
           footer={null}
@@ -130,7 +124,7 @@ class GitAddConfig extends React.Component<Props, State> {
           <Row gutter={16}>
             {this.props.configTypes.map(config => {
               return (
-                <Col span={8} key={config.id}>
+                <Col span={12} key={config.id}>
                   <Card className={styles.configItem} onClick={this.onClickType.bind(this, config)}>{config.label}</Card>
                 </Col>
               )

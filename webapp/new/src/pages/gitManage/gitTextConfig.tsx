@@ -118,7 +118,7 @@ class GitTextConfig extends React.Component<Props, State> {
       return;
     }
     this.form.current?.validateFields()
-    .then(() => {
+    .then((form) => {
       if (!this.props.onSubmit) return
       const reg = this.state.reg
       this.props.onSubmit({
@@ -128,8 +128,8 @@ class GitTextConfig extends React.Component<Props, State> {
           global: reg!.global,
           ignoreCase: reg!.ignoreCase
         }),
-        targetValue: this.state.formData.targetValue!,
-        description: this.state.formData.description!
+        targetValue: form.targetValue!,
+        description: form.description!
       })
     })
     .catch((err) => {

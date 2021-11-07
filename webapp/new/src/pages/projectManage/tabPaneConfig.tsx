@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-09-18 17:41:12
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-26 18:37:26
+ * @LastEditTime: 2021-11-08 00:59:45
  */
 
 import { ConnectState } from "@/models/connect";
@@ -26,13 +26,13 @@ interface Props {
   projectId: string;
   projectInfo: ProjectInfo | null
   templateList: TemplateInstance[] | null;
-  templateInfo: TemplateInfo | null;
   memberList: Member[] | null;
   customerList: Customer[] | null;
   dispatch: Dispatch;
 }
 
 interface States {
+  templateInfo: TemplateInfo | null;
   name: string;
   description: string;
   publicType: number;
@@ -45,6 +45,7 @@ class TabPaneConfig extends React.Component<Props, States> {
   constructor(Props: Props){
     super(Props)
     this.state = {
+      templateInfo: null,
       name: "",
       description: "",
       publicType: 0,
@@ -78,7 +79,9 @@ class TabPaneConfig extends React.Component<Props, States> {
             type: "template/getInfo",
             payload: data.templateId,
             callback: (data)=>{
-              console.log(data)
+              this.setState({
+                templateInfo: data
+              })
             }
           })
         }
@@ -195,12 +198,12 @@ class TabPaneConfig extends React.Component<Props, States> {
      */
      const data = {
       name: this.state.name,
-      templateId: this.props.templateInfo?.id,
-      templateVersionId: this.props.templateInfo?.currentVersion.id,
+      templateId: this.state.templateInfo?.id,
+      templateVersionId: this.state.templateInfo?.currentVersion.id,
       compileType: this.state.compileType,
       publicType: this.state.publicType,
-      configList: this.props.templateInfo?.currentVersion.globalConfigList,
-      gitList: this.props.templateInfo?.currentVersion.gitList,
+      configList: this.state.templateInfo?.currentVersion.globalConfigList,
+      gitList: this.state.templateInfo?.currentVersion.gitList,
       shareNumber: this.state.shareNumber,
       description: this.state.description,
       customer: this.state.customer
@@ -213,13 +216,13 @@ class TabPaneConfig extends React.Component<Props, States> {
     })
   }
   render () {
-    if (! this.props.templateInfo) {
+    if (! this.state.templateInfo) {
       return (
         <Spin className={styles.loading} tip="项目配置详情获取中..." size="large"></Spin>
       )
     }
     
-    const { currentVersion } = this.props.templateInfo
+    const { currentVersion } = this.state.templateInfo
     const labelCol = 3 
     const wrapperCol = 20
     return (
@@ -268,7 +271,7 @@ class TabPaneConfig extends React.Component<Props, States> {
                   onChange={this.onTemplateVersionSelectChange}
                 >
                   {
-                    this.props.templateInfo?.versionList.map( item => {
+                    this.state.templateInfo?.versionList.map( item => {
                       return <Select.Option key={item.id} value={item.id}> {item.version} </Select.Option>
                     })
                   }
@@ -360,7 +363,6 @@ class TabPaneConfig extends React.Component<Props, States> {
 }
 export default connect( ( { template, customer, project}: ConnectState) => {
   return {
-    templateInfo: template.templateInfo,
     customerList: customer.customerList,
     projectInfo: project.projectInfo,
     memberList: project.memberList,

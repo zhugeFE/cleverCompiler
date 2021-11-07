@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 09:56:01
+ * @LastEditTime: 2021-11-08 00:10:33
  */
 export default {
   user: {
@@ -46,14 +46,17 @@ export default {
     addVersion: '/template/version/add',
     delVersion: '/template/version',
     updateVersion: '/template/version/update',
+    updateVersionStatus: '/template/version/status',
     addVersionGit: '/template/git/add',
     delVersionGit: '/template/git',
     addConfig: '/template/config/add',
     updateConfig: '/template/config/update',
+    updateConfigStatus: '/template/config/status/update',
     delConfig: '/template/config',
-    addComConfig: '/template/comconfig/add',
-    updateComConfig: '/template/comconfig/update',
-    delComConfig: '/template/comconfig',
+    addGlobalConfig: '/template/globalconfig/add',
+    updateGlobalConfig: '/template/globalconfig/update',
+    updateGlobalConfigStatus: '/template/globalconfig/status/update',
+    delGlobalConfig: '/template/globalconfig',
     deleteTemplate: '/template/info'
   },
   compile: {
