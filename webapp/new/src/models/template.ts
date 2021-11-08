@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 00:21:03
+ * @LastEditTime: 2021-11-08 12:33:50
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -71,6 +71,7 @@ export interface TemplateVersionGit {
   gitSourceId: string; //git来源id
   gitSourceVersionId: string; //git版本来源id
   name: string; //git来源名称
+  version: string;
   configList: TemplateConfig[]; //配置项
   buildDoc?: string; //所在版本的配置文档
   readmeDoc?: string; //所在版本的说明文档
@@ -154,6 +155,8 @@ export type TemplateModelType = {
     addVersionGit: Effect;
     delVersionGit: Effect;
     updateConfig: Effect;
+    updateConfigStatus: Effect;
+    updateConfigGlobalConfig: Effect;
     addGlobalConfig: Effect;
     updateGlobalConfig: Effect;
     updateGlobalConfigStatus: Effect;
@@ -288,6 +291,16 @@ const TemplateModel: TemplateModelType = {
       const res = yield call(templateService.updateConfig, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
+    },
+    *updateConfigStatus ({payload, callback}, {call} ) {
+      const res = yield call(templateService.updateConfigStatus, payload)
+      if (res.status === -1) return
+      if (callback) callback()
+    },
+    *updateConfigGlobalConfig ({payload, callback}, {call}) {
+      const res = yield call(templateService.updateConfigGlobalConfig, payload)
+      if (res.status === -1) return
+      if (callback) callback()
     },
     *addGlobalConfig ({payload,callback},{call}){
       const res = yield call(templateService.addGlobalConfig, payload)

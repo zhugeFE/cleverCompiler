@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 01:46:53
+ * @LastEditTime: 2021-11-08 12:40:29
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
-import { Select, Table, Tabs } from 'antd';
+import { Button, Select, Table, Tabs } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -102,10 +102,30 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     switch (type) {
       case 'globalConfig': {
         data.globalConfigId = value === "0" ? null : value
+        this.props.dispatch({
+          type: "template/updateConfigGlobalConfig",
+          payload: {
+            id: config.id,
+            globalConfig: data.globalConfigId,
+          },
+          callback: () => {
+            if (this.props.onSubmit) this.props.onSubmit(data)
+          }
+        })
         break;
       }
       case 'hidden': {
         data.isHidden = Number(!config.isHidden)
+        this.props.dispatch({
+          type: 'template/updateConfigStatus',
+          payload: {
+            id: config.id,
+            status: Number(!config.isHidden)
+          },
+          callback: () => {
+            if( this.props.onSubmit) this.props.onSubmit(data)
+          }
+        })
         break;
       }
       case "edit": {
@@ -124,17 +144,17 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         return 
       }
     }
-    this.props.dispatch({
-      type: 'template/updateConfig',
-      payload: {
-        id: data.id,
-        isHidden: data.isHidden,
-        globalConfigId: data.globalConfigId,
-      } as UpdateConfigParam,
-      callback: (config: TemplateConfig) => {
-        if( this.props.onSubmit) this.props.onSubmit(config)
-      }
-    });
+    // this.props.dispatch({
+    //   type: 'template/updateConfig',
+    //   payload: {
+    //     id: data.id,
+    //     isHidden: data.isHidden,
+    //     globalConfigId: data.globalConfigId,
+    //   } as UpdateConfigParam,
+    //   callback: (config: TemplateConfig) => {
+    //     if( this.props.onSubmit) this.props.onSubmit(config)
+    //   }
+    // });
   }
 
 
@@ -162,7 +182,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     }
     form.append("configId", this.state.currentConfig!.id)
     this.props.dispatch({
-      type: 'template/updateTemplateConfig',
+      type: 'template/updateConfig',
       payload: form,
       callback: (config: TemplateConfig) => {
         this.setState({
@@ -195,6 +215,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         render: (record: TemplateConfig) => {
           return (
             <Select
+              disabled={!!record.isHidden}
               defaultValue={this.globalConfigMap[record.globalConfigId]?.name || "无"}
               style={{ width: '100px' }}
               optionFilterProp="children"
@@ -245,32 +266,37 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       },
       {
         title: '操作',
-        width:100,
+        width:150,
         fixed: 'right',
         render: (value: any, record: TemplateConfig) => {
           return (
             <div>
-              <a onClick={this.onChangeConfig.bind(this, record , 'edit')}>编辑</a>
-              <a
+              <Button disabled={!!record.isHidden} onClick={this.onChangeConfig.bind(this, record , 'edit')}>编辑</Button>
+              <Button
                 style={{ marginLeft: '5px', color: record.isHidden ? 'rgba(0,0,0,0,.5)' : '' }}
                 onClick={this.onChangeConfig.bind(this, record, 'hidden')}
               >
                 {record.isHidden ? '启用' : '隐藏'}
-              </a>
+              </Button>
             </div>
           );
         },
       },
     ];
     const gitList = this.props.gitList;
+    console.log(this.props.gitList.filter(git => this.state.currentConfig?.templateVersionGitId == git.id) )
     return (
       <div className={styles.templateConfigPanel}>
+
         {
+
           this.state.currentConfig && (
             this.state.currentConfig.typeId == TypeMode.text ? (
               <UpdateTextConfig
                 mode={EditMode.update}
                 config={this.state.currentConfig}
+                gitId={this.props.gitList.filter(git => this.state.currentConfig?.templateVersionGitId == git.id)[0]['gitSourceId']}
+                gitVersionId={this.props.gitList.filter(git => this.state.currentConfig?.templateVersionGitId == git.id)[0]['gitSourceVersionId']}
                 onCancel={this.onCancelUpdateConfig}
                 onSubmit={this.afterUpdateConfig}
               ></UpdateTextConfig>
@@ -309,7 +335,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             onEdit={this.onEdit}>
             {gitList.map((item, index) => {
               return (
-                <Tabs.TabPane  tab={item.name} key={item.id}>
+                <Tabs.TabPane  tab={`${item.name}-${item.version}`} key={item.id}>
                   <Table
                     columns={columns}
                     dataSource={item.configList}

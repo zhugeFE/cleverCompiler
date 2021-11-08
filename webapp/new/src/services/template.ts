@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 00:20:53
+ * @LastEditTime: 2021-11-08 12:39:10
  */
 
 import request from "@/utils/request";
@@ -101,7 +101,22 @@ class TemplateService {
 
   async updateConfig ( data: UpdateConfigParam) {
     return request(api.template.updateConfig, {
+      requestType:'form',
       method:"post",
+      data
+    })
+  }
+
+  async updateConfigStatus (data: {id: string; status: number}) {
+    return request(api.template.updateConfigStatus, {
+      method: "post",
+      data
+    })
+  }
+
+  async updateConfigGlobalConfig (data: {id: string; globalConfig: string}) {
+    return request(api.template.updateConfigGlobalConfig, {
+      method: "post",
       data
     })
   }

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 00:18:37
+ * @LastEditTime: 2021-11-08 10:11:37
  */
 
 import { connect } from 'dva';
@@ -580,8 +580,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                   <TemplateConfigPanel
                     mode={this.state.currentVersion!.status}
                     activeKey={this.state.currentGitId}
-                    onChangeGit={this.onChangeGit}
-                    templateId={this.state.currentVersion!.templateId}
+                    onChangeGit={this.onChangeGit}                  templateId={this.state.currentVersion!.templateId}
                     templateVersionId={this.state.currentVersion!.id}
                     globalConfigList={this.state.currentVersion!.globalConfigList} //全局配置项
                     gitList={this.state.currentVersion!.gitList} //版本git项

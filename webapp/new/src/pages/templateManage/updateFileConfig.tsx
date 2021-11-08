@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:54
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 01:45:58
+ * @LastEditTime: 2021-11-08 11:36:49
  */
 
 
@@ -15,6 +15,8 @@ import { connect } from 'dva';
 import { TemplateConfig } from '@/models/template';
 import TextArea from 'antd/lib/input/TextArea';
 import { EditMode } from '@/models/common';
+import Dragger from 'antd/lib/upload/Dragger';
+import { InboxOutlined } from '@ant-design/icons';
 
 interface FormData {
   file: File | null;
@@ -99,22 +101,33 @@ class UpdateTextConfig extends React.Component<Props, States> {
             layout="horizontal"
             onValuesChange={this.onChange}>
             <Form.Item 
-              label="名称" 
+              label="文件位置" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
-              name="name">
+              name="filePath">
               <Input disabled={this.props.mode != EditMode.create}></Input>
             </Form.Item>
             <Form.Item 
               label="描述" 
               rules={[{ required: true, message: '请输入配置描述!' }]}
               name="description">
-              <TextArea rows={4}></TextArea>
+              <TextArea rows={4} disabled></TextArea>
             </Form.Item>
             <Form.Item 
-              label="默认值" 
-              rules={[{ required: true, message: '请输入配置值!' }]}
-              name="targetValue">
-              <Input></Input>
+              label="上传文件" 
+              rules={[{ required: true, message: '请上传文件!' }]}
+              name="file">
+               <Dragger 
+                beforeUpload={()=>false}
+              >
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                <p className="ant-upload-hint">
+                  Support for a single or bulk upload. Strictly prohibit from uploading company data or other
+                  band files
+                </p>
+              </Dragger>
             </Form.Item>
           </Form>
       </Modal>

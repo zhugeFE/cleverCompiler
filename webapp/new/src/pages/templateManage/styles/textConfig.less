@@ -1,15 +1,7 @@
 @import '~antd/es/style/themes/default.less';
-.addGitConfigModal {
-  .configItem {
-    &:hover {
-      cursor: pointer;
-      background: @primary-color;
-      color: white;
-      border-color: @primary-color;
-    }
-  }
-}
-.gitConfigModal {
+
+
+.templateConfigModal {
   height: 100%;
   top: 0 !important;
   :global(.ant-modal-content) {
@@ -35,5 +27,31 @@
         margin-left: 10px;
       }
     }
+  }
+}
+.templateTextConfig {
+  display: flex;
+  flex-direction: column;
+  :global(.ant-form) {
+    flex: none;
+    :global(.ant-form-item) {
+      margin-bottom: 10px;
+      :global(.ant-form-item-label) {
+        width: 100px;
+      }
+    }
+    &>:global(.ant-btn) {
+      margin-right: 10px;
+    }
+    .long {
+      width: 350px;
+    }
+    .formDivider {
+      width: 100%;
+    }
+  }
+  .templateFileEditor {
+    flex: 1;
+    overflow: auto;
   }
 }

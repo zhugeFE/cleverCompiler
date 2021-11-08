@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 00:10:33
+ * @LastEditTime: 2021-11-08 12:38:40
  */
 export default {
   user: {
@@ -52,6 +52,7 @@ export default {
     addConfig: '/template/config/add',
     updateConfig: '/template/config/update',
     updateConfigStatus: '/template/config/status/update',
+    updateConfigGlobalConfig: '/template/config/globalConfig/update',
     delConfig: '/template/config',
     addGlobalConfig: '/template/globalconfig/add',
     updateGlobalConfig: '/template/globalconfig/update',
