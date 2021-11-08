@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 12:38:40
+ * @LastEditTime: 2021-11-08 17:34:21
  */
 export default {
   user: {
@@ -40,8 +40,10 @@ export default {
   template: {
     createTemplate: '/template/add',
     getInfo: '/template/{{id}}/info',
+    getTemplateVersionInfo: '/template/version/list',
     queryTemplateList: '/template/list',
     updateTemplateStatus: "/template/status",
+    copyTemplate: '/template/copy',
     getVersionInfo: '/template/version/{{id}}/info',
     addVersion: '/template/version/add',
     delVersion: '/template/version',

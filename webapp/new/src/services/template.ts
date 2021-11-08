@@ -4,14 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 12:39:10
+ * @LastEditTime: 2021-11-08 17:54:27
  */
 
 import request from "@/utils/request";
 import api from "./constants/apis";
-import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, TemplateConfig, TemplateInfo, TemplateInstance, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus } from "@/models/template";
-import { registerCustomQueryHandler } from "puppeteer-core";
-import { RightSquareTwoTone } from "@ant-design/icons";
+import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus } from "@/models/template";
+
 
 class TemplateService {
   async queryTemplateList () {
@@ -21,6 +20,16 @@ class TemplateService {
     return request(api.template.getInfo, {
       params: {
         id
+      }
+    })
+  }
+  async copyTemplate (data: {templateId: string, templateVersionId: string, name: string}) {
+    return request( api.template.copyTemplate, {
+      method: "post",
+      data: {
+        templateId: data.templateId,
+        templateVersionId: data.templateVersionId,
+        name: data.name
       }
     })
   }
@@ -51,6 +60,16 @@ class TemplateService {
       data
     })
   }
+
+  async getTemplateVersionInfo (id: string) {
+    return request(api.template.getTemplateVersionInfo, {
+      method: "get",
+      params: {
+        id
+      }
+    })
+  }
+
   async getVersionInfo (id: string) {
     return request(api.template.getVersionInfo, {
       params:{

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 12:33:50
+ * @LastEditTime: 2021-11-08 17:54:07
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -145,9 +145,11 @@ export type TemplateModelType = {
   effects: {
     query: Effect;
     getInfo: Effect;
+    getTemplateVersionInfo: Effect;
     delTemplateInfo: Effect;
     updateTemplateStatus: Effect;
     updateTemplate: Effect;
+    copyTemplate: Effect;
     addVersion: Effect;
     updateVersion: Effect;
     updateTemplateVersionStatus: Effect;
@@ -181,6 +183,11 @@ const TemplateModel: TemplateModelType = {
         type: "setList",
         payload: res.data
       })
+    },
+    *getTemplateVersionInfo ({payload, callback}, {call}) {
+      const res = yield call(templateService.getTemplateVersionInfo, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
     },
     *getInfo ({payload, callback}, {put , call}) {
       const res = yield call(templateService.getInfo, payload as string)
@@ -223,6 +230,11 @@ const TemplateModel: TemplateModelType = {
     },
     *updateTemplate ({payload,callback}, {call}) {
       const res = yield call(templateService.updateTemplateStatus, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
+    *copyTemplate ({payload, callback}, {call}) {
+      const res = yield call( templateService.copyTemplate, payload as {templateId: string, name: string, templateVersionId: string})
       if (res.status === -1) return
       if (callback) callback(res.data)
     },

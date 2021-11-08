@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 15:37:30
+ * @LastEditTime: 2021-11-08 18:00:13
  */
-import { Table, Button, Spin, Form, Input } from 'antd';
+import { Table, Button, Form, Input } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
 import styles from './styles/templateList.less';
@@ -16,6 +16,7 @@ import { Dispatch, IRouteComponentProps } from 'umi';
 import { ConnectState } from '@/models/connect';
 import { withRouter } from 'react-router';
 import util from '@/utils/utils';
+import CopyTemplate from './copyTemplate';
 
 interface State {
   form: {
@@ -24,10 +25,11 @@ interface State {
   };
   selectedRowKeys: string[];
   searchVaild: boolean;
+  currentTemplate: TemplateInstance | null;
 }
 
 interface TemplateListProps extends IRouteComponentProps {
-  templateList: TemplateInstance[];
+  templateInfo: TemplateInstance[];
   dispatch: Dispatch;
 }
 
@@ -40,17 +42,43 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         version: ''
       },
       selectedRowKeys: [],
-      searchVaild: true
+      searchVaild: true,
+      currentTemplate: null
     }
     this.onSearch = this.onSearch.bind(this)
     this.onCreateTemplate = this.onCreateTemplate.bind(this)
     this.rowSelectChange = this.rowSelectChange.bind(this)
+    this.afterCopyTemplate = this.afterCopyTemplate.bind(this)
+    this.onCancelCopyTemplate = this.onCancelCopyTemplate.bind(this)
   }
 
   componentDidMount() {
+    this.getTemplate()
+  }
+
+  getTemplate () {
     this.props.dispatch({
       type: 'template/query',
     });
+  }
+
+  afterCopyTemplate () {
+    this.setState({
+      currentTemplate: null
+    })
+    this.getTemplate()
+  }
+
+  onCancelCopyTemplate () {
+    this.setState({
+      currentTemplate: null
+    })
+  }
+
+  onClickCopyTemplate (template: TemplateInstance) {
+    this.setState({
+      currentTemplate: template
+    })
   }
 
   onClickEdit(template: TemplateInstance) {
@@ -117,7 +145,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
   }
   render() {
     const FormData =  this.state.form
-    const showList = this.props.templateList.filter(item => {
+    const showList = this.props.templateInfo.filter(item => {
       try {
         return new RegExp(FormData.name, 'i').test(item.name) && new RegExp(FormData.version, 'i').test(item.version)
       }
@@ -189,7 +217,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
               type="ghost"
               style={{marginRight: 5}}
               disabled={!record.enable}
-              onClick={this.onClickEdit.bind(this, record)}>拷贝</Button>
+              onClick={this.onClickCopyTemplate.bind(this, record)}>拷贝</Button>
               <Button 
                 type="primary"
                 danger 
@@ -206,6 +234,12 @@ class TemplateList extends React.Component<TemplateListProps, State> {
 
     return (
       <div className={styles.main}>
+        {
+          this.state.currentTemplate && <CopyTemplate 
+            templateInfo={this.state.currentTemplate}
+            afterCopyTemplate={this.afterCopyTemplate}
+            onCancel={this.onCancelCopyTemplate}/>
+        }
         <div className={styles.topButtons} >
           <Form layout="inline" onValuesChange={this.onSearch}> 
             <Form.Item label="项目名称" name="name">
@@ -257,6 +291,6 @@ class TemplateList extends React.Component<TemplateListProps, State> {
 
 export default connect(({ template }: ConnectState) => {
   return {
-    templateList: template.templateList,
+    templateInfo: template.templateList,
   };
 })(withRouter(TemplateList));
