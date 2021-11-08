@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 15:27:20
+ * @LastEditTime: 2021-11-08 15:41:22
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -245,7 +245,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         dataIndex: 'typeId',
         render(value) {
           if (value === 0) return <span>文本</span>;
-          if (value === 1) return <span>文件替换</span>;
+          if (value === 1) return <span>文件</span>;
           if (value === 2) return <span>json</span>;
         },
       },

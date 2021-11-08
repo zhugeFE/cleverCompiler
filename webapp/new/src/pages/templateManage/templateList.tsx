@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 10:42:23
+ * @LastEditTime: 2021-11-08 15:37:30
  */
 import { Table, Button, Spin, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -185,6 +185,11 @@ class TemplateList extends React.Component<TemplateListProps, State> {
               style={{marginRight: 5}}
               disabled={!record.enable}
               onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+              <Button 
+              type="ghost"
+              style={{marginRight: 5}}
+              disabled={!record.enable}
+              onClick={this.onClickEdit.bind(this, record)}>拷贝</Button>
               <Button 
                 type="primary"
                 danger 
