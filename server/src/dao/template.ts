@@ -5,7 +5,7 @@ import { UpdateTemplateGlobalConfig } from './../types/template';
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 12:37:36
+ * @LastEditTime: 2021-11-08 15:10:09
  */
 /**
  * 模板
@@ -127,7 +127,7 @@ class TemplateDao {
     }
     
     const TemplateInfo = await this.getInfo(templateId)
-    const lastVersionInfo = TemplateInfo.versionList[TemplateInfo.versionList.length - 1 ]
+    const lastVersionInfo = TemplateInfo.versionList[0]
     
     const sql = `insert into 
        template_version(
@@ -160,26 +160,25 @@ class TemplateDao {
       await Promise.all( lastVersionInfo.globalConfigList.map( async config => {
         const configRes = await this.addGlobalConfig({
           name: config.name,
-          templateId: templateId,
+          templateId,
           templateVersionId: versionId,
           description: config.description,
           targetValue: config.targetValue,
           type: config.type,
           isHidden: config.isHidden,
-
         })
         globalConfigMap[config.id] = configRes.id
       }))
 
       await Promise.all( lastVersionInfo.gitList.map( async git => {
-        await this.copyTemplateVersionGit(git, globalConfigMap)
+        await this.copyTemplateVersionGit(git, templateId, versionId, globalConfigMap)
       }))
     }
 
     return this.getVersionbyId(versionId)
   }
 
-  async copyTemplateVersionGit(git: TemplateVersionGit,globalConfigMap): Promise<void> {
+  async copyTemplateVersionGit(git: TemplateVersionGit, templateId, templateVersionId, globalConfigMap): Promise<void> {
     const sql = `insert into 
     template_version_git(
       id,
@@ -193,18 +192,18 @@ class TemplateDao {
     const gitId = util.uuid()
     await pool.write(sql, [
       gitId,
-      git.templateId,
-      git.templateVersionId,
+      templateId,
+      templateVersionId,
       git.gitSourceId,
       git.gitSourceVersionId
     ])
 
     git.configList.map( async config => {
-      await this.copyTemplateVersionConfig(config, globalConfigMap[config.globalConfigId])
+      await this.copyTemplateVersionConfig(config, templateId, templateVersionId, gitId, globalConfigMap[config.globalConfigId])
     })
   }
 
-  async copyTemplateVersionConfig (config: CreateTemplateConfig, globalConfigId: string): Promise<TemplateConfig> {
+  async copyTemplateVersionConfig (config: CreateTemplateConfig, templateId, templateVersionId, gitId, globalConfigId: string): Promise<TemplateConfig> {
     const sql = `insert into 
      template_config(
        id, 
@@ -221,9 +220,9 @@ class TemplateDao {
     const configId = util.uuid()
     await pool.write(sql, [
       configId,
-      config.templateId,
-      config.templateVersionId,
-      config.templateVersionGitId,
+      templateId,
+      templateVersionId,
+      gitId,
       config.gitSourceConfigId,
       config.targetValue,
       config.isHidden,
@@ -272,9 +271,24 @@ class TemplateDao {
   }
 
   async delVersionById(id: string): Promise<void> {
-    const sql = `delete from template_version where id=?`
-    await pool.query(sql, [id])
+    const delTempletVersion = 'delete from template_version where id = ?'
+    const delTemplateVersionGit = 'delete from template_version_git where template_version_id = ?'
+    const delTemplateConfig = 'delete from template_config where template_version_id = ?'
+    const delTemplateGlobalConfig = `delete from template_global_config where template_version_id = ?`
+    const conn = await pool.beginTransaction()
+    try {
+      await pool.writeInTransaction(conn, delTemplateConfig, [id])
+      await pool.writeInTransaction(conn, delTemplateVersionGit, [id])
+      await pool.writeInTransaction(conn, delTemplateGlobalConfig, [id])
+      await pool.writeInTransaction(conn, delTempletVersion, [id])
+      await pool.commit(conn)
+    } catch (e) {
+      pool.rollback(conn)
+      throw e
+    }
   }
+
+  
 
   async getGitDocByGitVersionID(id: string): Promise<GitVersionDoc> {
     const sql = `SELECT
@@ -363,7 +377,7 @@ class TemplateDao {
           gitSourceConfigId: item.id,
           targetValue: item.targetValue,
           isHidden: 0
-        }, "")
+        }, params.templateId, params.templateVersionId, id, "")
       })
     )
     const GitData = await this.getGitById(id)
@@ -415,7 +429,16 @@ class TemplateDao {
   }
 
   async getGitById(tvId: string): Promise<TemplateVersionGit> {
-    const sql = `select vg.* ,name from template_version_git as vg left join git_source ON vg.git_source_id = git_source.id where vg.id = ?`
+    const sql = `SELECT
+      vg.*,
+      source_version.version as version,
+      name
+    FROM
+      template_version_git AS vg
+      LEFT JOIN git_source ON vg.git_source_id = git_source.id
+      LEFT JOIN source_version ON source_version.id = vg.git_source_version_id
+    WHERE
+      vg.id = ?`
     const list = await pool.query<TemplateVersionGit>(sql, [tvId])
     if (list.length) {
       await Promise.all(
@@ -435,7 +458,9 @@ class TemplateDao {
     FROM
       template_version_git AS vg
       LEFT JOIN git_source ON vg.git_source_id = git_source.id
-      LEFT JOIN source_version ON source_version.id = vg.git_source_version_id`
+      LEFT JOIN source_version ON source_version.id = vg.git_source_version_id
+    WHERE
+      vg.template_version_id = ?`
     const data = await pool.query<TemplateVersionGit>(sql, [tvId])
     if (data.length) {
       await Promise.all(
