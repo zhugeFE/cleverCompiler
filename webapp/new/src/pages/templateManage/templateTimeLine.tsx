@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 21:22:00
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 18:09:48
+ * @LastEditTime: 2021-11-08 15:31:40
  */
 import * as React from 'react';
 import { Timeline, Tag, Input, Form } from 'antd';
@@ -94,7 +94,12 @@ class TimeLinePanel extends React.Component<Props, State> {
           ></TimelineItem>
           {this.props.versionList
             .filter((version) => {
-              return new RegExp(this.state.filter).test(version.version);
+              try {
+                return new RegExp(this.state.filter).test(version.version);
+              }
+              catch (err){
+                
+              }
             })
             .map((version) => {
               if (version === this.props.currentVersion) {

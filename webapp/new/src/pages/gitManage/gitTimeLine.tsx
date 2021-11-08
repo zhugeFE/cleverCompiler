@@ -93,7 +93,12 @@ class TimeLinePanel extends React.Component<Props, State> {
           }></TimelineItem>
           {
             this.props.versionList.filter(version => {
-              return new RegExp(this.state.filter).test(version.name!)
+              try {
+                return new RegExp(this.state.filter).test(version.name!)
+              }
+              catch (err) {
+                
+              }
             }).map(version => {
               if (version === this.props.currentVersion) {
                 return (
