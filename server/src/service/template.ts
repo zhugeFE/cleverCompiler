@@ -5,7 +5,7 @@ import { CreateTemplateConfig, UpdateTemplateGlobalConfig } from './../types/tem
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 12:38:20
+ * @LastEditTime: 2021-11-08 17:55:24
  */
 import { 
   CreateTemplateGlobalConfigParams, 
@@ -26,6 +26,10 @@ class TemplateService {
     return await templateDao.query()
   }
 
+  async getVersionList (id: string): Promise<TemplateInfo[]> {
+    return await templateDao.getVersionList(id)
+  }
+
   async updateTemplate (template: TemplateInstance): Promise<void> {
     await templateDao.updateTemplate(template)
   }
@@ -38,9 +42,13 @@ class TemplateService {
     return await templateDao.getVersionbyId(id)
   }
   async addVersion (param: CreateTemplateVersionParams, creatorId: string): Promise<TemplateVersion> {
-    return await templateDao.createVersion(param, creatorId)
-    
+    return await templateDao.createVersion(param, creatorId)  
   }
+
+  async copyVersion (templateId: string, templateVersionId: string, name: string, creatorId: string): Promise<TemplateInstance> {
+    return await templateDao.copyVersion(templateId, templateVersionId, name, creatorId)
+  }
+
   async updateVersion (param: TemplateVersion): Promise<void> {
     await templateDao.updateVersion(param)
   }

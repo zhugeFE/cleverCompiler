@@ -1,17 +1,17 @@
-import { UpdateTemplateGlobalConfig } from './../types/template';
 /*
  * @Descripttion:
  * @version:
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 15:10:09
+ * @LastEditTime: 2021-11-08 17:55:22
  */
 /**
  * 模板
  */
 
 import {
+  UpdateTemplateGlobalConfig,
   CreateTemplateConfig,
   CreateTemplateGlobalConfigParams,
   CreateTemplateVersionGitParams,
@@ -62,6 +62,35 @@ class TemplateDao {
     return await pool.query<TemplateInstance>(sql)
   }
 
+  async queryTemplateInstance (id: string): Promise<TemplateInstance> {
+    const sql = `SELECT
+      a.id as id,
+      a.\`name\` as name,
+      a.description as description,
+      a.creator_id as creator_id,
+      a.create_time as create_time,
+      a.\`enable\` as enable,
+      b.id as version_id,
+      b.version as version 
+    FROM
+      template AS a
+    LEFT JOIN ( 
+      SELECT 
+        id,
+        template_id, 
+        max( version ) AS version
+      FROM template_version 
+      GROUP BY template_id ) AS b 
+    ON a.id = b.template_id
+    WHERE a.id = ?`
+    const res =  await pool.query<TemplateInstance>(sql, [id])
+    return res.length ? res[0] : null 
+  }
+
+  async getVersionList (id: string): Promise<TemplateInfo[]> {
+    const sql = 'SELECT id,version FROM template_version WHERE template_id = ? AND template_version.`status` = 2'
+    return await pool.query<TemplateInfo>(sql, [id])
+  }
   async updateTemplate(template: TemplateInstance): Promise<void> {
     const props = []
     const params = []
@@ -91,6 +120,46 @@ class TemplateDao {
 
     templateInfo.versionList = await this.getVersionbyTemplateId(templateInfo.id) 
     return templateInfo
+  }
+
+  async copyVersion (templateId: string, templateVersionId: string, name: string, creatorId: string): Promise<TemplateInstance> {
+
+    const templateInfo = await this.getInfo(templateId)
+
+    const templateVersionInfo = templateInfo.versionList.filter(item => item.id == templateVersionId)[0]
+
+    let newTemplateId 
+    const connect = await pool.beginTransaction()
+    try {
+      const insertTemplateSql =  `insert into 
+      template(
+        id, 
+        name,
+        description,
+        creator_id,
+        create_time
+      ) values(
+        ?,?,?,?,?
+      )`
+      newTemplateId = util.uuid()
+      await pool.writeInTransaction(connect, insertTemplateSql, [
+        newTemplateId,
+        name,
+        templateInfo.description,
+        creatorId,
+        new Date()
+      ])
+      await pool.commit(connect)
+    }
+    catch (e) {
+      pool.rollback(connect)
+      logger.error("向template表插入数据失败",e)
+      throw e
+    }
+
+    await this.copyTemplateVersion(newTemplateId, {name: templateInfo.name, description: templateInfo.description}, templateVersionInfo)
+
+    return await this.queryTemplateInstance(newTemplateId)
   }
 
   async createVersion( param: CreateTemplateVersionParams, creatorId: string): Promise<TemplateVersion> {
@@ -128,20 +197,69 @@ class TemplateDao {
     
     const TemplateInfo = await this.getInfo(templateId)
     const lastVersionInfo = TemplateInfo.versionList[0]
-    
+    return await this.addTemplateVersion(templateId, param, lastVersionInfo)
+  }
+
+  async copyTemplateVersion (templateId: string, templateInfo, templateVersionInfo: TemplateVersion): Promise<void> {
     const sql = `insert into 
-       template_version(
-         id, 
-         template_id,
-         description,
-         version,
-         publish_time,
-         build_doc,
-         readme_doc,
-         update_doc
-       ) values(
-         ?,?,?,?,?,?,?,?
-       )`
+      template_version(
+        id, 
+        template_id,
+        description,
+        version,
+        publish_time,
+        build_doc,
+        readme_doc,
+        update_doc
+      ) values(
+        ?,?,?,?,?,?,?,?
+      )`
+    const versionId = util.uuid()
+    await pool.write(sql, [
+      versionId,
+      templateId,
+      templateVersionInfo.description,
+      '1.0.0' ,
+      new Date(),
+      templateVersionInfo.buildDoc,
+      templateVersionInfo.readmeDoc,
+      templateVersionInfo.updateDoc
+    ])
+
+    const globalConfigMap = {}
+
+    await Promise.all( templateVersionInfo.globalConfigList.map( async config => {
+      const configRes = await this.addGlobalConfig({
+        name: config.name,
+        templateId,
+        templateVersionId: versionId,
+        description: config.description,
+        targetValue: config.targetValue,
+        type: config.type,
+        isHidden: config.isHidden,
+      })
+      globalConfigMap[config.id] = configRes.id
+    }))
+
+    await Promise.all( templateVersionInfo.gitList.map( async git => {
+      await this.copyTemplateVersionGit(git, templateId, versionId, globalConfigMap)
+    }))  
+  }
+
+  async addTemplateVersion (templateId: string, param: CreateTemplateVersionParams,lastVersionInfo: TemplateVersion ): Promise<TemplateVersion> {
+    const sql = `insert into 
+      template_version(
+        id, 
+        template_id,
+        description,
+        version,
+        publish_time,
+        build_doc,
+        readme_doc,
+        update_doc
+      ) values(
+        ?,?,?,?,?,?,?,?
+      )`
     const versionId = util.uuid()
     await pool.write(sql, [
       versionId,
@@ -174,7 +292,6 @@ class TemplateDao {
         await this.copyTemplateVersionGit(git, templateId, versionId, globalConfigMap)
       }))
     }
-
     return this.getVersionbyId(versionId)
   }
 

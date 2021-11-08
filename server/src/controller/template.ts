@@ -5,7 +5,7 @@ import { TemplateConfig } from './../types/template';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 12:41:12
+ * @LastEditTime: 2021-11-08 17:55:26
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
@@ -18,8 +18,7 @@ import {
   TemplateInfo, 
   TemplateInstance, 
   TemplateVersion, 
-  TemplateVersionGit, 
-  UpdateConfigParam } from '../types/template'
+  TemplateVersionGit } from '../types/template'
 import logger from '../utils/logger'
 import * as path from "path"
 import { IncomingForm } from "formidable"
@@ -33,6 +32,17 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   .catch( (err) => {
     // const err = new Error()
     // err.message = '获取template列表失败'
+    logger.info(err)
+    next
+  })
+})
+
+router.get('/version/list', (req: Request, res: Response, next: NextFunction) => {
+  templateService.getVersionList(req.query.id)
+  .then((data: TemplateInfo[]) => {
+    res.json( new ApiResult( ResponseStatus.success, data))
+  })
+  .catch( err => {
     logger.info(err)
     next
   })
@@ -65,6 +75,14 @@ router.post('/version/add', (req: Request, res: Response, next: NextFunction) =>
   templateService.addVersion( req.body as CreateTemplateVersionParams, req.session.currentUser.id)
   .then((version: TemplateVersion) => { 
     res.json(new ApiResult(ResponseStatus.success, version))
+  })
+  .catch(next)
+})
+
+router.post('/copy', (req: Request, res: Response, next: NextFunction) => {
+  templateService.copyVersion( req.body.templateId, req.body.templateVersionId, req.body.name, req.session.currentUser.id )
+  .then( (version: TemplateInstance) => {
+    res.json( new ApiResult(ResponseStatus.success, version))
   })
   .catch(next)
 })

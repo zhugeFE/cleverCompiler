@@ -1,3 +1,4 @@
+import { version } from '@hapi/joi';
 import { Version } from "./common";
 
 /*
@@ -6,7 +7,7 @@ import { Version } from "./common";
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 11:32:39
+ * @LastEditTime: 2021-11-08 16:43:27
  */
 
 export interface TemplateInstance {
@@ -18,6 +19,11 @@ export interface TemplateInstance {
   enable: number;
   version: string; //最新版本号
   versionId?: string; //最新版本id
+}
+
+export interface TemplateInfo {
+  id: string;
+  version: string;
 }
 
 export interface TemplateInfo extends TemplateInstance {
