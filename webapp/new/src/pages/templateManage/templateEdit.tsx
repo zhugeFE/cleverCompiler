@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 10:11:37
+ * @LastEditTime: 2021-11-08 15:29:40
  */
 
 import { connect } from 'dva';
@@ -237,7 +237,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
 
   onChangeVersion (templateVersion: TemplateVersion) {
     this.setState({
-      currentVersion: templateVersion 
+      currentVersion: templateVersion ,
+      currentGitId: templateVersion.gitList.length ? templateVersion.gitList[0].id : ""
     })
     this.initDelInterval(templateVersion)
   }
@@ -258,7 +259,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
         templateInfo!.versionList = versionList
         this.setState({
           templateInfo,
-          currentVersion
+          currentVersion,
+          currentGitId: currentVersion?.gitList.length ? currentVersion.gitList[0].id : ""
         })
         this.initDelInterval(currentVersion)
       }

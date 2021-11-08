@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 23:35:43
+ * @LastEditTime: 2021-11-08 15:17:46
  */
 import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
@@ -114,7 +114,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
     const gitInfo = this.state.gitInfo;
     return (
       <>
-        {gitList.length && (
+        {
           <Modal
             title="添加Git源"
             closable={false}
@@ -159,7 +159,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
               </Form.Item>
             </Form>
           </Modal>
-        )}
+        }
       </>
     );
   }

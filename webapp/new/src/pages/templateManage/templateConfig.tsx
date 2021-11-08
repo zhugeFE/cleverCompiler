@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 12:40:29
+ * @LastEditTime: 2021-11-08 15:27:20
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -47,7 +47,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
   globalConfigMap: { [propName: string]: TemplateGlobalConfig } = {};
   constructor(props: ConfigPanelProps) {
     super(props);
-    this.props.globalConfigList.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
     this.state = {
       fileContent: "",
       showAddGitSource: false,
@@ -194,6 +193,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
   }
 
   render() {
+    this.props.globalConfigList.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
     const columns: ColumnProps<TemplateConfig>[] = [
       { title: '文件位置', width: 150, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
       {
@@ -215,7 +215,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         render: (record: TemplateConfig) => {
           return (
             <Select
-              disabled={!!record.isHidden}
+              disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
               defaultValue={this.globalConfigMap[record.globalConfigId]?.name || "无"}
               style={{ width: '100px' }}
               optionFilterProp="children"
@@ -271,8 +271,11 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         render: (value: any, record: TemplateConfig) => {
           return (
             <div>
-              <Button disabled={!!record.isHidden} onClick={this.onChangeConfig.bind(this, record , 'edit')}>编辑</Button>
+              <Button   
+                disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
+                onClick={this.onChangeConfig.bind(this, record , 'edit')}>编辑</Button>
               <Button
+                disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
                 style={{ marginLeft: '5px', color: record.isHidden ? 'rgba(0,0,0,0,.5)' : '' }}
                 onClick={this.onChangeConfig.bind(this, record, 'hidden')}
               >
@@ -284,7 +287,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       },
     ];
     const gitList = this.props.gitList;
-    console.log(this.props.gitList.filter(git => this.state.currentConfig?.templateVersionGitId == git.id) )
     return (
       <div className={styles.templateConfigPanel}>
 
@@ -314,14 +316,13 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         
         {
           //显示添加git
-          this.state.showAddGitSource && 
-          <AddTemplateGitSourse 
+          this.state.showAddGitSource && <AddTemplateGitSourse 
             existGits={this.props.gitList}
             templateId={this.props.templateId}
             templateVersionId={this.props.templateVersionId}
             afterAdd={this.afterAddGitSource}
             onCancel={this.hideAddGitSource} />
-        }
+          }
         { !this.props.activeKey ? (
           <Tabs type={this.props.mode == VersionStatus.normal ? 'editable-card' : 'card'} className={styles.cardBg} onEdit={this.onEdit}>
             <Tabs.TabPane tab="引导页">引导页面</Tabs.TabPane>
@@ -338,6 +339,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                 <Tabs.TabPane  tab={`${item.name}-${item.version}`} key={item.id}>
                   <Table
                     columns={columns}
+                    rowKey="id"
                     dataSource={item.configList}
                     rowClassName={ (record) => record.isHidden ? styles.disable : ""}
                     pagination={{
