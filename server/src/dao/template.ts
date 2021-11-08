@@ -5,7 +5,7 @@ import { UpdateTemplateGlobalConfig } from './../types/template';
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 00:23:37
+ * @LastEditTime: 2021-11-08 12:37:36
  */
 /**
  * 模板
@@ -428,7 +428,14 @@ class TemplateDao {
   }
 
   async getGitByTemplateVersionId(tvId: string): Promise<TemplateVersionGit[]> {
-    const sql = `select vg.* ,name from template_version_git as vg left join git_source ON vg.git_source_id = git_source.id where vg.template_version_id = ?`
+    const sql = `SELECT
+      vg.*,
+      source_version.version as version,
+      name
+    FROM
+      template_version_git AS vg
+      LEFT JOIN git_source ON vg.git_source_id = git_source.id
+      LEFT JOIN source_version ON source_version.id = vg.git_source_version_id`
     const data = await pool.query<TemplateVersionGit>(sql, [tvId])
     if (data.length) {
       await Promise.all(
@@ -447,21 +454,24 @@ class TemplateDao {
   async getGitSourceConfigAndConfigByVersionId(
     versionGitId: string
   ): Promise<TemplateConfig[]> {
-    const sql = `select 
-       tc.id as id,
-       tc.target_value as target_value,
-       tc.is_hidden as is_hidden,
-       tc.global_config_id ,
-       sc.type_id as type_id,
-       sc.description as description,
-       sc.reg as reg,
-       sc.file_path as file_path,
-       sc.target_value as source_value
-       from template_config as tc
-       left JOIN source_config as sc
-       on
-         sc.id = tc.git_source_config_id
-       where tc.template_version_git_id = ?`
+    const sql = `SELECT
+      tc.id AS id,
+      tc.template_id AS template_id,
+      tc.template_version_id AS template_version_id,
+      tc.template_version_git_id AS template_version_git_id,
+      tc.git_source_config_id AS git_source_config_id,
+      tc.target_value AS target_value,
+      tc.is_hidden AS is_hidden,
+      tc.global_config_id AS global_config_id,
+      sc.type_id AS type_id,
+      sc.description AS description,
+      sc.reg AS reg,
+      sc.file_path AS file_path
+    FROM
+      template_config AS tc
+      LEFT JOIN source_config AS sc ON sc.id = tc.git_source_config_id 
+    WHERE
+      tc.template_version_git_id = ? `
     return await pool.query<TemplateConfig>(sql, [versionGitId])
     
   }
@@ -473,25 +483,43 @@ class TemplateDao {
   // }
 
   async getConfigById(id: string): Promise<TemplateConfig> {
-    const sql =  `select 
-      tc.id as id,
-      tc.target_value as target_value,
-      tc.is_hidden as is_hidden,
-      tc.global_config_id ,
-      sc.type_id as type_id,
-      sc.description as description,
-      sc.reg as reg,
-      sc.file_path as file_path,
-      sc.target_value as source_value
-      from template_config as tc
-      left JOIN source_config as sc
-      on
-        sc.id = tc.git_source_config_id
-      where tc.id = ?`
+    const sql =  `SELECT
+    tc.id AS id,
+    tc.template_id AS template_id,
+    tc.template_version_id AS template_version_id,
+    tc.template_version_git_id AS template_version_git_id,
+    tc.git_source_config_id AS git_source_config_id,
+    tc.target_value AS target_value,
+    tc.is_hidden AS is_hidden,
+    tc.global_config_id AS global_config_id,
+    sc.type_id AS type_id,
+    sc.description AS description,
+    sc.reg AS reg,
+    sc.file_path AS file_path
+  FROM
+    template_config AS tc
+    LEFT JOIN source_config AS sc ON sc.id = tc.git_source_config_id 
+  WHERE
+    tc.id = ? `
     const list = await pool.query<TemplateConfig>(sql, [id])
     return list.length > 0 ? list[0] : null
   }
 
+  async updateConfigStatus(config: {id: string; status: number}): Promise<void> {
+    const sql = `update template_config set is_hidden = ? where id = ?`
+    await pool.query(sql, [
+      config.status,
+      config.id
+    ])
+  }
+
+  async updateConfigGlobalConfig(config: {id: string; globalConfig: string}): Promise<void> {
+    const sql = `update template_config set global_config_id = ? where id = ?`
+    await pool.query(sql, [
+      config.globalConfig,
+      config.id
+    ])
+  }
   async updateConfig(config: UpdateConfigParam): Promise<TemplateConfig> {
     const props = []
     const params = []

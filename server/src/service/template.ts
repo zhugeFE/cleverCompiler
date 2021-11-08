@@ -5,7 +5,7 @@ import { CreateTemplateConfig, UpdateTemplateGlobalConfig } from './../types/tem
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 00:19:35
+ * @LastEditTime: 2021-11-08 12:38:20
  */
 import { 
   CreateTemplateGlobalConfigParams, 
@@ -57,6 +57,13 @@ class TemplateService {
   async updateConfig(config: UpdateConfigParam): Promise<TemplateConfig> {
     return await templateDao.updateConfig(config)
   }
+  async updateConfigStatus (config: {id: string; status: number}): Promise<void> {
+    await templateDao.updateConfigStatus(config)
+  } 
+
+  async updateConfigGlobalConfig (config: {id: string; globalConfig: string}): Promise <void>{
+    await templateDao.updateConfigGlobalConfig(config)
+  }
 
   async deleteConfigById(configId: string): Promise<void> {
     await templateDao.deleteConfigById(configId)
@@ -67,6 +74,7 @@ class TemplateService {
   async updateGlobalConfig(config: UpdateTemplateGlobalConfig): Promise<TemplateGlobalConfig> {
     return await templateDao.updateGlobalConfig(config)
   }
+
   async updateGlobalConfigStatus(config: {id: string; status: number}): Promise<void> {
     await templateDao.updateGlobalConfigStatus(config)
   } 
@@ -80,6 +88,7 @@ class TemplateService {
   async updateTemplateStatus (data: UpdateTemplateStatus[]): Promise<void> {
     await templateDao.updateTemplateStatus(data)
   }
+
 }
 
 const templateService = new TemplateService()

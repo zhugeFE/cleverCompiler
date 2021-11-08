@@ -5,7 +5,7 @@ import { TemplateConfig } from './../types/template';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 00:20:22
+ * @LastEditTime: 2021-11-08 12:41:12
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
@@ -131,14 +131,46 @@ router.delete('/git', (req: Request, res: Response, next: NextFunction) => {
 
 
 router.post('/config/update', (req: Request, res: Response, next: NextFunction) => {
-  const param = req.body as UpdateConfigParam
-  if (!param.id) {
-    res.json(new ApiResult(ResponseStatus.fail, null, '配置id不能为空'))
+
+  const saveFilePath = path.resolve(__dirname, '../../file')
+  const form = new IncomingForm({keepExtensions:true, uploadDir:saveFilePath})
+  form.parse(req, (err, fields, files) => {
+    if (err || !fields['configId']) {
+      logger.info(err)
+      res.json(new ApiResult(ResponseStatus.fail, err || "configId不能为空"))
+      return
+    }
+    templateService.updateConfig({
+      id: fields['configId'] as string,
+      targetValue: JSON.stringify(files) !== '{}' ? JSON.stringify({newFilename: files['files']['newFilename'], originalFilename: files['files']['originalFilename']}) : fields["targetValue"] as string,
+    })
+    .then((config: TemplateConfig) => {
+      res.json(new ApiResult(ResponseStatus.success, config))
+    })
+    .catch(next)
+  })
+})
+
+router.post('/config/status/update', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
     return
   }
-  templateService.updateConfig(req.body)
-  .then((config: TemplateConfig) => {
-    res.json(new ApiResult(ResponseStatus.success, config))
+  templateService.updateConfigStatus({id: req.body.id, status: req.body.status})
+  .then ( () => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
+router.post('/config/globalConfig/update', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+    return
+  }
+  templateService.updateConfigGlobalConfig({id: req.body.id, globalConfig: req.body.globalConfig})
+  .then ( () => {
+    res.json(new ApiResult(ResponseStatus.success))
   })
   .catch(next)
 })

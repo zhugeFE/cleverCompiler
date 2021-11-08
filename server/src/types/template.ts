@@ -6,7 +6,7 @@ import { Version } from "./common";
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 20:43:17
+ * @LastEditTime: 2021-11-08 11:32:39
  */
 
 export interface TemplateInstance {
@@ -66,6 +66,7 @@ export interface TemplateVersionGit {
   gitSourceId: string; //git来源id
   gitSourceVersionId: string; //git版本来源id
   name: string; //git来源名称
+  version: string;
   configList: TemplateConfig[]; //配置项
   buildDoc?: string; //所在版本的配置文档
   readmeDoc?: string; //所在版本的说明文档
@@ -82,7 +83,7 @@ export interface CreateTemplateConfig {
 }
 export interface TemplateConfig extends CreateTemplateConfig {
   id: string;
-  type: number;
+  typeId: number;
   reg: string; // 正则表达式
   filePath: string; // 原始文件路径
   description: string; // 描述信息
@@ -93,9 +94,10 @@ export interface TemplateConfig extends CreateTemplateConfig {
 
 export interface UpdateConfigParam {
   id: string;
-  defaultValue: string;
-  isHidden: number;
-  globalConfigId: string;
+  description?: string;
+  targetValue?: string;
+  isHidden?: number;
+  globalConfigId?: string;
 }
 
 export interface TemplateGlobalConfig {
