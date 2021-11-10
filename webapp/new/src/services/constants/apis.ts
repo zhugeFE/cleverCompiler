@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 17:34:21
+ * @LastEditTime: 2021-11-10 08:14:53
  */
 export default {
   user: {
@@ -64,7 +64,6 @@ export default {
   },
   compile: {
     createCompile: '/compile/add',
-
   },
   project: {
     getInfo: '/project/{{id}}/info',

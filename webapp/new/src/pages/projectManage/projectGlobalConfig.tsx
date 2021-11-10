@@ -4,19 +4,23 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-26 16:16:21
+ * @LastEditTime: 2021-11-09 15:55:12
  */
 import { TemplateGlobalConfig } from "@/models/template";
 import { ColumnProps  } from "antd/lib/table";
-import { Table } from 'antd';
+import { Button, Table } from 'antd';
 import { connect } from "dva";
 import React from "react";
 import { Dispatch } from "umi";
-import ProjectGlobalConfigEdit from "./projectGlobalConfigEdit";
+import TextGlobalConfig from "./TextGlobalConfig";
+import FileGlobalConfig from "./FileGlobalConfig";
 import styles from "./styles/projectGlobalConfig.less"
+import { TypeMode } from "@/models/common";
+import util from "@/utils/utils";
 
 export interface Props {
   globalConfigList: TemplateGlobalConfig[];
+  onUpdateConfig (config: TemplateGlobalConfig): void;
   dispatch: Dispatch;
 }
 
@@ -31,6 +35,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
         currentGlobalConfig: null,
       }
       this.onCancelConfig = this.onCancelConfig.bind(this)
+      this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
     }
 
     onCancelConfig() {
@@ -39,21 +44,44 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
       })
     }
 
-    onEdit(config: TemplateGlobalConfig , type: string){
-      switch(type){
-        case "edit": {
-          this.setState({
-            currentGlobalConfig: config
-          })
-          break
-        }
+    afterUpdateConfig (data: {file?: File, targetValue: string}) {
+      if (!this.state.currentGlobalConfig) return
+      const globalConfig = util.clone(this.state.currentGlobalConfig)
+      globalConfig.targetValue = data.targetValue
+      if ( globalConfig.type == TypeMode.file) {
+        globalConfig.file = data.file
       }
+      console.log(globalConfig)
+      this.onCancelConfig()
+      this.props.onUpdateConfig(globalConfig)
+    }
+
+    onEdit(config: TemplateGlobalConfig){
+      this.setState({
+        currentGlobalConfig: config
+      })
     }
 
     render () {
       const columns: ColumnProps<TemplateGlobalConfig>[] = [
         { title: '名称', dataIndex: 'name', fixed: 'left' },
-        { title: '默认值', dataIndex: 'defaultValue' },
+        {
+          title: '类型',
+          width: 80,
+          dataIndex: 'type',
+          render(value) {
+            if (value === 0) return <span>文本</span>;
+            if (value === 1) return <span>文件</span>;
+            if (value === 2) return <span>json</span>;
+          },
+        },
+        {title: '目标内容', width: 200, ellipsis: true, dataIndex: 'targetValue', render: (text: string, record) => {
+          if (record.type == TypeMode.text) {
+            return record.targetValue
+          }else {
+            return JSON.parse(record.targetValue)['originalFilename']
+          }
+        }},        
         { title: '描述', dataIndex: 'description' },
         {
           title: '是否隐藏',
@@ -66,9 +94,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           title: '操作',
           render: (value: any, record: TemplateGlobalConfig) => {
             return (
-              <div>
-                <a onClick={this.onEdit.bind(this, record , 'edit')}>编辑</a>
-              </div>
+              <Button onClick={this.onEdit.bind(this, record)}>编辑</Button>
             );
           },
         },
@@ -77,10 +103,19 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
         <div className={styles.projectGlobalConfigPanel}>
           {
             this.state.currentGlobalConfig &&(
-              <ProjectGlobalConfigEdit
-                globalConfig={this.state.currentGlobalConfig}
-                onCancel={this.onCancelConfig}
-              ></ProjectGlobalConfigEdit>
+              this.state.currentGlobalConfig.type == TypeMode.text ? (
+                <TextGlobalConfig
+                  globalConfig={this.state.currentGlobalConfig}
+                  onCancel={this.onCancelConfig}
+                  onSubmit={this.afterUpdateConfig}
+                ></TextGlobalConfig>
+              ) : (
+                <FileGlobalConfig
+                  globalConfig={this.state.currentGlobalConfig}
+                  onCancel={this.onCancelConfig}
+                  onSubmit={this.afterUpdateConfig}
+                ></FileGlobalConfig>
+              )
             )
           }
           <Table

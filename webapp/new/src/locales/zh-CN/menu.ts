@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-17 20:06:26
+ * @LastEditTime: 2021-11-10 15:49:24
  */
 export default {
   'menu.configManage': '配置管理',
@@ -17,6 +17,7 @@ export default {
   'menu.configManage.gitEdit': 'git编辑',
   'menu.configManage.templateList': '模板列表',
   'menu.configManage.templateEdit': '模板编辑',
+  'menu.compileManage.compilelog': '编译记录',
   'menu.home': '首页',
   'menu.configManage.gitList': 'git列表',
   'menu.exception.403': '403',

@@ -4,49 +4,58 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-15 18:25:40
+ * @LastEditTime: 2021-11-10 16:15:10
  */
-import { ConnectState } from '@/models/connect'
 import util from '@/utils/utils'
 import { Button, Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { connect, Dispatch } from 'dva'
 import React from 'react'
-import { Member, ProjectCompile } from 'umi'
+import { IRouteComponentProps, Member, ProjectCompile } from 'umi'
 import DownloadService from "@/services/download"
-import { blockStatement } from '@babel/types'
+import { Customer } from "@/models/customer"
+import { LeftOutlined } from '@ant-design/icons'
 
-interface Props {
+interface Props extends IRouteComponentProps< {
   id: string;
-  memberList: Member[] | null;
-  compileList: ProjectCompile[];
+}> {
   dispatch: Dispatch;
 }
 interface States {
   tableLoading: boolean;
+  memberList: Member[] | null;
+  compileList: ProjectCompile[] | null;
 }
 
-class TabPaneCompile extends React.Component<Props, States> {
+class Compilelog extends React.Component<Props, States> {
   constructor(prop: Props){
     super(prop)
     this.state = {
-      tableLoading: false
+      memberList: null,
+      tableLoading: false,
+      compileList: null
     }
   }
 
   async componentDidMount () {
-    const id = this.props.id
+    const id = this.props.match.params.id
     this.setState({
       tableLoading: true
     })
     await this.props.dispatch({
-      type:"project/getMemberList"
+      type:"project/getMemberList",
+      callback: (data: Member[]) => {
+        this.setState({
+          memberList: data
+        })
+      }
     })
     await this.props.dispatch({
       type: "project/getCompileInfo",
       payload: id,
-      callback: () => { 
+      callback: (data: ProjectCompile[]) => { 
         this.setState({
+          compileList: data,
           tableLoading: false
         })
       }
@@ -76,7 +85,7 @@ class TabPaneCompile extends React.Component<Props, States> {
 
     const UserMap = {}
 
-    this.props.memberList?.map( item => {
+    this.state.memberList?.map( (item: Member) => {
       UserMap[item.id] = item.name
     })
 
@@ -143,9 +152,20 @@ class TabPaneCompile extends React.Component<Props, States> {
     ]
     return (
       <div>
+        <div 
+        // className={styles.projectPanelTop}
+        >
+          <a
+            onClick={() => {
+              this.props.history.goBack();
+            }}>
+            <LeftOutlined />
+            返回
+          </a>
+        </div>  
         <Table
           columns={columns}
-          dataSource={this.props.compileList}
+          dataSource={this.state.compileList!}
           rowKey="id"
           loading={this.state.tableLoading}
           pagination={{pageSize: 12, showTotal(totle: number) {
@@ -161,9 +181,4 @@ class TabPaneCompile extends React.Component<Props, States> {
 }
 
 
-export default connect( ({compile, project}:ConnectState) => {
-  return {
-    memberList: project.memberList,
-    compileList: project.compileInfo || []
-  }
-})(TabPaneCompile)
+export default connect()(Compilelog)

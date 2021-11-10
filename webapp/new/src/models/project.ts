@@ -5,7 +5,7 @@ import { enable } from '@umijs/deps/compiled/signale';
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 11:17:17
+ * @LastEditTime: 2021-11-10 11:14:29
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -46,12 +46,12 @@ export interface ProjectInfo {
   templateId: string; // 项目来源模板id
   templateVersion: string; //项目来源模板版本id
   compileType: number; //编译类型 0私有部署 1常规迭代 2发布测试
+  publicType: number;
   createTime: Date; //创建时间
   gitList: TemplateVersionGit[] // git
   shareNumber: string; //分享成员
   customer: string; //客户id
   globalConfigList: ProjectConfig[];//全局配置
-  enable: number;
 }
 
 
@@ -90,10 +90,14 @@ export interface CreateConfigParams {
 }
 
 export interface ProjectConfig {
-  id: string; //项目配置id
-  configId: string; //模板版本配置id
-  projectId: string; //项目id
-  value: string; //默认值
+  id: string; 
+  name: string;
+  description: string;
+  templateId: string; //模板id
+  templateVersionId: string;//模板版本id
+  targetValue: string;//默认值
+  isHidden: number; //是否隐藏配置项
+  type: number;
 }
 
 export interface Member {
@@ -118,9 +122,6 @@ export interface CreateShareProject {
 
 export type ProjectModelState = {
   projectList: ProjectInstance[];
-  projectInfo: ProjectInfo | null ;
-  memberList: Member[] ;
-  compileInfo: ProjectCompile[] | null;
 }
 
 
@@ -137,38 +138,24 @@ export type ProjectModelType = {
   };
   reducers: {
     setProjectList: Reducer<ProjectModelState>;
-    setProjectInfo: Reducer<ProjectModelState>;
-    setMemberList: Reducer<ProjectModelState>;
-    setCompileInfo: Reducer<ProjectModelState>;
   };
 }
 
 const ProjectModel: ProjectModelType = {
   namespace: 'project',
   state: {
-    projectList: [],
-    projectInfo: null,
-    memberList: [],
-    compileInfo: [],
+    projectList: []
   },
   effects: {
     *getCompileInfo ( { payload, callback} , {put , call}){
       const res = yield call(projectService.compileInfo, payload)
-      console.log(res)
       if (res.status === -1)return
-      yield put({
-        type: "setCompileInfo",
-        payload: res.data
-      })
-      if (callback) callback()
+      if (callback) callback(res.data)
     },
-    *getMemberList (_, {put, call}){
+    *getMemberList ( {callback}, {put, call}){
       const res = yield call(projectService.memberList)
       if (res.status === -1)return
-      yield put({
-        type: "setMemberList",
-        payload: res.data
-      })
+      if (callback) callback(res.data)
     },
     *getProjectList (_ , {put , call}){
       const res = yield call(projectService.projectList)
@@ -178,13 +165,9 @@ const ProjectModel: ProjectModelType = {
         payload: res.data
       })
     },
-    *getProjectInfo ({payload, callback}, {put , call}) {
+    *getProjectInfo ({payload, callback}, {call}) {
       const res = yield call(projectService.projectInfo, payload as string)
       if (res.status === -1) return
-      yield put({
-        type: "setProjectInfo",
-        payload: res.data
-      })
       if (callback) callback(res.data)
     },
     *addProject ({payload, callback}, {call}) {
@@ -192,48 +175,18 @@ const ProjectModel: ProjectModelType = {
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
-    *updateProject ({payload}, {put ,call}) {
+    *updateProject ({payload, callback}, {call}) {
       const res = yield call(projectService.updateProject, payload)
       if (res.status === -1) return
-      yield put({
-        type: "setProjectInfo",
-        payload: res.data
-      })
-    },
-
+      if (callback) callback(res.data)
+    }
   },
   reducers: {
-    setCompileInfo (state , {payload}): ProjectModelState {
-      return {
-        projectInfo: state?.projectInfo || null,
-        compileInfo: payload,
-        projectList: state?.projectList || [],
-        memberList: state?.memberList || []
-      }
-    },
     setProjectList (state, {payload}): ProjectModelState {
       return {
-        projectList: payload,
-        projectInfo: state?.projectInfo || null,
-        memberList: state?.memberList || [],
-        compileInfo: state?.compileInfo || null
+        ...state,
+        projectList: payload
       }
-    },
-    setProjectInfo (state, {payload}): ProjectModelState {
-      return {
-        projectList: state?.projectList || [],
-        projectInfo: payload,
-        memberList: state?.memberList || [],
-        compileInfo: state?.compileInfo || null
-      }
-    },
-    setMemberList (state, {payload}): ProjectModelState {
-      return {
-        projectInfo: state?.projectInfo || null,
-        projectList: state?.projectList || [],
-        memberList: payload,
-        compileInfo: state?.compileInfo || null
-      } 
     }
   }
 }

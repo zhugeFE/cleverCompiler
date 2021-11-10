@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-08 15:43:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 17:59:11
+ * @LastEditTime: 2021-11-09 00:14:47
  */
 import { TemplateInstance } from "@/models/template";
 import util from "@/utils/utils";
@@ -19,7 +19,7 @@ interface Props {
   dispatch : Dispatch;
 }
 
-interface VersionInfo {
+export interface VersionInfo {
   id: string;
   version: string;
 }

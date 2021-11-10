@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-15 16:21:23
+ * @LastEditTime: 2021-11-10 15:47:52
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Modal, Radio, Select, Tabs } from 'antd'
@@ -25,7 +25,6 @@ const socket = SocketIO('http://localhost:3000/', {transports:["websocket"]})
 interface Props extends IRouteComponentProps<{
   id: string;
 }>{
-  projectInfo: ProjectInfo | null ;
   projectList: ProjectInstance[] | null;
   currentUser: CurrentUser | null;
   dispatch: Dispatch;
@@ -34,6 +33,7 @@ interface States {
   publicType: number;
   projectId: string;
   compileGit: string[];
+  checkboxOptions: string[];
   compileResult: {
     title: string;
     subTitle: string;
@@ -55,6 +55,7 @@ class CompileEdit extends React.Component<Props, States> {
       compileGit: [],
       compileResult: null,
       description: "",
+      checkboxOptions: [],
       GitMap: {},
       compileLog: {},
       showResult: false,
@@ -107,15 +108,39 @@ class CompileEdit extends React.Component<Props, States> {
     const id: string = this.props.location.query.id as string
 
     this.initSocket()
-    if( !this.props.currentUser) {
-      this.props.dispatch({
-        type: "user/fetchCurrent"
-      })
-    }
+    this.getCurrentUser()
+    this.getProjectList()
+    id && this.selectProject(id)
+    
+    
+  }
+
+  getProjectInfo(id: string) {
+    this.props.dispatch({
+      type: "project/getProjectInfo",
+      payload: id,
+      callback: (data: ProjectInfo) => {
+        console.log(data)
+        this.setState({
+          projectId: id,
+          publicType: data.publicType,
+          GitMap: data.gitList.map( item => { return { [item.name]: item.id }}),
+          checkboxOptions: data.gitList.map( item => item.name)
+        })
+      }
+    })
+  }
+
+  getCurrentUser () {
+    this.props.dispatch({
+      type: "user/fetchCurrent"
+    })
+  }
+
+  getProjectList () {
     this.props.dispatch({
       type: "project/getProjectList"
     })
-    
   }
 
   onCancelShowResult () {
@@ -147,10 +172,7 @@ class CompileEdit extends React.Component<Props, States> {
     this.setState({
       projectId: value
     })
-    this.props.dispatch({
-      type: "project/getProjectInfo",
-      payload: value
-    })
+    this.getProjectInfo(value)
   }
 
   onCheckBoxChange (checkedValues: CheckboxValueType[]) {
@@ -171,16 +193,12 @@ class CompileEdit extends React.Component<Props, States> {
       return
     }
 
-    const GitMap = {}
-    this.props.projectInfo?.gitList.map( item => {
-      GitMap[item.name] = item.id
-    })
     const data = {
       userId: this.props.currentUser?.id,
       projectId,
       publicType,
       description,
-      gitIds: [...compileGit.map(item => GitMap[item])]
+      gitIds: [...compileGit.map(item => this.state.GitMap[item])]
     }
 
     socket.emit("startCompile", data)
@@ -212,12 +230,6 @@ class CompileEdit extends React.Component<Props, States> {
         text: "自动"
       }
     ]
-    const checkboxOptions: string[] = []
-    if (this.props.projectInfo) {
-      this.props.projectInfo.gitList.map( item => {
-        checkboxOptions.push(item.name)
-      })
-    }
     
     return (
       <div>
@@ -228,7 +240,7 @@ class CompileEdit extends React.Component<Props, States> {
           <Form.Item 
             label="配置名称"
           >
-             <Select onChange={this.selectProject}> 
+             <Select onChange={this.selectProject} value={this.state.projectId}> 
                 {
                   this.props.projectList?.map( item => {
                     return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
@@ -238,7 +250,7 @@ class CompileEdit extends React.Component<Props, States> {
           </Form.Item>
 
           {
-            this.props.projectInfo && (
+            this.state.projectId && (
               <>
                 <Form.Item 
                   label="发布方式"
@@ -254,7 +266,7 @@ class CompileEdit extends React.Component<Props, States> {
                 </Form.Item>
 
                 <Form.Item label="要编译的项目">
-                  <Checkbox.Group options={checkboxOptions}  onChange={this.onCheckBoxChange} />
+                  <Checkbox.Group options={this.state.checkboxOptions}  onChange={this.onCheckBoxChange} />
                 </Form.Item>
 
                 <Form.Item label="描述">
@@ -318,6 +330,5 @@ export default connect( ( {user, project}: ConnectState) => {
   return {
     currentUser: user.currentUser,
     projectList: project.projectList,
-    projectInfo: project.projectInfo,
   }
 })(withRouter(CompileEdit))

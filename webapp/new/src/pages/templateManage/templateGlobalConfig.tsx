@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 23:14:28
+ * @LastEditTime: 2021-11-09 21:40:46
  */
 
 import * as React from 'react';
@@ -91,7 +91,6 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
     const form = new FormData()
     for (let key of Object.keys(formData)) {
       if (key == 'file') {
-        console.log(formData[key])
         form.append("files", formData[key]['file'])
       } else {
         form.append(key, formData[key])
@@ -114,6 +113,16 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
   render() {
     const columns: ColumnProps<TemplateGlobalConfig>[] = [
       { title: '名称', width:150, ellipsis: true, dataIndex: 'name', fixed: 'left' },
+      {
+        title: '类型',
+        width: 60,
+        dataIndex: 'type',
+        render(value) {
+          if (value === 0) return <span>文本</span>;
+          if (value === 1) return <span>文件</span>;
+          if (value === 2) return <span>json</span>;
+        },
+      },
       {title: '目标内容', width: 200, ellipsis: true, dataIndex: 'targetValue', render: (text: string, record) => {
         if (record.type == TypeMode.text) {
           return record.targetValue

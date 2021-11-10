@@ -4,23 +4,28 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-26 16:13:19
+ * @LastEditTime: 2021-11-10 11:31:48
  */
 
-import { ConfigInstance, TemplateVersionGit } from "@/models/template";
-import { Table, Tabs } from "antd";
+import { TypeMode } from "@/models/common";
+import { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
+import { Button, Table, Tabs } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
-import ProjectConfigEdit from './projectConfigEdit';
 import styles from './styles/projectConfig.less';
+import TextConfigEdit from "./TextConfigEdit";
+import FileConfigEdit from "./FileConfigEdit";
+import util from "@/utils/utils";
 
 interface Props {
-  gitList: TemplateVersionGit[];
+  globalConfigList: TemplateGlobalConfig[];
+  gitList: TemplateVersionGit[] | undefined;
+  onUpdateConfig(config: TemplateConfig): void;
 }
 
 interface States {
-  currentConfig: ConfigInstance | null,
+  currentConfig: TemplateConfig | null,
 }
 
 class ProjectConfig extends React.Component <Props, States> {
@@ -31,6 +36,7 @@ class ProjectConfig extends React.Component <Props, States> {
     }
     this.onCancelEditConfig = this.onCancelEditConfig.bind(this)
     this.onClickConfig = this.onClickConfig.bind(this)
+    this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
   }
 
   onCancelEditConfig () {
@@ -39,31 +45,53 @@ class ProjectConfig extends React.Component <Props, States> {
     })
   }
 
-
-  onClickConfig(config: ConfigInstance, type: string, value: any) {
-    switch (type) {
-      case "edit": {
-        this.setState({
-          currentConfig: config
-        })
-        return 
-      }
+  afterUpdateConfig (data: {file?: File, targetValue: string}) {
+    if (!this.state.currentConfig) return
+    const config = util.clone(this.state.currentConfig)
+    config.targetValue = data.targetValue
+    if ( config.typeId == TypeMode.file) {
+      config.file = data.file
     }
+
+    this.onCancelEditConfig()
+
+    this.props.onUpdateConfig(config)
+
+  }
+
+
+  onClickConfig(config: TemplateConfig) {
+    this.setState({
+      currentConfig: config
+    })
   }
 
   render () {
-    const columns: ColumnProps<ConfigInstance>[] = [
+    const columns: ColumnProps<TemplateConfig>[] = [
       { title: '文件位置', width: 150, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
       {
         title: '默认值',
         width: 200,
-        dataIndex:"value",
         ellipsis: true,
-        render: (text: string, record: ConfigInstance) => {
-          return (
-            <span>{record.value || record.sourceValue}</span>
-          );
+        render: (record: TemplateConfig) => {
+          if ( record.globalConfigId) {
+            return "-"
+          }else {
+            return record.typeId == TypeMode.text ? record.targetValue : JSON.parse(record.targetValue)['originalFilename']
+          }
         },
+      },
+      {
+        title: "全局配置",
+        width: 150,
+        ellipsis: true,
+        render: (record: TemplateConfig) => {
+          console.log(record.globalConfigId, this.props.globalConfigList )
+          return (
+            'sdf'
+            // record.globalConfigId ? this.props.globalConfigList.filter(item => item.id == record.globalConfigId)[0].name : "-"
+          )
+        }
       },
       { title: '描述', width: 100, dataIndex: 'description' },
       {
@@ -72,7 +100,7 @@ class ProjectConfig extends React.Component <Props, States> {
         dataIndex: 'typeId',
         render(value) {
           if (value === 0) return <span>文本</span>;
-          if (value === 1) return <span>文件替换</span>;
+          if (value === 1) return <span>文件</span>;
           if (value === 2) return <span>json</span>;
         },
       },
@@ -94,27 +122,37 @@ class ProjectConfig extends React.Component <Props, States> {
       {
         title: '操作',
         fixed: 'right',
-        render: (value: any, record: ConfigInstance) => {
+        render: (value: any, record: TemplateConfig) => {
           return (
-            <div>
-              <a onClick={this.onClickConfig.bind(this, record , 'edit')}>编辑</a>
-            </div>
+            <Button
+              disabled={!!record.globalConfigId}
+              onClick={this.onClickConfig.bind(this, record)}>编辑</Button>
           );
         },
       },
     ];
-    const { gitList } = this.props
     return (
       <div>
         {
           this.state.currentConfig && (
-            <ProjectConfigEdit
-              config={this.state.currentConfig}
-              onCancel={this.onCancelEditConfig}
-            ></ProjectConfigEdit>
+            this.state.currentConfig.typeId == TypeMode.text ? (
+              <TextConfigEdit
+                config={this.state.currentConfig}
+                gitId={this.props.gitList![0].gitSourceId}
+                gitVersionId={this.props.gitList![0].gitSourceVersionId}
+                onCancel={this.onCancelEditConfig}
+                onSubmit={this.afterUpdateConfig}
+              ></TextConfigEdit>
+            ) : (
+              <FileConfigEdit
+                config={this.state.currentConfig}
+                onCancel={this.onCancelEditConfig}
+                onSubmit={this.afterUpdateConfig}
+              ></FileConfigEdit>
+            )
           )
         }
-        { !gitList.length ? (
+        { !this.props.gitList?.length ? (
           <Tabs type="card" 
           className={styles.cardBg} 
           >
@@ -125,11 +163,12 @@ class ProjectConfig extends React.Component <Props, States> {
             type="card"
             className={styles.cardBg}
             >
-            {gitList.map((item, index) => {
+            {this.props.gitList?.map((item, index) => {
               return (
                 <Tabs.TabPane  tab={item.name} key={item.id}>
                   <Table
                     columns={columns}
+                    rowKey="id"
                     dataSource={item.configList}
                     pagination={{
                       pageSize: 3,
