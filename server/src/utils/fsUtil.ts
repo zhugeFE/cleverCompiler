@@ -4,12 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-15 18:01:05
+ * @LastEditTime: 2021-11-10 23:15:03
  */
 import * as fs from 'fs'
 import { reject } from 'lodash';
 import * as pt from 'path'
 import { DirNode } from '../types/common';
+import logger from './logger';
 
 class FsUtil {
   async mkdir (path: string): Promise<void> {
@@ -27,14 +28,22 @@ class FsUtil {
     }
   }
 
-  pathExist (path: string): Promise<boolean> {
+  rename (oldpath: string, newpath: string): Promise<NodeJS.ErrnoException> {
+    return new Promise( (resolve) => {
+      logger.info(`${oldpath} ${newpath}`)
+      fs.rename(oldpath, newpath, (err) => {
+        resolve(err)
+      })
+    })
+  }
+
+
+  pathExist (path: string): Promise<NodeJS.ErrnoException> {
     return new Promise((resolve) => {
       fs.stat(path, (err) => {
         if (err) {
-          resolve(false)
-        } else {
-          resolve(true)
-        }
+          resolve(err)
+        } 
       })
     })
   }

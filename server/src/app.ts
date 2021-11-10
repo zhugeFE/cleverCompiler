@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-05 20:13:22
+ * @LastEditTime: 2021-11-10 23:21:17
  */
 import { CompileConfig } from './types/compile';
 import * as express from 'express'
@@ -95,7 +95,6 @@ import util from './utils/util';
        * 4. 线程锁/顺序 调用start
        */
       const compileInfo: ProjectInfo = await ProjectService.projectInfo(ctx.projectId)
-      compileInfo.gitList =  compileInfo.gitList.filter(item => ctx.gitIds.includes(item.id))
       const publicType = ctx.publicType //发布类型
       const CompileList: CompileConfig[] = []
       await Promise.all(compileInfo.gitList.map(async item => {
@@ -118,25 +117,25 @@ import util from './utils/util';
         description: ctx.description //编译描述
       } as CompileParam)
 
-      let result = 0
-      const gitNames = []
       const workDir = path.resolve(config.compileDir, ctx.userId)
-      const successGitNames = []
-      await Promise.all( CompileList.map( async item => { 
-        gitNames.push(item.gitName)
-        if ( await Compile.start( socket, workDir, item, publicType) ) {
-          result += 1;
-          successGitNames.push(item.gitName)
-        }
-      }) )
-      const fileName = util.createFileName(ctx.userId)
+      const GitNameList = CompileList.map( item => item.gitName)
       
-      await WorkFlowUtil.tarAndOutput(socket, workDir, fileName, successGitNames, publicType)
+      Promise.all( CompileList.map( item => new Compile(workDir).start( socket, item, publicType)))
+        .then( async () => {
+        const fileName = util.createFileName(ctx.userId)
+        await new WorkFlowUtil(workDir).tarAndOutput(socket, fileName, GitNameList, publicType)
+        compileInstance.file = fileName
+        socket.emit({'result': 'success'})
+      })
+      .catch ( err => {
+        logger.info(err)
+        socket.emit({result: err})
+      })
+     
 
-      compileInstance.compileResult = result === CompileList.length ? "全部成功" : `成功： ${result} ， 失败： ${CompileList.length - result}`
-      compileInstance.file = fileName
-      CompileDao.updateProjectCompile(compileInstance)
-      socket.emit('result', {"fileaddr": fileName,"successGitNames": successGitNames})
+      // compileInstance.compileResult = result === CompileList.length ? "全部成功" : `成功： ${result} ， 失败： ${CompileList.length - result}`
+      // CompileDao.updateProjectCompile(compileInstance)
+
     })
 
     socket.on('disconnect', (socket: any)=>{

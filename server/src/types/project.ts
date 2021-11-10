@@ -6,7 +6,7 @@ import { TemplateGlobalConfig, TemplateVersionGit } from "./template";
  * @Author: Adxiong
  * @Date: 2021-08-25 17:14:31
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 11:14:48
+ * @LastEditTime: 2021-11-10 14:24:56
  */
 export interface ProjectInstance {
   id: string; //项目id
@@ -18,11 +18,10 @@ export interface ProjectInstance {
   lastCompileUser: string; //上次编译人
   createTime: Date; //创建时间,
   customer: string;
-  enable: number;
+  creatorId: string;
 }
 
 export interface ProjectInfo extends ProjectType{
-  shareNumber: string; //分享成员
   gitList: TemplateVersionGit[];
   globalConfigList: ProjectGlobalConfig[];//全局配置
 }
@@ -37,8 +36,10 @@ export interface ProjectType {
   publishType: number; //发布方式 0发布到git 1下载  2自动
   description: string; //项目描述
   createTime: Date; //创建时间,
+  creatorId: string; //创建者id
   customer: string; //客户id
-  enable: number;
+  shareNumber: string; //分享成员
+
 }
 
 
@@ -57,35 +58,43 @@ export interface CreateProjectParams {
 }
 
 
-export interface CreateConfigParams {
-  configId: string; //模板版本配置id
-  projectId: string; //项目id
-  value: string; //默认值
-}
-
 export interface ProjectGlobalConfig {
-  id: string; //项目配置id
-  configId: string; //模板版本配置id
-  projectId: string; //项目id
-  value: string; //默认值,
+  id: string; 
+  name: string;
+  description: string;
+  templateId: string; //模板id
+  templateVersionId: string;//模板版本id
+  targetValue: string;//默认值
+  isHidden: number; //是否隐藏配置项
+  type: number;
 }
 
-export interface ProjectConfig extends ProjectGlobalConfig {
+export interface ProjectGit {
+  id: string; //id
+  templateId: string; //模板id
+  templateVersionId: string; //模板版本id
+  gitSourceId: string; //git来源id
+  gitSourceVersionId: string; //git版本来源id
+  name: string; //git来源名称
+  version: string;
+  configList: ProjectConfig[]; //配置项
+  buildDoc?: string; //所在版本的配置文档
+  readmeDoc?: string; //所在版本的说明文档
+  updateDoc?: string; //所在版本的更新文档
+}
+
+export interface ProjectConfig{
+  id: string;
+  typeId: number;
+  reg: string; // 正则表达式
+  filePath: string; // 原始文件路径
+  description: string; // 描述信息
   globalConfigId: string; //全局配置id
-}
-
-
-export interface ProjectShare {
-  id: string; //项目分享id
-  receiveUserId: string; //接收者id
-  userId: string; //分享者id
-  projectId: string; //项目id
-}
-
-export interface CreateShareProject {
-  projectId: string; //项目id
-  userId: string; //分享者id
-  receiverUserId?: string; //被分享者id
-  receiverUserIds?: string[]; //被分享者id数组
+  templateId: string; //模板id
+  templateVersionId: string; //模板版本id
+  templateVersionGitId: string; //模板版本中git项id
+  gitSourceConfigId: string; //模板版本中git项的配置项id
+  targetValue: string; //配置项默认值
+  isHidden: number; //是否隐藏
 }
 

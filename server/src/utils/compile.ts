@@ -1,10 +1,11 @@
+import { reject } from 'lodash';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-23 16:56:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-15 14:01:32
+ * @LastEditTime: 2021-11-10 23:24:05
  */
 import WorkFlowUtil from './workFlowUtil';
 import logger from './logger';
@@ -13,26 +14,39 @@ import SocketLogge from './socketLogger';
 
 
 class Socket {
-  async start(socket, workDir: string, requestData: CompileConfig, publicType: number): Promise<boolean> {
-    // if (!session || !session.user) {
+
+  workdir: string
+
+  constructor (workdir: string) {
+    this.workdir = workdir
+  }
+
+  async start(socket, requestData: CompileConfig, publicType: number): Promise<void> {
+    // if (!session || !session.user) 
     //   return
     // }
     // 判断用户是否有改仓库操作权限
-
     SocketLogge(socket, requestData.gitName, "Step: 开始执行编译流程,请耐心等待...")
-    let res = false
-    //传入 用户id 初始化工作目录
-    await WorkFlowUtil.initUserDir(socket, workDir, requestData.userId, requestData.gitName)
-    
-    // 传入 工作路径 git名 来源类型 类型值
-    await WorkFlowUtil.initSrcRepoDir(socket, workDir, requestData.gitSsh, requestData.gitName, requestData.gitValue, requestData.gitType)
-    
-    // await WorkFlowUtil.initOutputDir(socket, workDir, requestData.gitName)
-    await WorkFlowUtil.runReplacement(socket, workDir, requestData.gitName, requestData.configList)
-    res = await WorkFlowUtil.runCompile(socket, workDir, requestData.gitName, JSON.parse(requestData.compileOrders))
-    return true && res
+
+    try {
+      const workFlowUtil = new WorkFlowUtil(this.workdir)
+      //传入 用户id 初始化工作目录
+      await workFlowUtil.initUserDir(socket, requestData.gitName)
+      
+      // 传入 工作路径 git名 来源类型 类型值
+      await workFlowUtil.initSrcRepoDir(socket, requestData.gitSsh, requestData.gitName, requestData.gitValue, requestData.gitType)
+      
+      // await WorkFlowUtil.initOutputDir(socket, workDir, requestData.gitName)
+      await workFlowUtil.runReplacement(socket, requestData.gitName, requestData.configList)
+      await workFlowUtil.runCompile(socket , requestData.gitName, JSON.parse(requestData.compileOrders))
+    }
+    catch (err) {
+      logger.info(err)
+      throw(err)
+    }
+      
   }
-  
 }
 
-export default new Socket()
+  
+export default Socket

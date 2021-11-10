@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:13:39
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-03 23:16:41
+ * @LastEditTime: 2021-11-10 10:43:01
  */
 import projectDao from "../dao/project";
 import { CreateProjectParams, ProjectType, ProjectInfo, ProjectInstance } from "../types/project";
@@ -35,7 +35,7 @@ class Project {
 
   //项目详细
   async projectInfo(id: string): Promise<ProjectInfo>{
-    return await projectDao.projectInfo(id)
+    return await projectDao.getProjectInfo(id)
   }
 
 }
