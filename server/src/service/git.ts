@@ -5,7 +5,7 @@ import { GitList, UpdateGitStatus, UpdateConfigParam } from './../types/git';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 10:01:47
+ * @LastEditTime: 2021-11-11 00:00:03
  */
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig, CompileParams } from '../types/git';
@@ -14,7 +14,7 @@ import * as path from 'path'
 import config from '../config';
 import { User } from '../types/user';
 import fsUtil from '../utils/fsUtil';
-import dashUtil from '../utils/dashUtil';
+import DashUtil from '../utils/dashUtil';
 
 class GitService {
   async getRemoteGitList (): Promise<GitList[]>{
@@ -50,17 +50,17 @@ class GitService {
     if (repoExist) { // 如果代码库已经clone到本地
       return repoDir
     } else { // 代码还没clone到本地
-      await dashUtil.exec(`git clone ${gitInfo.gitRepo}`, {
-        cwd: workDir
-      })
+      const dashUtil = new DashUtil(workDir)
+      await dashUtil.exec(`git clone ${gitInfo.gitRepo}`)
       const version = await gitDao.getVersionById(versionId)
+      await dashUtil.cd(`${gitInfo.name}`)
       switch (version.sourceType) {
         case 'branch':
         case 'commit':
-          await dashUtil.exec(`git checkout ${version.sourceValue}`, {cwd: repoDir})
+          await dashUtil.exec(`git checkout ${version.sourceValue}`)
           break;
         case 'tag':
-          await dashUtil.exec(`git checkout tags/${version.sourceValue}`, {cwd: repoDir})
+          await dashUtil.exec(`git checkout tags/${version.sourceValue}`)
           break;
       }
     }

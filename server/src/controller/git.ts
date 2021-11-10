@@ -7,7 +7,6 @@ import { DirNode } from '../types/common';
 import { IncomingForm } from 'formidable';
 import * as path from 'path';
 import logger from '../utils/logger';
-import { reverse } from 'lodash';
 const router = Router()
 
 router.get('/remotelist', (req: Request, res: Response, next: NextFunction) => {
