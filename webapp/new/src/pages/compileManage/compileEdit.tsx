@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 15:47:52
+ * @LastEditTime: 2021-11-11 10:59:59
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Modal, Radio, Select, Tabs } from 'antd'
@@ -85,11 +85,11 @@ class CompileEdit extends React.Component<Props, States> {
       console.log(data)
       var title = ""
       var subTitle = ""
-      if(this.state.compileGit.length == data.successGitNames.length){
-        title = `全部编译成功！`
+      if(data.result == 'success'){
+        title = `编译成功！`
       }else{
-        title = `${data.successGitNames.length} / ${this.state.compileGit.length} 编程成功`
-        subTitle = `编译成功项：${data.successGitNames.toString()}`
+        title = `编译失败`
+        // subTitle = `编译成功项：${data.successGitNames.toString()}`
       }
       var compileRes = {
         title,
@@ -120,11 +120,12 @@ class CompileEdit extends React.Component<Props, States> {
       type: "project/getProjectInfo",
       payload: id,
       callback: (data: ProjectInfo) => {
-        console.log(data)
+        const GitMap = {}
+        data.gitList.map( item => GitMap[item.name] = item.id )
         this.setState({
           projectId: id,
           publicType: data.publicType,
-          GitMap: data.gitList.map( item => { return { [item.name]: item.id }}),
+          GitMap,
           checkboxOptions: data.gitList.map( item => item.name)
         })
       }
@@ -182,7 +183,7 @@ class CompileEdit extends React.Component<Props, States> {
   }
 
   onClickCompile () {
-    const {compileGit, description, projectId, publicType} = this.state
+    const {compileGit,  description, projectId, publicType} = this.state
     if (!compileGit.length) {
       message.warning("未选择编译git")
       return
@@ -192,7 +193,7 @@ class CompileEdit extends React.Component<Props, States> {
       message.warning("信息描述不完整")
       return
     }
-
+    console.log(compileGit)
     const data = {
       userId: this.props.currentUser?.id,
       projectId,

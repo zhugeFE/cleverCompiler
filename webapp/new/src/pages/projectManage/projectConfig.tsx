@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 11:31:48
+ * @LastEditTime: 2021-11-12 11:35:18
  */
 
 import { TypeMode } from "@/models/common";
@@ -86,10 +86,9 @@ class ProjectConfig extends React.Component <Props, States> {
         width: 150,
         ellipsis: true,
         render: (record: TemplateConfig) => {
-          console.log(record.globalConfigId, this.props.globalConfigList )
           return (
-            'sdf'
-            // record.globalConfigId ? this.props.globalConfigList.filter(item => item.id == record.globalConfigId)[0].name : "-"
+            // record.globalConfigId ? 1 :2
+            record.globalConfigId ? this.props.globalConfigList.filter(item => item.id == record.globalConfigId)[0].name : "-"
           )
         }
       },

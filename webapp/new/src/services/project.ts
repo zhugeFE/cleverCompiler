@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:41:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 16:40:05
+ * @LastEditTime: 2021-11-11 16:01:53
  */
 import { CreateProjectParams, Project } from "@/models/project";
 import request from "@/utils/request";
@@ -33,8 +33,9 @@ class ProjectService {
     })
   }
 
-  async updateProject (data: Project) {
+  async updateProject (data: any) {
     return request(api.project.updateProject, {
+      requestType: 'form',
       method: "post",
       data
     })

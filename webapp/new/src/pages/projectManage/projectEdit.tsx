@@ -10,14 +10,14 @@ import { Button, Col, Input, message, Radio, Row, Select, Spin } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import React from 'react';
-import { TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersion, TemplateVersionGit } from "@/models/template"
+import { TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersionGit } from "@/models/template"
 import { Member, ProjectInfo, CreateProjectParams } from "@/models/project"
 import { IRouteComponentProps } from '@umijs/renderer-react';
 import { withRouter } from 'react-router';
 import { connect } from 'dva';
 import { Customer } from "@/models/customer";
 import styles from './styles/projectEdit.less';
-import { compileType, publicType, TypeMode } from '@/models/common';
+import { compileType, EditMode, publicType, TypeMode } from '@/models/common';
 import ProjectGlobalConfig from './projectGlobalConfig';
 import ProjectConfig from './projectConfig';
 import { ConnectState } from '@/models/connect';
@@ -31,14 +31,15 @@ export interface Props extends IRouteComponentProps<{id: string;}>{
 
 
 interface States {
+  mode: EditMode;
   name: string;
   description: string;
-  shareNumber: string[];
+  shareMember: string[];
   templateId: string;
   templateVersionId: string;
   compileType: number;
   publicType: number;
-  gitList: TemplateVersionGit[] | null;
+  gitList:  TemplateVersionGit[] | null;
   globalConfigList: TemplateGlobalConfig[] | null,
   showLoading: boolean;
   customer: string;
@@ -51,10 +52,11 @@ class ProjectEdit extends React.Component<Props, States> {
   constructor(prop: Props){
     super(prop)
     this.state = {
+      mode: EditMode.create,
       showLoading: false,
       name: "",
       description: "",
-      shareNumber: [],
+      shareMember: [],
       templateId: "",
       templateVersionId: "",
       compileType: 0,
@@ -80,14 +82,18 @@ class ProjectEdit extends React.Component<Props, States> {
 
   async componentDidMount () {
     const id = this.props.match.params.id
+    this.getBaseData()
+
     if( id !== 'addProject') {
       this.setState({
-        showLoading: true
+        showLoading: true,
+        mode: EditMode.update
       })
       this.props.dispatch({
         type: "project/getProjectInfo",
         payload: id,
         callback: (data: ProjectInfo) => {
+          
           this.setState({
             projectInfo: data,
             name: data.name,
@@ -98,15 +104,16 @@ class ProjectEdit extends React.Component<Props, States> {
             templateId: data.templateId,
             templateVersionId: data.templateVersion,
             gitList: data.gitList,
-            globalConfigList: data.globalConfigList
+            shareMember: JSON.parse(data.shareMember),
+            globalConfigList: data.globalConfigList,
           })
-          this.onTemplateSelectChange(data.templateId)
+          this.getTemplateInfo(data.templateId)
+          // this.onTemplateSelectChange(data.templateId)
           
         }
       })
     }
 
-    this.getBaseData()
     
   }
 
@@ -140,21 +147,35 @@ class ProjectEdit extends React.Component<Props, States> {
 
   onShareSelectChange(value: string[]) {
     this.setState({
-      shareNumber: value
+      shareMember: value
     })
   } 
+
+  getTemplateInfo (id: string) {
+    this.props.dispatch({
+      type: "template/getInfo",
+      payload: id,
+      callback: (data: TemplateInfo) => {
+        this.setState({
+          templateInfo: data,
+          showLoading: false
+        })
+      }
+    })
+  }
 
   onTemplateSelectChange(id: string) {
     this.props.dispatch({
       type: "template/getInfo",
       payload: id,
       callback: (data: TemplateInfo) => {
-        this.onTemplateVersionSelectChange(data.versionList[0].id)
         this.setState({
           templateInfo: data,
           templateId: id,
           showLoading: false
         })
+        this.onTemplateVersionSelectChange(data.versionList[0].id)
+
       }
     })
   }
@@ -183,7 +204,72 @@ class ProjectEdit extends React.Component<Props, States> {
   }
 
   onClickSave () {
-    const { name, templateId, templateVersionId,compileType, gitList, globalConfigList, publicType, shareNumber, description, customer} = this.state
+    
+    if (this.state.mode == EditMode.create) {
+      this.createProejct()
+    } else {
+      this.updateProject(this.props.match.params.id)
+    }
+  }
+
+  onClickCancel () {
+    location.reload()
+  }
+
+  updateProject (projectId: string) {
+    const { description, templateId, publicType, templateVersionId, globalConfigList, gitList, shareMember } = this.state
+    
+    const form = new FormData()
+
+    // shareMember 是否发生改变
+    // description 是否发生改变
+
+    // 全局配置内容
+    globalConfigList?.forEach(item => {
+      if(item.file) {
+        const uid = item.file['file']['uid']
+        const originalFilename = item.file['file']['name']
+        const newFileName = `${uid}.${originalFilename.split('.')[1]}`
+        item.targetValue = JSON.stringify({newFilename: newFileName, originalFilename: originalFilename})
+        form.append(newFileName, item.file['file'])
+        delete item.file
+      }
+    })
+
+    // git 内容
+    gitList?.forEach (git => {
+      git.configList.forEach( config => {
+        if (config.file) {
+          const uid = config.file['file']['uid']
+          const originalFilename = config.file['file']['name']
+          const newFileName = `${uid}.${originalFilename.split('.')[1]}`
+          config.targetValue = JSON.stringify({newFilename: newFileName , originalFilename: originalFilename})
+          form.append(newFileName, config.file['file'])
+          delete config.file
+        }
+      })
+    })
+    form.append("id", projectId)
+    form.append('templateId', templateId)
+    form.append('templateVersionId', templateVersionId)
+    form.append("gitList", JSON.stringify(gitList))
+    form.append("publicType", String(publicType))
+    form.append('shareMember', JSON.stringify(shareMember))
+    form.append('description', description)
+    form.append('globalConfigList', JSON.stringify(globalConfigList))
+
+    this.props.dispatch( {
+      type: "project/updateProject",
+      payload: form,
+      callback: () => {
+        
+      }
+    })
+  
+  }
+
+  createProejct () {
+    const { name, templateId, templateVersionId,compileType, gitList, globalConfigList, publicType, shareMember, description, customer} = this.state
     
     if ( !name || !description || !customer || !templateId || !templateVersionId) {
       message.error("数据填写不完整")
@@ -192,20 +278,6 @@ class ProjectEdit extends React.Component<Props, States> {
     if ( String(compileType) == "") {
       message.error("编译类型未选择")
     }
-  
-    const data = {
-      name: name,
-      templateId: templateId,
-      templateVersionId: templateVersionId,
-      compileType: compileType,
-      publicType: publicType,
-      configList: globalConfigList,
-      gitList: gitList,
-      shareNumber: shareNumber,
-      description: description,
-      customer: customer
-    } as CreateProjectParams
-    console.log(data)
 
     const form = new FormData()
 
@@ -240,15 +312,17 @@ class ProjectEdit extends React.Component<Props, States> {
     form.append('publicType', String(publicType))
     form.append('configList', JSON.stringify(globalConfigList))
     form.append('gitList', JSON.stringify(gitList))
-    form.append('shareNumber', JSON.stringify(shareNumber))
+    form.append('shareMember', JSON.stringify(shareMember))
     form.append('description', description)
     form.append('customer', customer)
 
     this.props.dispatch({
       type:"project/addProject",
       payload: form,
-      callback: ()=>{
-        
+      callback: (data: ProjectInfo)=>{
+        // this.props.match.params.id = data.id
+        this.props.history.replace(`/compile/project/edit/${data.id}`)
+
       }
     })
   }
@@ -258,7 +332,6 @@ class ProjectEdit extends React.Component<Props, States> {
      * 名称 描述 改变 触发 state
      */
     const target = e.target
-    console.log(target.dataset.type)
     switch ( target.dataset.type ) {
       case "name": {
         this.setState({
@@ -309,6 +382,7 @@ class ProjectEdit extends React.Component<Props, States> {
       gitList
     })
   }
+
   render() {
     
     if (this.state.showLoading ) {
@@ -336,7 +410,8 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={wrapperCol} className={styles.colFlex}> 
               <Input 
                 placeholder="请输入名称"
-                style={{width: 300}} onChange={this.onChangeEdit} data-type="name" value={this.state.projectInfo?.name}></Input>
+                disabled={this.state.mode == EditMode.update}
+                style={{width: 300}} onChange={this.onChangeEdit} data-type="name" defaultValue={this.state.name}></Input>
             </Col>
           </Row>
 
@@ -347,6 +422,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.customer}
                 placeholder="请选择"
                 style={{ width: 200 }}
+                disabled={this.state.mode == EditMode.update}
                 onChange={this.onCustomerSelectChange}
               >
                 {
@@ -365,6 +441,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.compileType}
                 placeholder="请选择"
                 style={{width: 200}}
+                disabled={this.state.mode == EditMode.update}
                 onChange={this.onCompileTypeSelectChange}
               >
                 {
@@ -394,7 +471,7 @@ class ProjectEdit extends React.Component<Props, States> {
               {
                 this.state.templateVersionId && 
                 <Select
-                  value={this.state.templateVersionId}
+                  defaultValue={this.state.templateVersionId}
                   style={{width: 200}}
                   onChange={this.onTemplateVersionSelectChange}
                 >
@@ -451,9 +528,8 @@ class ProjectEdit extends React.Component<Props, States> {
                 showSearch
                 style={{ width: 200 }}
                 placeholder="请选择"
-                defaultValue={this.state.shareNumber}
+                defaultValue={this.state.shareMember.length > 0 ? this.state.shareMember : undefined }
                 optionFilterProp="children"
-                // defaultValue={JSON.parse(this.state.projectInfo!.shareNumber)}
                 onChange={this.onShareSelectChange}
                 filterOption={(input, option) =>
                   option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -480,7 +556,7 @@ class ProjectEdit extends React.Component<Props, States> {
 
           <Row className={styles.rowMargin}>
             <Button type="primary" onClick={this.onClickSave}>保存</Button>
-            <Button>取消</Button>
+            <Button style={{marginLeft:5}} onClick={this.onClickCancel}>取消</Button>
           </Row>
 
          

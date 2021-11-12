@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 15:55:12
+ * @LastEditTime: 2021-11-11 10:36:31
  */
 import { TemplateGlobalConfig } from "@/models/template";
 import { ColumnProps  } from "antd/lib/table";
@@ -51,7 +51,6 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
       if ( globalConfig.type == TypeMode.file) {
         globalConfig.file = data.file
       }
-      console.log(globalConfig)
       this.onCancelConfig()
       this.props.onUpdateConfig(globalConfig)
     }

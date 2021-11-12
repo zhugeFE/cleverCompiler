@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 15:52:46
+ * @LastEditTime: 2021-11-12 13:53:19
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -95,16 +95,16 @@ class ProjectList extends React.Component<Props, States> {
   }
 
 
-  //删除配置列表
-  onClickDel (project: ProjectInstance) {
-    this.props.dispatch({
-      type: 'project/delProjectInfo',
-      payload: project.id,
-      callback: () => {
-        //删除之后props里修改
-      }
-    })
-  }
+  // //删除配置列表
+  // onClickDel (project: ProjectInstance) {
+  //   this.props.dispatch({
+  //     type: 'project/delProjectInfo',
+  //     payload: project.id,
+  //     callback: () => {
+  //       //删除之后props里修改
+  //     }
+  //   })
+  // }
 
 
 
@@ -193,11 +193,6 @@ class ProjectList extends React.Component<Props, States> {
                 type="primary" 
                 style={{marginRight: 5}}
                 onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
-              <Button 
-                type="primary"
-                danger 
-                style={{marginRight: 5}} 
-                onClick={this.onClickDel.bind(this, record)}>删除</Button>
             </div>
           );
         },
