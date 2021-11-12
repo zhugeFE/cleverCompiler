@@ -4,12 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:13:39
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 10:43:01
+ * @LastEditTime: 2021-11-12 16:47:42
  */
 import projectDao from "../dao/project";
-import { CreateProjectParams, ProjectType, ProjectInfo, ProjectInstance } from "../types/project";
+import { CreateProjectParams, ProjectType, ProjectInfo, ProjectInstance, UpdateProjectParams } from "../types/project";
 import { Member } from "../types/user";
 import userDao from "../dao/user";
+import { CompileGitParams } from "../types/git";
 
 class Project {
 
@@ -29,7 +30,7 @@ class Project {
   }
   
   //更新项目
-  async updateProject(data: ProjectType): Promise<void>{
+  async updateProject(data: UpdateProjectParams): Promise<void>{
     await projectDao.updateProject(data)
   }
 
@@ -37,7 +38,9 @@ class Project {
   async projectInfo(id: string): Promise<ProjectInfo>{
     return await projectDao.getProjectInfo(id)
   }
-
+  async getCompileGitData (gitIds: string[]): Promise<CompileGitParams[]> {
+    return await projectDao.getCompileGitData(gitIds)
+  }
 }
 
 export default new Project()

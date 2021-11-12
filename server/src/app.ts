@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 23:57:51
+ * @LastEditTime: 2021-11-12 16:48:31
  */
 import { CompileConfig } from './types/compile';
 import * as express from 'express'
@@ -28,11 +28,10 @@ import * as cookieParser from 'cookie-parser';
 import * as ConnectRedis from 'connect-redis';
 import redisClient from './utils/redis';
 import { ProjectInfo } from './types/project'
-import GitService from "./service/git"
 import CompileDao from './dao/compile';
 import { ProjectCompile, CompileParam } from './types/compile';
-import WorkFlowUtil from './utils/workFlowUtil';
 import util from './utils/util';
+import { CompileGitParams } from './types/git';
 ( async (): Promise<void> => {
 
   const app = express() 
@@ -87,29 +86,45 @@ import util from './utils/util';
 
     socket.on("startCompile", async (ctx) => {
       
-      /**
-       * 1. 遍历git项目
-       * //2. 判断用户是否有权限操作git项目
-       * 2. 查询出git里config配置属性
-       * 3. 查询出git 仓库地址  版本值  
-       * 4. 线程锁/顺序 调用start
-       */
+     
       const compileInfo: ProjectInfo = await ProjectService.projectInfo(ctx.projectId)
+      const compileInfoBack = compileInfo
+      const GitInfo: CompileGitParams[] = await ProjectService.getCompileGitData(ctx['gitIds'])
+
       const publicType = ctx.publicType //发布类型
       const CompileList: CompileConfig[] = []
-      await Promise.all(compileInfo.gitList.map(async item => {
-        const info = await GitService.getCompileParams(item.gitSourceVersionId)
-        CompileList.push( {
+      
+
+      const GlobalConfigMap = {}
+      compileInfo.globalConfigList.map( item => GlobalConfigMap[item.id] = item.targetValue)
+
+
+      compileInfo.gitList.map(git => {
+        git.configList.map( config => {
+          if (config.globalConfigId) {
+            config.targetValue = GlobalConfigMap[config.globalConfigId]
+          }
+        })
+      })
+
+
+      GitInfo.map ( git => {
+        CompileList.push({
           userId: ctx.userId,
-          gitName: item.name,
-          configList: item.configList,
+          gitName: git.name,
+          gitSsh: git.ssh,
+          gitValue: git.gitValue,
+          gitType: git.gitType,
+          compileOrders: JSON.parse(git.compileOrders),
+          configList: compileInfo.gitList.filter(item => item.id == git.id)[0].configList,
           compileType: compileInfo.compileType,
           templateId: compileInfo.templateId,
-          templateVersionId: compileInfo.templateVersion,
-          ... info
-        } )
+          templateVersionId: compileInfo.templateVersion
 
-      }))
+        })
+      })
+
+ 
       const compileInstance: ProjectCompile = await CompileDao.addProjectCompile({
         compileUser: ctx.userId, //编译者id
         compileResult: "开始编译", //编译结果
@@ -118,23 +133,39 @@ import util from './utils/util';
       } as CompileParam)
 
       const workDir = path.resolve(config.compileDir, ctx.userId)
+
       const GitNameList = CompileList.map( item => item.gitName)
       
-      Promise.all( CompileList.map( item => new Compile(workDir).start( socket, item, publicType)))
+      Promise.all( CompileList.map( item => new Compile(workDir).start( socket, item)))
         .then( async () => {
         const fileName = util.createFileName(ctx.userId)
-        await new WorkFlowUtil(workDir).tarAndOutput(socket, fileName, GitNameList, publicType)
+
+
+
+        //传入 publicDoc， buildDoc， updateDoc
+
+
+
+        // await new WorkFlowUtil(workDir).tarAndOutput(socket, fileName, GitNameList, publicType)
         compileInstance.file = fileName
+        compileInstance.compileResult = "成功"
+        compileInstance.config = JSON.stringify(compileInfoBack)
+
+        // projectinfo 保存到数据库
+
+
         socket.emit({'result': 'success'})
       })
       .catch ( err => {
         logger.info(err)
-        socket.emit({result: err})
+        compileInstance.compileResult = "失败"
+        socket.emit({"result": err})
       })
+      
      
 
       // compileInstance.compileResult = result === CompileList.length ? "全部成功" : `成功： ${result} ， 失败： ${CompileList.length - result}`
-      // CompileDao.updateProjectCompile(compileInstance)
+      CompileDao.updateProjectCompile(compileInstance)
 
     })
 

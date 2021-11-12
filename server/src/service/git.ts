@@ -5,10 +5,10 @@ import { GitList, UpdateGitStatus, UpdateConfigParam } from './../types/git';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-11 00:00:03
+ * @LastEditTime: 2021-11-12 16:45:15
  */
 import gitDao from '../dao/git'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig, CompileParams } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
 import { DirNode } from '../types/common';
 import * as path from 'path'
 import config from '../config';
@@ -88,9 +88,6 @@ class GitService {
   }
   async deleteVersion (id: string): Promise<void> {
     await gitDao.deleteVersion(id)
-  }
-  async getCompileParams (id: string): Promise<CompileParams> {
-    return await gitDao.getCompileParams(id)
   }
   async updateConfig (config: UpdateConfigParam ): Promise<GitConfig>{
     return await gitDao.updateConfg(config)

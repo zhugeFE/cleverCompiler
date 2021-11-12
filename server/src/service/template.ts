@@ -1,4 +1,4 @@
-import { CreateTemplateConfig, UpdateTemplateGlobalConfig } from './../types/template';
+import { UpdateTemplateGlobalConfig } from './../types/template';
 /*
  * @Descripttion: 
  * @version: 

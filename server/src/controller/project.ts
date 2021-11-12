@@ -9,7 +9,7 @@ import { IncomingForm } from 'formidable';
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 import ProjectService from "../service/project"
 import CompileService from "../service/compile"
-import { CreateProjectParams, ProjectInfo, ProjectInstance, ProjectType } from '../types/project'
+import { CreateProjectParams, ProjectInfo, ProjectInstance, ProjectType, UpdateProjectParams } from '../types/project'
 import { Member } from '../types/user'
 import logger from '../utils/logger'
 import * as path from 'path'
@@ -90,16 +90,59 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
 
 //项目更新
 router.post('/update', (req: Request, res: Response, next: NextFunction) => {
-  const project = req.body as ProjectType
-  if( !project.id ){
-    res.json(new ApiResult(ResponseStatus.fail, null , "项目id不能为空!"))
-    return
-  }
-  ProjectService.updateProject(project)
-  .then(() => {
-    res.json(new ApiResult(ResponseStatus.success))
-  })
-  .catch(next)
+
+  const saveFilePath = path.resolve(__dirname, '../../file')
+
+  const form = new IncomingForm({keepExtensions: true, uploadDir:saveFilePath})
+
+  const projectInfo = {}
+
+  form.parse( req, (err, fields, file) => {
+
+    if (err) {
+      res.json(new ApiResult(ResponseStatus.fail,err))
+      return
+    }
+
+    Object.keys(fields).map(  key => {
+      if (key == 'globalConfigList') {
+        projectInfo[key] = []
+        const configList = JSON.parse(fields[key] as string)
+
+        configList.map( config => {
+          
+          projectInfo[key].push(config)
+        })
+      }
+      else if ( key == 'gitList') {
+        projectInfo[key] = []
+        const gitList = JSON.parse(fields[key] as string)
+        gitList.map( git => {
+          projectInfo[key].push(git)
+        }) 
+      }
+      else {
+        projectInfo[key] = fields[key]
+
+      }      
+
+    })
+
+
+    Object.keys(file).map( async name=> {
+      const newname = file[name]['newFilename'] 
+      const oldPath = path.resolve(saveFilePath, newname)
+      const newPath = path.resolve(saveFilePath, name)
+      await fsUtil.rename(oldPath, newPath)
+    })
+    
+    
+    ProjectService.updateProject(projectInfo as UpdateProjectParams)
+    .then(() => {
+      res.json(new ApiResult(ResponseStatus.success))
+    })
+    .catch(next)
+  }) 
 })
 
 //项目信息

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-10 22:13:24
+ * @LastEditTime: 2021-11-12 16:36:25
  */
 export enum VersionStatus {
   deprecated = 0, // 已废弃
@@ -25,4 +25,9 @@ export interface DirNode {
   fileType?: string;
   isDirectory: boolean;
   children: DirNode[];
+}
+
+export enum TypeMode {
+  text= 0,
+  fiel= 1
 }

@@ -4,10 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 23:15:03
+ * @LastEditTime: 2021-11-12 16:47:14
  */
 import * as fs from 'fs'
-import { reject } from 'lodash';
 import * as pt from 'path'
 import { DirNode } from '../types/common';
 import logger from './logger';
@@ -28,22 +27,29 @@ class FsUtil {
     }
   }
 
-  rename (oldpath: string, newpath: string): Promise<NodeJS.ErrnoException> {
-    return new Promise( (resolve) => {
+  rename (oldpath: string, newpath: string): Promise<void> {
+    return new Promise( (resolve, reject) => {
       logger.info(`${oldpath} ${newpath}`)
       fs.rename(oldpath, newpath, (err) => {
-        resolve(err)
+        if (err){
+          reject(err)
+        } else {
+          resolve()
+        }
       })
     })
   }
 
 
-  pathExist (path: string): Promise<NodeJS.ErrnoException> {
+  async pathExist (path: string): Promise<boolean> {
     return new Promise((resolve) => {
       fs.stat(path, (err) => {
         if (err) {
-          resolve(err)
-        } 
+          logger.info(err)
+          resolve(false)
+        } else {
+          resolve(true)
+        }
       })
     })
   }
@@ -120,6 +126,18 @@ class FsUtil {
   }
   async getFileContent (filePath: string): Promise<string> {
     return await this.readFile(filePath)
+  }
+
+  async copyFile (src: string, dest: string): Promise<boolean> {
+    return new Promise( (resolve) => {
+      fs.copyFile(src, dest, (err) => {
+        if (err){
+          resolve (false)
+        } else {
+          resolve (true)
+        }
+      })
+    })
   }
 }
 export default new FsUtil()

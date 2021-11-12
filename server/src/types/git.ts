@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 17:45:06
+ * @LastEditTime: 2021-11-12 16:28:58
  */
 import { Version } from './common';
 
@@ -99,12 +99,14 @@ export interface GitVersion extends Version{
 }
 
 
-export interface CompileParams {
-  readmeDoc: string;
-  buildDoc: string;
-  updateDoc: string;
-  compileOrders: string;
-  gitType: string;
+export interface CompileGitParams {
+  id: string;
+  name: string;
+  ssh: string;
   gitValue: string;
-  gitSsh: string;
+  gitType: string;
+  compileOrders: string;
+  readmeDoc: string;
+  updateDoc: string;
+  buildDoc: string;
 }

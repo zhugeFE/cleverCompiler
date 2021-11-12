@@ -1,11 +1,10 @@
-import { reject } from 'lodash';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-23 16:56:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 23:24:05
+ * @LastEditTime: 2021-11-12 16:46:43
  */
 import WorkFlowUtil from './workFlowUtil';
 import logger from './logger';
@@ -21,7 +20,7 @@ class Socket {
     this.workdir = workdir
   }
 
-  async start(socket, requestData: CompileConfig, publicType: number): Promise<void> {
+  async start(socket, requestData: CompileConfig): Promise<void> {
     // if (!session || !session.user) 
     //   return
     // }

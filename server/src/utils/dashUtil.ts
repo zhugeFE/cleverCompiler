@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 23:25:50
+ * @LastEditTime: 2021-11-12 16:47:09
  */
 import * as childProcess from 'child_process'
 import * as _ from 'lodash';
@@ -18,19 +18,15 @@ class DashUtil {
     this.workdir = workdir
   }
 
-  cd (originPath: string): Promise <NodeJS.ErrnoException> {
-    return new Promise( (resolve) => {
-      logger.info( `exec command: cd`)
-      const dir = path.resolve(this.workdir, originPath)
-      fsUtil.pathExist(dir)
-      .then( (err: NodeJS.ErrnoException) => {
-        if (err) {
-          resolve(err)
-        } else {
-          this.workdir = dir
-        }
-      } )
-    })
+  async cd (originPath: string): Promise <boolean> {
+    logger.info( `exec command: cd`)
+    const dir = path.resolve(this.workdir, originPath)
+    if ( await fsUtil.pathExist(dir) ) {
+      this.workdir = dir
+      return true
+    } else {
+      return false
+    }
   }
   exec (command: string, options: childProcess.ExecOptions={cwd: this.workdir}, onData?: (data: string) => void): Promise<string> {
     return new Promise((resolve, reject) => {

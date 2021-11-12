@@ -5,7 +5,7 @@ import { TemplateConfig } from './../types/template';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 19:07:19
+ * @LastEditTime: 2021-11-12 16:45:44
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
@@ -22,7 +22,6 @@ import {
 import logger from '../utils/logger'
 import * as path from "path"
 import { IncomingForm } from "formidable"
-import { array } from '@hapi/joi';
 const router = Router()
 
 router.get('/list', (req: Request, res: Response, next: NextFunction) => {

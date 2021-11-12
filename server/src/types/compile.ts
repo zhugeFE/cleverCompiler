@@ -5,7 +5,7 @@ import { TemplateConfig } from './template';
  * @Author: Adxiong
  * @Date: 2021-08-23 16:55:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 17:59:33
+ * @LastEditTime: 2021-11-12 16:41:15
  */
 
 
@@ -21,6 +21,7 @@ export interface ProjectCompile {
   projectDesc: string; //项目描述
   cusName: string; // 客户名称
   file: string; //文件位置
+  config: string;
 }
 
 export interface CompileParam {

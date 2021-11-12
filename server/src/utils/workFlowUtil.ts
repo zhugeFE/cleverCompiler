@@ -1,10 +1,11 @@
+import { TypeMode } from './../types/common';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 23:41:48
+ * @LastEditTime: 2021-11-12 16:44:25
  */
 
 import * as fs from 'fs';
@@ -12,8 +13,8 @@ import * as path from 'path';
 import DashUtil from './dashUtil';
 import FsUtil from './fsUtil';
 import logger from './logger';
-import dashUtil from './dashUtil';
 import SocketLogge from './socketLogger';
+import fsUtil from './fsUtil';
 
 class WorkFlow {
 
@@ -28,13 +29,14 @@ class WorkFlow {
      * 初始化目录 并返回目录
      */
     SocketLogge(socket, gitName, `Step: 初始化用户根目录 ${this.workDir}`)
-    await FsUtil.pathExist(this.workDir).then( async (result) => {
-      if (!result) {
-        SocketLogge(socket, gitName, `Step: 创建用户根目录 ${this.workDir}`)
-        await FsUtil.mkdir(this.workDir)
-      }
-    })
-    SocketLogge(socket, gitName, `Step: 初始化工作目录 执行完毕！`)
+    const err = await FsUtil.pathExist(this.workDir)
+    logger.info(err)
+    if (err) {
+      SocketLogge(socket, gitName, `Step: 创建用户根目录 ${this.workDir}`)
+      await FsUtil.mkdir(this.workDir)
+    } else {
+      SocketLogge(socket, gitName, `Step: 初始化工作目录 执行完毕！`)
+    }
   }
   
 
@@ -112,21 +114,37 @@ class WorkFlow {
     const srcRepoDir = path.join(this.workDir, gitName)
     SocketLogge(socket, gitName, `Step: 开始执行定制文件修改动作`)
     for (const item of configList){
-      // if (item.isHidden) { return } //隐藏配置不做编辑
       fileDir = path.join(srcRepoDir, item.filePath)
       SocketLogge(socket, gitName, `Step: 开始定制修改文件 =》 ${item.filePath}`)
-      text = fs.readFileSync(fileDir, 'utf-8')
-      regex = JSON.parse(item.reg)
-      regModifiers = regex.global ? "g" : "" + regex.ignoreCase ? "i" : ""
-      Reg = new RegExp(regex.source , regModifiers)
 
-      if(!Reg.test(text)) {
-        SocketLogge(socket, gitName, `error 匹配失败：${item.file} => ${Reg}`)
-        return Promise.reject()
+      logger.info(item)
+
+      if (item.typeId == TypeMode.text) {
+        text = fs.readFileSync(fileDir, 'utf-8')
+        regex = JSON.parse(item.reg)
+        regModifiers = regex.global ? "g" : "" + regex.ignoreCase ? "i" : ""
+        Reg = new RegExp(regex.source , regModifiers)
+  
+        if(!Reg.test(text)) {
+          SocketLogge(socket, gitName, `error 匹配失败：${item.filePath} => ${Reg}`)
+          return Promise.reject()
+        }
+        SocketLogge(socket, gitName, `Step: 执行文字替换 ${Reg} => ${item.realValue}`)
+        text = text.replace(Reg, item.realValue)
+        fs.writeFileSync(fileDir, text, 'utf8')
       }
-      SocketLogge(socket, gitName, `Step: 执行文字替换 ${Reg} => ${item.realValue}`)
-      text = text.replace(Reg, item.realValue)
-      fs.writeFileSync(fileDir, text, 'utf8')
+      else if (item.typeId == TypeMode.fiel) {
+        const newAddr = path.resolve(srcRepoDir, JSON.parse(item.targetValue)['newFilename'])
+        fsUtil.copyFile(newAddr,fileDir)
+        .then( err => {
+          if (err) {
+            SocketLogge(socket, gitName, `Step: 文件替换失败 执行完毕`)
+            throw(err)
+          }
+        })
+
+      }
+     
     }
     SocketLogge(socket, gitName, `Step: 定制文件修改 执行完毕`)
     

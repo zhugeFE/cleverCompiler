@@ -3,13 +3,12 @@ import { GitList, UpdateGitStatus } from './../types/git';
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig, CompileParams } from '../types/git';
+import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
 import { VersionStatus } from '../types/common';
 import gitUtil from '../utils/gitUtil';
 import * as _ from 'lodash';
-import { string, version } from '@hapi/joi';
 interface Repo {
   id: string;
   name: string;
@@ -359,27 +358,6 @@ class GitDao {
       pool.rollback(conn)
       throw e
     }
-  }
-  async getCompileParams (id: string): Promise<CompileParams> {
-    /**
-     * id: gitSourceVersionId
-     * 编译时，需要获取git的源地址，版本类型，值，编译命令等
-     */
-    const sql = `SELECT
-      v.readme_doc AS readme_doc,
-      v.build_doc AS build_doc,
-      v.update_doc AS update_doc,
-      v.compile_orders AS compile_orders,
-      v.source_type AS git_type,
-      v.source_value AS git_value,
-      g.git as gitSsh
-    FROM
-      source_version AS v
-      LEFT JOIN git_source AS g ON g.id = v.source_id 
-    WHERE
-      v.id = ?`
-    const data = await pool.query<CompileParams>(sql, [id])
-    return data[0]
   }
 
   async updateConfg(config: UpdateConfigParam): Promise<GitConfig> {

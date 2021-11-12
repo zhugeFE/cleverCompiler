@@ -1,4 +1,3 @@
-import { version } from '@hapi/joi';
 import { Version } from "./common";
 
 /*
@@ -7,7 +6,7 @@ import { Version } from "./common";
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 16:43:27
+ * @LastEditTime: 2021-11-12 14:06:33
  */
 
 export interface TemplateInstance {
@@ -67,6 +66,7 @@ export interface CreateTemplateVersionGitParams {
 
 export interface TemplateVersionGit {
   id: string; //id
+  pid: string;
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
   gitSourceId: string; //git来源id
@@ -94,7 +94,6 @@ export interface TemplateConfig extends CreateTemplateConfig {
   filePath: string; // 原始文件路径
   description: string; // 描述信息
   globalConfigId: string; //全局配置id
-
 }
 
 
