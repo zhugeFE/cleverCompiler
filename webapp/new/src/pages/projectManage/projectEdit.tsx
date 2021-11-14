@@ -464,7 +464,10 @@ class ProjectEdit extends React.Component<Props, States> {
               >
                 {
                   this.props.templateList?.map( item => {
-                    return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                    return <Select.Option key={item.id} value={item.id}>
+                      {item.name}
+                      <div className={styles.versionDesc}>{item.description}</div>
+                    </Select.Option>
                   })
                 }
               </Select>
@@ -477,7 +480,10 @@ class ProjectEdit extends React.Component<Props, States> {
                 >
                   {
                     this.state.templateInfo?.versionList.map( item => {
-                      return <Select.Option key={item.id} value={item.id}> {item.version} </Select.Option>
+                      return <Select.Option key={item.id} value={item.id}> 
+                        {item.version}
+                        <div className={styles.versionDesc}>{item.description}</div>
+                      </Select.Option>
                     })
                   }
                 </Select>

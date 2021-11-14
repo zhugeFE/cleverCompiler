@@ -18,7 +18,7 @@ import {
 import { GitInfo, GitInstance } from '@/models/git';
 import { ConnectState } from '@/models/connect';
 import { VersionStatus, VersionType } from '@/models/common';
-
+import styles from './styles/addGitSource.less'
 const { Option } = Select;
 interface FormData {
   gitId: string;
@@ -153,6 +153,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
                     item.status === VersionStatus.placeOnFile &&
                     <Option value={item.id} key={item.id} title={item.name}>
                       {item.name}
+                      <div className={styles.versionDesc}>{item.description}</div>
                     </Option>
                   ))}
                 </Select>

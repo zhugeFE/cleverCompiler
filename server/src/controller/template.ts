@@ -29,12 +29,7 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   .then((templateList: TemplateInstance[]) => {
     res.json(new ApiResult(ResponseStatus.success, templateList))
   })
-  .catch( (err) => {
-    // const err = new Error()
-    // err.message = '获取template列表失败'
-    logger.info(err)
-    next
-  })
+  .catch(next)
 })
 
 router.get('/version/list', (req: Request, res: Response, next: NextFunction) => {
@@ -42,10 +37,7 @@ router.get('/version/list', (req: Request, res: Response, next: NextFunction) =>
   .then((data: TemplateInfo[]) => {
     res.json( new ApiResult( ResponseStatus.success, data))
   })
-  .catch( err => {
-    logger.info(err)
-    next
-  })
+  .catch(next)
 })
 
 router.post('/status', (req: Request, res: Response, next: NextFunction) => {
@@ -64,11 +56,7 @@ router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
     } else {
       res.json(new ApiResult(ResponseStatus.success, templateInfo))
     }
-  }).catch(() => {
-    const err = new Error()
-    err.message = '获取template详情失败'
-    next(err)
-  })
+  }).catch(next)
 })
 
 router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
@@ -222,7 +210,7 @@ router.post('/globalconfig/add', (req: Request, res: Response , next: NextFuncti
       res.json(new ApiResult(ResponseStatus.success, config))
     })
     .catch(next)
-    })
+  })
 })
 
 router.post('/globalconfig/status/update', (req: Request, res: Response, next: NextFunction) => {
@@ -277,8 +265,5 @@ router.delete('/info', (req: Request, res: Response, next: NextFunction) => {
   })
   .catch(next)
 })
-
-
-
 
 export default router

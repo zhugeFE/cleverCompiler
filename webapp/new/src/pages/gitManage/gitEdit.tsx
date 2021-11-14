@@ -411,7 +411,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
               <div className={styles.gitDetail}>
                 <Description label="项目名称" labelWidth={labelWidth}>
                   {this.state.gitInfo.name} 
-                  <Tooltip title={`${this.state.currentVersion?.sourceType}: ${this.state.currentVersion?.sourceValue}`} placement="bottom">
+                  <Tooltip title={this.state.currentVersion?.description} placement="bottom">
                     <Tag color="#87d068" style={{marginLeft: '5px'}}>v:{this.state.currentVersion?.name}</Tag>
                   </Tooltip>
                   <Tooltip title="版本发布时间">

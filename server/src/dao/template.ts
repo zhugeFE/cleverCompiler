@@ -52,12 +52,21 @@ class TemplateDao {
     FROM
       template AS a
     LEFT JOIN ( 
-      SELECT 
-        id,
-        template_id, 
-        max( version ) AS version
-      FROM template_version 
-      GROUP BY template_id ) AS b 
+      SELECT
+        a.*,
+        tv.version,
+        tv.id 
+      FROM
+        (
+          SELECT
+            template_id,
+            max( publish_time ) 
+          FROM
+            template_version 
+          GROUP BY
+            template_id
+        ) AS a
+        LEFT JOIN template_version AS tv ON tv.template_id = a.template_id ) AS b 
     ON a.id = b.template_id`
     return await pool.query<TemplateInstance>(sql)
   }
