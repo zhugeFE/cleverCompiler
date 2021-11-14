@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:47:09
+ * @LastEditTime: 2021-11-13 22:52:12
  */
 import * as childProcess from 'child_process'
 import * as _ from 'lodash';
@@ -18,15 +18,20 @@ class DashUtil {
     this.workdir = workdir
   }
 
-  async cd (originPath: string): Promise <boolean> {
-    logger.info( `exec command: cd`)
-    const dir = path.resolve(this.workdir, originPath)
-    if ( await fsUtil.pathExist(dir) ) {
-      this.workdir = dir
-      return true
-    } else {
-      return false
-    }
+  async cd (originPath: string): Promise <void> {
+    return new Promise( (resolve, reject) => {
+      const dir = path.resolve(this.workdir, originPath)
+      logger.info(`检测 ${dir} 路径是否存在`)
+      fsUtil.pathExist(dir)
+      .then( () => {
+        logger.info(`路径 ${dir}  存在`)
+        this.workdir = dir
+        resolve()
+      })
+      .catch (err => {
+        reject(err)
+      })
+    })
   }
   exec (command: string, options: childProcess.ExecOptions={cwd: this.workdir}, onData?: (data: string) => void): Promise<string> {
     return new Promise((resolve, reject) => {

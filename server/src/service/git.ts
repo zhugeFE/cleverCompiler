@@ -5,7 +5,7 @@ import { GitList, UpdateGitStatus, UpdateConfigParam } from './../types/git';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:45:15
+ * @LastEditTime: 2021-11-13 22:58:32
  */
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
@@ -46,10 +46,12 @@ class GitService {
     const workDir = path.resolve(config.compileDir, userId)
     await fsUtil.mkdir(workDir)
     const repoDir = path.resolve(workDir, gitInfo.name)
-    const repoExist = await fsUtil.pathExist(repoDir)
-    if (repoExist) { // 如果代码库已经clone到本地
+    await fsUtil.pathExist(repoDir)
+    .then ( () => {
       return repoDir
-    } else { // 代码还没clone到本地
+    })
+    .catch ( async err => { // 如果代码库已经clone到本地
+       // 代码还没clone到本地
       const dashUtil = new DashUtil(workDir)
       await dashUtil.exec(`git clone ${gitInfo.gitRepo}`)
       const version = await gitDao.getVersionById(versionId)
@@ -63,7 +65,7 @@ class GitService {
           await dashUtil.exec(`git checkout tags/${version.sourceValue}`)
           break;
       }
-    }
+    })
     return repoDir
   }
   async getFileTree (session: Express.Session, id: string, versionId: string, currentUser: User): Promise<DirNode[]> {

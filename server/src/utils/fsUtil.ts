@@ -1,10 +1,11 @@
+import { reject } from 'lodash';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:47:14
+ * @LastEditTime: 2021-11-13 22:57:19
  */
 import * as fs from 'fs'
 import * as pt from 'path'
@@ -13,9 +14,12 @@ import logger from './logger';
 
 class FsUtil {
   async mkdir (path: string): Promise<void> {
-    const pathExist = await this.pathExist(path)
-    if (!pathExist) {
-      await new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
+      this.pathExist(path)
+      .then( () => {
+        resolve()
+      })
+      .catch(err => {
         fs.mkdir(path, err => {
           if (err) {
             reject(err)
@@ -23,9 +27,11 @@ class FsUtil {
             resolve()
           }
         })
+      }) 
+        
       })
     }
-  }
+  
 
   rename (oldpath: string, newpath: string): Promise<void> {
     return new Promise( (resolve, reject) => {
@@ -41,14 +47,14 @@ class FsUtil {
   }
 
 
-  async pathExist (path: string): Promise<boolean> {
+  async pathExist (path: string): Promise<void> {
     return new Promise((resolve) => {
       fs.stat(path, (err) => {
         if (err) {
           logger.info(err)
-          resolve(false)
+          reject(err)
         } else {
-          resolve(true)
+          resolve()
         }
       })
     })
@@ -58,14 +64,14 @@ class FsUtil {
     const children = fs.readdirSync(targetPath)
     const exclude = ['^\\.']
     const ignorePath = pt.resolve(targetPath, '.gitignore')
-    if (await this.pathExist(ignorePath)) {
+    await this.pathExist(ignorePath).then( async() => {
       const text = await this.readFile(ignorePath)
       text.split(/\s/g).forEach(item => {
         if (item && !/^#/.test(item)) {
           exclude.push(item.replace(/[/*]/g, ''))
         }
       })
-    }
+    })
     const matchIgnore = (itemPath: string): boolean => {
       let match = false
       exclude.forEach(reg => {

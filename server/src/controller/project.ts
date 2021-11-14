@@ -1,3 +1,4 @@
+import { ProjectCompileData, ProjectCompileParams } from './../types/project';
 /*
  * @Descripttion: 
  * @version: 
@@ -148,9 +149,26 @@ router.post('/update', (req: Request, res: Response, next: NextFunction) => {
 //项目信息
 router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id
+  if (!id) {
+    res.json( new ApiResult(ResponseStatus.fail, 'id为空!'))
+    return
+  }
   ProjectService.projectInfo(id)
   .then( (projectInfo: ProjectInfo) => {
     res.json(new ApiResult(ResponseStatus.success, projectInfo))
+  })
+  .catch(next)
+})
+
+router.get('/compile', (req: Request, res: Response, next: NextFunction) => {
+  ProjectService.getProjectCompileData()
+  .then( (data: ProjectCompileParams[]) => {
+    if (!data) {
+      res.json(new ApiResult(ResponseStatus.fail, '数据为空'))
+      return
+    } else {
+      res.json(new ApiResult(ResponseStatus.success, data))
+    }
   })
   .catch(next)
 })

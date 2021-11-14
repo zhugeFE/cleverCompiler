@@ -5,7 +5,7 @@ import { TemplateConfig } from './template';
  * @Author: Adxiong
  * @Date: 2021-08-23 16:55:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:41:15
+ * @LastEditTime: 2021-11-13 12:29:44
  */
 
 
@@ -37,7 +37,7 @@ export interface CompileConfig {
   gitSsh: string; //仓库地址
   gitValue: string; //来源值
   gitType: string; //来源类型
-  compileOrders: string; //编译命令
+  compileOrders: string[]; //编译命令
   configList: TemplateConfig[]; //配置
   compileType: number ; //编译类型
   templateId: string;

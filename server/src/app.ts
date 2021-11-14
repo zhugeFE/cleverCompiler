@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:48:31
+ * @LastEditTime: 2021-11-14 08:36:55
  */
 import { CompileConfig } from './types/compile';
 import * as express from 'express'
@@ -87,7 +87,7 @@ import { CompileGitParams } from './types/git';
     socket.on("startCompile", async (ctx) => {
       
      
-      const compileInfo: ProjectInfo = await ProjectService.projectInfo(ctx.projectId)
+      const compileInfo: ProjectInfo = await ProjectService.projectCompileInfo(ctx.projectId)
       const compileInfoBack = compileInfo
       const GitInfo: CompileGitParams[] = await ProjectService.getCompileGitData(ctx['gitIds'])
 
@@ -109,6 +109,7 @@ import { CompileGitParams } from './types/git';
 
 
       GitInfo.map ( git => {
+
         CompileList.push({
           userId: ctx.userId,
           gitName: git.name,
@@ -161,10 +162,7 @@ import { CompileGitParams } from './types/git';
         compileInstance.compileResult = "失败"
         socket.emit({"result": err})
       })
-      
-     
 
-      // compileInstance.compileResult = result === CompileList.length ? "全部成功" : `成功： ${result} ， 失败： ${CompileList.length - result}`
       CompileDao.updateProjectCompile(compileInstance)
 
     })

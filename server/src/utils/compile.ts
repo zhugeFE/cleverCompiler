@@ -37,7 +37,7 @@ class Socket {
       
       // await WorkFlowUtil.initOutputDir(socket, workDir, requestData.gitName)
       await workFlowUtil.runReplacement(socket, requestData.gitName, requestData.configList)
-      await workFlowUtil.runCompile(socket , requestData.gitName, JSON.parse(requestData.compileOrders))
+      await workFlowUtil.runCompile(socket , requestData.gitName, requestData.compileOrders)
     }
     catch (err) {
       logger.info(err)

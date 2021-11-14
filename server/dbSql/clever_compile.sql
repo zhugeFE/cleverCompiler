@@ -11,7 +11,7 @@
  Target Server Version : 80025
  File Encoding         : 65001
 
- Date: 18/10/2021 18:58:28
+ Date: 14/11/2021 10:32:24
 */
 
 SET NAMES utf8mb4;
@@ -29,6 +29,7 @@ CREATE TABLE `compile` (
   `project_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '编译项目id',
   `description` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '描述',
   `file` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '文件地址',
+  `config` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '配置文件',
   PRIMARY KEY (`id`),
   KEY `compile_ibfk_1` (`compile_user`),
   KEY `compile_ibfk_2` (`project_id`),
@@ -71,7 +72,7 @@ CREATE TABLE `git_source` (
   `name` varchar(50) DEFAULT NULL COMMENT '源名称',
   `description` text COMMENT '库描述信息',
   `git` varchar(100) DEFAULT NULL COMMENT 'git地址',
-  `enable` tinyint(1) DEFAULT NULL COMMENT '是否启用为源',
+  `enable` tinyint(1) DEFAULT '1' COMMENT '是否启用为源',
   `git_id` int DEFAULT NULL COMMENT 'git库中的id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='git源\n会将当前git账号有权限的所有git库都导入进来';
@@ -86,10 +87,12 @@ CREATE TABLE `project` (
   `template_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '模板id',
   `template_version` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '模板版本',
   `compile_type` int DEFAULT NULL COMMENT '编译类型。0：私有部署；1：常规迭代；2：发布测试',
-  `publish_type` int DEFAULT NULL COMMENT '发布方式。0：发布到git；1：下载；2：自动',
+  `public_type` int DEFAULT NULL COMMENT '发布方式。0：发布到git；1：下载；2：自动',
   `description` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '描述',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `customer` varchar(50) DEFAULT NULL COMMENT '客户id',
+  `receive_user_id` text COMMENT '被分享的成员id',
+  `creator_id` varchar(50) DEFAULT NULL COMMENT '创建者id',
   PRIMARY KEY (`id`),
   KEY `project_ibfk_1` (`template_id`),
   KEY `project_ibfk_2` (`template_version`),
@@ -105,18 +108,34 @@ CREATE TABLE `project` (
 DROP TABLE IF EXISTS `project_config`;
 CREATE TABLE `project_config` (
   `id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `config_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '配置项源id',
-  `value` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '默认值',
-  `project_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '编译模板id',
+  `target_value` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '默认值',
   `global_config_id` varchar(50) DEFAULT NULL COMMENT '全局配置id',
+  `project_git_id` varchar(50) DEFAULT NULL COMMENT '项目git',
+  `template_config_id` varchar(50) DEFAULT NULL COMMENT '配置局部id',
   PRIMARY KEY (`id`),
-  KEY `project_config_ibfk_1` (`config_id`),
-  KEY `project_config_ibfk_2` (`project_id`),
   KEY `project_config_ibfk_3` (`global_config_id`),
-  CONSTRAINT `project_config_ibfk_1` FOREIGN KEY (`config_id`) REFERENCES `template_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `project_config_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `project_config_ibfk_3` FOREIGN KEY (`global_config_id`) REFERENCES `project_global_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  KEY `proejct_config_ibfk_4` (`project_git_id`),
+  KEY `project_config_ibfk_4` (`template_config_id`),
+  CONSTRAINT `proejct_config_ibfk_4` FOREIGN KEY (`project_git_id`) REFERENCES `project_git` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `project_config_ibfk_3` FOREIGN KEY (`global_config_id`) REFERENCES `project_global_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `project_config_ibfk_4` FOREIGN KEY (`template_config_id`) REFERENCES `template_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='编译项目配置';
+
+-- ----------------------------
+-- Table structure for project_git
+-- ----------------------------
+DROP TABLE IF EXISTS `project_git`;
+CREATE TABLE `project_git` (
+  `id` varchar(50) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `project_id` varchar(50) DEFAULT NULL COMMENT '项目id',
+  `template_git_id` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `project_git_ibfk_3` (`project_id`),
+  KEY `project_git_ibfk_1` (`template_git_id`),
+  CONSTRAINT `project_git_ibfk_1` FOREIGN KEY (`template_git_id`) REFERENCES `template_version_git` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `project_git_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- Table structure for project_global_config
@@ -124,31 +143,15 @@ CREATE TABLE `project_config` (
 DROP TABLE IF EXISTS `project_global_config`;
 CREATE TABLE `project_global_config` (
   `id` varchar(50) NOT NULL DEFAULT '' COMMENT '配置项id',
-  `config_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '配置id',
   `project_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '工程id',
-  `value` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `target_value` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `template_global_config_id` varchar(50) DEFAULT NULL COMMENT '模版全局配置id',
   PRIMARY KEY (`id`),
   KEY `project_global_config_ibfk_2` (`project_id`),
-  KEY `project_global_config_ibfl_3` (`config_id`),
+  KEY `project_global_config_ibfk_3` (`template_global_config_id`),
   CONSTRAINT `project_global_config_ibfk_2` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `project_global_config_ibfl_3` FOREIGN KEY (`config_id`) REFERENCES `template_global_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `project_global_config_ibfk_3` FOREIGN KEY (`template_global_config_id`) REFERENCES `template_global_config` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
--- ----------------------------
--- Table structure for project_share
--- ----------------------------
-DROP TABLE IF EXISTS `project_share`;
-CREATE TABLE `project_share` (
-  `id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `receive_user_id` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '被分享的用户id',
-  `project_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '编译项目id',
-  `user_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '分享者id',
-  PRIMARY KEY (`id`),
-  KEY `project_share_ibfk_1` (`project_id`),
-  KEY `project_share_ibfk_2` (`user_id`),
-  CONSTRAINT `project_share_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `project_share_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='分享成员表';
 
 -- ----------------------------
 -- Table structure for role
@@ -168,7 +171,7 @@ CREATE TABLE `source_config` (
   `id` varchar(50) NOT NULL DEFAULT '',
   `source_id` varchar(50) DEFAULT NULL COMMENT '源id',
   `version_id` varchar(50) DEFAULT NULL COMMENT '版本id',
-  `desc` text COMMENT '配置项描述',
+  `description` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '配置项描述',
   `reg` varchar(200) DEFAULT NULL COMMENT '配置项正则',
   `type_id` int DEFAULT NULL COMMENT '配置项类型id',
   `file_path` varchar(1000) DEFAULT NULL COMMENT '原始文件路径',
@@ -192,7 +195,7 @@ CREATE TABLE `source_version` (
   `version` varchar(50) DEFAULT NULL COMMENT '版本号',
   `description` varchar(200) DEFAULT NULL COMMENT '版本描述信息',
   `publish_time` bigint DEFAULT NULL COMMENT '版本发布时间',
-  `status` int DEFAULT NULL COMMENT '版本状态：0：废弃；1：正常；',
+  `status` int DEFAULT NULL COMMENT '版本状态：0：废弃；1：正常；2: 归档',
   `readme_doc` text COMMENT 'readme说明文档',
   `build_doc` text COMMENT '部署文档',
   `update_doc` text COMMENT '更新文档',
@@ -200,7 +203,7 @@ CREATE TABLE `source_version` (
   `source_type` varchar(10) DEFAULT NULL COMMENT '版本来源类型：branch/tag/commit',
   `source_value` varchar(100) DEFAULT NULL COMMENT '版本来源值：branch/tag/commitId',
   `creator_id` varchar(50) DEFAULT NULL COMMENT '创建者id',
-  `parent_id` varchar(50) DEFAULT NULL COMMENT '父级版本id',
+  `output_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '输出文件路径',
   PRIMARY KEY (`id`),
   KEY `source_id` (`source_id`),
   KEY `creator_id` (`creator_id`),
@@ -230,7 +233,7 @@ CREATE TABLE `template` (
   `id` varchar(50) NOT NULL DEFAULT '' COMMENT '模板id',
   `name` varchar(100) DEFAULT NULL COMMENT '模板名称',
   `description` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '描述信息',
-  `creator_id` varchar(50) DEFAULT NULL COMMENT '创建人id',
+  `creator_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '创建人id',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `enable` int NOT NULL DEFAULT '1' COMMENT '禁用状态 0为禁用 1为启用',
   PRIMARY KEY (`id`),
@@ -248,7 +251,7 @@ CREATE TABLE `template_config` (
   `template_version_id` varchar(50) DEFAULT NULL COMMENT '模板版本id',
   `template_version_git_id` varchar(50) DEFAULT NULL COMMENT '模板版本中git项id',
   `git_source_config_id` varchar(50) DEFAULT NULL COMMENT '模板版本中git项的配置项id',
-  `default_value` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '默认值',
+  `target_value` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '默认值',
   `is_hidden` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否隐藏',
   `global_config_id` varchar(50) DEFAULT NULL COMMENT '全局配置id',
   PRIMARY KEY (`id`),
@@ -274,8 +277,9 @@ CREATE TABLE `template_global_config` (
   `description` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '描述',
   `template_id` varchar(50) DEFAULT NULL COMMENT '模板id',
   `template_version_id` varchar(50) DEFAULT NULL COMMENT '模板版本id',
-  `default_value` text COMMENT '默认值',
+  `target_value` text CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '默认值',
   `is_hidden` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否隐藏配置项',
+  `type` int DEFAULT NULL COMMENT '配置类型',
   PRIMARY KEY (`id`),
   KEY `template_version_id` (`template_version_id`),
   KEY `template_id` (`template_id`),

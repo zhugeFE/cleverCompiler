@@ -6,7 +6,7 @@ import { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "./temp
  * @Author: Adxiong
  * @Date: 2021-08-25 17:14:31
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 14:47:28
+ * @LastEditTime: 2021-11-12 17:40:23
  */
 export interface ProjectInstance {
   id: string; //项目id
@@ -69,4 +69,17 @@ export interface UpdateProjectParams {
   shareMember: string;
   description: string;
   globalConfigList: TemplateGlobalConfig[];
+}
+
+export interface ProjectCompileGitParams {
+  id: string;
+  name: string;
+}
+
+
+export interface ProjectCompileParams {
+  id: string;
+  name: string;
+  publicType: number;
+  gitList: ProjectCompileGitParams[];
 }

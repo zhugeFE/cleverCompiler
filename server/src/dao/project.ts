@@ -1,3 +1,5 @@
+import { GitList } from './../types/git';
+import { ProjectCompileData, ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
 /*
  * @Descripttion: 
@@ -5,7 +7,7 @@ import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../t
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:47:47
+ * @LastEditTime: 2021-11-12 18:49:05
  */
 import { CreateProjectParams, ProjectInfo, ProjectInstance, ProjectType, UpdateProjectParams } from "../types/project";
 import util from "../utils/util";
@@ -132,6 +134,18 @@ class Project {
     return data
   }
 
+  async projectCompileInfo (id: string): Promise<ProjectInfo>{
+    const projectData = await this.getProjectById(id)
+    const globalConfig = await this.getGlobalConfigByProjectIdReturnPid(id)
+    const gitList = await this.getProjectGitReturnPid(id)
+
+    const data: ProjectInfo = {
+      ...projectData,
+      globalConfigList: globalConfig,
+      gitList
+    }
+    return data
+  }
 
 
   //根据项目id查询信息
@@ -260,11 +274,57 @@ class Project {
     }))
     return data
   }
+
+  async getProjectGitReturnPid( projectId: string): Promise<TemplateVersionGit[]> {
+    const sql = `SELECT
+      p.id AS id,
+      p.id AS pid,
+      t.template_id as template_id,
+      t.template_version_id as template_version_id,
+      t.git_source_id as git_source_id,
+      t.git_source_version_id as git_source_version_id,
+      p.NAME AS NAME,
+      git_source.name as name,
+      source_version.version as version,
+      p.project_id AS project_id
+    FROM
+      project_git AS p
+    LEFT JOIN template_version_git as t ON t.id = p.template_git_id
+    LEFT JOIN git_source ON t.git_source_id = git_source.id
+    LEFT JOIN source_version ON source_version.id = t.git_source_version_id
+    WHERE p.project_id = ?`
+
+    const data = await pool.query<TemplateVersionGit>(sql, [projectId])
+
+    await Promise.all(data.map( async item => {
+      item['configList'] = await this.getConfigByProjectGitIdReturnPid(item.pid)
+    }))
+    return data
+  }
   
   //根据项目id查询全局配置
   async getGlobalConfigByProjectId (projectId: string): Promise<TemplateGlobalConfig[]>{
     const sql =  `SELECT
       t.id as id,
+      t.name as name,
+      t.description as description,
+      t.template_id as template_id, 
+      t.template_version_id as template_version_id,
+      p.target_value as target_value,
+      t.is_hidden as is_hidden,
+      t.type as type
+    FROM
+      project_global_config as p
+    LEFT JOIN template_global_config as t
+    ON t.id = p.template_global_config_id
+    WHERE p.project_id = ?`
+
+    return await pool.query<TemplateGlobalConfig>(sql, [projectId])
+  }
+
+  async getGlobalConfigByProjectIdReturnPid (projectId: string): Promise<TemplateGlobalConfig[]>{
+    const sql =  `SELECT
+      p.id as id,
       t.name as name,
       t.description as description,
       t.template_id as template_id, 
@@ -307,6 +367,31 @@ class Project {
 
     return await pool.query<TemplateConfig>(sql, [projectGitId])
   }
+
+  async getConfigByProjectGitIdReturnPid (projectGitId: string): Promise<TemplateConfig[]>{
+    const sql =  `SELECT
+      p.id as id,
+      s.type_id as type_id,
+      s.reg as reg,
+      s.file_path as file_path,
+      s.description as description,
+      p.global_config_id as global_config_id,
+      t.template_id as template_id,
+      t.template_version_id as template_version_id,
+      t.template_version_git_id as template_version_git_id,
+      t.git_source_config_id as git_source_config_id,
+      t.is_hidden as is_hidden,
+      p.target_value as target_value   
+    FROM
+      project_config as p
+    LEFT JOIN template_config AS t
+    ON t.id = p.template_config_id
+    LEFT JOIN source_config AS s ON s.id = t.git_source_config_id 
+    WHERE
+      p.project_git_id = ?`
+
+    return await pool.query<TemplateConfig>(sql, [projectGitId])
+  }
  
 
   async getCompileGitData (gitIds: string[]): Promise<CompileGitParams[]> {
@@ -328,6 +413,20 @@ class Project {
     LEFT JOIN git_source AS gs ON gs.id = tvg.git_source_id
     WHERE p.id in (?)`
     return await pool.query<CompileGitParams>(sql, [gitIds])
+  } 
+
+  async getProjectCompileData (): Promise<ProjectCompileParams[]> {
+    const queryProjectSql = 'SELECT id,name,public_type from project'
+    const queryProjectGitSql = 'SELECT id, name FROM project_git WHERE project_id = ?'
+
+    const projectInfo = await pool.query<ProjectCompileParams>(queryProjectSql)
+
+    await Promise.all(projectInfo.map( async item => {
+      item.gitList = await pool.query<{id: string; name: string}>(queryProjectGitSql, [item.id])
+    }))
+
+    return projectInfo.length ? projectInfo : null
+
   }
 
 }
