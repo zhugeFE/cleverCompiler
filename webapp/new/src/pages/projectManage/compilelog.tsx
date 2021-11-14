@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-14 14:34:12
+ * @LastEditTime: 2021-11-14 15:32:16
  */
 import util from '@/utils/utils'
 import { Button, Table } from 'antd'
@@ -68,11 +68,8 @@ class Compilelog extends React.Component<Props, States> {
       for (const info of res.data) {
         console.log( info)
         const res = await DownloadService.downloadFile(info)
-  
       }
     }
-    
-    
   }
 
   render() {

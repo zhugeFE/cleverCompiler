@@ -262,7 +262,7 @@ class ProjectEdit extends React.Component<Props, States> {
       type: "project/updateProject",
       payload: form,
       callback: () => {
-        
+        message.success("修改成功")
       }
     })
   
@@ -322,7 +322,7 @@ class ProjectEdit extends React.Component<Props, States> {
       callback: (data: ProjectInfo)=>{
         // this.props.match.params.id = data.id
         this.props.history.replace(`/compile/project/edit/${data.id}`)
-
+        message.success("上传成功")
       }
     })
   }
@@ -471,7 +471,7 @@ class ProjectEdit extends React.Component<Props, States> {
               {
                 this.state.templateVersionId && 
                 <Select
-                  defaultValue={this.state.templateVersionId}
+                  value={this.state.templateVersionId}
                   style={{width: 200}}
                   onChange={this.onTemplateVersionSelectChange}
                 >
