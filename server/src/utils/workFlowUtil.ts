@@ -5,7 +5,7 @@ import { TypeMode } from './../types/common';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-13 22:51:01
+ * @LastEditTime: 2021-11-14 14:49:56
  */
 
 import * as fs from 'fs';
@@ -29,13 +29,16 @@ class WorkFlow {
      * 初始化目录 并返回目录
      */
     SocketLogge(socket, gitName, `Step: 初始化用户根目录 ${this.workDir}`)
-    await FsUtil.pathExist(this.workDir)
-    .catch( async err => {
-      SocketLogge(socket, gitName, `Step: 创建用户根目录 ${this.workDir}`)
-      await FsUtil.mkdir(this.workDir)
-    })
-    SocketLogge(socket, gitName, `Step: 初始化工作目录 执行完毕！`)
-
+    FsUtil.pathExist(this.workDir)
+    .then ( async(exist: boolean) => {
+      if (!exist){
+        SocketLogge(socket, gitName, `Step: 创建用户根目录 ${this.workDir}`)
+        await FsUtil.mkdir(this.workDir)
+      }
+      else {
+        SocketLogge(socket, gitName, `Step: 初始化工作目录 执行完毕！`)
+      }
+    }) 
 
   }
   
@@ -45,15 +48,16 @@ class WorkFlow {
     const dashUtil = new DashUtil(this.workDir)
     SocketLogge(socket, sourceName, `Step: 初始化源码仓库 ${sourceName}`)
     const srcRepoDir =  path.join( this.workDir , sourceName )
-    await FsUtil.pathExist(srcRepoDir).then( async () => {
+    const exist = await FsUtil.pathExist(srcRepoDir)
+    if (exist) {
       await dashUtil.cd(sourceName)
-    })
-    .catch ( async err => {
+    }
+    else {
       SocketLogge(socket, sourceName, `Step: 克隆源码仓库 ${sourceName}`)
       await dashUtil.exec(`git clone ${sourceSsh}`)
       await dashUtil.cd(sourceName)
       await dashUtil.exec(`git pull`)
-    })
+    }
     // 此处由于可能存在未提交的新建分支，此处可能存在异常，需要单独处理 回退到上一次成功的点
     await dashUtil.exec(`git reset --hard FETCH_HEAD`).catch( err => {
       SocketLogge(socket, sourceName, err.message)
@@ -150,22 +154,6 @@ class WorkFlow {
     
   }
 
-  // async initOutputDir (socket, gitName: string): Promise<void> {
-  //   SocketLogge(socket, gitName, `Step: 初始化output目录...`)
-  //   const outputDir = path.join(workDir, 'output')
-  //   await FsUtil.pathExist( outputDir ).then(async reslut => {
-  //     if (!reslut) {
-  //       SocketLogge(socket, gitName, `Step: 创建目录 output`)
-  //       await dashUtil.exec(`mkdir output`)
-  //     } else {
-  //       SocketLogge(socket, gitName, `Step: 清空目录 output `)
-  //       await dashUtil.cd('output')
-  //       await dashUtil.exec('rm -rf *')
-  //       await dashUtil.cd('..')
-  //     }
-  //   })
-  //   SocketLogge(socket, gitName, `Step: 初始化output目录 执行完毕`)
-  // }
   
   async runCompile (socket, gitName: string, buildCommand: string[]): Promise<boolean> {
     const dashUtil = new DashUtil(this.workDir)
@@ -227,17 +215,10 @@ class WorkFlow {
       }
       case 2: {
         const downloadFile= __dirname.replace('dist/utils', `www/download`)
-        const outputDir = path.join(downloadFile, fileName)
-
-        await FsUtil.pathExist( outputDir )
-        .then( async reslut => {
-          SocketLogge(socket, gitName[0], `Step: 清空目录文件内容 `)
-          await dashUtil.exec('rm -rf *', {cwd: outputDir})
-        })
-        .catch ( async err => {
-          SocketLogge(socket, gitName[0], `Step: 创建输出目录`)
-          await dashUtil.exec(`mkdir ${fileName}`, {cwd: downloadFile})
-        })
+         
+        SocketLogge(socket, gitName[0], `Step: 创建输出目录`)
+        await dashUtil.exec(`mkdir ${fileName}`, {cwd: downloadFile})
+        
         for ( let i = 0 ; i < gitName.length; i++) {
           SocketLogge(socket, gitName[i], `Step: 开始执行打包命令`)
           const addr = `./${gitName[i]} `

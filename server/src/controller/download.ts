@@ -4,37 +4,41 @@
  * @Author: Adxiong
  * @Date: 2021-10-15 16:04:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-14 14:35:00
+ * @LastEditTime: 2021-11-14 14:43:44
  */
 
-import {Router, Response, Request, NextFunction} from 'express'
+import {Router, Response, Request} from 'express'
 import fsUtil from '../utils/fsUtil'
-import * as pt from 'path'
-import logger from '../utils/logger'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
 
 const router = Router()
 
-router.post('/info', (req: Request, res: Response, next: NextFunction) => {
+router.post('/info', (req: Request, res: Response) => {
   const pathName =  req.body.pathName
+
   const realPathName = __dirname.replace('dist/controller', `www/download/${pathName}`)
-  fsUtil.pathExist(realPathName).then( async data=>{
-    const childerFile = await fsUtil.readDir(realPathName)
-    res.json(new ApiResult(ResponseStatus.success, childerFile))
-  }).catch( err =>{
-    logger.info(err)
-    next
-  })
+  fsUtil.pathExist(realPathName)
+  .then( async (exist: boolean) => {
+    if (exist) {
+      const childerFile = await fsUtil.readDir(realPathName)
+      res.json(new ApiResult(ResponseStatus.success, childerFile))
+      return
+    }
+    res.json(new ApiResult(ResponseStatus.fail, "文件不存在"))
+  } )
 })
 
-router.get('/', (req: Request, res: Response, next: NextFunction) => {
+router.get('/', (req: Request, res: Response) => {
   const filePath = req.params.filePath
-  const exist = fsUtil.pathExist(filePath)
-  if (exist) {
-    res.download(filePath)
-    return
-  } 
-  next
+
+  fsUtil.pathExist(filePath)
+  .then ( (exist: boolean) => {
+    if (exist) {
+      res.download(filePath)
+      return
+    } 
+    res.json(new ApiResult(ResponseStatus.fail, "文件不存在"))
+  })
 })
 
 
