@@ -93,6 +93,7 @@ export interface GitUpdateVersionParam {
   readmeDoc: string;
   buildDoc: string;
   updateDoc: string;
+  outputName: string;
 }
 export type GitModelState = {
   gitList: GitInstance[];

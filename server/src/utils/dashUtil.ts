@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-13 22:52:12
+ * @LastEditTime: 2021-11-14 14:20:10
  */
 import * as childProcess from 'child_process'
 import * as _ from 'lodash';
@@ -34,19 +34,21 @@ class DashUtil {
     })
   }
   exec (command: string, 
-    options: childProcess.ExecOptions={cwd: this.workdir}, 
+    options: childProcess.SpawnOptions={cwd: this.workdir}, 
     onData?: (data: string) => void): Promise<string> {
 
-    return new Promise((resolve, reject) => {
+    return new Promise( (resolve, reject) => {
       logger.info(`exec command: ${command}`)
-      const process = childProcess.exec(command, options, (err: childProcess.ExecException, out: string) => {
-        if (err) {
-          logger.error('命令行执行异常', command, options, err.message)
-          reject(err)
-        } else {
-          resolve(out)
-        }
+      const splitComand = command.split(" ")
+      const process =  childProcess.spawn(splitComand[0], [... splitComand.splice(1, splitComand.length-1)], options )
+
+    
+      process.on('error', (err) => {
+        logger.error('命令行执行异常', command, options, err.message)
+        reject(err)
+
       })
+
       process.stdout.on('data', (chunk: any) => {
         if (_.isFunction(onData)) {
           onData(chunk.toString())

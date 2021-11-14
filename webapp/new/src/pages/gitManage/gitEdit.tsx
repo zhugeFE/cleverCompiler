@@ -170,6 +170,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
         const { currentVersion } = this.state
         const param: GitUpdateVersionParam = {
           id: currentVersion!.id,
+          outputName: currentVersion!.outputName,
           compileOrders: JSON.stringify(currentVersion!.compileOrders),
           readmeDoc: currentVersion!.readmeDoc,
           buildDoc: currentVersion!.buildDoc,

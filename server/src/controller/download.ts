@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-10-15 16:04:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-15 18:32:47
+ * @LastEditTime: 2021-11-14 14:35:00
  */
 
 import {Router, Response, Request, NextFunction} from 'express'
@@ -23,12 +23,19 @@ router.post('/info', (req: Request, res: Response, next: NextFunction) => {
     res.json(new ApiResult(ResponseStatus.success, childerFile))
   }).catch( err =>{
     logger.info(err)
+    next
   })
 })
 
 router.get('/', (req: Request, res: Response, next: NextFunction) => {
   const filePath = req.params.filePath
-  res.download(filePath)
+  const exist = fsUtil.pathExist(filePath)
+  if (exist) {
+    res.download(filePath)
+    return
+  } 
+  next
 })
+
 
 export default router

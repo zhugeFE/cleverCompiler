@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-10-15 16:16:01
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-15 18:31:59
+ * @LastEditTime: 2021-11-14 14:34:01
  */
 
 import request from "@/utils/request";
@@ -22,11 +22,12 @@ class DownloadService {
     })
   }
   async downloadFile (filePath: string) {
-    return request(api.download.downloadFile, {
-      params: {
-        filePath
-      }
-    })
+    const xhr = new XMLHttpRequest()
+    // xhr.open('get', url="")
+
+    // xhr.onreadystatechange = () => {
+    //   if (xhr.readyState == 4 && xhr.status == 200)
+    // }
   }
   
 }

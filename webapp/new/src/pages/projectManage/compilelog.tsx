@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 16:15:10
+ * @LastEditTime: 2021-11-14 14:34:12
  */
 import util from '@/utils/utils'
 import { Button, Table } from 'antd'
@@ -68,13 +68,7 @@ class Compilelog extends React.Component<Props, States> {
       for (const info of res.data) {
         console.log( info)
         const res = await DownloadService.downloadFile(info)
-        // const blob = new Blob([res.data as string])
-        // const href = window.URL.createObjectURL(blob)
-        // var downloadElement = document.createElement('a');
-        // downloadElement.href = href
-        // downloadElement.click()
-        // downloadElement.remove()
-        
+  
       }
     }
     
