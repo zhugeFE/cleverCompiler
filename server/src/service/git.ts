@@ -80,7 +80,8 @@ class GitService {
     return await fsUtil.readFile(path.resolve(session.repoDir, filePath))
   }
   async addConfig (config: GitCreateConfigParam): Promise<GitConfig> {
-    return await gitDao.addConfig(config)
+    const configId = await gitDao.addConfig(config)
+    return await gitDao.getConfigById(configId)
   }
   async deleteConfigById (configId: string): Promise<void> {
     await gitDao.deleteConfigById(configId)

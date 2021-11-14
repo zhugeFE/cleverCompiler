@@ -55,7 +55,8 @@ class FileTree extends React.Component<FileTreeProps, State> {
       callback: (list: DirNode[] | boolean) => {
         if (!list) {
           this.setState({
-            loadErr: true
+            loadErr: true,
+            loading: false
           })
           return
         }
@@ -106,6 +107,7 @@ class FileTree extends React.Component<FileTreeProps, State> {
                 disabled={this.state.loading} 
                 type="primary" 
                 size="small" 
+                key="reload"
                 onClick={this.queryTreeData}>重新加载</Button>
             ]}></Result>
           }

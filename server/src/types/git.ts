@@ -33,7 +33,7 @@ export interface GitInfo {
   gitId: string;
   name: string;
   gitRepo: string;
-  versionList: GitVersion[];
+  versionList?: GitVersion[];
 }
 
 export interface GitCommit {

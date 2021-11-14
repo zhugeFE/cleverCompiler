@@ -11,6 +11,7 @@ import gitUtil from '../utils/gitUtil';
 import * as _ from 'lodash';
 import redisClient from '../utils/redis';
 import config from '../config';
+import { Pool, PoolConnection } from 'mysql';
 interface Repo {
   id: string;
   name: string;
@@ -191,11 +192,11 @@ class GitDao {
 
   async addVersion (param: GitCreateVersionParam, creatorId: string): Promise<GitVersion> {
     let gitId = param.gitId
-    if ( param.repoId !== "" && param.gitId == "") {
-      const sysInfo = await sysDao.getSysInfo()
-      if (!sysInfo) return null
-      const connect = await pool.beginTransaction()
-      try {
+    const connect = await pool.beginTransaction()
+    const versionId = util.uuid()
+    try {
+      if ( param.repoId !== "" && param.gitId == "") {
+        const sysInfo = await sysDao.getSysInfo()
         const res = await axios({
           url: `api/v3/projects/${param.repoId}`,
           method: 'GET',
@@ -213,50 +214,50 @@ class GitDao {
           res.data.name,
           res.data.ssh_url_to_repo,
           res.data.id,
-          res.data.description
+          res.data.description,
+          true
         ])
-        await pool.commit(connect)
-      } catch (e) {
-        pool.rollback(connect)
-        logger.error('向git表插入数据失败', e)
-        throw e
       }
+  
+      //查询配置项。插入
+      const Info = await this.getInfo(gitId)
+      const lastVersionInfo = Info.versionList[Info.versionList.length-1]
+      // todo 版本号重复校验
+      const sql = `INSERT INTO source_version ( id, source_id, version,
+         description, publish_time, status, compile_orders, source_type, source_value, creator_id )
+      VALUES
+        ( ?,?,?,?,?,?,?,?,?,?)`
+      await pool.writeInTransaction(connect, sql, [
+        versionId,
+        gitId,
+        param.version,
+        param.description,
+        new Date().getTime(),
+        VersionStatus.normal,
+        JSON.stringify(lastVersionInfo ? lastVersionInfo.compileOrders : []),
+        param.source,
+        param.sourceValue,
+        creatorId
+      ])
+      if (lastVersionInfo) {
+        await Promise.all(lastVersionInfo.configs.map(config => {
+          return this.addConfig({
+            sourceId: config.sourceId, 
+            versionId: versionId, 
+            description: config.description, 
+            reg: config.reg, 
+            typeId: String(config.typeId), 
+            filePath: config.filePath, 
+            targetValue: config.targetValue
+          }, connect)
+        }))
+      }
+      await pool.commit(connect)
+    } catch (err) {
+      pool.rollback(connect)
+      throw(err)
     }
-
-    //查询配置项。插入
-    const Info = await this.getInfo(gitId)
-    const lastVersionInfo = Info.versionList[Info.versionList.length-1]
-    // todo 版本号重复校验
-    const sql = `INSERT INTO source_version ( id, source_id, version,
-       description, publish_time, status, compile_orders, source_type, source_value, creator_id )
-    VALUES
-      ( ?,?,?,?,?,?,?,?,?,?)`
-    const id = util.uuid()
-    await pool.write(sql, [
-      id,
-      gitId,
-      param.version,
-      param.description,
-      new Date().getTime(),
-      VersionStatus.normal,
-      JSON.stringify(lastVersionInfo ? lastVersionInfo.compileOrders : []),
-      param.source,
-      param.sourceValue,
-      creatorId
-    ])
-    lastVersionInfo && Promise.all( lastVersionInfo.configs.map( async config => {
-      await this.addConfig({
-        sourceId: config.sourceId, 
-        versionId: id, 
-        description: config.description, 
-        reg: config.reg, 
-        typeId: String(config.typeId), 
-        filePath: config.filePath, 
-        targetValue: config.targetValue
-      })
-    }))
-
-    return await this.getVersionById(id)
+    return await this.getVersionById(versionId)
   }
   async getVersionById (versionId: string): Promise<GitVersion> {
     const sql = `select 
@@ -277,7 +278,7 @@ class GitDao {
     versionList[0].configs = await this.queryConfigByVersionId(versionId)
     return versionList[0]
   }
-  async addConfig (param: GitCreateConfigParam): Promise<GitConfig> {
+  async addConfig (param: GitCreateConfigParam, conn?: PoolConnection): Promise<string> {
     const sql = `insert into 
       source_config(
         id, 
@@ -292,6 +293,19 @@ class GitDao {
         ?,?,?,?,?,?,?,?
       )`
     const configId = util.uuid()
+    if (conn) {
+      await pool.writeInTransaction(conn, sql, [
+        configId, 
+        param.sourceId, 
+        param.versionId, 
+        param.description, 
+        param.reg ? param.reg : null, 
+        param.typeId, 
+        param.filePath, 
+        param.targetValue
+      ])
+      return configId
+    }
     await pool.write(sql, [
       configId, 
       param.sourceId, 
@@ -302,7 +316,7 @@ class GitDao {
       param.filePath, 
       param.targetValue
     ])
-    return await this.getConfigById(configId)
+    return configId
   }
 
   async getConfigById (id: string): Promise<GitConfig> {

@@ -34,32 +34,26 @@ class DashUtil {
     })
   }
   exec (command: string, 
-    options: childProcess.SpawnOptions={cwd: this.workdir}, 
-    onData?: (data: string) => void): Promise<string> {
-
-    return new Promise( (resolve, reject) => {
-      logger.info(`exec command: ${command}`)
-      const splitComand = command.split(" ")
-      const process =  childProcess.spawn(splitComand[0], [... splitComand.splice(1, splitComand.length-1)], options )
-
+    options: childProcess.ExecOptions={cwd: this.workdir}, 
+    onData?: (data: string) => void): Promise<void> {
     
-      process.on('error', (err) => {
-        logger.error('命令行执行异常', command, options, err.message)
-        reject(err)
-
-      })
-
-      process.stdout.on('data', (chunk: any) => {
-        if (_.isFunction(onData)) {
-          onData(chunk.toString())
+    return new Promise((resolve, reject) => {
+      logger.info(`exec command: ${command}`)
+      const process = childProcess.exec(command, options, (err) => {
+        if (err) {
+          logger.error(`命令行(${command})执行异常: ${err.message}`)
+          reject(err)
+          return
         }
-        logger.info(chunk.toString())
+        resolve()
       })
-      process.stderr.on('data', (chunk: any) => {
-        if (_.isFunction(onData)) {
-          onData(chunk.toString())
-        }
-        logger.info(chunk.toString())
+      process.stdout.on('data', (chunk) => {
+        if (onData) onData(chunk.toString())
+        logger.info('command stdout >>>>', chunk.toString())
+      })
+      process.stderr.on('data', chunk => {
+        logger.error('command stderr >>>>', chunk.toString())
+        if (onData) onData(chunk.toString())
       })
     })
   }
