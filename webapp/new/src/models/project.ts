@@ -1,10 +1,11 @@
+import { publicType } from './common';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 11:21:19
+ * @LastEditTime: 2021-11-12 17:37:03
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -52,6 +53,18 @@ export interface ProjectInfo {
   globalConfigList: TemplateGlobalConfig[];//全局配置
 }
 
+export interface ProjectCompileGitParams {
+  id: string;
+  name: string;
+}
+
+
+export interface ProjectCompileParams {
+  id: string;
+  name: string;
+  publicType: number;
+  gitList: ProjectCompileGitParams[];
+}
 
 export interface Project {
   id: string; // 项目id
@@ -95,6 +108,7 @@ export type ProjectModelType = {
   namespace: 'project';
   state: ProjectModelState;
   effects: {
+    getCompileParams: Effect;
     getProjectList: Effect;
     getProjectInfo: Effect;
     addProject: Effect;
@@ -115,6 +129,11 @@ const ProjectModel: ProjectModelType = {
   effects: {
     *getCompileInfo ( { payload, callback} , {put , call}){
       const res = yield call(projectService.compileInfo, payload)
+      if (res.status === -1)return
+      if (callback) callback(res.data)
+    },
+    *getCompileParams ( {_, callback}, {call}) {
+      const res = yield call(projectService.compileParamInfo)
       if (res.status === -1)return
       if (callback) callback(res.data)
     },

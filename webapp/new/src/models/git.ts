@@ -48,6 +48,7 @@ export interface GitVersion extends Version{
   sourceValue: string;
   compileOrders: string[]; // 编译命令组
   configs: GitConfig[];
+  outputName: string;
 }
 export interface GitInfo {
   id: string;

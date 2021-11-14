@@ -4,15 +4,15 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-11 10:59:59
+ * @LastEditTime: 2021-11-14 08:58:48
  */
 import { ConnectState } from '@/models/connect'
-import { Button, Checkbox, Form, message, Modal, Radio, Select, Tabs } from 'antd'
+import { Button, Checkbox, Form, FormInstance, message, Modal, Radio, Select, Spin, Tabs } from 'antd'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import TextArea from 'antd/lib/input/TextArea'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
-import { connect, CurrentUser, Dispatch, IRouteComponentProps, ProjectInfo, ProjectInstance } from 'umi'
+import { connect, CurrentUser, Dispatch, IRouteComponentProps, ProjectCompileGitParams, ProjectCompileParams } from 'umi'
 import SocketIO from "socket.io-client"
 import styles from "./styles/compileEdit.less"
 import util from '@/utils/utils'
@@ -25,7 +25,6 @@ const socket = SocketIO('http://localhost:3000/', {transports:["websocket"]})
 interface Props extends IRouteComponentProps<{
   id: string;
 }>{
-  projectList: ProjectInstance[] | null;
   currentUser: CurrentUser | null;
   dispatch: Dispatch;
 }
@@ -41,22 +40,26 @@ interface States {
     successGitNames: string[];
   } | null;
   description: string;
-  GitMap: {};
+  projectList: ProjectCompileParams[] | null;
   compileLog: {};
+  GitMap: {};
   showResult: boolean;
 }
 
 class CompileEdit extends React.Component<Props, States> {
+
+  boxBottom: React.RefObject<HTMLDivElement> = React.createRef()
   constructor(prop: Props){
     super(prop)
     this.state = {
       publicType: 0,
       projectId: "",
       compileGit: [],
+      projectList: null,
+      GitMap:{},
       compileResult: null,
       description: "",
       checkboxOptions: [],
-      GitMap: {},
       compileLog: {},
       showResult: false,
     }
@@ -104,30 +107,33 @@ class CompileEdit extends React.Component<Props, States> {
     })
   }
 
+  scrollToBottom () {
+    this.boxBottom.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
   componentDidMount () {
     const id: string = this.props.location.query.id as string
 
     this.initSocket()
+    this.getProjectInfo()
     this.getCurrentUser()
-    this.getProjectList()
-    id && this.selectProject(id)
-    
-    
+    this.scrollToBottom()
+
   }
 
-  getProjectInfo(id: string) {
+  
+  getProjectInfo() {
     this.props.dispatch({
-      type: "project/getProjectInfo",
-      payload: id,
-      callback: (data: ProjectInfo) => {
-        const GitMap = {}
-        data.gitList.map( item => GitMap[item.name] = item.id )
+      type: "project/getCompileParams",
+      callback: (data: ProjectCompileParams[]) => {
+ 
         this.setState({
-          projectId: id,
-          publicType: data.publicType,
-          GitMap,
-          checkboxOptions: data.gitList.map( item => item.name)
+          projectList: data
         })
+        if (this.props.location.query.id) {
+          this.selectProject(this.props.location.query.id as string)
+        }
+       
       }
     })
   }
@@ -138,11 +144,7 @@ class CompileEdit extends React.Component<Props, States> {
     })
   }
 
-  getProjectList () {
-    this.props.dispatch({
-      type: "project/getProjectList"
-    })
-  }
+
 
   onCancelShowResult () {
     this.setState({
@@ -170,10 +172,31 @@ class CompileEdit extends React.Component<Props, States> {
   }
 
   selectProject (value: string) {
-    this.setState({
-      projectId: value
+    console.log(value)
+    let publicType = 0
+    let gitList: ProjectCompileGitParams[] = []
+
+    this.state.projectList?.forEach( project => {
+      if (project.id == value) {
+        publicType = project.publicType
+        gitList = project.gitList
+      }
     })
-    this.getProjectInfo(value)
+    
+    const GitMap = {}
+    
+    if (gitList.length) {
+      gitList.map(item => {
+        GitMap[item.name] = item.id
+      })
+      this.setState({
+        projectId: value,
+        publicType,
+        GitMap,
+        checkboxOptions: gitList?.map( item => item.name)
+      })
+    }
+    
   }
 
   onCheckBoxChange (checkedValues: CheckboxValueType[]) {
@@ -231,9 +254,13 @@ class CompileEdit extends React.Component<Props, States> {
         text: "自动"
       }
     ]
+
+    if (!this.state.projectList?.length) {
+      return <Spin>正在路上</Spin>
+    }
     
     return (
-      <div>
+      <div ref={this.boxBottom}>
         <Form
           labelCol={{span:4}}
           wrapperCol={{span:16}}
@@ -243,7 +270,7 @@ class CompileEdit extends React.Component<Props, States> {
           >
              <Select onChange={this.selectProject} value={this.state.projectId}> 
                 {
-                  this.props.projectList?.map( item => {
+                  this.state.projectList?.map( item => {
                     return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
                   })
                 }
@@ -327,9 +354,8 @@ class CompileEdit extends React.Component<Props, States> {
 }
 
 
-export default connect( ( {user, project}: ConnectState) => {
+export default connect( ( {user}: ConnectState) => {
   return {
     currentUser: user.currentUser,
-    projectList: project.projectList,
   }
 })(withRouter(CompileEdit))

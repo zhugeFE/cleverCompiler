@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 18:41:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-11 16:01:53
+ * @LastEditTime: 2021-11-12 17:30:27
  */
 import { CreateProjectParams, Project } from "@/models/project";
 import request from "@/utils/request";
@@ -19,6 +19,10 @@ class ProjectService {
         id
       }
     })
+  }
+
+  async compileParamInfo () {
+    return request(api.project.compileParamInfo)
   }
 
   async projectList () {

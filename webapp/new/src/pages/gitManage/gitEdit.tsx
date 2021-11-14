@@ -6,7 +6,7 @@ import util from '@/utils/utils'
 import * as _ from 'lodash'
 import { LeftOutlined } from '@ant-design/icons'
 import { IRouteComponentProps } from '@umijs/renderer-react'
-import { Button, Tabs, Tag, Spin, Tooltip, Progress } from 'antd'
+import { Button, Tabs, Tag, Spin, Tooltip, Progress, Input } from 'antd'
 import { connect } from 'dva'
 import React from 'react'
 import { withRouter } from 'react-router'
@@ -44,7 +44,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
       updateTimeout: 0,
       delTimeout: 0,
       savePercent: 100,
-      delTooltip: ''
+      delTooltip: '',
     }
 
     this.onCancelConfig = this.onCancelConfig.bind(this)
@@ -61,6 +61,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
     this.onPlaceOnFile = this.onPlaceOnFile.bind(this)
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
+    this.onChangeOutputName = this.onChangeOutputName.bind(this)
   }
 
   componentDidMount () {
@@ -221,6 +222,23 @@ class GitEdit extends React.Component<GitEditProps, State> {
   onChangeOrders (orders: string[]) {
     const version = util.clone(this.state.currentVersion)
     version!.compileOrders = orders
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo?.versionList.forEach((item, i) => {
+      if (item.id === version!.id) {
+        gitInfo.versionList[i] = version!
+      }
+    })
+    this.setState({
+      gitInfo,
+      currentVersion: version
+    })
+    this.onUpdateVersion()
+  }
+
+  onChangeOutputName (event: any) {
+    const version = util.clone(this.state.currentVersion)
+    version!.outputName = event.target.value
+    console.log(version?.outputName)
     const gitInfo = util.clone(this.state.gitInfo)
     gitInfo?.versionList.forEach((item, i) => {
       if (item.id === version!.id) {
@@ -416,6 +434,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth}>
                   {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} mode={this.state.currentVersion.status} tags={this.state.currentVersion.compileOrders}></Commands> : null}
+                </Description>
+                <Description label="输出文件" display="flex" labelWidth={labelWidth}>
+                  {this.state.currentVersion ? <Input style={{width: 350}} onChange={this.onChangeOutputName} placeholder="填写项目根目录下的绝对路径：（例：/dist）" disabled={this.state.currentVersion.status != VersionStatus.normal} defaultValue={this.state.currentVersion.outputName}></Input> : null}
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
