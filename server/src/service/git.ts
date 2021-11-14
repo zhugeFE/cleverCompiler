@@ -15,6 +15,7 @@ import config from '../config';
 import { User } from '../types/user';
 import fsUtil from '../utils/fsUtil';
 import DashUtil from '../utils/dashUtil';
+import logger from '../utils/logger';
 
 class GitService {
   async getRemoteGitList (): Promise<GitList[]>{
@@ -44,14 +45,13 @@ class GitService {
   async initRepo (gitId: string, versionId: string, userId: string): Promise<string> {
     const gitInfo = await gitDao.getInfo(gitId)
     const workDir = path.resolve(config.compileDir, userId)
+    logger.info('初始化用户工作空间', workDir)
     await fsUtil.mkdir(workDir)
     const repoDir = path.resolve(workDir, gitInfo.name)
-    await fsUtil.pathExist(repoDir)
-    .then ( () => {
-      return repoDir
-    })
-    .catch ( async err => { // 如果代码库已经clone到本地
-       // 代码还没clone到本地
+    const repoExist = await fsUtil.pathExist(repoDir)
+    if (!repoExist) {
+      logger.info('初始化项目代码到本地')
+      // 代码还没clone到本地
       const dashUtil = new DashUtil(workDir)
       await dashUtil.exec(`git clone ${gitInfo.gitRepo}`)
       const version = await gitDao.getVersionById(versionId)
@@ -65,7 +65,7 @@ class GitService {
           await dashUtil.exec(`git checkout tags/${version.sourceValue}`)
           break;
       }
-    })
+    }
     return repoDir
   }
   async getFileTree (session: Express.Session, id: string, versionId: string, currentUser: User): Promise<DirNode[]> {

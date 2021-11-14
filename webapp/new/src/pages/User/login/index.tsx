@@ -55,6 +55,7 @@ class Login extends React.Component<LoginProps, State> {
         <Form.Item name="username" rules={[{ required: true, message: 'Please input your username!' }]}>
           <Input
             prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }}/>}
+            autoFocus
             placeholder="Username"/>
         </Form.Item>
         <Form.Item name="password" rules={[{ required: true, message: 'Please input your Password!' }]}>

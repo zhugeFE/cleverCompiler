@@ -1,6 +1,7 @@
 node_modules
 .config
 dist
+logs
 .compile
 www
 *.tar.gz

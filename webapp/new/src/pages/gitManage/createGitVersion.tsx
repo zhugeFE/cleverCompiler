@@ -8,6 +8,7 @@ import { Dispatch } from '@/.umi/plugin-dva/connect';
 import styles from './styles/createGitVersion.less';
 import { ConnectState } from '@/models/connect';
 import { VersionType } from "@/models/common";
+import { OptionsType } from '@ant-design/pro-table/lib/components/ToolBar';
 interface FormData {
   option: string;
   source: string;
@@ -195,6 +196,9 @@ class CreateGitVersion extends React.Component<Props, States> {
     })
     if (this.props.onCancel) this.props.onCancel()
   }
+  filterGitRep (input: string, option: any) {
+    return new RegExp(input, 'i').test(option.children)
+  }
   render () {
     const source = this.state.form.source
     const branchDisplay = source === 'branch' ? 'flex' : 'none'
@@ -225,7 +229,9 @@ class CreateGitVersion extends React.Component<Props, States> {
           {
             this.props.mode == 'init' &&
             <Form.Item label="git" name="repoId">
-              <Select>
+              <Select 
+                showSearch
+                filterOption={this.filterGitRep}>
                 {
                   this.state.gitList!.map(item => 
                     <Select.Option value={item.id} key={item.id}>{item.name}</Select.Option>)

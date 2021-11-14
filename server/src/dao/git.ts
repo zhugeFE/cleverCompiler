@@ -9,6 +9,8 @@ import util from '../utils/util';
 import { VersionStatus } from '../types/common';
 import gitUtil from '../utils/gitUtil';
 import * as _ from 'lodash';
+import redisClient from '../utils/redis';
+import config from '../config';
 interface Repo {
   id: string;
   name: string;
@@ -68,6 +70,12 @@ class GitDao {
 
   async getRemoteGitList (): Promise<GitList[]> {
     logger.info('同步git库数据')
+    const client = await redisClient.getClient(config.redis.default)
+    const temp = await client.get('gitList')
+    if (temp) {
+      client.close()
+      return JSON.parse(temp) as GitList[]
+    }
     const sysInfo = await sysDao.getSysInfo()
     if (!sysInfo) return null
     const res = await axios({
@@ -92,7 +100,9 @@ class GitDao {
         name: item.name_with_namespace
       })
     })
-    
+
+    await client.set('gitList', JSON.stringify(gitListInfo), 3 * 60) // 三分钟
+    client.close()
     return gitListInfo
   }
 

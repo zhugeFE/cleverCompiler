@@ -7,7 +7,7 @@
  * @LastEditTime: 2021-11-06 16:55:33
  */
 import * as React from 'react';
-import { Spin, Tree } from 'antd';
+import { Button, Result, Skeleton, Spin, Tree } from 'antd';
 import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import styles from './styles/fileTree.less'
 import { connect } from 'dva';
@@ -26,6 +26,7 @@ export interface FileTreeProps {
 interface State {
   treeData: NodeData[];
   loading: boolean;
+  loadErr: boolean;
 }
 
 class FileTree extends React.Component<FileTreeProps, State> {
@@ -33,19 +34,31 @@ class FileTree extends React.Component<FileTreeProps, State> {
     super(props)
     this.state = {
       treeData: [],
-      loading: true
+      loading: true,
+      loadErr: false
     }
     this.onSelect = this.onSelect.bind(this)
+    this.queryTreeData = this.queryTreeData.bind(this)
   }
 
   queryTreeData () {
+    this.setState({
+      loadErr: false,
+      loading: true
+    })
     this.props.dispatch({
       type: 'git/getFileTree',
       payload: {
         id: this.props.gitId,
         versionId: this.props.versionId
       },
-      callback: (list: DirNode[]) => {
+      callback: (list: DirNode[] | boolean) => {
+        if (!list) {
+          this.setState({
+            loadErr: true
+          })
+          return
+        }
         function iterator (nodes: DirNode[]): NodeData[] {
           return nodes.map(node => {
             const resNode: NodeData = {
@@ -59,7 +72,7 @@ class FileTree extends React.Component<FileTreeProps, State> {
           })
         }
         this.setState({
-          treeData: iterator(list),
+          treeData: iterator(list as DirNode[]),
           loading: false
         })
       }
@@ -86,14 +99,24 @@ class FileTree extends React.Component<FileTreeProps, State> {
   render () {
     return (
       <div className={styles.fileTree}>
-        {this.state.loading ? (
-          <Spin className={styles.treeLoading}></Spin>
-        ) : (
-          <Tree.DirectoryTree
-          defaultSelectedKeys={[this.props.defauleSelect!]}
-          treeData={this.state.treeData}
-          onSelect={this.onSelect}></Tree.DirectoryTree>
-        )}
+        {(() => {
+          if (this.state.loadErr) {
+            return <Result status="error" subTitle="项目加载失败" extra={[
+              <Button 
+                disabled={this.state.loading} 
+                type="primary" 
+                size="small" 
+                onClick={this.queryTreeData}>重新加载</Button>
+            ]}></Result>
+          }
+          if (this.state.loading) {
+            return <Skeleton></Skeleton>
+          }
+          return <Tree.DirectoryTree
+            defaultSelectedKeys={[this.props.defauleSelect!]}
+            treeData={this.state.treeData}
+            onSelect={this.onSelect}></Tree.DirectoryTree>
+        })()}
       </div>
     )
   }

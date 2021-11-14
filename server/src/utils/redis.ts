@@ -103,6 +103,13 @@ class ReidsUtil {
       this.client.expire(key, expire || 86400)
     })
   }
+  /**
+   * 
+   * @param key 
+   * @param value 
+   * @param expire 单位：秒
+   * @returns 
+   */
   set(key: string, value: string, expire?: number): Promise<string> {
     return new Promise((resolve, reject) => {
       this.client.set(key, value, (err: Error, reply: string) => {

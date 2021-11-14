@@ -16,14 +16,14 @@ log4js.configure({
     },
     file: {
       type: 'dateFile',
-      filename: path.resolve(__dirname, `../../../logs/clever-compiler.log`),
+      filename: path.resolve(__dirname, `../../logs/clever-compiler.log`),
       alwaysIncludePattern: true,
       daysToKeep: 5
     }
   },
   categories: {
     default: {
-      appenders: ['console','dataFile'],
+      appenders: ['console','file'],
       level: 'info'
     }
   },

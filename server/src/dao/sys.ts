@@ -68,11 +68,6 @@ class SysDao {
         id: 1,
         label: '文件替换',
         key: 'file'
-      },
-      {
-        id: 2,
-        label: 'JSON',
-        key: 'json'
       }
     ]
     await Promise.all(types.map((type) => {

@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@types/formidable": "^2.0.0",
+    "@types/redis": "^2.8.32",
     "@types/socket.io": "^3.0.2",
     "connect-redis": "^6.0.0",
     "cookie-parser": "^1.4.5",

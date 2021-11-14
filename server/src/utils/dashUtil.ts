@@ -23,21 +23,25 @@ class DashUtil {
       const dir = path.resolve(this.workdir, originPath)
       logger.info(`检测 ${dir} 路径是否存在`)
       fsUtil.pathExist(dir)
-      .then( () => {
-        logger.info(`路径 ${dir}  存在`)
-        this.workdir = dir
-        resolve()
-      })
-      .catch (err => {
-        reject(err)
+      .then((exist: boolean) => {
+        if (exist) {
+          this.workdir = dir
+          resolve()
+          return
+        }
+        reject(new Error(`执行cd命令失败： 目录( ${dir} )不存在`))
       })
     })
   }
-  exec (command: string, options: childProcess.ExecOptions={cwd: this.workdir}, onData?: (data: string) => void): Promise<string> {
+  exec (command: string, 
+    options: childProcess.ExecOptions={cwd: this.workdir}, 
+    onData?: (data: string) => void): Promise<string> {
+
     return new Promise((resolve, reject) => {
       logger.info(`exec command: ${command}`)
       const process = childProcess.exec(command, options, (err: childProcess.ExecException, out: string) => {
         if (err) {
+          logger.error('命令行执行异常', command, options, err.message)
           reject(err)
         } else {
           resolve(out)

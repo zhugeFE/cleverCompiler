@@ -146,7 +146,10 @@ const GitModel: GitModelType = {
     },
     *getFileTree ({payload, callback}, {call}) {
       const res = yield call(gitService.getFileTree, payload)
-      if (res.status === -1) return
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
       callback(res.data)
     },
     *queryRemoteGitList ({callback}, {call}) {

@@ -66,8 +66,8 @@ import { CompileGitParams } from './types/git';
     secret: 'compile'
   }))
 
-  app.use(auth)
   app.use(sys)
+  app.use(auth)
   app.use(bodyParser.urlencoded())
   app.use(bodyParser.json())
 

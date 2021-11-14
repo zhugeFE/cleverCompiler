@@ -16,19 +16,20 @@ class FsUtil {
   async mkdir (path: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.pathExist(path)
-      .then( () => {
-        resolve()
-      })
-      .catch(err => {
-        fs.mkdir(path, err => {
-          if (err) {
-            reject(err)
-          } else {
+        .then((exist: boolean) => {
+          if (exist) {
             resolve()
+            return
           }
+          fs.mkdir(path, err => {
+            if (err) {
+              logger.error('创建目录失败:', path)
+              reject(err)
+            } else {
+              resolve()
+            }
+          })
         })
-      }) 
-        
       })
     }
   
@@ -47,14 +48,13 @@ class FsUtil {
   }
 
 
-  async pathExist (path: string): Promise<void> {
+  async pathExist (path: string): Promise<boolean> {
     return new Promise((resolve) => {
       fs.stat(path, (err) => {
         if (err) {
-          logger.info(err)
-          reject(err)
+          resolve(false)
         } else {
-          resolve()
+          resolve(true)
         }
       })
     })
@@ -64,14 +64,17 @@ class FsUtil {
     const children = fs.readdirSync(targetPath)
     const exclude = ['^\\.']
     const ignorePath = pt.resolve(targetPath, '.gitignore')
-    await this.pathExist(ignorePath).then( async() => {
+    const exist = await this.pathExist(ignorePath)
+    if (exist) {
+      // 将git指定的忽略文件，放到忽略目录中
       const text = await this.readFile(ignorePath)
       text.split(/\s/g).forEach(item => {
         if (item && !/^#/.test(item)) {
           exclude.push(item.replace(/[/*]/g, ''))
         }
       })
-    })
+    }
+    // 检查目标目录或文件，是否为忽略内容
     const matchIgnore = (itemPath: string): boolean => {
       let match = false
       exclude.forEach(reg => {
