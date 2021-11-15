@@ -1,14 +1,13 @@
-import { GitList } from './../types/git';
-import { ProjectCompileData, ProjectCompileParams } from './../types/project';
-import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 18:49:05
+ * @LastEditTime: 2021-11-15 17:35:44
  */
+import { ProjectCompileParams } from './../types/project';
+import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
 import { CreateProjectParams, ProjectInfo, ProjectInstance, ProjectType, UpdateProjectParams } from "../types/project";
 import util from "../utils/util";
 import pool from "./pool";

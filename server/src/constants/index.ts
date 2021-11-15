@@ -4,12 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-03 14:38:27
+ * @LastEditTime: 2021-11-15 18:53:01
  */
 enum ConfigType {
   str,
-  file,
-  json
+  file
 }
 enum SysStatus {
   notReady,

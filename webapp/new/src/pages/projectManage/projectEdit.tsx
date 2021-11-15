@@ -320,8 +320,8 @@ class ProjectEdit extends React.Component<Props, States> {
       type:"project/addProject",
       payload: form,
       callback: (data: ProjectInfo)=>{
-        // this.props.match.params.id = data.id
-        this.props.history.replace(`/compile/project/edit/${data.id}`)
+        this.props.match.params.id = data.id
+        // this.props.history.replace(`/compile/project/edit/${data.id}`)
         message.success("上传成功")
       }
     })
@@ -537,13 +537,11 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.shareMember.length > 0 ? this.state.shareMember : undefined }
                 optionFilterProp="children"
                 onChange={this.onShareSelectChange}
-                filterOption={(input, option) =>
-                  option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                filterOption={(input, option) => option?.props.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 }>
                 {
-                  
                   this.state.memberList?.map( item => {
-                    return <Select.Option key={item.id} value={item.id}> {item.name} </Select.Option>
+                    return <Select.Option key={item.id} name={item.name} value={item.id}> {item.name} </Select.Option>
                   })
                 }
               </Select>

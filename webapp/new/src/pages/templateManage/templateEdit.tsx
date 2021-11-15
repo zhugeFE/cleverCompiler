@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 15:29:40
+ * @LastEditTime: 2021-11-15 10:35:19
  */
 
 import { connect } from 'dva';
@@ -153,6 +153,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
         delTimeout = delTimeout - 1000
         delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
         if (delTimeout <= 0) {
+          this.onPlaceOnFile()
           clearInterval(this.state.delInterval as unknown as number)
         }
         this.setState({

@@ -1,3 +1,4 @@
+import { PoolConnection } from 'mysql';
 import { Version } from "./common";
 
 /*
@@ -6,7 +7,7 @@ import { Version } from "./common";
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 14:06:33
+ * @LastEditTime: 2021-11-15 14:56:37
  */
 
 export interface TemplateInstance {

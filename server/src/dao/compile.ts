@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:18:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-29 18:20:59
+ * @LastEditTime: 2021-11-15 17:43:33
  */
 
 import pool from './pool'
@@ -93,9 +93,6 @@ class Compile {
     const sql = `update compile set ${props.join(',')} where id=?`
     await pool.query(sql, params)
   }
-
-
-  
 
 }
 

@@ -11,7 +11,7 @@ import gitUtil from '../utils/gitUtil';
 import * as _ from 'lodash';
 import redisClient from '../utils/redis';
 import config from '../config';
-import { Pool, PoolConnection } from 'mysql';
+import { PoolConnection } from 'mysql';
 interface Repo {
   id: string;
   name: string;
@@ -23,50 +23,50 @@ class GitDao {
   /**
    * 同步git库数据
    */
-  async syncRep (): Promise<Repo[]> {
-    logger.info('同步git库数据')
-    const sysInfo = await sysDao.getSysInfo()
-    if (!sysInfo) return []
-    const res = await axios({
-      url: 'api/v3/projects',
-      method: 'GET',
-      baseURL: sysInfo.gitHost,
-      headers: {
-        'PRIVATE-TOKEN': sysInfo.gitToken
-      },
-      params: {
-        'per_page': 100
-      }
-    }) as {
-      data: Repo[];
-    }
-    const repoList = res.data
-    const gitList = await this.query()
-    const gitIdMap = {}
-    gitList.forEach((git: GitInstance) => {
-      gitIdMap[git.repoId] = git
-    })
-    const connect = await pool.beginTransaction()
-    try {
-      await Promise.all(repoList.map(async (rep: Repo) => {
-        if (gitIdMap[rep.id]) return null
-        const sql = `insert into git_source(\`id\`, \`name\`, \`git\`, \`git_id\`, \`description\`, \`enable\`) values(?, ?, ?, ?, ?, ${false})`
-        await pool.writeInTransaction(connect, sql, [
-          util.uuid(),
-          rep.name,
-          rep.ssh_url_to_repo,
-          rep.id,
-          rep.description
-        ])
-      }))
-      await pool.commit(connect)
-    } catch (e) {
-      pool.rollback(connect)
-      logger.error('向git表插入数据失败', e)
-      throw e
-    }
-    return repoList
-  }
+  // async syncRep (): Promise<Repo[]> {
+  //   logger.info('同步git库数据')
+  //   const sysInfo = await sysDao.getSysInfo()
+  //   if (!sysInfo) return []
+  //   const res = await axios({
+  //     url: 'api/v3/projects',
+  //     method: 'GET',
+  //     baseURL: sysInfo.gitHost,
+  //     headers: {
+  //       'PRIVATE-TOKEN': sysInfo.gitToken
+  //     },
+  //     params: {
+  //       'per_page': 100
+  //     }
+  //   }) as {
+  //     data: Repo[];
+  //   }
+  //   const repoList = res.data
+  //   const gitList = await this.query()
+  //   const gitIdMap = {}
+  //   gitList.forEach((git: GitInstance) => {
+  //     gitIdMap[git.repoId] = git
+  //   })
+  //   const connect = await pool.beginTransaction()
+  //   try {
+  //     await Promise.all(repoList.map(async (rep: Repo) => {
+  //       if (gitIdMap[rep.id]) return null
+  //       const sql = `insert into git_source(\`id\`, \`name\`, \`git\`, \`git_id\`, \`description\`, \`enable\`) values(?, ?, ?, ?, ?, ${false})`
+  //       await pool.writeInTransaction(connect, sql, [
+  //         util.uuid(),
+  //         rep.name,
+  //         rep.ssh_url_to_repo,
+  //         rep.id,
+  //         rep.description
+  //       ])
+  //     }))
+  //     await pool.commit(connect)
+  //   } catch (e) {
+  //     pool.rollback(connect)
+  //     logger.error('向git表插入数据失败', e)
+  //     throw e
+  //   }
+  //   return repoList
+  // }
 
 
   async getRemoteGitList (): Promise<GitList[]> {
@@ -119,6 +119,7 @@ class GitDao {
       }
     })
   }
+
   async getTagsById (id: string | number): Promise<GitTag[]> {
     const res = await gitUtil.ajax<GitTag[]>(`projects/${id}/repository/tags`, 'GET')
     return res.map(item => {
@@ -132,6 +133,7 @@ class GitDao {
       }
     })
   }
+
   async getCommitsById (id: string | number): Promise<GitCommit[]> {
     const res = await gitUtil.ajax<any[]>(`projects/${id}/repository/commits`, 'GET')
     return res.map(item => {
@@ -142,6 +144,7 @@ class GitDao {
       }
     })
   }
+
   async query (): Promise<GitInstance[]> {
     const sql = `select 
       git.id,
@@ -276,12 +279,14 @@ class GitDao {
         }))
       }
       await pool.commit(connect)
+      return await this.getVersionById(versionId)
     } catch (err) {
       pool.rollback(connect)
       throw(err)
     }
-    return await this.getVersionById(versionId)
   }
+
+
   async getVersionById (versionId: string): Promise<GitVersion> {
     const sql = `select 
       v.id,
@@ -301,6 +306,8 @@ class GitDao {
     versionList[0].configs = await this.queryConfigByVersionId(versionId)
     return versionList[0]
   }
+
+
   async addConfig (param: GitCreateConfigParam, conn?: PoolConnection): Promise<string> {
     const sql = `insert into 
       source_config(
@@ -352,6 +359,8 @@ class GitDao {
     const list = await pool.query<GitConfig>(sql, [id])
     return list[0]
   }
+
+
   async queryConfigByVersionId (sourceId: string, conn?: PoolConnection): Promise<GitConfig[]> {
     const sql = `select 
       config.*,
@@ -364,10 +373,14 @@ class GitDao {
     }
     return await pool.query<GitConfig>(sql, [sourceId])
   }
+
+
   async deleteConfigById (configId: string): Promise<void> {
     const sql = `delete from source_config where id=?`
     await pool.query(sql, [configId])
   }
+
+
   async updateVersion (version: GitVersion): Promise<void> {
     const props = []
     const params = []
@@ -378,9 +391,17 @@ class GitDao {
       }
     }
     params.push(version.id)
-    const sql = `update source_version set ${props.join(',')} where id=?`
-    await pool.query(sql, params)
+    const conn = await pool.beginTransaction()
+    try {
+      const sql = `update source_version set ${props.join(',')} where id=?`
+      await pool.writeInTransaction(conn,sql, params)
+      await pool.commit(conn)
+    }catch(e){
+      await pool.rollback(conn)
+      throw(e)
+    }  
   }
+
   async deleteVersion (id: string): Promise<void> {
     const delConfig = 'delete from source_config where version_id = ?'
     const sql = `delete from source_version where id=?`

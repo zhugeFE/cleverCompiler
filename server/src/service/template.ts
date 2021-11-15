@@ -5,7 +5,7 @@ import { UpdateTemplateGlobalConfig } from './../types/template';
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 17:55:24
+ * @LastEditTime: 2021-11-15 16:43:11
  */
 import { 
   CreateTemplateGlobalConfigParams, 
@@ -77,7 +77,7 @@ class TemplateService {
     await templateDao.deleteConfigById(configId)
   }
   async addGlobalConfig(config: CreateTemplateGlobalConfigParams): Promise<TemplateGlobalConfig> {
-    return await templateDao.addGlobalConfig(config)
+    return await templateDao.addGlobalConfig(config) as TemplateGlobalConfig
   }
   async updateGlobalConfig(config: UpdateTemplateGlobalConfig): Promise<TemplateGlobalConfig> {
     return await templateDao.updateGlobalConfig(config)
