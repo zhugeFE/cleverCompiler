@@ -18,22 +18,30 @@ class Project {
 
    // 项目列表
    async projectList (): Promise<ProjectInstance[]>{
-    const sql = `SELECT
-      p.id AS id,
-      p.\`name\` AS NAME,
-      p.creator_id AS creator_id,
-      p.create_time AS create_time,
-      p.compile_type AS compile_type,
-      c.compile_time AS last_compile_time,
-      c.compile_result AS last_compile_result,
-      p.customer AS customer,
-      u.NAME AS compileUser 
-    FROM
-      project AS p
-      LEFT JOIN (
-        ( SELECT project_id, compile_result, compile_user, max( compile_time ) AS compile_time FROM compile GROUP BY compile.project_id ) AS c
-      LEFT JOIN \`user\` AS u ON u.id = c.compile_user 
-      ) ON p.id = c.project_id
+    const sql = `
+      SELECT
+        p.id AS id,
+        p.\`name\` AS NAME,
+        p.creator_id AS creator_id,
+        p.create_time AS create_time,
+        p.compile_type AS compile_type,
+        c.compile_time AS last_compile_time,
+        c.compile_result AS last_compile_result,
+        p.customer AS customer,
+        u.NAME AS compileUser 
+      FROM
+        project AS p
+        LEFT JOIN (
+        ( SELECT
+            a.*,
+            c.compile_user,
+            c.compile_result 
+          FROM
+            ( SELECT project_id, max( compile_time ) AS compile_time FROM compile GROUP BY compile.project_id ) AS a
+            LEFT JOIN compile AS c ON c.project_id = a.project_id 
+            AND a.compile_time = c.compile_time ) AS c
+        LEFT JOIN \`user\` AS u ON u.id = c.compile_user 
+        ) ON p.id = c.project_id
     `
     return await pool.query<ProjectInstance>(sql)
   }

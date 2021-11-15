@@ -144,8 +144,8 @@ class ProjectList extends React.Component<Props, States> {
         dataIndex: 'lastCompileTime',
         ellipsis: true,
         width: 60,
-        render(text: string, record: ProjectInstance) {
-          return <div> { util.dateTimeFormat(new Date(text)) || '-'} </div>;
+        render(text: string) {
+          return <> { text ? util.dateTimeFormat(new Date(text)) : '-'} </>;
         },
       },
       {

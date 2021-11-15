@@ -25,13 +25,7 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
   .then((projectList: ProjectInstance[]) => {
     res.json(new ApiResult(ResponseStatus.success, projectList))
   })
-  .catch( (err) => {
-    // const err = new Error()
-    // err.message = "获取project列表失败"
-    // next(err)
-    logger.info(err)
-    next
-  })
+  .catch(next)
 })
 
 //项目添加
@@ -58,19 +52,15 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
           
           projectInfo[key].push(config)
         })
-      }
-      else if ( key == 'gitList') {
+      } else if ( key == 'gitList') {
         projectInfo[key] = []
         const gitList = JSON.parse(fields[key] as string)
-        gitList.map( git => {
+        gitList.map( (git: any) => {
           projectInfo[key].push(git)
-        }) 
-      }
-      else {
+        })
+      } else {
         projectInfo[key] = fields[key]
-
-      }      
-
+      }
     })
 
     Object.keys(file).map( async name=> {

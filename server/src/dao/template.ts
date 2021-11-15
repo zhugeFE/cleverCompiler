@@ -54,11 +54,11 @@ class TemplateDao {
       template AS a
     LEFT JOIN ( 
       SELECT
-        a.*
+        a.*,
+        tv.id
       FROM
         (
           SELECT
-            id,
             template_id,
             max( version ) AS version
           FROM

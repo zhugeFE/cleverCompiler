@@ -73,7 +73,6 @@ class ProjectEdit extends React.Component<Props, States> {
     this.onTemplateVersionSelectChange = this.onTemplateVersionSelectChange.bind(this)
     this.onCompileTypeSelectChange = this.onCompileTypeSelectChange.bind(this)
     this.onRadioChange = this.onRadioChange.bind(this)
-    this.onChangeEdit = this.onChangeEdit.bind(this)
     this.onClickSave = this.onClickSave.bind(this)
     this.onCustomerSelectChange = this.onCustomerSelectChange.bind(this)
     this.afterUpdateGlobalConfig = this.afterUpdateGlobalConfig.bind(this)
@@ -327,12 +326,12 @@ class ProjectEdit extends React.Component<Props, States> {
     })
   }
 
-  onChangeEdit (e: any ) {
+  onChangeEdit (type: string, e: any ) {
     /**
      * 名称 描述 改变 触发 state
      */
     const target = e.target
-    switch ( target.dataset.type ) {
+    switch (type) {
       case "name": {
         this.setState({
           name: target.value
@@ -340,7 +339,6 @@ class ProjectEdit extends React.Component<Props, States> {
         break;
       }
       case "description": {
-        console.log(e)
         this.setState({
           description: target.value
         })
@@ -411,7 +409,9 @@ class ProjectEdit extends React.Component<Props, States> {
               <Input 
                 placeholder="请输入名称"
                 disabled={this.state.mode == EditMode.update}
-                style={{width: 300}} onChange={this.onChangeEdit} data-type="name" defaultValue={this.state.name}></Input>
+                style={{width: 300}} onChange={(event) => {
+                  this.onChangeEdit('name', event)
+                }} defaultValue={this.state.name}></Input>
             </Col>
           </Row>
 
@@ -554,7 +554,9 @@ class ProjectEdit extends React.Component<Props, States> {
               <TextArea 
                 placeholder="请输入描述内容"
                 defaultValue={this.state.description}
-                rows={10} data-type="description" onChange={this.onChangeEdit}></TextArea>
+                rows={10} onChange={(event) => {
+                  this.onChangeEdit('description', event)
+                }}></TextArea>
             </Col>
           </Row>
 
