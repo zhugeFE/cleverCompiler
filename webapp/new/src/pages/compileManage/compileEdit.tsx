@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-14 14:32:46
+ * @LastEditTime: 2021-11-16 18:10:00
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, FormInstance, message, Modal, Radio, Select, Spin, Tabs } from 'antd'
@@ -18,6 +18,7 @@ import styles from "./styles/compileEdit.less"
 import util from '@/utils/utils'
 import CompileResult from "./compileResult"
 import DownloadService from "@/services/download"
+import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled, ToolFilled } from '@ant-design/icons'
 
 
 const socket = SocketIO('http://localhost:3000/', {transports:["websocket"]})
@@ -42,6 +43,7 @@ interface States {
   description: string;
   projectList: ProjectCompileParams[] | null;
   compileLog: {};
+  compileStatus: {};
   GitMap: {};
   showResult: boolean;
 }
@@ -61,6 +63,7 @@ class CompileEdit extends React.Component<Props, States> {
       description: "",
       checkboxOptions: [],
       compileLog: {},
+      compileStatus: {},
       showResult: false,
     }
     this.onRadioChange = this.onRadioChange.bind(this)
@@ -71,10 +74,14 @@ class CompileEdit extends React.Component<Props, States> {
     this.onCancelShowResult = this.onCancelShowResult.bind(this)
     this.onDownload = this.onDownload.bind(this)
     this.showResult = this.showResult.bind(this)
+    this.returnSpin = this.returnSpin.bind(this)
+    this.reCompile = this.reCompile.bind(this)
+    this.onPack = this.onPack.bind(this)
   }
   
   initSocket () {
     const compileLog =  util.clone(this.state.compileLog)
+    const compileStatus = util.clone(this.state.compileStatus)
     socket.on("compileMessage", (data) => {
       if (!compileLog[data.gitName]) {
         compileLog[data.gitName] = []
@@ -82,6 +89,13 @@ class CompileEdit extends React.Component<Props, States> {
       compileLog[data.gitName].push({message: data.message.toString()})
       this.setState({
         compileLog
+      })
+    })
+    socket.on("compileStatus", (data) => {
+      console.log(data)
+      compileStatus[data.gitName]= data.message.toString()
+      this.setState({
+        compileStatus
       })
     })
     socket.on("result", (data) =>{
@@ -200,8 +214,13 @@ class CompileEdit extends React.Component<Props, States> {
   }
 
   onCheckBoxChange (checkedValues: CheckboxValueType[]) {
+    const compileStatus = {}
+    for ( const key of checkedValues) {
+      compileStatus[key as string] = 'waiting'
+    }
     this.setState({
-      compileGit: checkedValues as string[]
+      compileGit: checkedValues as string[],
+      compileStatus
     })
   }
 
@@ -229,25 +248,69 @@ class CompileEdit extends React.Component<Props, States> {
     
   }
 
+  reCompile (id: string) {
+    const {compileGit,  description, projectId, publicType} = this.state
+    if (!compileGit.length) {
+      message.warning("未选择编译git")
+      return
+    }
+
+    if (!description || !projectId) {
+      message.warning("信息描述不完整")
+      return
+    }
+    const data = {
+      userId: this.props.currentUser?.id,
+      projectId,
+      publicType,
+      description,
+      gitIds: [id]
+    }
+    socket.emit("startCompile", data)
+  }
+
 
   TextAreaChange (e: any) {
     this.setState({
       description: e.target.value
     })
   }
+
+  returnSpin (status: string, gitId:string): JSX.Element {
+    if (status === 'executing') {
+      return <Spin style={{marginLeft:10, color:"#55efc4", fontSize:24}}></Spin>
+    }
+    if (status === 'success') {
+      return <CheckCircleFilled style={{marginLeft:10, color:"#55efc4", fontSize:24}} />
+    }
+    if (status === 'fails') {
+      return <> 
+        <CloseCircleFilled style={{marginLeft:10, color:"#f40", fontSize:24}}/>
+        <Button type="primary" onClick={ () => this.reCompile(gitId)}> 重新编译 </Button>
+      </> 
+    }
+    return <ClockCircleFilled style={{marginLeft:10, color:"#ffeaa7", fontSize:24}}/>
+  }
+
+  onPack () {
+
+    const data = {
+      // compileId
+      // publicType,
+      gitIds: [...this.state.compileGit.map(item => this.state.GitMap[item])]
+    }
+
+    socket.emit("pack", data)
+  }
   render() {
     const publicType = [
       {
         id: 0,
-        text: "发布到云端"
+        text: "发布到git"
       },
       {
         id: 1,
-        text: "打包下载"
-      },
-      {
-        id: 2,
-        text: "分别下载"
+        text: "下载"
       },
       {
         id: 3,
@@ -306,7 +369,15 @@ class CompileEdit extends React.Component<Props, States> {
                     {
                       this.state.compileGit.map( item => {
                         return (
-                          <Tabs.TabPane tab={item} key={item}>
+                          <Tabs.TabPane tab={
+                            <span>
+                              {item}
+                              {
+                                this.returnSpin(this.state.compileStatus[item], this.state.GitMap[item])
+                              } 
+                              
+                            </span>} 
+                            key={item} >
                             <div className={styles.tabpane_content}>
                               {
                                 this.state.compileLog[item] ?
@@ -321,6 +392,7 @@ class CompileEdit extends React.Component<Props, States> {
                   </Tabs>
                 </Form.Item>
                 <Button type="primary" onClick={this.onClickCompile}>编译</Button>
+                <Button type="primary" onClick={this.onPack}>打包下载</Button>
                 {
                   this.state.compileResult&&
                   <Button type="primary" onClick={this.showResult}>编译结果</Button>

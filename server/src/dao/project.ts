@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-15 17:35:44
+ * @LastEditTime: 2021-11-16 14:50:33
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -82,7 +82,9 @@ class Project {
         globalConfigDataList.push([configId, projectId , config.id, config.targetValue])
        })
 
-      await this.insetGlobalConfig(conn, globalConfigDataList)
+      if (globalConfigDataList.length) {
+        await this.insetGlobalConfig(conn, globalConfigDataList)
+      }
 
       params.gitList.map( async git => {
         const gitId = util.uuid()
@@ -91,7 +93,9 @@ class Project {
   
       })
 
-      await this.insertProjectGit(conn, gitDataList)
+      if (gitDataList.length) {
+        await this.insertProjectGit(conn, gitDataList)
+      }
 
       params.gitList.map(  git => {
         git.configList.map( config => {
@@ -100,7 +104,9 @@ class Project {
         })
       })
 
-      await this.insertConfig(conn, configDataList)
+      if (configDataList.length) {
+        await this.insertConfig(conn, configDataList)
+      }
 
       await pool.commit(conn)
       return this.getProjectInfo(projectId)
@@ -183,9 +189,9 @@ class Project {
     //创建config
     const conn = await pool.beginTransaction()
     const gitMap = {}
-    const GitData = []
-    const GlobalConfigMap = {}
-    const GlobalConfigData = []
+    const gitData = []
+    const globalConfigMap = {}
+    const globalConfigData = []
     const configData = []
 
     const updateProjectSql = `UPDATE project 
@@ -204,29 +210,34 @@ class Project {
 
       data.globalConfigList.map( config => {
         const globalConfigId = util.uuid()
-        GlobalConfigMap[config.id] = globalConfigId
-        GlobalConfigData.push([globalConfigId, data.id, config.id, config.targetValue])
+        globalConfigMap[config.id] = globalConfigId
+        globalConfigData.push([globalConfigId, data.id, config.id, config.targetValue])
       })
-      await this.insetGlobalConfig(conn, GlobalConfigData)
+      if ( globalConfigData.length) {
+        await this.insetGlobalConfig(conn, globalConfigData)
+      }
 
   
 
       data.gitList.map( git => {
         const gitId = util.uuid()
         gitMap[git.id] = gitId
-        GitData.push([gitId, git.name, data.id, git.id])
+        gitData.push([gitId, git.name, data.id, git.id])
       })
-
-      await this.insertProjectGit(conn, GitData)
+      
+      if (gitData.length){
+        await this.insertProjectGit(conn, gitData)
+      }
 
       data.gitList.map( git => {
         git.configList.map( config => {
-          configData.push([util.uuid(), config.targetValue, config.id, GlobalConfigMap[config.globalConfigId], gitMap[git.id]])
+          configData.push([util.uuid(), config.targetValue, config.id, globalConfigMap[config.globalConfigId], gitMap[git.id]])
         })
       })
-      
-      await this.insertConfig(conn, configData)
 
+      if( configData.length) {
+        await this.insertConfig(conn, configData)
+      }
       await pool.commit(conn)
     }
     catch (err) {

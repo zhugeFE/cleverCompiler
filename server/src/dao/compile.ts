@@ -4,11 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:18:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-15 17:43:33
+ * @LastEditTime: 2021-11-16 19:07:03
  */
 
 import pool from './pool'
 import {
+  CompileDoc,
+  CompileGitData,
   CompileParam,
   ProjectCompile,
 } from "../types/compile"
@@ -80,7 +82,7 @@ class Compile {
   }
 
   //编译状态更新
-  async updateProjectCompile (data: ProjectCompile): Promise<void>{
+  async updateProjectCompile (data: ProjectCompile | {id: string; file: string; compileResult: string}): Promise<void>{
     const props = []
     const params = []
     for (const key in data) {
@@ -94,6 +96,34 @@ class Compile {
     await pool.query(sql, params)
   }
 
+  async getGitData (projectGitId: string): Promise<CompileGitData>{
+    const sql = `
+      SELECT 
+        pg.NAME,
+        sv.output_name
+      FROM
+        project_git as pg
+      LEFT JOIN template_version_git as tg ON pg.template_git_id = tg.id
+      LEFT JOIN source_version as sv ON tg.git_source_version_id = sv.id
+      WHERE tg.id = ?`
+    const data  = await pool.query<CompileGitData>(sql, [projectGitId])
+    return data.length ? data[0] : null
+  
+  }
+
+  async getTemplateDoc (projectId: string): Promise<CompileDoc> {
+    const sql = `
+      SELECT
+        tv.build_doc,
+        tv.readme_doc,
+        tv.update_doc
+      FROM
+        project
+      LEFT JOIN template_version as tv ON tv.id = project.template_version
+      WHERE project.id = ?`
+    const data = await pool.query<CompileDoc>(sql, [projectId])
+    return data.length ? data[0] : null
+  }
 }
 
 const compile = new Compile()

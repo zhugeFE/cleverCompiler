@@ -5,7 +5,7 @@ import { TemplateConfig } from './template';
  * @Author: Adxiong
  * @Date: 2021-08-23 16:55:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-13 12:29:44
+ * @LastEditTime: 2021-11-16 18:56:34
  */
 
 
@@ -42,4 +42,16 @@ export interface CompileConfig {
   compileType: number ; //编译类型
   templateId: string;
   templateVersionId: string;
+}
+
+
+export interface CompileGitData {
+  name: string;
+  outputName: string;
+}
+
+export interface CompileDoc {
+  buildDoc: string;
+  updateDoc: string;
+  readmeDoc: string;
 }

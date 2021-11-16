@@ -4,12 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:56:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:46:43
+ * @LastEditTime: 2021-11-16 15:19:00
  */
 import WorkFlowUtil from './workFlowUtil';
 import logger from './logger';
 import { CompileConfig } from './../types/compile';
 import SocketLogge from './socketLogger';
+import { SocketEventNames } from './workFlowUtil';
 
 
 class Socket {
@@ -20,12 +21,12 @@ class Socket {
     this.workdir = workdir
   }
 
-  async start(socket, requestData: CompileConfig): Promise<void> {
+  async start(socket, requestData: CompileConfig): Promise<boolean> {
     // if (!session || !session.user) 
     //   return
     // }
     // 判断用户是否有改仓库操作权限
-    SocketLogge(socket, requestData.gitName, "Step: 开始执行编译流程,请耐心等待...")
+    SocketLogge(socket, SocketEventNames.compileMessage, requestData.gitName, "Step: 开始执行编译流程,请耐心等待...")
 
     try {
       const workFlowUtil = new WorkFlowUtil(this.workdir)
@@ -38,11 +39,14 @@ class Socket {
       // await WorkFlowUtil.initOutputDir(socket, workDir, requestData.gitName)
       await workFlowUtil.runReplacement(socket, requestData.gitName, requestData.configList)
       await workFlowUtil.runCompile(socket , requestData.gitName, requestData.compileOrders)
+      return true
     }
     catch (err) {
-      logger.info(err)
-      throw(err)
+      logger.error("compile Error:", err)
+      return false
     }
+    
+    
       
   }
 }

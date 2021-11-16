@@ -4,13 +4,15 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-14 14:20:10
+ * @LastEditTime: 2021-11-16 16:26:26
  */
 import * as childProcess from 'child_process'
 import * as _ from 'lodash';
 import logger from './logger';
 import * as path from 'path';
 import fsUtil from './fsUtil';
+import SocketLogge from './socketLogger';
+import { SocketEventNames } from './workFlowUtil';
 class DashUtil {
   workdir: string
 
@@ -18,10 +20,14 @@ class DashUtil {
     this.workdir = workdir
   }
 
-  async cd (originPath: string): Promise <void> {
+  async cd (originPath: string, socket?, gitName?: string): Promise <void> {
     return new Promise( (resolve, reject) => {
       const dir = path.resolve(this.workdir, originPath)
-      logger.info(`检测 ${dir} 路径是否存在`)
+      if (socket) {
+        SocketLogge(socket, SocketEventNames.compileMessage, gitName, `检测 ${dir} 路径是否存在`)
+      } else {
+        logger.info(`检测 ${dir} 路径是否存在`)
+      }
       fsUtil.pathExist(dir)
       .then((exist: boolean) => {
         if (exist) {
@@ -34,6 +40,8 @@ class DashUtil {
     })
   }
   exec (command: string, 
+    socket?,
+    gitName?: string,
     options: childProcess.ExecOptions={cwd: this.workdir}, 
     onData?: (data: string) => void): Promise<void> {
     
@@ -41,7 +49,12 @@ class DashUtil {
       logger.info(`exec command: ${command}`)
       const process = childProcess.exec(command, options, (err) => {
         if (err) {
-          logger.error(`命令行(${command})执行异常: ${err.message}`)
+          if( socket) {
+            logger.info("socket ====> ", socket)
+            SocketLogge(socket,SocketEventNames.compileMessage, gitName, err.message)
+          }else {
+            logger.error(`命令行(${command})执行异常: ${err.message}`)
+          }
           reject(err)
           return
         }
@@ -49,10 +62,18 @@ class DashUtil {
       })
       process.stdout.on('data', (chunk) => {
         if (onData) onData(chunk.toString())
-        logger.info('command stdout >>>>', chunk.toString())
+        if (socket) {
+          SocketLogge(socket,SocketEventNames.compileMessage, gitName, chunk.toString())
+        } else {
+          logger.info('command stdout >>>>', chunk.toString())
+        }
       })
       process.stderr.on('data', chunk => {
-        logger.error('command stderr >>>>', chunk.toString())
+        if (socket) {
+          SocketLogge(socket,SocketEventNames.compileMessage, gitName, chunk.toString())
+        } else {
+          logger.error('command stderr >>>>', chunk.toString())
+        }
         if (onData) onData(chunk.toString())
       })
     })
