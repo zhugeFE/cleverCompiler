@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:56:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 15:19:00
+ * @LastEditTime: 2021-11-17 15:56:58
  */
 import WorkFlowUtil from './workFlowUtil';
 import logger from './logger';
@@ -39,6 +39,8 @@ class Socket {
       // await WorkFlowUtil.initOutputDir(socket, workDir, requestData.gitName)
       await workFlowUtil.runReplacement(socket, requestData.gitName, requestData.configList)
       await workFlowUtil.runCompile(socket , requestData.gitName, requestData.compileOrders)
+      SocketLogge(socket, SocketEventNames.compileMessage, requestData.gitName, `Step: 执行编译动作 执行完毕`)
+
       return true
     }
     catch (err) {

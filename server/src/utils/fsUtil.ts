@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 19:22:17
+ * @LastEditTime: 2021-11-17 15:53:27
  */
 import * as fs from 'fs'
 import * as pt from 'path'
@@ -45,7 +45,6 @@ class FsUtil {
       })
     })
   }
-
 
   async pathExist (path: string): Promise<boolean> {
     return new Promise((resolve) => {

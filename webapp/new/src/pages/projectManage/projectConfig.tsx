@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 11:35:18
+ * @LastEditTime: 2021-11-17 10:26:58
  */
 
 import { TypeMode } from "@/models/common";
@@ -68,10 +68,10 @@ class ProjectConfig extends React.Component <Props, States> {
 
   render () {
     const columns: ColumnProps<TemplateConfig>[] = [
-      { title: '文件位置', width: 150, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
+      { title: '文件位置', width: 100, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
       {
         title: '默认值',
-        width: 200,
+        width: 180,
         ellipsis: true,
         render: (record: TemplateConfig) => {
           if ( record.globalConfigId) {
@@ -119,8 +119,23 @@ class ProjectConfig extends React.Component <Props, States> {
         },
       },
       {
+        title: '隐藏',
+        dataIndex: 'isHidden',
+        filters: [
+          {text: "是", value:"1"},
+          {text: "否", value:"0"}
+        ],
+        width: 100,
+        filtered: true,
+        onFilter: (value, record: TemplateConfig) =>{ console.log(value,record); return record.isHidden == value},
+        render: (record: TemplateConfig) => {
+          return record.isHidden ? "是" : "否"
+        }
+      },
+      {
         title: '操作',
         fixed: 'right',
+        width: 100,
         render: (value: any, record: TemplateConfig) => {
           return (
             <Button
@@ -164,10 +179,11 @@ class ProjectConfig extends React.Component <Props, States> {
             >
             {this.props.gitList?.map((item, index) => {
               return (
-                <Tabs.TabPane  tab={item.name} key={item.id}>
+                <Tabs.TabPane  tab={`${item.name}-${item.version}`} key={item.id}>
                   <Table
                     columns={columns}
                     rowKey="id"
+                    // scroll={{x:1500}}
                     dataSource={item.configList}
                     pagination={{
                       pageSize: 3,

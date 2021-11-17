@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:18:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 19:07:03
+ * @LastEditTime: 2021-11-17 11:12:26
  */
 
 import pool from './pool'
@@ -105,7 +105,7 @@ class Compile {
         project_git as pg
       LEFT JOIN template_version_git as tg ON pg.template_git_id = tg.id
       LEFT JOIN source_version as sv ON tg.git_source_version_id = sv.id
-      WHERE tg.id = ?`
+      WHERE pg.id = ?`
     const data  = await pool.query<CompileGitData>(sql, [projectGitId])
     return data.length ? data[0] : null
   

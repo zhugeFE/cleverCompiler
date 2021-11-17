@@ -261,6 +261,7 @@ class ProjectEdit extends React.Component<Props, States> {
       type: "project/updateProject",
       payload: form,
       callback: () => {
+        this.props.history.goBack();
         message.success("修改成功")
       }
     })
@@ -321,6 +322,7 @@ class ProjectEdit extends React.Component<Props, States> {
       callback: (data: ProjectInfo)=>{
         this.props.match.params.id = data.id
         // this.props.history.replace(`/compile/project/edit/${data.id}`)
+        this.props.history.goBack();
         message.success("上传成功")
       }
     })

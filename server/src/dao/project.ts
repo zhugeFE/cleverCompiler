@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 14:50:33
+ * @LastEditTime: 2021-11-17 14:33:11
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -443,7 +443,7 @@ class Project {
       item.gitList = await pool.query<{id: string; name: string}>(queryProjectGitSql, [item.id])
     }))
 
-    return projectInfo.length ? projectInfo : null
+    return projectInfo.length ? projectInfo : []
 
   }
 

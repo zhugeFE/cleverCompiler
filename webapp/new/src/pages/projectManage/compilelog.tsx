@@ -4,16 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-14 15:32:16
+ * @LastEditTime: 2021-11-17 17:35:57
  */
 import util from '@/utils/utils'
-import { Button, Table } from 'antd'
+import { Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { connect, Dispatch } from 'dva'
 import React from 'react'
 import { IRouteComponentProps, Member, ProjectCompile } from 'umi'
-import DownloadService from "@/services/download"
-import { Customer } from "@/models/customer"
 import { LeftOutlined } from '@ant-design/icons'
 
 interface Props extends IRouteComponentProps< {
@@ -60,16 +58,6 @@ class Compilelog extends React.Component<Props, States> {
         })
       }
     })
-  }
-
-  async onDownload(pathName: string) {
-    const res = await DownloadService.getDownloadFilePath(pathName)as {status: number, data: string[]}
-    if(res.data){
-      for (const info of res.data) {
-        console.log( info)
-        const res = await DownloadService.downloadFile(info)
-      }
-    }
   }
 
   render() {
@@ -132,11 +120,11 @@ class Compilelog extends React.Component<Props, States> {
         dataIndex:"file",
         render: (text: string, record: ProjectCompile)=>{
           return(
-            <>
-              <Button 
-                onClick={this.onDownload.bind(this,record.file)}
-              >下载文件</Button>
-          </>
+            record.file ? <a 
+              download={record.projectName}
+              style={{marginRight:10}} 
+              href={`/api/download?filePath=${record.file}`} 
+              >下载</a> : "-"
           )
         }
       }

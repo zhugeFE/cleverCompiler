@@ -11,7 +11,7 @@
  Target Server Version : 80025
  File Encoding         : 65001
 
- Date: 14/11/2021 10:32:24
+ Date: 17/11/2021 17:35:11
 */
 
 SET NAMES utf8mb4;
@@ -25,7 +25,7 @@ CREATE TABLE `compile` (
   `id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `compile_time` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '编译时间',
   `compile_user` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '编译用户',
-  `compile_result` varchar(50) NOT NULL COMMENT '编译结果',
+  `compile_result` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '编译结果',
   `project_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '编译项目id',
   `description` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '描述',
   `file` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '文件地址',

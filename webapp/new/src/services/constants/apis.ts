@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 17:29:38
+ * @LastEditTime: 2021-11-17 16:35:25
  */
 export default {
   user: {
@@ -82,7 +82,6 @@ export default {
     deleteCustomer: '/customer/delete'
   },
   download: {
-    getDownloadFilePath: '/download/info',
     downloadFile: '/download'
   }
   

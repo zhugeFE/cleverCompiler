@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 16:26:26
+ * @LastEditTime: 2021-11-17 15:14:42
  */
 import * as childProcess from 'child_process'
 import * as _ from 'lodash';
@@ -32,6 +32,7 @@ class DashUtil {
       .then((exist: boolean) => {
         if (exist) {
           this.workdir = dir
+          SocketLogge(socket, SocketEventNames.compileMessage, gitName, `cd ${dir} `)
           resolve()
           return
         }
@@ -42,12 +43,12 @@ class DashUtil {
   exec (command: string, 
     socket?,
     gitName?: string,
-    options: childProcess.ExecOptions={cwd: this.workdir}, 
     onData?: (data: string) => void): Promise<void> {
     
     return new Promise((resolve, reject) => {
       logger.info(`exec command: ${command}`)
-      const process = childProcess.exec(command, options, (err) => {
+      SocketLogge(socket,SocketEventNames.compileMessage, gitName, `exec command: ${command} , path===> ${this.workdir}`)
+      const process = childProcess.exec(command, {cwd: this.workdir}, (err) => {
         if (err) {
           if( socket) {
             logger.info("socket ====> ", socket)

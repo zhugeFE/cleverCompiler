@@ -1,4 +1,4 @@
-import { ProjectCompileData, ProjectCompileParams } from './../types/project';
+import { ProjectCompileParams } from './../types/project';
 /*
  * @Descripttion: 
  * @version: 
@@ -12,7 +12,6 @@ import ProjectService from "../service/project"
 import CompileService from "../service/compile"
 import { CreateProjectParams, ProjectInfo, ProjectInstance, ProjectType, UpdateProjectParams } from '../types/project'
 import { Member } from '../types/user'
-import logger from '../utils/logger'
 import * as path from 'path'
 import { ProjectCompile } from '../types/compile'
 import fsUtil from '../utils/fsUtil';
@@ -153,12 +152,7 @@ router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
 router.get('/compile', (req: Request, res: Response, next: NextFunction) => {
   ProjectService.getProjectCompileData()
   .then( (data: ProjectCompileParams[]) => {
-    if (!data) {
-      res.json(new ApiResult(ResponseStatus.fail, '数据为空'))
-      return
-    } else {
-      res.json(new ApiResult(ResponseStatus.success, data))
-    }
+    res.json(new ApiResult(ResponseStatus.success, data))
   })
   .catch(next)
 })

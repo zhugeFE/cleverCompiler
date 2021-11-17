@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 18:10:00
+ * @LastEditTime: 2021-11-17 17:38:01
  */
 import { ConnectState } from '@/models/connect'
-import { Button, Checkbox, Form, FormInstance, message, Modal, Radio, Select, Spin, Tabs } from 'antd'
+import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import TextArea from 'antd/lib/input/TextArea'
 import React from 'react'
@@ -16,12 +16,9 @@ import { connect, CurrentUser, Dispatch, IRouteComponentProps, ProjectCompileGit
 import SocketIO from "socket.io-client"
 import styles from "./styles/compileEdit.less"
 import util from '@/utils/utils'
-import CompileResult from "./compileResult"
-import DownloadService from "@/services/download"
-import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled, ToolFilled } from '@ant-design/icons'
-
-
-const socket = SocketIO('http://localhost:3000/', {transports:["websocket"]})
+import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled } from '@ant-design/icons'
+import proxy from "../../../config/proxy"
+const socket = SocketIO(proxy.dev['/api/'].target, {transports:["websocket"]})
 
 interface Props extends IRouteComponentProps<{
   id: string;
@@ -34,18 +31,15 @@ interface States {
   projectId: string;
   compileGit: string[];
   checkboxOptions: string[];
-  compileResult: {
-    title: string;
-    subTitle: string;
-    fileaddr: string;
-    successGitNames: string[];
-  } | null;
+  compileResult: string[];
+  compileId: string;
   description: string;
   projectList: ProjectCompileParams[] | null;
   compileLog: {};
   compileStatus: {};
   GitMap: {};
   showResult: boolean;
+  downloadAddr: string;
 }
 
 class CompileEdit extends React.Component<Props, States> {
@@ -59,21 +53,20 @@ class CompileEdit extends React.Component<Props, States> {
       compileGit: [],
       projectList: null,
       GitMap:{},
-      compileResult: null,
+      compileId: "",
+      compileResult: [],
       description: "",
       checkboxOptions: [],
       compileLog: {},
       compileStatus: {},
       showResult: false,
+      downloadAddr: ""
     }
     this.onRadioChange = this.onRadioChange.bind(this)
     this.selectProject = this.selectProject.bind(this)
     this.onCheckBoxChange = this.onCheckBoxChange.bind(this)
     this.onClickCompile = this.onClickCompile.bind(this)
     this.TextAreaChange = this.TextAreaChange.bind(this)
-    this.onCancelShowResult = this.onCancelShowResult.bind(this)
-    this.onDownload = this.onDownload.bind(this)
-    this.showResult = this.showResult.bind(this)
     this.returnSpin = this.returnSpin.bind(this)
     this.reCompile = this.reCompile.bind(this)
     this.onPack = this.onPack.bind(this)
@@ -92,37 +85,33 @@ class CompileEdit extends React.Component<Props, States> {
       })
     })
     socket.on("compileStatus", (data) => {
-      console.log(data)
       compileStatus[data.gitName]= data.message.toString()
       this.setState({
         compileStatus
       })
     })
-    socket.on("result", (data) =>{
-      console.log(data)
-      var title = ""
-      var subTitle = ""
-      if(data.result == 'success'){
-        title = `编译成功！`
-      }else{
-        title = `编译失败`
-        // subTitle = `编译成功项：${data.successGitNames.toString()}`
-      }
-      var compileRes = {
-        title,
-        subTitle,
-        fileaddr: data.fileaddr,
-        successGitNames: data.successGitNames
-      }
+    socket.on("compileInfo", (data) => {
       this.setState({
-        compileResult: compileRes,
-        showResult: true
+        compileId: data.message.toString()
+      })
+    })
+    socket.on("download", (data) => {
+      this.setState({
+        downloadAddr: data.message.toString()
+      })
+    })
+    socket.on("result", (data) =>{
+      const compileResult = util.clone(this.state.compileResult)
+      compileResult.push(data.message.toString())
+      this.setState({
+        compileResult,
       })
     })
   }
 
-  scrollToBottom () {
-    this.boxBottom.current?.scrollIntoView({ behavior: "smooth" })
+
+  componentDidUpdate () {
+
   }
 
   componentDidMount () {
@@ -131,7 +120,6 @@ class CompileEdit extends React.Component<Props, States> {
     this.initSocket()
     this.getProjectInfo()
     this.getCurrentUser()
-    this.scrollToBottom()
 
   }
 
@@ -157,28 +145,6 @@ class CompileEdit extends React.Component<Props, States> {
       type: "user/fetchCurrent"
     })
   }
-
-
-
-  onCancelShowResult () {
-    this.setState({
-      showResult: false
-    })
-  }
-
-  showResult () {
-    this.setState({
-      showResult: true
-    })
-  }
-
-  onDownload () {
-    if( this.state.compileResult){
-      const res = DownloadService.downloadFile(this.state.compileResult.fileaddr)
-      console.log(res)
-    }
-  }
-
   onRadioChange (e: any) {
     this.setState({
       publicType: e.target.value
@@ -295,8 +261,10 @@ class CompileEdit extends React.Component<Props, States> {
   onPack () {
 
     const data = {
-      // compileId
-      // publicType,
+      userId: this.props.currentUser?.id,
+      projectId: this.state.projectId,
+      compileId: this.state.compileId,
+      publicType: this.state.publicType,
       gitIds: [...this.state.compileGit.map(item => this.state.GitMap[item])]
     }
 
@@ -318,12 +286,12 @@ class CompileEdit extends React.Component<Props, States> {
       }
     ]
 
-    if (!this.state.projectList?.length) {
+    if (!this.state.projectList) {
       return <Spin>正在路上</Spin>
     }
     
     return (
-      <div ref={this.boxBottom}>
+      <div style={{height:"auto"}}>
         <Form
           labelCol={{span:4}}
           wrapperCol={{span:16}}
@@ -365,61 +333,64 @@ class CompileEdit extends React.Component<Props, States> {
                 </Form.Item>
 
                 <Form.Item label="编译结果" className={styles.tabsForm}>
-                  <Tabs tabPosition="left">
-                    {
-                      this.state.compileGit.map( item => {
-                        return (
-                          <Tabs.TabPane tab={
-                            <span>
-                              {item}
-                              {
-                                this.returnSpin(this.state.compileStatus[item], this.state.GitMap[item])
-                              } 
-                              
-                            </span>} 
-                            key={item} >
-                            <div className={styles.tabpane_content}>
-                              {
-                                this.state.compileLog[item] ?
-                                this.state.compileLog[item].map((item: { message: string}, index: number) => <p key={index}>{item.message}</p>)
-                                : `content ${item}`
-                              }
-                            </div>
-                          </Tabs.TabPane>
-                        )
-                      })
-                    }
-                  </Tabs>
+                 {
+                  !this.state.compileGit.length ? (
+                    <div style={{background: "#fff", padding: 20,}}>暂未开始编译</div>) : 
+                    <Tabs tabPosition="left">
+                      {
+                        this.state.compileGit.map( item => {
+                          return (
+                            <Tabs.TabPane 
+                              tab={
+                                <span>
+                                  {item}
+                                  {
+                                    this.returnSpin(this.state.compileStatus[item], this.state.GitMap[item])
+                                  } 
+                                </span>} 
+                              key={item} 
+                              >
+                              <div  className={styles.tabpane_content}>
+                                {
+                                  this.state.compileLog[item] ?
+                                  this.state.compileLog[item].map((item: { message: string}, index: number) => <p key={index}>{item.message}</p>)
+                                  : `${item} 等待编译`
+                                }
+                              </div>
+                            </Tabs.TabPane>
+                          )
+                        })
+                      }
+                    </Tabs>
+                 }
                 </Form.Item>
-                <Button type="primary" onClick={this.onClickCompile}>编译</Button>
-                <Button type="primary" onClick={this.onPack}>打包下载</Button>
-                {
-                  this.state.compileResult&&
-                  <Button type="primary" onClick={this.showResult}>编译结果</Button>
-                }
+                <Form.Item label="打包结果">
+                  <div style={{background: "#fff", padding: 20,}}>
+                    {
+                      this.state.compileResult.length ?
+                      this.state.compileResult.map((item,index) => <p key={index}>{item}</p>)
+                      : "暂未开始打包"
+                    }
+                  </div>
+                </Form.Item>
+                <Form.Item label="操作">
+                  <Button type="primary" style={{marginRight:10}} onClick={this.onClickCompile}>编译</Button>
+                  <Button type="primary"  style={{marginRight:10}} onClick={this.onPack}>打包</Button>
+                  {
+                    this.state.downloadAddr&& 
+                    <a  
+                      download={ 
+                        this.state.projectList.filter(item => item.id === this.state.projectId)[0].name
+                      } 
+                      style={{marginRight:10}}
+                      href={`/api/download?filePath=${this.state.downloadAddr}`}>下载</a>
+                  }
+
+                </Form.Item>
               </>
             )
           }
-        </Form>
-
-        <Modal 
-          title="编译结果"
-          visible={this.state.showResult}
-          onCancel={this.onCancelShowResult}
-          onOk = {this.onDownload}
-          okText="下载"
-          cancelText="取消"
-        >
-          {
-            this.state.compileResult && 
-            <CompileResult 
-              resultData = {this.state.compileResult}
-            ></CompileResult>
-          }
-        </Modal>
-
-        
-        
+        </Form>        
       </div>
     )
   }

@@ -6,7 +6,7 @@ import { TypeMode } from './../types/common';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 19:22:14
+ * @LastEditTime: 2021-11-17 16:03:17
  */
 
 import * as fs from 'fs';
@@ -20,7 +20,9 @@ import fsUtil from './fsUtil';
 export const SocketEventNames  = {
   compileMessage: 'compileMessage',
   compileStatus: 'compileStatus',
-  result: 'result'
+  result: 'result',
+  compileInfo: 'compileInfo',
+  download: 'download',
 }
 class WorkFlow {
 
@@ -35,16 +37,13 @@ class WorkFlow {
      * 初始化目录 并返回目录
      */
     SocketLogge(socket, SocketEventNames.compileMessage , gitName, `Step: 初始化用户根目录 ${this.workDir}`)
-    FsUtil.pathExist(this.workDir)
-    .then ( async(exist: boolean) => {
-      if (!exist){
-        SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 创建用户根目录 ${this.workDir}`)
-        await FsUtil.mkdir(this.workDir)
-      }
-      else {
-        SocketLogge(socket, SocketEventNames.compileMessage , gitName, `Step: 初始化工作目录 执行完毕！`)
-      }
-    }) 
+    const exist = await FsUtil.pathExist(this.workDir)
+    if( exist)  {
+      SocketLogge(socket, SocketEventNames.compileMessage , gitName, `Step: 初始化工作目录 执行完毕！`)
+    } else {
+      SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 创建用户根目录 ${this.workDir}`)
+      await FsUtil.mkdir(this.workDir)
+    }
 
   }
   
@@ -69,7 +68,7 @@ class WorkFlow {
       SocketLogge(socket, SocketEventNames.compileMessage, sourceName, err.message)
     })
     let currentRemoteBranchName: string
-    await dashUtil.exec(`git branch -r`, socket,sourceName, {}, (data: string) =>{
+    await dashUtil.exec(`git branch -r`, socket,sourceName, (data: string) =>{
       currentRemoteBranchName = data.split('\n')[1].split('/')[1] 
     })
     SocketLogge(socket, SocketEventNames.compileMessage, sourceName, `当前仓库${sourceName}---分支${currentRemoteBranchName}`)
@@ -159,11 +158,9 @@ class WorkFlow {
   }
 
   
-  async runCompile (socket, gitName: string, buildCommand: string[]): Promise<boolean> {
+  async runCompile (socket, gitName: string, buildCommand: string[]): Promise<void> {
     const dashUtil = new DashUtil(this.workDir)
-    const workDir = path.join(this.workDir, gitName)
     await dashUtil.cd(gitName, socket, gitName).catch(err => {throw(err)})
- 
     SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 开始执行编译动作`)
     try{
       for (const cmd of buildCommand) {
@@ -174,8 +171,6 @@ class WorkFlow {
           await dashUtil.exec(`${cmd}`, socket, gitName)
         }
       }
-      SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 执行编译动作 执行完毕`)
-      return true
     } catch(e) {
       logger.info(e)
       SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 编译命令执行失败`)
@@ -201,33 +196,48 @@ class WorkFlow {
       case 1: {
         try{
           //在www下创建一个tmp文件
-          const dirPath = __dirname.replace('dist/utils', `www/download/${fileName}/tmp`)
+          SocketLogge(socket, SocketEventNames.result,'result','Step: 创建tmp临时文件')
+          const dirPath = __dirname.replace('dist/utils', `www/download/tmp`)
 
+          await new DashUtil(dirPath).exec('rm -rf ./*', socket, 'result')
           await fsUtil.mkdir(dirPath)
           .catch (err => {
             //创建临时文件失败
+            SocketLogge(socket, SocketEventNames.result,'result','Step: 创建tmp失败, 打包结束')
             throw(err)
           })
 
+          SocketLogge(socket, SocketEventNames.result,'result','Step: tmp文件创建成功')
           for ( let i = 0 ; i < gitData.length; i++) {
-            const oldPath =  path.resolve( this.workDir, `${gitData[i].name}${gitData[i].outputName}`)
+            logger.info(gitData[i])
+            const fileDir =  `${gitData[i].name}${gitData[i].outputName}`
+            logger.info(fileDir)
+            const oldPath =  path.resolve( this.workDir, fileDir)
             const newPath = path.resolve( dirPath, gitData[i].name)
-            const res = await fsUtil.copyFile(oldPath, newPath)
-            if (!res) {
-              //复制失败
-            }
-            // SocketLogge(socket, SocketEventNames.result, gitName[i], `Step: 开始执行打包命令`)
+            SocketLogge(socket, SocketEventNames.result,'result',`Step: 正在拷贝${oldPath} 到 ${newPath}`)
+            await fsUtil.rename(oldPath, newPath).catch ( (err) => {
+               //复制失败
+              SocketLogge(socket, SocketEventNames.result,'result',`Step: 拷贝失败 ${oldPath} 到 ${newPath}`)
+              SocketLogge(socket, SocketEventNames.result,'result',`Step: 错误信息 ${err}`)
+
+              throw(new Error(`拷贝失败 ${oldPath} 到 ${newPath}`))
+            })
+
+            SocketLogge(socket, SocketEventNames.result,'result',`Step: 拷贝成功 ${oldPath} 到 ${newPath}`)
           }
+
+          SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始写入配置文件`)
           fs.writeFileSync( path.resolve(dirPath, 'build.md') , doc.buildDoc)
           fs.writeFileSync( path.resolve(dirPath, 'update.md') , doc.updateDoc)
           fs.writeFileSync( path.resolve(dirPath, 'readme.md') , doc.readmeDoc)
+          SocketLogge(socket, SocketEventNames.result,'result',`Step: 写入配置文件成功`)
 
           const savePath = __dirname.replace('dist/utils', `www/download/${fileName}.tar.gz`)
 
-          await dashUtil.exec(`tar czvf ${savePath} --exclude=.git ${ path.resolve( dirPath, '/')}`)
-          // for ( let i = 0 ; i < gitName.length; i++) {
-          //   SocketLogge(socket, SocketEventNames.result,  gitName[i], `Step: 打包命令 执行完毕`)
-          // }
+          SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始打包文件`)
+          
+          await new DashUtil(dirPath).exec(`tar czvf ${savePath} ./`, socket, 'result')
+
           return true
         
         } catch(e){

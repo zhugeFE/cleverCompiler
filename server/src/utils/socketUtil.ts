@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-16 14:13:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 19:22:20
+ * @LastEditTime: 2021-11-17 16:03:20
  */
 
 import * as Socket from "socket.io";
@@ -73,20 +73,6 @@ class SocketUtil{
             templateVersionId: compileInfo.templateVersion
           })
         })
-  
-
-        /**
-         * 
-         * 1. 生成记录
-         * 2. 编译结果存储  （ 编译者id， 编译结果（成功1: 失败：1）[根据 gitId List长度来] 项目ID 配置内容 编译描述   ）
-         * 3. 返回编译id
-         * 4. 重新编译带回 编译id git——id
-         * 5. 更新编译结果  （ 编译结果 根据 gitID  ）
-         * 
-         * 6. 用户选择打包 （传回 编译id
-         * 7. 编译结果 （对应编译内容里 加入 filePath字段内容
-         */
-   
         const compileInstance: ProjectCompile = await CompileDao.addProjectCompile({
           compileUser: ctx.userId, //编译者id
           compileResult: "开始编译", //编译结果
@@ -94,10 +80,9 @@ class SocketUtil{
           description: ctx.description //编译描述
         } as CompileParam)
   
-        const workDir = path.resolve(config.compileDir, ctx.userId)
-  
-        // const gitNameList = compileList.map( item => item.gitName)
-  
+        SocketLogge(socket, SocketEventNames.compileInfo, "compileId", compileInstance.id)
+
+        const workDir = path.resolve(config.compileDir, ctx.userId)  
         
         const compileResult = []
         for (const item of compileList) {
@@ -122,22 +107,25 @@ class SocketUtil{
         const gitData = []
 
         for ( const id of gitIdList) {
-          gitData.push( GitService.getGitData(id) )
+          const data = await GitService.getGitData(id) 
+          logger.info(data)
+          gitData.push( data)
         }
 
         const doc = await GitService.getTemplateDoc(projectId)
-
-        logger.info(gitIdList)
         // 根据id 查询git 打包目录
-        
+        SocketLogge(socket, SocketEventNames.result,'result','Step: 开始执行打包。。。。')
         const fileName = util.createFileName(ctx.userId)
         //传入 publicDoc， buildDoc， updateDoc
         const res = await new WorkFlowUtil(workDir).tarAndOutput(socket, fileName, gitData, doc ,publicType)
         const data = {
-          id: projectId,
+          id: compileId,
           compileResult: res ? "打包成功" : "打包失败",
-          file: fileName
+          file: res ? fileName : ""
         }
+        SocketLogge(socket, SocketEventNames.result,'result',`Step: ${res ? "打包成功" : "打包失败"}`)
+        SocketLogge(socket, SocketEventNames.download,'download',fileName)
+
         CompileDao.updateProjectCompile(data)
 
       })

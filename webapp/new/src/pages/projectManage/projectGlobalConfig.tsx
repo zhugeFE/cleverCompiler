@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-11 10:36:31
+ * @LastEditTime: 2021-11-17 10:29:52
  */
 import { TemplateGlobalConfig } from "@/models/template";
 import { ColumnProps  } from "antd/lib/table";
@@ -85,6 +85,12 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
         {
           title: '是否隐藏',
           dataIndex: 'isHidden',
+          filters: [
+            {text: "是", value:"1"},
+            {text: "否", value:"0"}
+          ],
+          filtered: true,
+          onFilter: (value, record: TemplateGlobalConfig) => record.isHidden == value,
           render(value: any) {
             return <>{value ? '是' : '否'}</>;
           },
