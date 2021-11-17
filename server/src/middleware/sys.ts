@@ -4,13 +4,14 @@ import { ApiResult, ResponseStatus } from "../types/apiResult"
 import logger from '../utils/logger';
 
 export default function (req: Request, res: Response, next: NextFunction): void {
-  if (req.url === '/api/sys/init') {
+  if (req.url === '/api/sys/init' || req.session.systemInited) {
     next()
     return
   }
   sysDao.getStatus()
   .then(inited => {
     if (inited) {
+      req.session.systemInited = true
       logger.info('系统已初始化', req.path)
       if (req.path === '/api/sys/init') {
         res.json(new ApiResult(ResponseStatus.sysInited, null, '系统已初始化'))

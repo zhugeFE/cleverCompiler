@@ -217,7 +217,9 @@ class GitDao {
     const connect = await pool.beginTransaction()
     const versionId = util.uuid()
     try {
+      // 判断是否为初始版本
       if ( param.repoId !== "" && param.gitId == "") {
+        // 初始版本的话，从git获取库信息，存入git_source中
         const sysInfo = await sysDao.getSysInfo()
         const res = await axios({
           url: `api/v3/projects/${param.repoId}`,

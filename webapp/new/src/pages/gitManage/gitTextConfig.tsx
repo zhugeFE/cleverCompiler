@@ -166,7 +166,7 @@ class GitTextConfig extends React.Component<Props, State> {
                 required: true,
                 message: '匹配规则不能为空'
               }]}>
-              <Input></Input>
+              <Input autoComplete="off"></Input>
             </Form.Item>
             <Form.Item valuePropName="checked" name="global">
               <Checkbox>全局</Checkbox>

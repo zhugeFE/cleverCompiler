@@ -97,6 +97,7 @@ class PoolUtil {
           logger.error('提交事务失败', err)
           reject(err)
         } else {
+          connection.release()
           resolve()
         }
       })

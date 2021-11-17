@@ -32,7 +32,7 @@ class DashUtil {
       .then((exist: boolean) => {
         if (exist) {
           this.workdir = dir
-          SocketLogge(socket, SocketEventNames.compileMessage, gitName, `cd ${dir} `)
+          if (socket) SocketLogge(socket, SocketEventNames.compileMessage, gitName, `cd ${dir} `)
           resolve()
           return
         }
@@ -47,7 +47,7 @@ class DashUtil {
     
     return new Promise((resolve, reject) => {
       logger.info(`exec command: ${command}`)
-      SocketLogge(socket,SocketEventNames.compileMessage, gitName, `exec command: ${command} , path===> ${this.workdir}`)
+      if (socket) SocketLogge(socket,SocketEventNames.compileMessage, gitName, `exec command: ${command} , path===> ${this.workdir}`)
       const process = childProcess.exec(command, {cwd: this.workdir}, (err) => {
         if (err) {
           if( socket) {
