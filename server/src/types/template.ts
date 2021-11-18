@@ -1,14 +1,12 @@
-import { PoolConnection } from 'mysql';
-import { Version } from "./common";
-
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-15 14:56:37
+ * @LastEditTime: 2021-11-18 10:58:28
  */
+import { Version } from "./common";
 
 export interface TemplateInstance {
   id: string;

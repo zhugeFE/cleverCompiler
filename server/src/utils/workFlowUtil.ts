@@ -1,14 +1,13 @@
-import { CompileDoc, CompileGitData } from './../types/compile';
-import { TypeMode } from './../types/common';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 16:03:17
+ * @LastEditTime: 2021-11-18 11:26:11
  */
-
+import { CompileDoc, CompileGitData } from './../types/compile';
+import { TypeMode } from './../types/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import DashUtil from './dashUtil';
@@ -133,12 +132,13 @@ class WorkFlow {
         Reg = new RegExp(regex.source , regModifiers)
   
         if(!Reg.test(text)) {
-          SocketLogge(socket, SocketEventNames.compileMessage, gitName, `error 匹配失败：${item.filePath} => ${Reg}`)
-          return Promise.reject()
+          SocketLogge(socket, SocketEventNames.compileMessage, gitName, `warning 匹配失败：${item.filePath} => ${Reg}`)
+        } else {
+          SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 执行文字替换 ${Reg} => ${item.targetValue}`)
+          text = text.replace(Reg, item.targetValue)
+          fs.writeFileSync(fileDir, text, 'utf8')
         }
-        SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 执行文字替换 ${Reg} => ${item.targetValue}`)
-        text = text.replace(Reg, item.targetValue)
-        fs.writeFileSync(fileDir, text, 'utf8')
+        
       }
       else if (item.typeId == TypeMode.fiel) {
         const newAddr = path.resolve(srcRepoDir, JSON.parse(item.targetValue)['newFilename'])

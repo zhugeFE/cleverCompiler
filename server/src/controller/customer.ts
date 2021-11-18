@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:12:23
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 18:20:37
+ * @LastEditTime: 2021-11-18 10:59:06
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -65,9 +65,5 @@ router.post('/update', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
-// 客户详细信息待完成
-router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
-  const id = req.params.id
-})
 
 export default router
