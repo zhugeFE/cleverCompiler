@@ -22,6 +22,7 @@ import ProjectGlobalConfig from './projectGlobalConfig';
 import ProjectConfig from './projectConfig';
 import { ConnectState } from '@/models/connect';
 import util from '@/utils/utils';
+import { utils } from 'umi';
 
 export interface Props extends IRouteComponentProps<{id: string;}>{
   templateList: TemplateInstance[] | null
@@ -80,6 +81,8 @@ class ProjectEdit extends React.Component<Props, States> {
     this.afterUpdateGlobalConfig = this.afterUpdateGlobalConfig.bind(this)
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
     this.onChangeActiveKey = this.onChangeActiveKey.bind(this)
+    this.onUpdateConfigHidden = this.onUpdateConfigHidden.bind(this)
+    this.onUpdateGlobalConfigHidden = this.onUpdateGlobalConfigHidden.bind(this)
   }
 
   async componentDidMount () {
@@ -111,7 +114,6 @@ class ProjectEdit extends React.Component<Props, States> {
             globalConfigList: data.globalConfigList,
           })
           this.getTemplateInfo(data.templateId)
-          // this.onTemplateSelectChange(data.templateId)
           
         }
       })
@@ -124,6 +126,32 @@ class ProjectEdit extends React.Component<Props, States> {
   onChangeActiveKey (activeKey: string) {
     this.setState({
       activeKey
+    })
+  }
+
+  onUpdateConfigHidden (data: string[]) {
+    const gitList = util.clone(this.state.gitList)
+    gitList?.map( git => {
+      git.configList.map( config => {
+        if (data.includes(config.id)) {
+          config.isHidden = Number(!config.isHidden)
+        }
+      })
+    })
+    this.setState({
+      gitList
+    })
+  }
+
+  onUpdateGlobalConfigHidden (data: string[]) {
+    const globalConfigList = util.clone(this.state.globalConfigList)
+    globalConfigList?.map( config => {
+      if (data.includes(config.id)) {
+        config.isHidden = Number(!config.isHidden)
+      }
+    })
+    this.setState({
+      globalConfigList
     })
   }
   async getBaseData () {
@@ -522,9 +550,11 @@ class ProjectEdit extends React.Component<Props, States> {
           <Row className={styles.rowMargin}>
             <Col span={labelCol}>全局配置：</Col>
             <Col span={wrapperCol}>
-              <ProjectGlobalConfig
+              <ProjectGlobalConfig   
+                globalConfigList={this.state.globalConfigList?.length ? this.state.globalConfigList : []}
                 onUpdateConfig={this.afterUpdateGlobalConfig}
-                globalConfigList={this.state.globalConfigList!}/>
+                onUpdateConfigHidden={this.onUpdateGlobalConfigHidden}
+                />
             </Col>
           </Row>
 
@@ -536,6 +566,7 @@ class ProjectEdit extends React.Component<Props, States> {
                   globalConfigList={this.state.globalConfigList!}
                   activeKey={this.state.activeKey}
                   gitList={this.state.gitList?.length ? this.state.gitList : []}
+                  onUpdateConfigHidden={this.onUpdateConfigHidden}
                   onChangeActiveKey={this.onChangeActiveKey}
                   />
             </Col>

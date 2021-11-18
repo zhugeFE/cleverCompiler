@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 10:29:52
+ * @LastEditTime: 2021-11-18 17:41:45
  */
 import { TemplateGlobalConfig } from "@/models/template";
 import { ColumnProps  } from "antd/lib/table";
@@ -17,15 +17,19 @@ import FileGlobalConfig from "./FileGlobalConfig";
 import styles from "./styles/projectGlobalConfig.less"
 import { TypeMode } from "@/models/common";
 import util from "@/utils/utils";
+import GlobalConfigMarage from "./globalConfigMarage";
+
 
 export interface Props {
   globalConfigList: TemplateGlobalConfig[];
+  onUpdateConfigHidden(data: string[]): void;
   onUpdateConfig (config: TemplateGlobalConfig): void;
   dispatch: Dispatch;
 }
 
 interface States {
   currentGlobalConfig: TemplateGlobalConfig | null;
+  showGlobalConfigMarage: boolean;
 }
 
 class ProjectGlobalConfig  extends React.Component<Props, States> {
@@ -33,9 +37,14 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
       super(prop)
       this.state = {
         currentGlobalConfig: null,
+        showGlobalConfigMarage: false
       }
       this.onCancelConfig = this.onCancelConfig.bind(this)
       this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
+      this.filterSourceData = this.filterSourceData.bind(this)
+      this.hideConfigManage = this.hideConfigManage.bind(this)
+      this.updateConfigList = this.updateConfigList.bind(this)
+      this.onClickConfigMarage = this.onClickConfigMarage.bind(this)
     }
 
     onCancelConfig() {
@@ -59,6 +68,25 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
       this.setState({
         currentGlobalConfig: config
       })
+    }
+
+    updateConfigList (data: string[]) {
+      this.props.onUpdateConfigHidden(data)
+      this.hideConfigManage()
+    }
+    hideConfigManage () {
+      this.setState({
+        showGlobalConfigMarage: false
+      })
+    }
+    onClickConfigMarage () {
+      this.setState({
+        showGlobalConfigMarage: true
+      })
+    }
+
+    filterSourceData (configList: TemplateGlobalConfig[], isHidden: number): TemplateGlobalConfig[] {
+      return configList.filter( item => item.isHidden == isHidden)
     }
 
     render () {
@@ -123,17 +151,27 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
               )
             )
           }
+          <GlobalConfigMarage
+            visible={this.state.showGlobalConfigMarage}
+            dataSource={
+              this.filterSourceData(this.props.globalConfigList, 1)
+            }
+            onAddConfig={this.updateConfigList}
+            onCancel={this.hideConfigManage}
+          /> 
           <Table
             bordered
             columns={columns}
             rowKey="id"
-            dataSource={this.props.globalConfigList || []}
+            dataSource={this.filterSourceData(this.props.globalConfigList, 0)}
             pagination={{
               pageSize: 3,
               showTotal(totle: number) {
                 return `总记录数${totle}`;
               },
             }}/>
+          <Button onClick={this.onClickConfigMarage}>配置项管理</Button>
+
         </div>
       )
     }

@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 15:39:19
+ * @LastEditTime: 2021-11-18 17:41:36
  */
 
 import { TypeMode } from "@/models/common";
 import { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
-import { Button, Modal, Table, Tabs } from "antd";
+import { Button, Table, Tabs } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
@@ -23,6 +23,7 @@ interface Props {
   globalConfigList: TemplateGlobalConfig[];
   activeKey: string;
   gitList: TemplateVersionGit[];
+  onUpdateConfigHidden(data: string[]): void;
   onChangeActiveKey(activeKey: string): void;
   onUpdateConfig(config: TemplateConfig): void;
 }
@@ -45,16 +46,9 @@ class ProjectConfig extends React.Component <Props, States> {
     this.onClickConfigMarage = this.onClickConfigMarage.bind(this)
     this.onChangeTabs = this.onChangeTabs.bind(this)
     this.filterSourceData = this.filterSourceData.bind(this)
+    this.hideConfigManage = this.hideConfigManage.bind(this)
+    this.updateConfigList = this.updateConfigList.bind(this)
   }
-
-  // componentDidUpdate () {
-  //   if (this.props.gitList?.length) {
-  //     if (this.state.activeGitKey != this.props.gitList[0].id)
-  //     this.setState({
-  //       activeGitKey: this.props.gitList[0].id
-  //     })
-  //   }
-  // }
 
   componentDidMount(){
     console.log(this.props.gitList.filter(item => item.id == this.props.activeKey))
@@ -69,9 +63,17 @@ class ProjectConfig extends React.Component <Props, States> {
     })
   }
   onClickConfigMarage () {
-    console.log(this.props.activeKey)
     this.setState({
       showMarageConfig: true
+    })
+  }
+  updateConfigList (data: string[]) {
+    this.props.onUpdateConfigHidden(data)
+    this.hideConfigManage()
+  }
+  hideConfigManage () {
+    this.setState({
+      showMarageConfig: false
     })
   }
   afterUpdateConfig (data: {file?: File, targetValue: string}) {
@@ -120,7 +122,6 @@ class ProjectConfig extends React.Component <Props, States> {
         ellipsis: true,
         render: (record: TemplateConfig) => {
           return (
-            // record.globalConfigId ? 1 :2
             record.globalConfigId ? this.props.globalConfigList.filter(item => item.id == record.globalConfigId)[0].name : "-"
           )
         }
@@ -133,7 +134,6 @@ class ProjectConfig extends React.Component <Props, States> {
         render(value) {
           if (value === 0) return <span>文本</span>;
           if (value === 1) return <span>文件</span>;
-          if (value === 2) return <span>json</span>;
         },
       },
       {
@@ -150,20 +150,6 @@ class ProjectConfig extends React.Component <Props, States> {
           );
           return <span>{reg.toString()}</span>;
         },
-      },
-      {
-        title: '隐藏',
-        dataIndex: 'isHidden',
-        filters: [
-          {text: "是", value:"1"},
-          {text: "否", value:"0"}
-        ],
-        width: 100,
-        filtered: true,
-        onFilter: (value, record: TemplateConfig) =>{ console.log(value,record); return record.isHidden == value},
-        render: (record: TemplateConfig) => {
-          return record.isHidden ? "是" : "否"
-        }
       },
       {
         title: '操作',
@@ -200,12 +186,18 @@ class ProjectConfig extends React.Component <Props, States> {
           )
         }
 
-        {/* <ConfigMarage
-          visible={this.state.showMarageConfig}
-          dataSource={this.filterSourceData(this.props.gitList.filter(item => item.id == this.props.activeKey)[0].configList, 1)}
+        {
+          this.props.activeKey &&
+          <ConfigMarage
+            visible={this.state.showMarageConfig}
+            dataSource={
+              this.filterSourceData(this.props.gitList.filter(item => item.id == this.props.        activeKey)[0].configList, 1)
+            }
+            onAddConfig={this.updateConfigList}
+            onCancel={this.hideConfigManage}
         > 
 
-        </ConfigMarage> */}
+        </ConfigMarage>}
           
         
         { !this.props.gitList.length ? (
@@ -234,7 +226,7 @@ class ProjectConfig extends React.Component <Props, States> {
                         return `总记录数${totle}`;
                       },
                     }}/>
-                  <Button onClick={this.onClickConfigMarage}>隐藏配置项管理</Button>
+                  <Button onClick={this.onClickConfigMarage}>配置项管理</Button>
                 </Tabs.TabPane>
               )
             })}

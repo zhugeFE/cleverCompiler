@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-11-18 14:25:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 17:15:15
+ * @LastEditTime: 2021-11-18 17:32:02
  */
 import { TypeMode } from "@/models/common";
-import { TemplateConfig } from "@/models/template";
+import { TemplateGlobalConfig } from "@/models/template";
 import { message, Modal, Table } from "antd";
 import { ColumnProps } from "antd/lib/table/Column";
 import { Key } from "antd/lib/table/interface";
@@ -15,7 +15,7 @@ import React from "react"
 
 interface Props {
   visible: boolean;
-  dataSource: TemplateConfig[]
+  dataSource: TemplateGlobalConfig[]
   onAddConfig (data: string[]): void;
   onCancel (): void; 
 }
@@ -24,7 +24,7 @@ interface State {
   selectedRowKeys: string[]
 }
 
-class ConfigMarage extends React.Component<Props,State> {
+class GlobalConfigMarage extends React.Component<Props,State> {
   constructor (props: Props) {
     super(props)
     this.state = {
@@ -47,52 +47,45 @@ class ConfigMarage extends React.Component<Props,State> {
     this.props.onCancel()
   }
   
-  rowSelectChange (selectedRowKeys: Key[], selectedRows: TemplateConfig[]) {
+  rowSelectChange (selectedRowKeys: Key[], selectedRows: TemplateGlobalConfig[]) {
     this.setState({
       selectedRowKeys: selectedRowKeys as string[]
     })
   }
   render () {
-    const columns: ColumnProps<TemplateConfig>[] = [
-      { title: '文件位置', width: 100, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
-      {
-        title: '默认值',
-        width: 180,
-        ellipsis: true,
-        render: (record: TemplateConfig) => {
-          if ( record.globalConfigId) {
-            return "-"
-          }else {
-            return record.typeId == TypeMode.text ? record.targetValue : JSON.parse(record.targetValue)['originalFilename']
-          }
-        },
-      },
-      { title: '描述', width: 100, dataIndex: 'description' },
+    const columns: ColumnProps<TemplateGlobalConfig>[] = [
+      { title: '名称', dataIndex: 'name', fixed: 'left' },
       {
         title: '类型',
-        width: 60,
-        dataIndex: 'typeId',
+        width: 80,
+        dataIndex: 'type',
         render(value) {
           if (value === 0) return <span>文本</span>;
           if (value === 1) return <span>文件</span>;
           if (value === 2) return <span>json</span>;
         },
       },
+      {title: '目标内容', width: 200, ellipsis: true, dataIndex: 'targetValue', render: (text: string, record) => {
+        if (record.type == TypeMode.text) {
+          return record.targetValue
+        }else {
+          return JSON.parse(record.targetValue)['originalFilename']
+        }
+      }},        
+      { title: '描述', dataIndex: 'description' },
       {
-        title: '匹配规则',
-        width: 200,
-        ellipsis: true,
-        dataIndex: 'reg',
-        render(value) {
-          if (!value) return <span>-</span>;
-          const val = JSON.parse(value);
-          const reg = new RegExp(
-            val.source,
-            `${val.global ? 'g' : ''}${val.ignoreCase ? 'i' : ''}`,
-          );
-          return <span>{reg.toString()}</span>;
+        title: '是否隐藏',
+        dataIndex: 'isHidden',
+        filters: [
+          {text: "是", value:"1"},
+          {text: "否", value:"0"}
+        ],
+        filtered: true,
+        onFilter: (value, record: TemplateGlobalConfig) => record.isHidden == value,
+        render(value: any) {
+          return <>{value ? '是' : '否'}</>;
         },
-      }      
+      }
     ];
     return (
       <Modal
@@ -122,4 +115,4 @@ class ConfigMarage extends React.Component<Props,State> {
   }
 }
 
-export default ConfigMarage
+export default GlobalConfigMarage
