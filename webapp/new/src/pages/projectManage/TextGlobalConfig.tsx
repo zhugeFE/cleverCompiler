@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 14:24:54
+ * @LastEditTime: 2021-11-18 10:52:07
  */
 import { Form, FormInstance, Input, Modal } from 'antd';
 import React from 'react';
@@ -109,7 +109,7 @@ class TextGlobalConfig extends React.Component<Props, States> {
               label="默认值" 
               rules={[{ required: true, message: '请输入配置值!' }]}
               name="targetValue">
-              <Input></Input>
+              <Input autoComplete="off"></Input>
             </Form.Item>
           </Form>
       </Modal>

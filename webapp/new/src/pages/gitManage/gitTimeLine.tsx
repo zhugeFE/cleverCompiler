@@ -82,6 +82,7 @@ class TimeLinePanel extends React.Component<Props, State> {
         <Form layout="inline" onValuesChange={this.onFilter} wrapperCol={{span: 24}}>
           <Form.Item name="search">
             <Input.Search
+              autoComplete="off"
               className={styles.versionSearch}
               size="middle"
               placeholder="x.x.x"/>

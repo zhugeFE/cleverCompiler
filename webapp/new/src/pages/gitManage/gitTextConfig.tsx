@@ -176,7 +176,7 @@ class GitTextConfig extends React.Component<Props, State> {
             </Form.Item>
             <div className={styles.formDivider}/>
             <Form.Item label="替换为" name="targetValue" className={styles.long}>
-              <Input></Input>
+              <Input autoComplete="off"></Input>
             </Form.Item>
             <div className={styles.formDivider}/>
             <Form.Item label="配置描述" name="description" className={styles.long}
@@ -184,7 +184,7 @@ class GitTextConfig extends React.Component<Props, State> {
                 required: true,
                 message: '描述信息不能为空'
               }]}>
-              <Input></Input>
+              <Input autoComplete="off"></Input>
             </Form.Item>
             <Button type="primary" onClick={this.onReplace}>替换</Button>
             <Button onClick={this.onReset}>还原</Button>

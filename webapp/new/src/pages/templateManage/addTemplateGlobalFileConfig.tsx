@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 19:14:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 21:53:20
+ * @LastEditTime: 2021-11-18 10:47:17
  */
 import { EditMode } from '@/models/common';
 import { InboxOutlined, LeftOutlined } from '@ant-design/icons';
@@ -119,7 +119,7 @@ class TemplateFileConfig extends React.Component<Props, State> {
               name="name" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
               className={styles.long}>
-              <Input disabled={this.props.mode != EditMode.create}></Input>
+              <Input autoComplete="off" disabled={this.props.mode != EditMode.create}></Input>
             </Form.Item>
             <Form.Item
               label="描述" 

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 18:00:13
+ * @LastEditTime: 2021-11-18 10:37:37
  */
 import { Table, Button, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -243,10 +243,10 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         <div className={styles.topButtons} >
           <Form layout="inline" onValuesChange={this.onSearch}> 
             <Form.Item label="项目名称" name="name">
-              <Input/>
+              <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item label="最新版本" name="version">
-              <Input/>
+              <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item>
               <Button 

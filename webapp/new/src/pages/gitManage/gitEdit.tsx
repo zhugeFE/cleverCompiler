@@ -438,7 +438,13 @@ class GitEdit extends React.Component<GitEditProps, State> {
                   {this.state.currentVersion ? <Commands onChange={this.onChangeOrders} mode={this.state.currentVersion.status} tags={this.state.currentVersion.compileOrders}></Commands> : null}
                 </Description>
                 <Description label="输出文件" display="flex" labelWidth={labelWidth}>
-                  {this.state.currentVersion ? <Input style={{width: 350}} onChange={this.onChangeOutputName} placeholder="填写项目根目录下的绝对路径：（例：/dist）" disabled={this.state.currentVersion.status != VersionStatus.normal} defaultValue={this.state.currentVersion.outputName}></Input> : null}
+                  {this.state.currentVersion ? <Input 
+                    style={{width: 350}} 
+                    autoComplete="off"
+                    onChange={this.onChangeOutputName} 
+                    placeholder="填写项目根目录下的绝对路径：（例：/dist）" 
+                    disabled={this.state.currentVersion.status != VersionStatus.normal} 
+                    defaultValue={this.state.currentVersion.outputName}></Input> : null}
                 </Description>
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">

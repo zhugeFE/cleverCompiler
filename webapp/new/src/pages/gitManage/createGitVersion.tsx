@@ -269,7 +269,7 @@ class CreateGitVersion extends React.Component<Props, States> {
             
         
           <Form.Item label="描述" name="description">
-            <Input></Input>
+            <Input autoComplete="off"></Input>
           </Form.Item>
           <Form.Item label="来源" name="source">
             <Radio.Group>

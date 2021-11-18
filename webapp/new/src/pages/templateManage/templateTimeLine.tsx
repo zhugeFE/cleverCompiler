@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 21:22:00
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 15:31:40
+ * @LastEditTime: 2021-11-18 10:39:41
  */
 import * as React from 'react';
 import { Timeline, Tag, Input, Form } from 'antd';
@@ -81,7 +81,11 @@ class TimeLinePanel extends React.Component<Props, State> {
         )}
         <Form layout="inline" onValuesChange={this.onFilter} wrapperCol={{ span: 24 }}>
           <Form.Item name="search">
-            <Input.Search className={styles.versionSearch} size="middle" placeholder="x.x.x" />
+            <Input.Search
+              autoComplete="off"
+              className={styles.versionSearch} 
+              size="middle" 
+              placeholder="x.x.x" />
           </Form.Item>
         </Form>
         <Timeline mode="alternate">

@@ -203,10 +203,10 @@ class GitList extends React.Component<GitListProps, State> {
         <div className={styles.gitFilterPanel}>
           <Form layout="inline" onValuesChange={this.onSearch}>
             <Form.Item label="项目名称" name="name">
-              <Input/>
+              <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item label="最新版本" name="version">
-              <Input/>
+              <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item>
               <Button 

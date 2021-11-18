@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-06 08:50:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 01:46:18
+ * @LastEditTime: 2021-11-18 10:33:21
  */
 import { EditMode } from '@/models/common';
 import { GitConfig } from '@/models/git';
@@ -134,7 +134,7 @@ class GitFileConfig extends React.Component<Props, State> {
             onValuesChange={this.onFormChange}
           >
             <Form.Item required label="目标文件" name="filePath" className={styles.long}>
-              <Input></Input>
+              <Input autoComplete="off"></Input>
             </Form.Item>
             <Form.Item required label="描述" name="description" className={styles.long}>
               <TextArea rows={6}></TextArea>

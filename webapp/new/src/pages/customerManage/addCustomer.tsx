@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-26 14:39:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 18:25:15
+ * @LastEditTime: 2021-11-18 10:49:58
  */
 import { Form, Input, message, Modal } from "antd"
 import TextArea from "antd/lib/input/TextArea"
@@ -98,13 +98,13 @@ class AddCustomer extends React.Component<Props, States> {
                 label="名称"
                 name="name"
                 rules={[{ required: true, message: '请输入客户名称!' }]}> 
-                <Input/> 
+                <Input autoComplete="off"/> 
               </Form.Item>
               <Form.Item
                 label="联系方式"
                 name="tel"
               >
-                <Input/>
+                <Input autoComplete="off"/>
               </Form.Item>
               <Form.Item 
                 label="描述" 

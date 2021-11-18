@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 13:53:19
+ * @LastEditTime: 2021-11-18 10:50:39
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -203,10 +203,10 @@ class ProjectList extends React.Component<Props, States> {
         <div className={styles.projectTopTool}> 
           <Form layout="inline" onValuesChange={this.onSearch}>
             <Form.Item label="项目名称" name="projectName">
-              <Input/>
+              <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item label="编译类型" name="compileType">
-              <Input/>
+              <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item>
               <Button type="primary" onClick={this.onCreateProject}>新建项目</Button>

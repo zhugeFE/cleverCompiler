@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:29
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 15:23:42
+ * @LastEditTime: 2021-11-18 10:51:23
  */
 
 import { Checkbox, Form, FormInstance, Input, Modal } from 'antd';
@@ -170,7 +170,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
               className={styles.long}
               rules={[{ required: true, message: '请输入配置值!' }]}
               name="targetValue">
-              <Input></Input>
+              <Input autoComplete="off"></Input>
             </Form.Item>
           </Form>
           <GitFileEditor reg={this.state.reg!} content={this.state.displayContent}></GitFileEditor>

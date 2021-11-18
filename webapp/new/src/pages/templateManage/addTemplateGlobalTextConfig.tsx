@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 21:46:20
+ * @LastEditTime: 2021-11-18 10:45:38
  */
 import { Form, FormInstance, Input, Modal } from 'antd';
 import React from 'react';
@@ -116,7 +116,7 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
               label="名称" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
               name="name">
-              <Input disabled={this.props.mode != EditMode.create}></Input>
+              <Input autoComplete="off" disabled={this.props.mode != EditMode.create}></Input>
             </Form.Item>
             <Form.Item 
               label="描述" 
@@ -128,7 +128,7 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
               label="默认值" 
               rules={[{ required: true, message: '请输入配置值!' }]}
               name="targetValue">
-              <Input></Input>
+              <Input autoComplete="off"></Input>
             </Form.Item>
           </Form>
       </Modal>

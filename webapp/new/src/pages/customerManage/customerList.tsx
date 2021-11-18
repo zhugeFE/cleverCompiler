@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 17:44:46
+ * @LastEditTime: 2021-11-18 10:49:26
  */
 import { Customer } from '@/models/customer';
-import { Button, Form, Input, Select, Table } from 'antd';
+import { Button, Form, Input, Table } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import React from 'react'
 import { withRouter } from 'react-router-dom';
@@ -207,10 +207,10 @@ class CustomerList extends React.Component<Props, States> {
         <div className={styles.customerTopTool}> 
           <Form layout="inline" onValuesChange={this.onSearch}>
             <Form.Item label="客户名称" name="customerName">
-              <Input/>
+              <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item label="项目名称" name="projectName">
-              <Input/>
+              <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item>
               <Button type="primary" onClick={this.onClickAddCustomer}>新建客户</Button>

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:29
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 11:36:08
+ * @LastEditTime: 2021-11-18 10:42:13
  */
 
 import { Checkbox, Form, FormInstance, Input, Modal } from 'antd';
@@ -175,7 +175,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
               className={styles.long}
               rules={[{ required: true, message: '请输入文件位置!' }]}
               name="filePath">
-              <Input disabled={this.props.mode != EditMode.create}></Input>
+              <Input autoComplete="off" disabled={this.props.mode != EditMode.create}></Input>
             </Form.Item>
             <div className={styles.formDivider}/>
 
@@ -193,7 +193,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
               className={styles.long}
               rules={[{ required: true, message: '请输入配置值!' }]}
               name="targetValue">
-              <Input></Input>
+              <Input autoComplete="off"></Input>
             </Form.Item>
           </Form>
           <GitFileEditor reg={this.state.reg!} content={this.state.displayContent}></GitFileEditor>

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 18:20:53
+ * @LastEditTime: 2021-11-18 10:38:20
  */
 
 import { Form, FormInstance, Input, Modal, Select } from 'antd';
@@ -135,7 +135,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
                   name="name"
                   rules={[{ required: true, message: '请输入模板名称!' }]}
                 >
-                  <Input type="text"></Input>
+                  <Input autoComplete="off"></Input>
                 </Form.Item>
                 <Form.Item
                   label="描述"

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-08 15:43:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 00:14:47
+ * @LastEditTime: 2021-11-18 10:45:19
  */
 import { TemplateInstance } from "@/models/template";
 import util from "@/utils/utils";
@@ -131,7 +131,7 @@ class CopyTemplate extends React.Component <Props, State> {
                   rules={[{ required: true, message: '请填写模版名称!' }]}
                   label="新模版名称" 
                   name="name">
-                  <Input></Input>
+                  <Input autoComplete="off"></Input>
                 </Form.Item>
                 <Form.Item 
                   label="源版本" 
