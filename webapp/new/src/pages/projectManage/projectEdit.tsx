@@ -46,6 +46,7 @@ interface States {
   memberList: Member[] | null;
   projectInfo: ProjectInfo | null;
   templateInfo: TemplateInfo | null;
+  activeKey: string;
 }
 
 class ProjectEdit extends React.Component<Props, States> {
@@ -67,6 +68,7 @@ class ProjectEdit extends React.Component<Props, States> {
       projectInfo: null,
       templateInfo: null,
       memberList: null,
+      activeKey: ""
     }
     this.onShareSelectChange = this.onShareSelectChange.bind(this)
     this.onTemplateSelectChange = this.onTemplateSelectChange.bind(this)
@@ -77,6 +79,7 @@ class ProjectEdit extends React.Component<Props, States> {
     this.onCustomerSelectChange = this.onCustomerSelectChange.bind(this)
     this.afterUpdateGlobalConfig = this.afterUpdateGlobalConfig.bind(this)
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
+    this.onChangeActiveKey = this.onChangeActiveKey.bind(this)
   }
 
   async componentDidMount () {
@@ -103,6 +106,7 @@ class ProjectEdit extends React.Component<Props, States> {
             templateId: data.templateId,
             templateVersionId: data.templateVersion,
             gitList: data.gitList,
+            activeKey: data.gitList.length ? data.gitList[0].id : "",
             shareMember: JSON.parse(data.shareMember),
             globalConfigList: data.globalConfigList,
           })
@@ -116,6 +120,12 @@ class ProjectEdit extends React.Component<Props, States> {
     
   }
 
+
+  onChangeActiveKey (activeKey: string) {
+    this.setState({
+      activeKey
+    })
+  }
   async getBaseData () {
     
     await this.props.dispatch({
@@ -185,6 +195,7 @@ class ProjectEdit extends React.Component<Props, States> {
       this.setState({
         templateVersionId: value,
         gitList: current.gitList,
+        activeKey: current.gitList.length ? current.gitList[0].id : "",
         globalConfigList: current.globalConfigList
       })
     }
@@ -523,7 +534,10 @@ class ProjectEdit extends React.Component<Props, States> {
                 <ProjectConfig
                   onUpdateConfig={this.afterUpdateConfig}
                   globalConfigList={this.state.globalConfigList!}
-                  gitList={this.state.gitList!}/>
+                  activeKey={this.state.activeKey}
+                  gitList={this.state.gitList?.length ? this.state.gitList : []}
+                  onChangeActiveKey={this.onChangeActiveKey}
+                  />
             </Col>
           </Row>
 

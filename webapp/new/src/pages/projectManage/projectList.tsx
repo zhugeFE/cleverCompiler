@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:50:39
+ * @LastEditTime: 2021-11-18 10:56:16
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -93,19 +93,6 @@ class ProjectList extends React.Component<Props, States> {
       })
     }, 300)
   }
-
-
-  // //删除配置列表
-  // onClickDel (project: ProjectInstance) {
-  //   this.props.dispatch({
-  //     type: 'project/delProjectInfo',
-  //     payload: project.id,
-  //     callback: () => {
-  //       //删除之后props里修改
-  //     }
-  //   })
-  // }
-
 
 
   render() {

@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 10:26:58
+ * @LastEditTime: 2021-11-18 15:39:19
  */
 
 import { TypeMode } from "@/models/common";
 import { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
-import { Button, Table, Tabs } from "antd";
+import { Button, Modal, Table, Tabs } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
@@ -17,15 +17,19 @@ import styles from './styles/projectConfig.less';
 import TextConfigEdit from "./TextConfigEdit";
 import FileConfigEdit from "./FileConfigEdit";
 import util from "@/utils/utils";
+import ConfigMarage from "./configMarage";
 
 interface Props {
   globalConfigList: TemplateGlobalConfig[];
-  gitList: TemplateVersionGit[] | undefined;
+  activeKey: string;
+  gitList: TemplateVersionGit[];
+  onChangeActiveKey(activeKey: string): void;
   onUpdateConfig(config: TemplateConfig): void;
 }
 
 interface States {
   currentConfig: TemplateConfig | null,
+  showMarageConfig: boolean,
 }
 
 class ProjectConfig extends React.Component <Props, States> {
@@ -33,18 +37,43 @@ class ProjectConfig extends React.Component <Props, States> {
     super(prop)
     this.state = {
       currentConfig: null,
+      showMarageConfig: false,
     }
     this.onCancelEditConfig = this.onCancelEditConfig.bind(this)
     this.onClickConfig = this.onClickConfig.bind(this)
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
+    this.onClickConfigMarage = this.onClickConfigMarage.bind(this)
+    this.onChangeTabs = this.onChangeTabs.bind(this)
+    this.filterSourceData = this.filterSourceData.bind(this)
   }
 
+  // componentDidUpdate () {
+  //   if (this.props.gitList?.length) {
+  //     if (this.state.activeGitKey != this.props.gitList[0].id)
+  //     this.setState({
+  //       activeGitKey: this.props.gitList[0].id
+  //     })
+  //   }
+  // }
+
+  componentDidMount(){
+    console.log(this.props.gitList.filter(item => item.id == this.props.activeKey))
+  }
+
+  onChangeTabs (activeKey: string) {
+    this.props.onChangeActiveKey(activeKey)
+  }
   onCancelEditConfig () {
     this.setState({
       currentConfig: null
     })
   }
-
+  onClickConfigMarage () {
+    console.log(this.props.activeKey)
+    this.setState({
+      showMarageConfig: true
+    })
+  }
   afterUpdateConfig (data: {file?: File, targetValue: string}) {
     if (!this.state.currentConfig) return
     const config = util.clone(this.state.currentConfig)
@@ -59,14 +88,18 @@ class ProjectConfig extends React.Component <Props, States> {
 
   }
 
-
   onClickConfig(config: TemplateConfig) {
     this.setState({
       currentConfig: config
     })
   }
 
+  filterSourceData (configList: TemplateConfig[], isHidden: number): TemplateConfig[] {
+    return configList.filter( item => item.isHidden == isHidden)
+  }
+
   render () {
+    
     const columns: ColumnProps<TemplateConfig>[] = [
       { title: '文件位置', width: 100, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
       {
@@ -152,8 +185,8 @@ class ProjectConfig extends React.Component <Props, States> {
             this.state.currentConfig.typeId == TypeMode.text ? (
               <TextConfigEdit
                 config={this.state.currentConfig}
-                gitId={this.props.gitList![0].gitSourceId}
-                gitVersionId={this.props.gitList![0].gitSourceVersionId}
+                gitId={this.props.gitList[0].gitSourceId}
+                gitVersionId={this.props.gitList[0].gitSourceVersionId}
                 onCancel={this.onCancelEditConfig}
                 onSubmit={this.afterUpdateConfig}
               ></TextConfigEdit>
@@ -166,7 +199,16 @@ class ProjectConfig extends React.Component <Props, States> {
             )
           )
         }
-        { !this.props.gitList?.length ? (
+
+        {/* <ConfigMarage
+          visible={this.state.showMarageConfig}
+          dataSource={this.filterSourceData(this.props.gitList.filter(item => item.id == this.props.activeKey)[0].configList, 1)}
+        > 
+
+        </ConfigMarage> */}
+          
+        
+        { !this.props.gitList.length ? (
           <Tabs type="card" 
           className={styles.cardBg} 
           >
@@ -176,21 +218,23 @@ class ProjectConfig extends React.Component <Props, States> {
           <Tabs
             type="card"
             className={styles.cardBg}
+            activeKey={this.props.activeKey}
+            onChange={this.onChangeTabs}
             >
-            {this.props.gitList?.map((item, index) => {
+            {this.props.gitList.map((item, index) => {
               return (
                 <Tabs.TabPane  tab={`${item.name}-${item.version}`} key={item.id}>
                   <Table
                     columns={columns}
                     rowKey="id"
-                    // scroll={{x:1500}}
-                    dataSource={item.configList}
+                    dataSource={this.filterSourceData(item.configList, 0)}
                     pagination={{
                       pageSize: 3,
                       showTotal(totle: number) {
                         return `总记录数${totle}`;
                       },
                     }}/>
+                  <Button onClick={this.onClickConfigMarage}>隐藏配置项管理</Button>
                 </Tabs.TabPane>
               )
             })}

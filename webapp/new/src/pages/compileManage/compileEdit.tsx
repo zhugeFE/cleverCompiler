@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 17:38:01
+ * @LastEditTime: 2021-11-18 16:40:54
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -18,6 +18,7 @@ import styles from "./styles/compileEdit.less"
 import util from '@/utils/utils'
 import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled } from '@ant-design/icons'
 import proxy from "../../../config/proxy"
+import { query } from '@umijs/deps/compiled/express'
 const socket = SocketIO(proxy.dev['/api/'].target, {transports:["websocket"]})
 
 interface Props extends IRouteComponentProps<{
@@ -44,7 +45,9 @@ interface States {
 
 class CompileEdit extends React.Component<Props, States> {
 
-  boxBottom: React.RefObject<HTMLDivElement> = React.createRef()
+  compileLogRef: React.RefObject<HTMLDivElement> = React.createRef()
+  compileTagRef: React.RefObject<HTMLDivElement> = React.createRef()
+
   constructor(prop: Props){
     super(prop)
     this.state = {
@@ -109,14 +112,21 @@ class CompileEdit extends React.Component<Props, States> {
     })
   }
 
+  scrollToCompileView () {
+    this.compileLogRef.current?.scrollTo(0,this.compileLogRef.current.scrollHeight)
+  }
+
+  scrollToCompileTagView () {
+    this.compileTagRef.current?.scroll(0, this.compileTagRef.current.scrollHeight)
+  }
 
   componentDidUpdate () {
-
+    this.scrollToCompileView()
+    this.scrollToCompileTagView()
   }
 
   componentDidMount () {
     const id: string = this.props.location.query.id as string
-
     this.initSocket()
     this.getProjectInfo()
     this.getCurrentUser()
@@ -291,7 +301,7 @@ class CompileEdit extends React.Component<Props, States> {
     }
     
     return (
-      <div style={{height:"auto"}}>
+      <div >
         <Form
           labelCol={{span:4}}
           wrapperCol={{span:16}}
@@ -329,7 +339,7 @@ class CompileEdit extends React.Component<Props, States> {
                 </Form.Item>
 
                 <Form.Item label="描述">
-                  <TextArea rows={6} onChange={this.TextAreaChange}></TextArea>
+                  <TextArea rows={5} onChange={this.TextAreaChange}></TextArea>
                 </Form.Item>
 
                 <Form.Item label="编译结果" className={styles.tabsForm}>
@@ -350,7 +360,7 @@ class CompileEdit extends React.Component<Props, States> {
                                 </span>} 
                               key={item} 
                               >
-                              <div  className={styles.tabpane_content}>
+                              <div ref={this.compileLogRef}  className={styles.tabpaneContent}>
                                 {
                                   this.state.compileLog[item] ?
                                   this.state.compileLog[item].map((item: { message: string}, index: number) => <p key={index}>{item.message}</p>)
@@ -365,7 +375,7 @@ class CompileEdit extends React.Component<Props, States> {
                  }
                 </Form.Item>
                 <Form.Item label="打包结果">
-                  <div style={{background: "#fff", padding: 20,}}>
+                  <div className={styles.tarResult} ref={this.compileTagRef}>
                     {
                       this.state.compileResult.length ?
                       this.state.compileResult.map((item,index) => <p key={index}>{item}</p>)

@@ -10,7 +10,6 @@ import { connect } from 'dva';
 import GitFileEditor from './fileEditor';
 import { EditMode } from '@/models/common';
 import { GitConfig } from '@/models/git';
-import util from '@/utils/utils';
 
 interface FormData {
   filePath?: string;

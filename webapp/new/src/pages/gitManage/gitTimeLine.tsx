@@ -32,15 +32,7 @@ class TimeLinePanel extends React.Component<Props, State> {
     this.afterAdd = this.afterAdd.bind(this)
     this.onFilter = this.onFilter.bind(this)
   }
-  // static getDerivedStateFromProps(props:Props, state: State) {
-  //   const version = props.versionList.find(item => item.id === state.currentVersion?.id)
-  //   if (!_.isEqual(version, state.currentVersion)) {
-  //     return {
-  //       currentVersion: version || state.currentVersion
-  //     }
-  //   }
-  //   return null
-  // }
+
   onChooseVersion (version: Version) {
     if (this.props.onChange) this.props.onChange(version)
   }

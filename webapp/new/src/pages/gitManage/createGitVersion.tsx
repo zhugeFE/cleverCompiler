@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Modal, Form, Input, Radio, message, Select, Spin, FormInstance } from 'antd'
+import { Modal, Form, Input, Radio, Select, Spin, FormInstance } from 'antd'
 import { Version } from '@/models/common';
 import { GitBranch, GitCommit, GitCreateVersionParam, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
 import util from '@/utils/utils';
@@ -8,7 +8,6 @@ import { Dispatch } from '@/.umi/plugin-dva/connect';
 import styles from './styles/createGitVersion.less';
 import { ConnectState } from '@/models/connect';
 import { VersionType } from "@/models/common";
-import { OptionsType } from '@ant-design/pro-table/lib/components/ToolBar';
 interface FormData {
   option: string;
   source: string;
