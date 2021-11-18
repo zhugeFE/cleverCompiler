@@ -4,13 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-12 08:30:26
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 20:55:28
+ * @LastEditTime: 2021-11-18 17:48:48
  */
 import * as React from 'react';
 import { Modal, Card, Row, Col } from 'antd';
 import AddTextConfig from './addTemplateGlobalTextConfig';
 import AddFileConfig from './addTemplateGlobalFileConfig';
-import styles from '../gitManage/styles/gitAddConfig.less';
+import styles from './styles/templateAddConfig.less';
 import { ConfigType, EditMode } from '@/models/common';
 import { connect } from 'dva';
 import { TemplateGlobalConfig } from '@/models/template';
