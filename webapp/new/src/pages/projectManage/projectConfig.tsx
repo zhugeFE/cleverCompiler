@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 17:41:36
+ * @LastEditTime: 2021-11-19 11:32:06
  */
 
 import { TypeMode } from "@/models/common";
@@ -215,7 +215,10 @@ class ProjectConfig extends React.Component <Props, States> {
             >
             {this.props.gitList.map((item, index) => {
               return (
-                <Tabs.TabPane  tab={`${item.name}-${item.version}`} key={item.id}>
+                <Tabs.TabPane className={styles.tabPanel} tab={`${item.name}-${item.version}`} key={item.id}>
+                  <div className={styles.tabHandle}>
+                    <Button size="small" onClick={this.onClickConfigMarage}>配置项管理</Button>
+                  </div>
                   <Table
                     columns={columns}
                     rowKey="id"
@@ -226,7 +229,6 @@ class ProjectConfig extends React.Component <Props, States> {
                         return `总记录数${totle}`;
                       },
                     }}/>
-                  <Button onClick={this.onClickConfigMarage}>配置项管理</Button>
                 </Tabs.TabPane>
               )
             })}

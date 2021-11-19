@@ -4,15 +4,16 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 17:35:57
+ * @LastEditTime: 2021-11-19 11:04:28
  */
 import util from '@/utils/utils'
-import { Table } from 'antd'
+import { Button, Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { connect, Dispatch } from 'dva'
 import React from 'react'
 import { IRouteComponentProps, Member, ProjectCompile } from 'umi'
 import { LeftOutlined } from '@ant-design/icons'
+import { download } from '@/utils/download'
 
 interface Props extends IRouteComponentProps< {
   id: string;
@@ -120,20 +121,14 @@ class Compilelog extends React.Component<Props, States> {
         dataIndex:"file",
         render: (text: string, record: ProjectCompile)=>{
           return(
-            record.file ? <a 
-              download={record.projectName}
-              style={{marginRight:10}} 
-              href={`/api/download?filePath=${record.file}`} 
-              >下载</a> : "-"
+            record.file ? <Button onClick={()=>download(record.file, record.projectName)}>下载</Button> : "-"
           )
         }
       }
     ]
     return (
       <div>
-        <div 
-        // className={styles.projectPanelTop}
-        >
+        <div>
           <a
             onClick={() => {
               this.props.history.goBack();

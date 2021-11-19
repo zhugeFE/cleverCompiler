@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:37:37
+ * @LastEditTime: 2021-11-18 18:18:32
  */
 import { Table, Button, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -165,7 +165,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       {
         title: '描述',
         dataIndex: 'description',
-        width: 200,
+        width: "20%",
         ellipsis: true,
         render(text: string, record: TemplateInstance) {
           return <div> {text || '-' || record.description} </div>;
@@ -182,7 +182,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       },
       {
         title: '更新时间',
-        width: 150,
+        width: 200,
         ellipsis: true,
         dataIndex: 'createTime',
         // defaultSortOrder: 'descend',

@@ -4,19 +4,19 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 10:57:29
+ * @LastEditTime: 2021-11-19 17:09:24
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
-import { Button, Select, Table, Tabs } from 'antd';
+import { Button, Select, Skeleton, Table, Tabs } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
+import { GitInfo, GitVersion } from '../../models/git';
 import {
   TemplateConfig,
   TemplateGlobalConfig,
   TemplateVersionGit,
-  UpdateConfigParam,
 } from '@/models/template';
 import util from '@/utils/utils';
 import AddTemplateGitSourse from './addTemplateGitSourse';
@@ -35,12 +35,15 @@ export interface ConfigPanelProps {
   onSubmit(config: TemplateConfig): void;
   afterDelGit(id: string): void;
   afterAddGit(git: TemplateVersionGit): void;
+  afterSelectGitVersion(version: GitVersion): void;
   dispatch: Dispatch;
 }
 interface State {
   fileContent: string;
   showAddGitSource: boolean;
   currentConfig: TemplateConfig | null;
+  gitInfo: GitInfo | null;
+  reqGitListLoading: boolean
 }
 
 class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
@@ -51,6 +54,8 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       fileContent: "",
       showAddGitSource: false,
       currentConfig: null,
+      gitInfo: null,
+      reqGitListLoading: false,
     };
     this.onEdit = this.onEdit.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -59,13 +64,42 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.onCancelUpdateConfig = this.onCancelUpdateConfig.bind(this);
     this.afterAddGitSource = this.afterAddGitSource.bind(this);
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this);
+    this.selectGitVersion = this.selectGitVersion.bind(this)
   }
 
   onChange(activeKey: string) {
+    this.getGitInfo(activeKey)
     if (this.props.onChangeGit) this.props.onChangeGit(activeKey)
   }
 
+  componentDidMount () {
+    if ( this.props.mode == VersionStatus.normal) {
+      this.getGitInfo(this.props.activeKey)
+    }
+  }
 
+  selectGitVersion ( value: string ) {
+    const versionList = this.state.gitInfo?.versionList.filter( git => git.id == value)
+    if (versionList?.length ) {
+      this.props.afterSelectGitVersion( versionList[0] )
+    }
+  }
+  getGitInfo (gitId: string) {
+    const data = this.props.gitList.filter( item => item.id == gitId)[0]
+    this.setState({
+      reqGitListLoading: true
+    })
+    this.props.dispatch({
+      type: 'git/getInfo',
+      payload: data.gitSourceId,
+      callback: (info: GitInfo) => {
+        this.setState({
+          gitInfo: info,
+          reqGitListLoading: false
+        })
+      }
+    })
+  }
   onEdit(targetKey: any, action: any) {
     this[action](targetKey);
   }
@@ -275,7 +309,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                 disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
                 onClick={this.onChangeConfig.bind(this, record , 'edit')}>编辑</Button>
               <Button
-                disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
+                disabled={this.props.mode != VersionStatus.normal}
                 style={{ marginLeft: '5px', color: record.isHidden ? 'rgba(0,0,0,0,.5)' : '' }}
                 onClick={this.onChangeConfig.bind(this, record, 'hidden')}
               >
@@ -329,14 +363,36 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           </Tabs>
         ) : (
           <Tabs
-          type={this.props.mode == VersionStatus.normal ? 'editable-card' : 'card'}
+            type={this.props.mode == VersionStatus.normal ? 'editable-card' : 'card'}
             className={styles.cardBg}
             onChange={this.onChange}
             activeKey={this.props.activeKey}
             onEdit={this.onEdit}>
             {gitList.map((item, index) => {
               return (
-                <Tabs.TabPane  tab={`${item.name}-${item.version}`} key={item.id}>
+                <Tabs.TabPane className={styles.tabPanel}  tab={`${item.name}-${item.version}`} key={item.id}>
+                  {
+                    this.props.mode == VersionStatus.normal &&  (
+                      <Select size="small" className={styles.tabHandle} onChange={this.selectGitVersion}>
+                        {
+                          this.state.reqGitListLoading ? (
+                            <Select.Option value="" >
+                              <Skeleton active></Skeleton>
+                            </Select.Option>
+                          ):
+                          this.state.gitInfo?.versionList.map( item => (
+                            <Select.Option className={styles.versionDesc} key={item.id} value={item.id}>
+                              {this.state.gitInfo?.name} -{item.name}
+                              <div>
+                                {item.description}
+                              </div>
+                            </Select.Option>
+                          ))
+                        }
+                      </Select>
+                    )
+                  }
+                  
                   <Table
                     columns={columns}
                     rowKey="id"

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-15 10:35:19
+ * @LastEditTime: 2021-11-19 16:51:41
  */
 
 import { connect } from 'dva';
@@ -12,9 +12,10 @@ import React from 'react';
 import styles from './styles/templateEdit.less';
 import { withRouter } from 'react-router';
 import { IRouteComponentProps } from '@umijs/renderer-react';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
+import { Dispatch, GitInstance, GitVersion } from '@/.umi/plugin-dva/connect';
 import { Button, Progress, Spin, Tabs, Tag, Tooltip } from 'antd';
 import {
+  ChangeGitVersionParams,
   TemplateConfig,
   TemplateGlobalConfig,
   TemplateInfo,
@@ -30,7 +31,6 @@ import util from '@/utils/utils';
 import * as _ from 'lodash';
 import TemplateConfigPanel from './templateConfig';
 import CreateTemplateVersion from './createTemplateVersion';
-import { ConnectState } from '@/models/connect';
 import TemplateAddGlobalConfig from './addTemplateGlobalConfig';
 import TemplateGlobalConfigComponent from './templateGlobalConfig';
 import { VersionStatus } from '@/models/common';
@@ -86,6 +86,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.afterAddGit = this.afterAddGit.bind(this);
     this.afterDelGit = this.afterDelGit.bind(this);
     this.onChangeGit = this.onChangeGit.bind(this);
+    this.afterSelectGitVersion = this.afterSelectGitVersion.bind(this)
   }
 
 
@@ -114,7 +115,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       type: 'template/getInfo',
       payload: id,
       callback: (info: TemplateInfo) => {
-        console.log(info)
         const currentVersion = info.versionList.length ? info.versionList[0] : null
         this.setState({
           templateInfo: info,
@@ -278,7 +278,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       this.props.match.params.id = version.templateId
       this.setState({
         templateInfo,
-        currentVersion: version
+        currentVersion: version,
+        currentGitId: version.gitList.length ? version.gitList[0].id : ""
       })
       this.initDelInterval(version)
     } 
@@ -346,6 +347,44 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     })
   }
 
+  afterSelectGitVersion ( version: GitVersion) {
+    const currentVersion = util.clone(this.state.currentVersion)
+    const data = {}
+    if (currentVersion) {
+      currentVersion.gitList.map( git => {
+        if ( git.id === this.state.currentGitId){
+          data['id'] = git.id
+          data['gitSourceVersionId'] = version.id
+          data['configList'] = []
+          version.configs.map( config => {
+            data['configList'].push({
+              templateId: git.templateId,
+              templateVersionId: git.templateVersionId,
+              templateVersionGitId: git.id,
+              gitSourceConfigId: config.id,
+              targetValue: config.targetValue,
+            })
+          })
+        }
+      })
+    }
+    this.props.dispatch({
+      type: "template/changeGitVersion",
+      payload: data as ChangeGitVersionParams,
+      callback: (data: TemplateVersionGit) => {
+        // console.log(data)
+        const currentVersion = util.clone(this.state.currentVersion)
+        currentVersion?.gitList.map( (git, index) => {
+          if ( git.id === this.state.currentGitId) {
+            currentVersion.gitList[index] = data
+          }
+        })
+        this.setState({
+          currentVersion
+        })
+      }
+    })
+  }
   afterDelGit (gitId: string) {
     const currentVersion = util.clone(this.state.currentVersion)
     currentVersion?.gitList.forEach((git,index) => {
@@ -583,13 +622,15 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                   <TemplateConfigPanel
                     mode={this.state.currentVersion!.status}
                     activeKey={this.state.currentGitId}
-                    onChangeGit={this.onChangeGit}                  templateId={this.state.currentVersion!.templateId}
+                    onChangeGit={this.onChangeGit}                  
+                    templateId={this.state.currentVersion!.templateId}
                     templateVersionId={this.state.currentVersion!.id}
                     globalConfigList={this.state.currentVersion!.globalConfigList} //全局配置项
                     gitList={this.state.currentVersion!.gitList} //版本git项
                     onSubmit={this.afterUpdateConfig}
                     afterAddGit={this.afterAddGit}
                     afterDelGit={this.afterDelGit}
+                    afterSelectGitVersion={this.afterSelectGitVersion}
                   ></TemplateConfigPanel>
 
                 </Description>
@@ -643,8 +684,4 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
   }
 }
 
-export default connect(({ git }: ConnectState) => {
-  return {
-    gitList: git.gitList,
-  };
-})(withRouter(TemplateEdit));
+export default connect()(withRouter(TemplateEdit));

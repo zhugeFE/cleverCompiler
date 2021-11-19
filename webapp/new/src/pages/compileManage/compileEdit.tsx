@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 16:40:54
+ * @LastEditTime: 2021-11-19 11:06:07
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -19,6 +19,7 @@ import util from '@/utils/utils'
 import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled } from '@ant-design/icons'
 import proxy from "../../../config/proxy"
 import { query } from '@umijs/deps/compiled/express'
+import { download } from '@/utils/download'
 const socket = SocketIO(proxy.dev['/api/'].target, {transports:["websocket"]})
 
 interface Props extends IRouteComponentProps<{
@@ -245,6 +246,17 @@ class CompileEdit extends React.Component<Props, States> {
     socket.emit("startCompile", data)
   }
 
+  onDownLoad () {
+    let name
+    this.state.projectList?.forEach(item => {
+      if (item.id == this.state.projectId) {
+        name = item.name
+      }
+    })
+    if (name) {
+      download(this.state.downloadAddr, name)
+    }
+  }
 
   TextAreaChange (e: any) {
     this.setState({
@@ -387,13 +399,14 @@ class CompileEdit extends React.Component<Props, States> {
                   <Button type="primary" style={{marginRight:10}} onClick={this.onClickCompile}>编译</Button>
                   <Button type="primary"  style={{marginRight:10}} onClick={this.onPack}>打包</Button>
                   {
-                    this.state.downloadAddr&& 
-                    <a  
-                      download={ 
-                        this.state.projectList.filter(item => item.id === this.state.projectId)[0].name
-                      } 
-                      style={{marginRight:10}}
-                      href={`/api/download?filePath=${this.state.downloadAddr}`}>下载</a>
+                    this.state.downloadAddr && 
+                    <Button 
+                      onClick={ 
+                        () => this.onDownLoad()
+                      }
+                    >
+                      下载
+                    </Button> 
                   }
 
                 </Form.Item>

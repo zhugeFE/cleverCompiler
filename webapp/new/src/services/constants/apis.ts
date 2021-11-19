@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 16:35:25
+ * @LastEditTime: 2021-11-19 16:45:51
  */
 export default {
   user: {
@@ -51,6 +51,7 @@ export default {
     updateVersionStatus: '/template/version/status',
     addVersionGit: '/template/git/add',
     delVersionGit: '/template/git',
+    changeGitVersion: '/template/version/changeGitVersion',
     addConfig: '/template/config/add',
     updateConfig: '/template/config/update',
     updateConfigStatus: '/template/config/status/update',

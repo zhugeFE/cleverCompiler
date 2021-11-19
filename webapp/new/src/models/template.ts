@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 10:41:47
+ * @LastEditTime: 2021-11-19 16:39:32
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -125,6 +125,21 @@ export interface TemplateGlobalConfig {
 }
 
 
+export interface ChangeGitVersionParams {
+  id: string;
+  gitSourceVersionId: string;
+  configList: CreateTemplateConfig[];
+}
+export interface CreateTemplateConfig {
+  templateId: string; //模板id
+  templateVersionId: string; //模板版本id
+  templateVersionGitId: string; //模板版本中git项id
+  gitSourceConfigId: string; //模板版本中git项的配置项id
+  targetValue: string; //配置项默认值
+  isHidden: number; //是否隐藏
+}
+
+
 
 export interface CreateTemplateGlobalConfigParams {
   name: string; //名称
@@ -154,6 +169,7 @@ export type TemplateModelType = {
     copyTemplate: Effect;
     addVersion: Effect;
     updateVersion: Effect;
+    changeGitVersion: Effect;
     updateTemplateVersionStatus: Effect;
     deleteVersion: Effect;
     addVersionGit: Effect;
@@ -263,41 +279,16 @@ const TemplateModel: TemplateModelType = {
     *addVersionGit({payload, callback},{call}){
       const res = yield call(templateService.addVersionGit, payload)
       if (res.status === -1) return
-      // const templateInfo = util.clone(yield select( (_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
-      // templateInfo.currentVersion.gitList.push({
-      //   id: res.data.id,
-      //   templateId: res.data.templateId,
-      //   templateVersionId: res.data.templateVersionId,
-      //   gitSourceVersionId: res.data.gitSourceVersionId,
-      //   gitSourceId: res.data.gitSourceId,
-      //   name: res.data.name,
-      //   configList: res.data.configList,
-      // } as TemplateVersionGit);
-      // templateInfo.currentVersion.buildDoc = res.data.buildDoc || '';
-      // templateInfo.currentVersion.readmeDoc = res.data.readmeDoc || '';
-      // templateInfo.currentVersion.updateDoc = res.data.updateDoc || '';
-      // templateInfo.versionList.map((item: TemplateVersion) => {
-      //   if (item.id === templateInfo.currentVersion.id) {
-      //     item = templateInfo.currentVersion;
-      //   }
-      // });
+      if (callback) callback(res.data)
+    },
+    *changeGitVersion({payload, callback}, {call}) {
+      const res = yield call(templateService.changeGitVersion, payload)
+      if (res.status === -1) return
       if (callback) callback(res.data)
     },
     *delVersionGit ({payload,callback}, {call}){
       const res = yield call(templateService.delVersionGit, payload)
       if (res.status === -1) return
-      // const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo))
-      // templateInfo.currentVersion.buildDoc = res.data.buildDoc,
-      // templateInfo.currentVersion.readmeDoc = res.data.readmeDoc,
-      // templateInfo.currentVersion.updateDoc = res.data.updateDoc;
-      // templateInfo.currentVersion.gitList = templateInfo.currentVersion.gitList.filter(
-      //   (item: TemplateVersionGit) => item.id != payload,
-      // );
-      // templateInfo.versionList.map((item: TemplateVersion) => {
-      //   if (item.id === templateInfo.currentVersion?.id) {
-      //     item = templateInfo.currentVersion;
-      //   }
-      // })
       if (callback) callback(res.data)
     },
 

@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 17:54:27
+ * @LastEditTime: 2021-11-19 16:37:53
  */
 
 import request from "@/utils/request";
 import api from "./constants/apis";
-import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus } from "@/models/template";
+import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus, ChangeGitVersionParams } from "@/models/template";
 
 
 class TemplateService {
@@ -108,6 +108,13 @@ class TemplateService {
     })
   }
 
+  async changeGitVersion (data: ChangeGitVersionParams) {
+    return request(api.template.changeGitVersion, {
+      method: "post",
+      data
+    })
+  }
+  
   async delVersionGit (id : string) {
     return request(api.template.delVersionGit , {
       method:"delete",
