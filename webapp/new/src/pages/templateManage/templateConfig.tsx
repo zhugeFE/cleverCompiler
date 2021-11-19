@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 17:09:24
+ * @LastEditTime: 2021-11-19 18:24:03
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -373,7 +373,11 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                 <Tabs.TabPane className={styles.tabPanel}  tab={`${item.name}-${item.version}`} key={item.id}>
                   {
                     this.props.mode == VersionStatus.normal &&  (
-                      <Select size="small" className={styles.tabHandle} onChange={this.selectGitVersion}>
+                      <Select 
+                        placeholder={"切换git版本"}
+                        size="small" 
+                        className={styles.tabHandle} 
+                        onChange={this.selectGitVersion}>
                         {
                           this.state.reqGitListLoading ? (
                             <Select.Option value="" >
