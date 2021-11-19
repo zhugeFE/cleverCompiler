@@ -1,3 +1,4 @@
+import { ChangeGitVersionParams } from './../types/template';
 import { PoolConnection } from 'mysql';
 /*
  * @Descripttion:
@@ -5,7 +6,7 @@ import { PoolConnection } from 'mysql';
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-15 17:28:42
+ * @LastEditTime: 2021-11-19 16:54:49
  */
 /**
  * 模板
@@ -274,7 +275,7 @@ class TemplateDao {
         description: config.description,
         targetValue: config.targetValue,
         type: config.type,
-        isHidden: config.isHidden,
+        isHidden: 0,
       }, connect)
       globalConfigMap[config.id] = configId
     } 
@@ -321,7 +322,7 @@ class TemplateDao {
             description: config.description,
             targetValue: config.targetValue,
             type: config.type,
-            isHidden: config.isHidden,
+            isHidden: 0,
           }, connect) as TemplateGlobalConfig
           globalConfigMap[config.id] = configId
         }
@@ -370,7 +371,7 @@ class TemplateDao {
     
   }
 
-  async copyTemplateVersionConfig (connect: PoolConnection, config: CreateTemplateConfig, templateId, templateVersionId, gitId, globalConfigId: string): Promise<void> {
+  async copyTemplateVersionConfig (connect: PoolConnection, config: CreateTemplateConfig, templateId: string, templateVersionId: string, gitId: string, globalConfigId: string): Promise<void> {
     const sql = `insert into 
      template_config(
        id, 
@@ -392,7 +393,7 @@ class TemplateDao {
       gitId,
       config.gitSourceConfigId,
       config.targetValue,
-      config.isHidden,
+      0,
       globalConfigId != "" ? globalConfigId : null
     ])
   }
@@ -437,6 +438,24 @@ class TemplateDao {
       await pool.writeInTransaction(connect,sql, params)
     } else {
       await pool.query(sql, params)
+    }
+  }
+
+  async changeGitVersion (params: ChangeGitVersionParams): Promise<TemplateVersionGit> {
+    const updateTVGsql = `update template_version_git set git_source_version_id = ? where id = ?`
+    const delConfigsql = `delete from template_config where template_version_git_id = ?`
+    const connect = await pool.beginTransaction()
+    try {
+      await pool.writeInTransaction(connect, updateTVGsql, [params.gitSourceVersionId, params.id])
+      await pool.writeInTransaction(connect, delConfigsql, [params.id])
+      for (const config of params.configList) {
+        await this.copyTemplateVersionConfig(connect, config, config.templateId, config.templateVersionId, config.templateVersionGitId, "" )
+      }
+      await pool.commit(connect)
+      return await this.getGitById(params.id)
+    } catch (err) {
+      await pool.rollback(connect)
+      throw(err)
     }
   }
 

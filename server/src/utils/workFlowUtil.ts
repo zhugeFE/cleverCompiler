@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 11:26:11
+ * @LastEditTime: 2021-11-18 18:55:28
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -188,7 +188,6 @@ class WorkFlow {
      * 2 自动 循环gitName 进行压缩 查询对应git版本的三个文档 
      * 保存到数据库中  compileId  string[]的 文件路径
      */
-    const dashUtil = new DashUtil(this.workDir)
     switch (publicType) {
       case 0: {
         break;

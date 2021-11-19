@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 14:27:16
+ * @LastEditTime: 2021-11-19 10:48:17
  */
 import * as express from 'express'
 import config from './config'
@@ -49,8 +49,10 @@ import redisClient from './utils/redis';
   app.use(session({
     store: new RedisStore({
       client: client.client,
-      
     }),
+    cookie: {
+      expires: new Date( new Date().getTime() + 30 * 60 * 1000)
+    },
     genid () {
       return uuidv4()
     },
@@ -65,7 +67,6 @@ import redisClient from './utils/redis';
   app.use('/api', api)
   app.use(errorHandle)
   app.use(notFound)
-  app.use('/static', express.static(path.join(__dirname + '/www/download')))
 
 
   const server = Socket.createSocket(app)

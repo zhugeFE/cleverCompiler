@@ -1,11 +1,11 @@
-import { TemplateConfig } from './../types/template';
+import { ChangeGitVersionParams, TemplateConfig } from './../types/template';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:45:44
+ * @LastEditTime: 2021-11-19 16:42:47
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
@@ -97,6 +97,20 @@ router.post('/version/update', (req: Request, res: Response, next: NextFunction)
   templateService.updateVersion(req.body)
   .then(() => {
     res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
+
+router.post('/version/changeGitVersion', (req: Request, res: Response, next: NextFunction) => {
+  const param = req.body as ChangeGitVersionParams
+  if (!param.id) {
+    res.json(new ApiResult(ResponseStatus.fail, null, "gitid不能为空"))
+    return
+  }
+  templateService.changeGitVersion(req.body)
+  .then( (gitdata: TemplateVersionGit) => {
+    logger.info(gitdata)
+    res.json(new ApiResult(ResponseStatus.success, gitdata))
   })
   .catch(next)
 })
