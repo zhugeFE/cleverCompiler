@@ -1,5 +1,13 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-11-05 20:08:04
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-11-22 10:42:20
+ */
 export default {
-  'pages.layouts.userLayout.title': 'Ant Design 是西湖区最具影响力的 Web 设计规范',
+  'pages.layouts.userLayout.title': '编译平台 是诸葛io内部效能工具',
   'pages.login.accountLogin.tab': '账户密码登录',
   'pages.login.accountLogin.errorMessage': '错误的用户名和密码（admin/ant.design)',
   'pages.login.username.placeholder': '用户名: admin or user',
