@@ -48,10 +48,17 @@ class DashUtil {
     return new Promise((resolve, reject) => {
       logger.info(`exec command: ${command}`)
       if (socket) SocketLogge(socket,SocketEventNames.compileMessage, gitName, `exec command: ${command} , path===> ${this.workdir}`)
-      const process = childProcess.exec(command, {cwd: this.workdir}, (err) => {
+      // const arr = command.split(/\s+/)
+      // const c = arr[0]
+      // const args = arr.length > 1 ? arr.slice(1, arr.length) : []
+      const p = childProcess.exec(command, {
+        cwd: this.workdir,
+        env: {
+          PATH: process.env.PATH
+        }
+      }, err => {
         if (err) {
           if( socket) {
-            logger.info("socket ====> ", socket)
             SocketLogge(socket,SocketEventNames.compileMessage, gitName, err.message)
           }else {
             logger.error(`命令行(${command})执行异常: ${err.message}`)
@@ -61,7 +68,15 @@ class DashUtil {
         }
         resolve()
       })
-      process.stdout.on('data', (chunk) => {
+      // p.on('exit', code => {
+      //   if (code > 0) { // 命令执行异常，报错
+      //     logger.error(`命令行(${c} ${args})执行异常`)
+      //     reject(new Error(`命令行(${c} ${args})执行异常`))
+      //     return
+      //   }
+      //   resolve()
+      // })
+      p.stdout.on('data', (chunk) => {
         if (onData) onData(chunk.toString())
         if (socket) {
           SocketLogge(socket,SocketEventNames.compileMessage, gitName, chunk.toString())
@@ -69,7 +84,7 @@ class DashUtil {
           logger.info('command stdout >>>>', chunk.toString())
         }
       })
-      process.stderr.on('data', chunk => {
+      p.stderr.on('data', chunk => {
         if (socket) {
           SocketLogge(socket,SocketEventNames.compileMessage, gitName, chunk.toString())
         } else {
