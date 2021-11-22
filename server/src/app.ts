@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 10:48:17
+ * @LastEditTime: 2021-11-22 10:48:30
  */
 import * as express from 'express'
 import config from './config'
@@ -50,9 +50,6 @@ import redisClient from './utils/redis';
     store: new RedisStore({
       client: client.client,
     }),
-    cookie: {
-      expires: new Date( new Date().getTime() + 30 * 60 * 1000)
-    },
     genid () {
       return uuidv4()
     },
