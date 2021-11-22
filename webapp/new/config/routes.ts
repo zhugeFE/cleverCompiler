@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 15:49:38
+ * @LastEditTime: 2021-11-22 11:01:48
  */
 export default [
   {
@@ -99,11 +99,6 @@ export default [
                 hideInMenu: true,
                 component: './projectManage/compilelog'
               },
-              // {
-              //   path: '/compile/list',
-              //   name: 'compileList',
-              //   component: './compileManage/compileList'
-              // },
               {
                 path: '/compile/compileEdit',
                 name: 'compile',
