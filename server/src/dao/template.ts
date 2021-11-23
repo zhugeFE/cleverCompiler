@@ -1,17 +1,16 @@
-import { ChangeGitVersionParams } from './../types/template';
-import { PoolConnection } from 'mysql';
 /*
  * @Descripttion:
  * @version:
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 16:54:49
+ * @LastEditTime: 2021-11-23 15:43:33
  */
 /**
  * 模板
  */
-
+import { ChangeGitVersionParams } from './../types/template';
+import { PoolConnection } from 'mysql';
 import {
   UpdateTemplateGlobalConfig,
   CreateTemplateConfig,
@@ -32,6 +31,7 @@ import pool from './pool'
 import util from '../utils/util'
 import logger from '../utils/logger'
 import { GitConfig } from '../types/git'
+import { VersionStatus } from '../types/common';
 
 interface GitVersionDoc {
   name: string;
@@ -411,7 +411,16 @@ class TemplateDao {
   async getVersionbyTemplateId(templateid: string): Promise<TemplateVersion[]> {
     const sql =
       'select version.* from template_version as version where version.template_id = ? order by version.publish_time desc'
-    const versionList =  await pool.query<TemplateVersion>(sql, [templateid])
+    let versionList =  await pool.query<TemplateVersion>(sql, [templateid])
+    //处理未归档版本但已经时间超过24小时
+    for (const version of versionList) {
+      const isExpire = (new Date( String(version.publishTime) )).getTime() < (new Date()).getTime()
+      if (  version.status == VersionStatus.normal && isExpire) {
+        version.status = VersionStatus.placeOnFile
+        await this.updateVersion(version)
+      }
+    }
+    versionList =  await pool.query<TemplateVersion>(sql, [templateid])
     await Promise.all(
       versionList.map(async item => {
         item.gitList = await this.getGitByTemplateVersionId(item.id)

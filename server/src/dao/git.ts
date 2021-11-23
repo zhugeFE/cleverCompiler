@@ -202,6 +202,15 @@ class GitDao {
       gitInfo.versionList = await pool.queryInTransaction<GitVersion>(conn, versionSql, [id]) as GitVersion[]
     } else {
       gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
+      //处理未归档版本但已经时间超过24小时
+      for (const version of gitInfo.versionList) {
+        const isExpire = (new Date( String(version.publishTime) )).getTime() < (new Date()).getTime()
+        if (  version.status == VersionStatus.normal && isExpire) {
+          version.status = VersionStatus.placeOnFile
+          await this.updateVersion(version)
+        }
+      }
+      gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
     }
     for (let i = 0; i < gitInfo.versionList.length; i++) {
       const version = gitInfo.versionList[i]

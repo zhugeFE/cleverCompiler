@@ -105,7 +105,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
         delTimeout = delTimeout - 1000
         delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
         if (delTimeout <= 0) {
-          this.onPlaceOnFile()
           clearInterval(this.state.delInterval as unknown as number)
         }
         this.setState({

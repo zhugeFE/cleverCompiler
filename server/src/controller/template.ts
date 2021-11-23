@@ -1,12 +1,12 @@
-import { ChangeGitVersionParams, TemplateConfig } from './../types/template';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 16:42:47
+ * @LastEditTime: 2021-11-23 15:20:57
  */
+import { ChangeGitVersionParams, TemplateConfig } from './../types/template';
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
