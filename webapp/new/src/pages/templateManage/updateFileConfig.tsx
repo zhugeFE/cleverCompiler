@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:54
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 11:36:49
+ * @LastEditTime: 2021-11-23 11:09:48
  */
 
 
@@ -17,6 +17,7 @@ import TextArea from 'antd/lib/input/TextArea';
 import { EditMode } from '@/models/common';
 import Dragger from 'antd/lib/upload/Dragger';
 import { InboxOutlined } from '@ant-design/icons';
+import style from "./styles/updateFileConfig.less";
 
 interface FormData {
   file: File | null;
@@ -89,10 +90,12 @@ class UpdateTextConfig extends React.Component<Props, States> {
         centered
         closable={false}
         visible={true}
+        width="40%"
         cancelText="取消"
         okText="保存"
         onCancel={this.onCancel}
         onOk={this.onCommit}>
+        <div className={style.updateFileConfig}>
           <Form
             ref={this.updateFileConfigForm}
             labelCol={{ span: 6 }}
@@ -116,7 +119,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
               label="上传文件" 
               rules={[{ required: true, message: '请上传文件!' }]}
               name="file">
-               <Dragger 
+              <Dragger 
                 beforeUpload={()=>false}
               >
                 <p className="ant-upload-drag-icon">
@@ -130,6 +133,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
               </Dragger>
             </Form.Item>
           </Form>
+        </div>
       </Modal>
     );
   }

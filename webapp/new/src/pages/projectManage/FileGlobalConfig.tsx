@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 19:14:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 15:57:51
+ * @LastEditTime: 2021-11-23 11:25:48
  */
 import { InboxOutlined } from '@ant-design/icons';
 import { Form, FormInstance, Input, Modal } from 'antd';
@@ -13,7 +13,7 @@ import Dragger from 'antd/lib/upload/Dragger';
 import { connect, Dispatch } from 'dva';
 import React from 'react';
 import configStyles from './styles/projectAddConfig.less'
-import styles from './styles/fileConfig.less';
+import styles from './styles/updateFileConfig.less';
 import { TemplateGlobalConfig } from '@/models/template';
 
 interface Props {
@@ -85,16 +85,17 @@ class TemplateFileConfig extends React.Component<Props, State> {
   render () {
     return (
       <Modal
-        className={configStyles.gitConfigModal} 
+        className={configStyles.projectConfigModal} 
         visible={true}
+        centered
         title="修改配置"
-        width="40%"
+        width="35%"
         okText="保存" 
         cancelText="取消"
         onCancel={this.onCancel}
         onOk={this.onSubmit}
       >
-        <div className={styles.gitFileConfig}>
+        <div className={styles.updateFileConfig}>
           <Form
             ref={this.projectFileGlobalForm}
             initialValues={this.state.form}
@@ -117,6 +118,7 @@ class TemplateFileConfig extends React.Component<Props, State> {
             </Form.Item>
             <Form.Item 
               label="上传文件" 
+              className={styles.long}
               rules={[{ required: true, message: '请上传文件!' }]}
               valuePropName="file" 
               name="file">

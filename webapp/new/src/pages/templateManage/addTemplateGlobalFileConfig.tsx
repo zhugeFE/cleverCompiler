@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 19:14:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:47:17
+ * @LastEditTime: 2021-11-23 10:41:06
  */
 import { EditMode } from '@/models/common';
 import { InboxOutlined, LeftOutlined } from '@ant-design/icons';
@@ -91,7 +91,7 @@ class TemplateFileConfig extends React.Component<Props, State> {
   render () {
     return (
       <Modal
-        className={configStyles.gitConfigModal} 
+        className={configStyles.templateConfigModal} 
         visible={true}
         title={
           this.props.mode ===  EditMode.create? (
@@ -107,7 +107,7 @@ class TemplateFileConfig extends React.Component<Props, State> {
         onCancel={this.onCancel}
         onOk={this.onSubmit}
       >
-        <div className={styles.gitFileConfig}>
+        <div className={styles.templateFileConfig}>
           <Form
             ref={this.templateFileForm}
             initialValues={this.state.form}
@@ -130,6 +130,7 @@ class TemplateFileConfig extends React.Component<Props, State> {
             </Form.Item>
             <Form.Item 
               label="上传文件" 
+              className={styles.long}
               rules={[{ required: true, message: '请上传文件!' }]}
               valuePropName="file" 
               name="file">

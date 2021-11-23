@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-06 08:50:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:33:21
+ * @LastEditTime: 2021-11-23 10:32:18
  */
 import { EditMode } from '@/models/common';
 import { GitConfig } from '@/models/git';
@@ -114,7 +114,7 @@ class GitFileConfig extends React.Component<Props, State> {
           this.props.mode === EditMode.create &&
           <a onClick={this.onBack}><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>
         } 
-        width="60%"
+        width="40%"
         okText="保存" 
         cancelText="取消"
         onCancel={this.onCancel}

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:54
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 15:59:17
+ * @LastEditTime: 2021-11-23 11:11:45
  */
 
 
@@ -16,7 +16,7 @@ import { TemplateConfig } from '@/models/template';
 import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
 import { InboxOutlined } from '@ant-design/icons';
-
+import style from "./styles/updateFileConfig.less"
 interface FormData {
   file: File | null;
   filePath: string;
@@ -93,9 +93,11 @@ class UpdateTextConfig extends React.Component<Props, States> {
         closable={false}
         visible={true}
         cancelText="取消"
+        width="40%"
         okText="保存"
         onCancel={this.onCancel}
         onOk={this.onCommit}>
+        <div className={style.updateFileConfig}>
           <Form
             ref={this.projectFileConfigForm}
             labelCol={{ span: 6 }}
@@ -133,6 +135,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
               </Dragger>
             </Form.Item>
           </Form>
+        </div>
       </Modal>
     );
   }

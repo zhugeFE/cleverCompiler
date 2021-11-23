@@ -1,15 +1,6 @@
 @import '~antd/es/style/themes/default.less';
-.addGitConfigModal {
-  .configItem {
-    &:hover {
-      cursor: pointer;
-      background: @primary-color;
-      color: white;
-      border-color: @primary-color;
-    }
-  }
-}
-.gitConfigModal {
+
+.projectConfigModal {
   height: 100%;
   top: 0 !important;
   :global(.ant-modal-content) {
@@ -30,6 +21,8 @@
       display: flex;
       flex-direction: row;
       padding: 10px;
+      justify-content: center;
+
       .gitCmLeftPanel {
         flex: 1;
         margin-left: 10px;

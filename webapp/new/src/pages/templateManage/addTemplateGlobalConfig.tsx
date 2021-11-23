@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-12 08:30:26
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 18:16:13
+ * @LastEditTime: 2021-11-23 10:48:10
  */
 import * as React from 'react';
 import { Modal, Card, Row, Col } from 'antd';
@@ -122,7 +122,7 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
           title="添加配置"
           visible={true}
           centered
-          className={styles.addGitConfigModal}
+          className={styles.addTemplateConfigModal}
           footer={null}
           onCancel={this.onCancel}>
           <Row gutter={16}>
