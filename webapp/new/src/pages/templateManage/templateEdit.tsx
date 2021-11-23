@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 16:51:41
+ * @LastEditTime: 2021-11-23 15:14:24
  */
 
 import { connect } from 'dva';
@@ -12,7 +12,7 @@ import React from 'react';
 import styles from './styles/templateEdit.less';
 import { withRouter } from 'react-router';
 import { IRouteComponentProps } from '@umijs/renderer-react';
-import { Dispatch, GitInstance, GitVersion } from '@/.umi/plugin-dva/connect';
+import { Dispatch, GitInfo, GitInstance, GitVersion } from '@/.umi/plugin-dva/connect';
 import { Button, Progress, Spin, Tabs, Tag, Tooltip } from 'antd';
 import {
   ChangeGitVersionParams,
@@ -52,6 +52,7 @@ interface State {
   delTooltip: string;
   delInterval?: NodeJS.Timeout;
   currentGitId: string;
+  gitInfo: GitInfo | null;
 }
 
 class TemplateEdit extends React.Component<TemplateEditProps, State> {
@@ -66,6 +67,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       delTooltip: '',
       currentGitId: "",
       updateTimeout: 0,
+      gitInfo: null
     };
 
     this.afterUpdateGlobalConfigStatus = this.afterUpdateGlobalConfigStatus.bind(this)
@@ -105,8 +107,25 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
   }
 
   onChangeGit (id: string) {
+    this.getGitInfo(id)
     this.setState({
       currentGitId: id
+    })
+  }
+
+  getGitInfo (gitId: string) {
+    const data = this.state.currentVersion!.gitList.filter( item => item.id == gitId)[0]
+    this.setState({
+      gitInfo: null
+    })
+    this.props.dispatch({
+      type: 'git/getInfo',
+      payload: data.gitSourceId,
+      callback: (info: GitInfo) => {
+        this.setState({
+          gitInfo: info,
+        })
+      }
     })
   }
 
@@ -121,6 +140,9 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
           currentVersion,
           currentGitId: currentVersion?.gitList.length ? currentVersion.gitList[0].id : ""
         })
+        if ( currentVersion?.gitList.length) {
+          this.getGitInfo(currentVersion.gitList[0].id)
+        }
         this.initDelInterval(currentVersion)
       }
     });
@@ -164,17 +186,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     })
   }
   
-  onCancelAddVersion () {
-    this.props.history.goBack()
-  }
-
-  onAddGlobalConfig () {
-    if ( this.state.currentVersion?.status !== VersionStatus.normal) return
-    this.setState({
-      showAddGlobalConfig: true
-    })
-  }
-
+  
 
   //异步更新版本里的文档
   onUpdateVersion() {
@@ -203,9 +215,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       }, 500) as unknown as number,
     })
   }
-
-
-
   //修改操作文档，同步更新状态
   onChangeReadme(content: string) {
     const currentVersion = util.clone(this.state.currentVersion)
@@ -215,7 +224,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     })
     this.onUpdateVersion();
   }
-
   //操作部署文档，同步更新状态
   onChangeBuild(content: string) {
     const currentVersion = util.clone(this.state.currentVersion)
@@ -225,7 +233,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     })
     this.onUpdateVersion();
   }
-
   //修改更新文档，同步更新状态
   onChangeUpdate(content: string) {
     const currentVersion = util.clone(this.state.currentVersion)
@@ -243,7 +250,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     })
     this.initDelInterval(templateVersion)
   }
-
   onDeleteVersion () {
     this.props.dispatch({
       type: 'template/deleteVersion',
@@ -267,7 +273,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       }
     })
   }
-
   afterCreateVersion (version: TemplateVersion) {
     if (this.props.match.params.id == 'createTemplate') {
       this.props.history.replace(`/manage/template/${version.templateId}`)
@@ -284,6 +289,10 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       this.initDelInterval(version)
     } 
   }
+  onCancelAddVersion () {
+    this.props.history.goBack()
+  }
+ 
 
 
   afterUpdateConfigStatus (data: {id: string; status: number}) {
@@ -306,8 +315,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       templateInfo
     })
   }
-  
-
   afterUpdateConfig (config: TemplateConfig) {
     const currentVersion = util.clone(this.state.currentVersion)
     currentVersion?.gitList.forEach( (git) => {
@@ -345,18 +352,20 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       templateInfo,
       currentGitId: currentVersion!.gitList[currentVersion!.gitList.length - 1].id
     })
+    this.getGitInfo(currentVersion!.gitList[currentVersion!.gitList.length - 1].id)
   }
 
-  afterSelectGitVersion ( version: GitVersion) {
+  afterSelectGitVersion ( value: string) {
+    const version = this.state.gitInfo?.versionList.filter( git => git.id == value)[0]
     const currentVersion = util.clone(this.state.currentVersion)
     const data = {}
     if (currentVersion) {
       currentVersion.gitList.map( git => {
         if ( git.id === this.state.currentGitId){
           data['id'] = git.id
-          data['gitSourceVersionId'] = version.id
+          data['gitSourceVersionId'] = version?.id
           data['configList'] = []
-          version.configs.map( config => {
+          version?.configs.map( config => {
             data['configList'].push({
               templateId: git.templateId,
               templateVersionId: git.templateVersionId,
@@ -372,7 +381,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       type: "template/changeGitVersion",
       payload: data as ChangeGitVersionParams,
       callback: (data: TemplateVersionGit) => {
-        // console.log(data)
         const currentVersion = util.clone(this.state.currentVersion)
         currentVersion?.gitList.map( (git, index) => {
           if ( git.id === this.state.currentGitId) {
@@ -401,7 +409,17 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.setState({
       templateInfo,
       currentVersion,
-      currentGitId: currentVersion!.gitList[currentVersion!.gitList.length - 1].id
+      currentGitId: currentVersion?.gitList.length ? currentVersion.gitList[currentVersion.gitList.length-1].id : ""
+    })
+    if (currentVersion?.gitList.length) {
+      this.getGitInfo(currentVersion!.gitList[currentVersion!.gitList.length - 1].id)
+    }
+  }
+
+  onAddGlobalConfig () {
+    if ( this.state.currentVersion?.status !== VersionStatus.normal) return
+    this.setState({
+      showAddGlobalConfig: true
     })
   }
   afterDelGlobalConfig (configId: string) {
@@ -422,15 +440,11 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       currentVersion
     })
   }
-
-
   onCancelGlobalConfig () {
     this.setState({
       showAddGlobalConfig: false
     })
   }
-
-
   afterUpdateGlobalConfigStatus (data: {id: string; status: number}) {
     const currentVersion = util.clone(this.state.currentVersion)
     currentVersion?.globalConfigList.forEach( (item, index) => {
@@ -469,7 +483,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       templateInfo
     })
   }
-
   afterAddGlobalConfig (config: TemplateGlobalConfig) {
     const currentVersion = util.clone(this.state.currentVersion)
     currentVersion?.globalConfigList.push(config)
@@ -622,6 +635,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                   <TemplateConfigPanel
                     mode={this.state.currentVersion!.status}
                     activeKey={this.state.currentGitId}
+                    gitInfo={this.state.gitInfo}
                     onChangeGit={this.onChangeGit}                  
                     templateId={this.state.currentVersion!.templateId}
                     templateVersionId={this.state.currentVersion!.id}
