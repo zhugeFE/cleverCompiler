@@ -36,3 +36,17 @@
     }
   }
 }
+
+
+.nullValue {
+  display: block;
+  :global(.ant-input) {
+    border-color: #f40;
+  }
+  &::after {
+    display: inline-block;
+    margin-left: 20px;
+    color: #f40;
+    content: "🙅‍♂️ 输出路径未填写！";
+  } 
+}
