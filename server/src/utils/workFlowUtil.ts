@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 18:55:28
+ * @LastEditTime: 2021-11-23 16:56:02
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -180,12 +180,15 @@ class WorkFlow {
 
   async pack (socket, fileName: string, gitData: CompileGitData[], doc: CompileDoc): Promise<boolean> {
     try {
-      //在www下创建一个tmp文件
+      //在workdir下创建一个tmp文件
       SocketLogge(socket, SocketEventNames.result,'result','Step: 创建tmp临时文件')
-      const dirPath = __dirname.replace('dist/utils', `www/download/tmp`)
+      const tmpPath = path.resolve(this.workDir, "tmp")
 
-      await new DashUtil(dirPath).exec('rm -rf ./*', socket, 'result')
-      await fsUtil.mkdir(dirPath)
+      const exist = await fsUtil.pathExist(tmpPath)
+      if (exist){
+        await new DashUtil(tmpPath).exec('rm -rf ./*', socket, 'result')
+      }
+      await fsUtil.mkdir(tmpPath)
 
       SocketLogge(socket, SocketEventNames.result,'result','Step: tmp文件创建成功')
       for ( let i = 0 ; i < gitData.length; i++) {
@@ -193,23 +196,23 @@ class WorkFlow {
         const fileDir =  `${gitData[i].name}${gitData[i].outputName}`
         logger.info(fileDir)
         const oldPath =  path.resolve( this.workDir, fileDir)
-        const newPath = path.resolve( dirPath, gitData[i].name)
+        const newPath = path.resolve( tmpPath, gitData[i].name)
         SocketLogge(socket, SocketEventNames.result,'result',`Step: 正在拷贝${oldPath} 到 ${newPath}`)
         await fsUtil.rename(oldPath, newPath)
         SocketLogge(socket, SocketEventNames.result,'result',`Step: 拷贝成功 ${oldPath} 到 ${newPath}`)
       }
 
       SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始写入配置文件`)
-      fs.writeFileSync( path.resolve(dirPath, 'build.md') , doc.buildDoc)
-      fs.writeFileSync( path.resolve(dirPath, 'update.md') , doc.updateDoc)
-      fs.writeFileSync( path.resolve(dirPath, 'readme.md') , doc.readmeDoc)
+      fs.writeFileSync( path.resolve(tmpPath, 'build.md') , doc.buildDoc)
+      fs.writeFileSync( path.resolve(tmpPath, 'update.md') , doc.updateDoc)
+      fs.writeFileSync( path.resolve(tmpPath, 'readme.md') , doc.readmeDoc)
       SocketLogge(socket, SocketEventNames.result,'result',`Step: 写入配置文件成功`)
 
-      const savePath = __dirname.replace('dist/utils', `www/download/${fileName}.tar.gz`)
+      const savePath = path.resolve(this.workDir, `${fileName}.tar.gz`)
 
       SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始打包文件`)
       
-      await new DashUtil(dirPath).exec(`tar czvf ${savePath} ./`, socket, 'result')
+      await new DashUtil(tmpPath).exec(`tar czvf ${savePath} ./`, socket, 'result')
 
       return true
     } catch(err) {
