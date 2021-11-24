@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 11:06:07
+ * @LastEditTime: 2021-11-24 22:42:57
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -313,7 +313,7 @@ class CompileEdit extends React.Component<Props, States> {
     }
     
     return (
-      <div >
+      <div className={styles.compileEditPanel}>
         <Form
           labelCol={{span:4}}
           wrapperCol={{span:16}}

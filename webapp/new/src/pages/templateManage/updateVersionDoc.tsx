@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-24 14:23:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 19:00:00
+ * @LastEditTime: 2021-11-24 22:40:57
  */
 
 import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
@@ -136,6 +136,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
           <div className={style.content}>
             <div className={style.selectBox}>
               <Select 
+                size="large"
                 defaultValue={this.props.location.query.vid as string}
                 onChange={this.onLeftSelect}
                 style={{width:"100%"}}
@@ -168,6 +169,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
           <div className={style.content}>
             <div className={style.selectBox}>
               <Select 
+                size="large"
                 placeholder="请选择需要对比的版本"
                 onChange={this.onRightSelect}
                 style={{width:"100%"}}
