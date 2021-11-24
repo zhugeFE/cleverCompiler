@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:56:16
+ * @LastEditTime: 2021-11-24 17:24:40
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -65,6 +65,9 @@ class ProjectList extends React.Component<Props, States> {
     this.props.history.push(`/compile/compileEdit?id=${project.id}`)
   }
 
+  onClickUpdateEntry (project: ProjectInstance){
+    this.props.history.push(`/manage/template/updateInfo/${project}?vid=${project}`)
+  }
 
   onCreateProject () {
     this.props.history.push("/compile/project/edit/addProject?mode=add")
@@ -172,6 +175,10 @@ class ProjectList extends React.Component<Props, States> {
               <Button style={{marginRight: 5}} onClick={this.onClickCompile.bind(this, record)}>
                 编译
               </Button>
+              <Button 
+                type="ghost"
+                style={{marginRight: 5}}
+                onClick={this.onClickUpdateEntry.bind(this, record)}>升级</Button>
               <Button 
               type="primary" 
               style={{marginRight: 5}}

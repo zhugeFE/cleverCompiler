@@ -1,11 +1,11 @@
-import { ChangeGitVersionParams, UpdateTemplateGlobalConfig } from './../types/template';
+import { ChangeGitVersionParams, TemplateVersionUpdateInfo, UpdateTemplateGlobalConfig } from './../types/template';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 16:35:10
+ * @LastEditTime: 2021-11-24 16:13:20
  */
 import { 
   CreateTemplateGlobalConfigParams, 
@@ -28,6 +28,10 @@ class TemplateService {
 
   async getVersionList (id: string): Promise<TemplateInfo[]> {
     return await templateDao.getVersionList(id)
+  }
+
+  async getVersionUpdateInfo(id: string): Promise<TemplateVersionUpdateInfo[]> {
+    return await templateDao.getVersionUpdateInfo(id)
   }
 
   async updateTemplate (template: TemplateInstance): Promise<void> {

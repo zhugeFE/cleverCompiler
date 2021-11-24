@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 16:37:53
+ * @LastEditTime: 2021-11-24 16:15:53
  */
 
 import request from "@/utils/request";
@@ -19,6 +19,15 @@ class TemplateService {
   async getInfo (id: string) {
     return request(api.template.getInfo, {
       params: {
+        id
+      }
+    })
+  }
+
+  async getVersionUpdateInfo (id: string) {
+    return request(api.template.getVersionUpdateInfo, {
+      method: "post",
+      data: {
         id
       }
     })

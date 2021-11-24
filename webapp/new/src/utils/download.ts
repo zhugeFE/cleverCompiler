@@ -4,10 +4,8 @@
  * @Author: Adxiong
  * @Date: 2021-11-19 10:55:08
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 11:04:16
+ * @LastEditTime: 2021-11-23 17:30:11
  */
-
-import { ProjectCompile } from "@/models/project";
 
 
 const download =  (file: string, name: string) => {

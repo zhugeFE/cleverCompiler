@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 15:43:33
+ * @LastEditTime: 2021-11-24 16:26:25
  */
 /**
  * 模板
  */
-import { ChangeGitVersionParams } from './../types/template';
+import { ChangeGitVersionParams, TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo } from './../types/template';
 import { PoolConnection } from 'mysql';
 import {
   UpdateTemplateGlobalConfig,
@@ -32,6 +32,7 @@ import util from '../utils/util'
 import logger from '../utils/logger'
 import { GitConfig } from '../types/git'
 import { VersionStatus } from '../types/common';
+import { version } from '@hapi/joi';
 
 interface GitVersionDoc {
   name: string;
@@ -902,6 +903,40 @@ class TemplateDao {
       logger.error('向git表插入数据失败', e)
       throw (e)
     }
+  }
+
+  async getVersionUpdateInfo (id: string): Promise<TemplateVersionUpdateInfo[]> {
+    const queryVersionSql = `
+      SELECT
+        tv.id,
+        tp.NAME,
+        tv.description,
+        tv.version 
+      FROM
+        template_version AS tv
+        LEFT JOIN template AS tp ON tv.template_id = tp.id 
+      WHERE
+        tp.id = ?
+      ORDER BY tv.version DESC`
+    const queryVersionGitSql = `
+      SELECT 
+        NAME,
+        version,
+        update_doc,
+        source_version.description,
+        source_version.publish_time 
+      FROM
+        template_version_git
+        LEFT JOIN source_version ON source_version.id = git_source_version_id
+        LEFT JOIN git_source ON git_source.id = source_version.source_id 
+      WHERE
+        template_version_id = ?` 
+    const templateVersion = await pool.query<TemplateVersionUpdateInfo>(queryVersionSql, [id])
+    for (const version of templateVersion) {
+      version['gitInfo'] = await pool.query<TemplateVersionGitUpdateInfo>(queryVersionGitSql, [version.id])
+    }
+
+    return templateVersion
   }
 }
 const templateDao = new TemplateDao()

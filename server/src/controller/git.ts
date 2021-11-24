@@ -1,4 +1,4 @@
-import { GitList, UpdateGitStatus } from './../types/git';
+import { GitList, UpdateGitStatus, VersionUpdateDocInfo } from './../types/git';
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -71,6 +71,19 @@ router.get('/:id/commits', (req: Request, res: Response, next: NextFunction) => 
   })
   .catch(next)
 })
+
+router.post('/version/updateInfo', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, "id为空"))
+    return
+  }
+  gitService.getVersionUpdateDocByGitId(req.body.id)
+  .then ( (data: VersionUpdateDocInfo[]) => {
+    res.json(new ApiResult(ResponseStatus.success, data))
+  })
+  .catch (next)
+})
+
 router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
   gitService.addVersion(req.body as GitCreateVersionParam, req.session.currentUser.id)
   .then((version: GitVersion) => {

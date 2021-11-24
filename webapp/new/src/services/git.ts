@@ -12,13 +12,7 @@ class GitService {
     return request(apis.git.queryGitList)
   }
   async getFileTree (params: {
-    /**
-     * gitId
-     */
     id: string;
-    /**
-     * 版本id
-     */
     versionId: string;
   }) {
     return request(apis.git.getFileTree, {
@@ -131,6 +125,15 @@ class GitService {
     return request(apis.git.deleteGit, {
       method: "delete",
       params: {
+        id
+      }
+    })
+  }
+
+  async getVersionUpdateInfo (id: string) {
+    return request(apis.git.getVersionUpdateInfo, {
+      method: "post",
+      data: {
         id
       }
     })

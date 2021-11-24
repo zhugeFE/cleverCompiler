@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 18:18:32
+ * @LastEditTime: 2021-11-24 17:22:52
  */
 import { Table, Button, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -79,6 +79,10 @@ class TemplateList extends React.Component<TemplateListProps, State> {
     this.setState({
       currentTemplate: template
     })
+  }
+
+  onClickUpdateEntry (template: TemplateInstance){
+    this.props.history.push(`/manage/template/updateInfo/${template.id}?vid=${template.versionId}`)
   }
 
   onClickEdit(template: TemplateInstance) {
@@ -209,15 +213,20 @@ class TemplateList extends React.Component<TemplateListProps, State> {
           return (
             <div>
               <Button 
-              type="primary" 
-              style={{marginRight: 5}}
-              disabled={!record.enable}
-              onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+                type="primary" 
+                style={{marginRight: 5}}
+                disabled={!record.enable}
+                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
               <Button 
-              type="ghost"
-              style={{marginRight: 5}}
-              disabled={!record.enable}
-              onClick={this.onClickCopyTemplate.bind(this, record)}>拷贝</Button>
+                type="ghost"
+                style={{marginRight: 5}}
+                disabled={!record.enable}
+                onClick={this.onClickCopyTemplate.bind(this, record)}>拷贝</Button>
+              <Button 
+                type="ghost"
+                style={{marginRight: 5}}
+                disabled={!record.enable}
+                onClick={this.onClickUpdateEntry.bind(this, record)}>升级</Button>
               <Button 
                 type="primary"
                 danger 

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-12 16:28:58
+ * @LastEditTime: 2021-11-24 11:12:39
  */
 import { Version } from './common';
 
@@ -109,4 +109,12 @@ export interface CompileGitParams {
   readmeDoc: string;
   updateDoc: string;
   buildDoc: string;
+}
+
+export interface VersionUpdateDocInfo {
+  id: string;
+  updateDoc: string;
+  publishTime: string;
+  version: string;
+  description: string;
 }

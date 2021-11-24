@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-22 11:01:48
+ * @LastEditTime: 2021-11-24 14:32:37
  */
 export default [
   {
@@ -52,6 +52,12 @@ export default [
                 component: './gitManage/gitEdit'
               },
               {
+                path: '/manage/git/updateInfo/:id',
+                name: 'updateInfo',
+                hideInMenu: true,
+                component: './gitManage/versionUpdate'
+              },
+              {
                 path: '/manage/template/list',
                 name: 'templateList',
                 component: './templateManage/templateList'
@@ -61,6 +67,12 @@ export default [
                 name: 'templateEdit',
                 hideInMenu:true,
                 component: './templateManage/templateEdit'
+              },
+              {
+                path: '/manage/template/updateInfo/:id',
+                name: 'updateInfo',
+                hideInMenu: true,
+                component: './templateManage/updateVersionDoc'
               },
               {
                 component: './404',

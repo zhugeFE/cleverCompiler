@@ -1,10 +1,11 @@
+import { download } from '@/utils/download';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 16:39:32
+ * @LastEditTime: 2021-11-24 18:35:58
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -12,6 +13,32 @@ import templateService from '@/services/template';
 import util from '@/utils/utils';
 import { Version } from './common';
 
+
+
+export interface TemplateVersionUpdateInfo {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  gitInfo: TemplateVersionGitUpdateInfo[];
+}
+
+export interface TemplateVersionGitUpdateInfo {
+  name: string;
+  version: string;
+  updateDoc: string;
+  description: string;
+  publishTime: string;
+  tag?: number;
+}
+
+export const updateTag = {
+  normal: 0,
+  add: 1,
+  del: -1,
+  up: 2,
+  down: -2
+}
 
 export interface TemplateInstance {
   id: string;
@@ -163,6 +190,7 @@ export type TemplateModelType = {
     query: Effect;
     getInfo: Effect;
     getTemplateVersionInfo: Effect;
+    getVersionUpdateInfo: Effect;
     delTemplateInfo: Effect;
     updateTemplateStatus: Effect;
     updateTemplate: Effect;
@@ -204,6 +232,11 @@ const TemplateModel: TemplateModelType = {
     },
     *getTemplateVersionInfo ({payload, callback}, {call}) {
       const res = yield call(templateService.getTemplateVersionInfo, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
+    *getVersionUpdateInfo ({payload, callback}, {call}) {
+      const res = yield call(templateService.getVersionUpdateInfo, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
@@ -325,15 +358,6 @@ const TemplateModel: TemplateModelType = {
     *delGlobalConfig ({payload, callback}, {call}) {
       const res = yield call(templateService.delGlobalConfig, payload)
       if (res.status === -1) return
-      // const templateInfo = util.clone(yield select((_: { template: { templateInfo: any; }; }) => _.template.templateInfo));
-      // templateInfo.currentVersion.globalConfigList =
-      // templateInfo.currentVersion.globalConfigList.filter((item: TemplateGlobalConfig) => item.id != payload);
-      // templateInfo.versionList.map((item: TemplateVersion) => {
-      //   if (item.id === templateInfo.currentVersion.id) {
-      //     item = templateInfo.currentVersion;
-      //   }
-      // });
-      
       if (callback) callback()
     }
   },

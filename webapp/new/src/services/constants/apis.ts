@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 16:45:51
+ * @LastEditTime: 2021-11-24 16:15:01
  */
 export default {
   user: {
@@ -23,6 +23,7 @@ export default {
     queryGitList: '/git/list',
     getFileTree: '/git/filetree',
     getInfo: '/git/{{id}}/info',
+    getVersionUpdateInfo: '/git/version/updateInfo',
     queryBranch: '/git/{{gitId}}/branchs',
     queryTags: '/git/{{gitId}}/tags',
     queryCommits: '/git/{{gitId}}/commits',
@@ -40,6 +41,7 @@ export default {
   template: {
     createTemplate: '/template/add',
     getInfo: '/template/{{id}}/info',
+    getVersionUpdateInfo: '/template/version/updateInfo',
     getTemplateVersionInfo: '/template/version/list',
     queryTemplateList: '/template/list',
     updateTemplateStatus: "/template/status",

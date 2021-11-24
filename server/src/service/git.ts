@@ -1,11 +1,11 @@
-import { GitList, UpdateGitStatus, UpdateConfigParam } from './../types/git';
+import { GitList, UpdateGitStatus, UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-13 22:58:32
+ * @LastEditTime: 2021-11-23 18:50:50
  */
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
@@ -100,6 +100,9 @@ class GitService {
   }
   async deleteGit (id: string): Promise<void> {
     await gitDao.deleteGit(id)
+  }
+  async getVersionUpdateDocByGitId(gitId: string): Promise<VersionUpdateDocInfo[]>{
+    return await gitDao.getVersionUpdateDocByGitId(gitId)
   }
 }
 

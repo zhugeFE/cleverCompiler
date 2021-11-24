@@ -10,6 +10,14 @@ export interface GitList {
   name: string;
 }
 
+export interface VersionUpdateDocInfo {
+  id: string;
+  updateDoc: string;
+  version: string;
+  publishTime: string;
+  description: string;
+}
+
 export interface GitSelectParams {
   git: GitList[];
   version:{
@@ -106,6 +114,7 @@ export type GitModelType = {
     query: Effect;
     getInfo: Effect;
     getFileTree: Effect;
+    getVersionUpdateInfo: Effect;
     queryRemoteGitList: Effect;
     queryBranchs: Effect;
     queryCommits: Effect;
@@ -139,6 +148,11 @@ const GitModel: GitModelType = {
         type: 'setList',
         payload: res.data
       })
+    },
+    *getVersionUpdateInfo ({payload, callback}, {call}) {
+      const res = yield call(gitService.getVersionUpdateInfo, payload as string)
+      if (res.status === -1) return
+      callback(res.data)
     },
     *getInfo ({payload, callback}, {call}) {
       const res = yield call(gitService.getInfo, payload as string)

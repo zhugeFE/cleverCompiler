@@ -1,4 +1,4 @@
-import { UpdateConfigParam } from './../types/git';
+import { UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
 import { GitList, UpdateGitStatus } from './../types/git';
 import pool from './pool'
 import sysDao from './sys'
@@ -471,6 +471,12 @@ class GitDao {
       logger.error('向git表插入数据失败', e)
       throw (e)
     }
+  }
+
+  async getVersionUpdateDocByGitId (gitId: string): Promise<VersionUpdateDocInfo[]> {
+    const sql = 'SELECT id, update_doc, publish_time, version, description from source_version WHERE source_id = ? ORDER BY version DESC'
+    const data = await pool.query<VersionUpdateDocInfo>(sql, [gitId])
+    return data
   }
 }
 

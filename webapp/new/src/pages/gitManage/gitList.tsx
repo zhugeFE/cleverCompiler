@@ -105,6 +105,9 @@ class GitList extends React.Component<GitListProps, State> {
       }
     })
   }
+  onClickUpdateEntry (git: GitInstance) {
+    this.props.history.push(`/manage/git/updateInfo/${git.id}?title=${git.name}`)
+  }
   render () {
     const columns: ColumnProps<GitInstance>[] = [
       {
@@ -184,6 +187,10 @@ class GitList extends React.Component<GitListProps, State> {
                 style={{marginRight: 5}} 
                 disabled={!record.enable}
                 onClick={this.onClickDel.bind(this, record)}>删除</Button>
+              <Button                 
+                style={{marginRight: 5}} 
+                disabled={!record.enable}
+                onClick={this.onClickUpdateEntry.bind(this, record)}>版本更新日志</Button>
               {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
             </div>
           )

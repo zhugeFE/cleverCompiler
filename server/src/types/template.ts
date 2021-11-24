@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 16:15:44
+ * @LastEditTime: 2021-11-24 16:12:04
  */
 import { Version } from "./common";
 
@@ -99,6 +99,22 @@ export interface TemplateConfig extends CreateTemplateConfig {
   filePath: string; // 原始文件路径
   description: string; // 描述信息
   globalConfigId: string; //全局配置id
+}
+
+export interface TemplateVersionUpdateInfo {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  gitInfo: TemplateVersionGitUpdateInfo[];
+}
+
+export interface TemplateVersionGitUpdateInfo {
+  name: string;
+  version: string;
+  updateDoc: string;
+  description: string;
+  publishTime: string;
 }
 
 

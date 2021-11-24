@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 15:20:57
+ * @LastEditTime: 2021-11-24 16:13:52
  */
-import { ChangeGitVersionParams, TemplateConfig } from './../types/template';
+import { ChangeGitVersionParams, TemplateConfig, TemplateVersionUpdateInfo } from './../types/template';
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -33,9 +33,25 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.get('/version/list', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.query.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+    return
+  }
   templateService.getVersionList(req.query.id)
   .then((data: TemplateInfo[]) => {
     res.json( new ApiResult( ResponseStatus.success, data))
+  })
+  .catch(next)
+})
+
+router.post('/version/updateInfo', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.id) {
+    res.json(new ApiResult(ResponseStatus.fail, "id不存在"))
+    return
+  }
+  templateService.getVersionUpdateInfo (req.body.id)
+  .then( (data: TemplateVersionUpdateInfo[]) => {
+    res.json(new ApiResult(ResponseStatus.success, data))
   })
   .catch(next)
 })

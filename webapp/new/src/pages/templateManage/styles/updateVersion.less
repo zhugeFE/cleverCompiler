@@ -1,0 +1,55 @@
+@import '~antd/es/style/themes/default.less';
+
+.updateVersionPanel {
+  .goback{
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding-left: 10px;
+    font-size: 24px;
+  }
+  .container {
+    width: 80%;
+    height: 100%;
+    margin: 10px auto;
+    display: flex;
+    .content {
+      flex: 1;
+      width: 45%;
+      text-align: center;
+      margin: 0 5px;
+      padding-bottom: 50px;
+      border-radius: 15px;
+      background-color: #F5F5F5	;
+      border: 1px solid rgba(0, 0, 0, .2);
+      .selectBox {
+        width: 80%;
+        padding: 10px 0;
+        margin: auto;
+      }
+      .gitList {
+        width: 50%;
+        margin: auto;
+        .gitItem{
+          margin: 5px 0;
+          padding: 5px;
+          height: 45px;
+          line-height: 35px;
+          background-color: #FFFFF0	;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all .2s ease-in-out;
+          &:hover{
+            transform: scale(1.05);
+          }
+        }
+      }
+    }
+  }
+}
+
+.versionDesc {
+  font-size: @font-size-sm;
+  color: @text-color-secondary;
+}
+

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-10 15:49:24
+ * @LastEditTime: 2021-11-24 14:33:46
  */
 export default {
   'menu.configManage': '配置管理',
@@ -15,6 +15,7 @@ export default {
   'menu.compileManage.customerEdit': "客户编辑",
   'menu.compileManage': '编译管理',
   'menu.configManage.gitEdit': 'git编辑',
+  'menu.configManage.updateInfo': '更新信息',
   'menu.configManage.templateList': '模板列表',
   'menu.configManage.templateEdit': '模板编辑',
   'menu.compileManage.compilelog': '编译记录',
