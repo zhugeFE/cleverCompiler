@@ -5,14 +5,17 @@ import { GitBranch, GitCommit, GitCreateVersionParam, GitInstance, GitList, GitT
 import util from '@/utils/utils';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
-import styles from './styles/createGitVersion.less';
 import { ConnectState } from '@/models/connect';
 import { VersionType } from "@/models/common";
+import style from "./styles/createGitVersion.less";
+
 interface FormData {
   option: string;
   source: string;
   repoId: string;
   branch: string;
+  branchName: string;
+  branchDesc: string;
   tag: string;
   commit: string;
   description: string;
@@ -22,6 +25,7 @@ interface Props {
   gitList: GitInstance[]; 
   gitId?: string;
   repoId?: string;
+  branchId?: string;
   title?: string;
   versionList?: Version[];
   dispatch: Dispatch;
@@ -58,6 +62,8 @@ class CreateGitVersion extends React.Component<Props, States> {
         branch: '',
         tag: '',
         commit: '',
+        branchName: '',
+        branchDesc: ''
       },
       gitList: null,
       branchList: [],
@@ -176,6 +182,9 @@ class CreateGitVersion extends React.Component<Props, States> {
       source: source,
       sourceValue: this.state.form[source],
       description: this.state.form.description,
+      branchName: this.state.form.branchName,
+      branchDesc: this.state.form.branchDesc,
+      branchId: this.props.branchId || ""
     }
 
     this.props.dispatch({
@@ -205,12 +214,12 @@ class CreateGitVersion extends React.Component<Props, States> {
     const commitDisplay = source === 'commit' ? 'flex' : 'none'
     if ( !this.state.gitList && this.props.mode == 'init' ){
       return(
-        <Spin className={styles.gitEditLoading} tip="git列表获取中..." size="large"></Spin>
+        <Spin className={style.gitEditLoading} tip="git列表获取中..." size="large"></Spin>
       )
     }
     return (
       <Modal
-        className="create-git-version"
+        className={style.createGitModal}
         title={this.props.title || '添加版本'}
         closable={false}
         visible={this.state.show}
@@ -227,7 +236,7 @@ class CreateGitVersion extends React.Component<Props, States> {
           onValuesChange={this.onChangeForm}>
           {
             this.props.mode == 'init' &&
-            <Form.Item label="git" name="repoId">
+            <Form.Item label="git来源" name="repoId">
               <Select 
                 showSearch
                 filterOption={this.filterGitRep}>
@@ -236,40 +245,8 @@ class CreateGitVersion extends React.Component<Props, States> {
                     <Select.Option value={item.id} key={item.id}>{item.name}</Select.Option>)
                 }
               </Select>
-          </Form.Item>
+            </Form.Item>
           }
-
-          {
-            this.props.mode !== 'init' ? 
-            <Form.Item label="版本类型" name="option">
-              <Select>
-                {VersionType.map((item) => (
-                  <Select.Option value={item.key} key={item.key} title={item.title}>
-                    {item.title}
-                  </Select.Option>
-                ))}
-              </Select>              
-            </Form.Item> : null
-          }
-          
-          <Form.Item label="版本号">
-            {
-              this.props.mode == 'init' ? <Input addonBefore="v" placeholder="1.0.0" disabled/>
-              :
-              <Input
-                type="text"
-                value={this.state.version}
-                addonBefore="v"
-                disabled
-                placeholder="x.x.x"
-              />
-            }
-          </Form.Item>
-            
-        
-          <Form.Item label="描述" name="description">
-            <Input autoComplete="off"></Input>
-          </Form.Item>
           <Form.Item label="来源" name="source">
             <Radio.Group>
               <Radio.Button value="branch">branch</Radio.Button>
@@ -319,6 +296,51 @@ class CreateGitVersion extends React.Component<Props, States> {
             }
             </Select>
           </Form.Item>
+
+          {
+            this.props.mode == 'init' ? (
+              <>
+                <Form.Item label="分支名称" name="branchName">
+                  <Input autoComplete="off"></Input>
+                </Form.Item>
+                
+                <Form.Item label="分支描述" name="branchDesc">
+                  <Input autoComplete="off"></Input>
+                </Form.Item>
+              </>
+            ) : null
+          }
+          {
+            this.props.mode !== 'init' ? 
+            <Form.Item label="版本类型" name="option">
+              <Select>
+                {VersionType.map((item) => (
+                  <Select.Option value={item.key} key={item.key} title={item.title}>
+                    {item.title}
+                  </Select.Option>
+                ))}
+              </Select>              
+            </Form.Item> : null
+          }
+          
+          <Form.Item label="版本号">
+            {
+              this.props.mode == 'init' ? <Input addonBefore="v" placeholder="1.0.0" disabled/>
+              :
+              <Input
+                type="text"
+                value={this.state.version}
+                addonBefore="v"
+                disabled
+                placeholder="x.x.x"
+              />
+            }
+          </Form.Item>
+
+          <Form.Item label="版本描述" name="description">
+            <Input autoComplete="off"></Input>
+          </Form.Item>
+          
         </Form>
       </Modal>
     )

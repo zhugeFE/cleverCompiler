@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 11:12:39
+ * @LastEditTime: 2021-11-25 16:11:54
  */
 import { Version } from './common';
 
@@ -33,6 +33,17 @@ export interface GitInfo {
   gitId: string;
   name: string;
   gitRepo: string;
+  branchList?: GitInfoBranch[];
+}
+
+
+export interface GitInfoBranch {
+  id: string;
+  name: string;
+  description: string;
+  creator: string;
+  sourceId: string;
+  publishTime: Date;
   versionList?: GitVersion[];
 }
 
@@ -58,7 +69,12 @@ export interface GitCreateVersionParam {
   source: string; // 版本来源：branch/tag/commit
   sourceValue: string; // 版本来源值
   description: string; // 版本描述
+  branchName: string;
+  branchDesc: string;
+  branchId: string;
 }
+
+
 export interface GitCreateConfigParam {
   configId?: string;
   sourceId: string;
@@ -96,7 +112,10 @@ export interface GitVersion extends Version{
   description: string; // 版本描述
   configs: GitConfig[];
   compileOrders: string; // 编译命令组
+  branchId: string;
+  outputName: string;
 }
+
 
 
 export interface CompileGitParams {

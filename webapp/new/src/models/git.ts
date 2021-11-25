@@ -57,12 +57,23 @@ export interface GitVersion extends Version{
   compileOrders: string[]; // 编译命令组
   configs: GitConfig[];
   outputName: string;
+  branchId: string;
 }
 export interface GitInfo {
   id: string;
   gitId: string;
   name: string;
   gitRepo: string;
+  branchList: GitInfoBranch[];
+}
+
+export interface GitInfoBranch {
+  id: string;
+  name: string;
+  description: string;
+  creator: string;
+  sourceId: string;
+  publishTime: Date;
   versionList: GitVersion[];
 }
 export interface GitState {
@@ -88,6 +99,9 @@ export interface GitCreateVersionParam {
   source: string; // 版本来源：branch/tag/commit
   sourceValue: string; // 版本来源值
   description: string; // 版本描述
+  branchName: string;
+  branchDesc: string;
+  branchId: string;
 }
 
 export interface GitTextConfigParam extends TextConfigParam{

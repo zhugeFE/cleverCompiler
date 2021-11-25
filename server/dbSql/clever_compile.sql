@@ -11,7 +11,7 @@
  Target Server Version : 80025
  File Encoding         : 65001
 
- Date: 17/11/2021 17:35:11
+ Date: 25/11/2021 18:52:55
 */
 
 SET NAMES utf8mb4;
@@ -164,6 +164,20 @@ CREATE TABLE `role` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
+-- Table structure for source_branch
+-- ----------------------------
+DROP TABLE IF EXISTS `source_branch`;
+CREATE TABLE `source_branch` (
+  `id` varchar(50) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `source_id` varchar(50) DEFAULT NULL COMMENT 'git_source id',
+  `creator` varchar(50) DEFAULT NULL COMMENT '创建者id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+-- ----------------------------
 -- Table structure for source_config
 -- ----------------------------
 DROP TABLE IF EXISTS `source_config`;
@@ -204,6 +218,7 @@ CREATE TABLE `source_version` (
   `source_value` varchar(100) DEFAULT NULL COMMENT '版本来源值：branch/tag/commitId',
   `creator_id` varchar(50) DEFAULT NULL COMMENT '创建者id',
   `output_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '输出文件路径',
+  `branch_id` varchar(50) DEFAULT NULL COMMENT '分支id',
   PRIMARY KEY (`id`),
   KEY `source_id` (`source_id`),
   KEY `creator_id` (`creator_id`),

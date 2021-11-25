@@ -1,4 +1,4 @@
-import { UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
+import { GitInfoBranch, UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
 import { GitList, UpdateGitStatus } from './../types/git';
 import pool from './pool'
 import sysDao from './sys'
@@ -20,55 +20,6 @@ interface Repo {
   name_with_namespace: string;
 }
 class GitDao {
-  /**
-   * 同步git库数据
-   */
-  // async syncRep (): Promise<Repo[]> {
-  //   logger.info('同步git库数据')
-  //   const sysInfo = await sysDao.getSysInfo()
-  //   if (!sysInfo) return []
-  //   const res = await axios({
-  //     url: 'api/v3/projects',
-  //     method: 'GET',
-  //     baseURL: sysInfo.gitHost,
-  //     headers: {
-  //       'PRIVATE-TOKEN': sysInfo.gitToken
-  //     },
-  //     params: {
-  //       'per_page': 100
-  //     }
-  //   }) as {
-  //     data: Repo[];
-  //   }
-  //   const repoList = res.data
-  //   const gitList = await this.query()
-  //   const gitIdMap = {}
-  //   gitList.forEach((git: GitInstance) => {
-  //     gitIdMap[git.repoId] = git
-  //   })
-  //   const connect = await pool.beginTransaction()
-  //   try {
-  //     await Promise.all(repoList.map(async (rep: Repo) => {
-  //       if (gitIdMap[rep.id]) return null
-  //       const sql = `insert into git_source(\`id\`, \`name\`, \`git\`, \`git_id\`, \`description\`, \`enable\`) values(?, ?, ?, ?, ?, ${false})`
-  //       await pool.writeInTransaction(connect, sql, [
-  //         util.uuid(),
-  //         rep.name,
-  //         rep.ssh_url_to_repo,
-  //         rep.id,
-  //         rep.description
-  //       ])
-  //     }))
-  //     await pool.commit(connect)
-  //   } catch (e) {
-  //     pool.rollback(connect)
-  //     logger.error('向git表插入数据失败', e)
-  //     throw e
-  //   }
-  //   return repoList
-  // }
-
-
   async getRemoteGitList (): Promise<GitList[]> {
     logger.info('同步git库数据')
     const client = await redisClient.getClient(config.redis.default)
@@ -188,7 +139,25 @@ class GitDao {
       infoList = await pool.query<GitInfo>(infoSql, [id]) as GitInfo[]
     }
     if (!infoList.length) return null
-    const gitInfo = infoList[0]
+    const gitInfo: GitInfo = infoList[0]
+    //获取分支内容
+    const branchSql = `
+      SELECT
+        id,
+        NAME,
+        description,
+        create_time,
+        source_id,
+        creator 
+      FROM
+        source_branch`
+    if (conn) {
+      gitInfo.branchList = await pool.queryInTransaction<GitInfoBranch>(conn, branchSql, [id]) as GitInfoBranch[]
+    } else {
+      gitInfo.branchList = await pool.query<GitInfoBranch>(branchSql, [id]) as GitInfoBranch[]
+    }
+
+    //获取各分支的版本内容
     const versionSql = `select 
         version.*, 
         version.version as name
@@ -199,25 +168,32 @@ class GitDao {
       order by 
         version.publish_time desc`
     if (conn) {
-      gitInfo.versionList = await pool.queryInTransaction<GitVersion>(conn, versionSql, [id]) as GitVersion[]
-    } else {
-      gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
-      //处理未归档版本但已经时间超过24小时
-      for (const version of gitInfo.versionList) {
-        const isExpire = version.publishTime < (new Date()).getTime()
-        if (  version.status == VersionStatus.normal && isExpire) {
-          version.status = VersionStatus.placeOnFile
-          delete version.name
-          await this.updateVersion(version)
-        }
+      for (const branch of gitInfo.branchList) {
+        branch.versionList = await pool.queryInTransaction<GitVersion>(conn, versionSql, [branch.id])
       }
-      gitInfo.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
+      // gitInfo.versionList = await pool.queryInTransaction<GitVersion>(conn, versionSql, [id]) as GitVersion[]
+    } else {
+      for (const branch of gitInfo.branchList) {
+        branch.versionList =  await pool.query<GitVersion>(versionSql, [branch.id])
+         //处理未归档版本但已经时间超过24小时
+        for (const version of branch.versionList) {
+          const isExpire = (new Date(version.publishTime)).getTime() < (new Date()).getTime()
+          if (  version.status == VersionStatus.normal && isExpire) {
+            version.status = VersionStatus.placeOnFile
+            delete version.name
+            await this.updateVersion(version)
+          }
+        }
+        branch.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
+
+        for (let i = 0; i < branch.versionList.length; i++) {
+          const version = branch.versionList[i]
+          version.compileOrders = JSON.parse(version.compileOrders as unknown as string) || []
+          version.configs = await this.queryConfigByVersionId(version.id, conn)
+        }        
+      }
     }
-    for (let i = 0; i < gitInfo.versionList.length; i++) {
-      const version = gitInfo.versionList[i]
-      version.compileOrders = JSON.parse(version.compileOrders as unknown as string) || []
-      version.configs = await this.queryConfigByVersionId(version.id, conn)
-    }
+    
     return gitInfo
   }
 
@@ -256,39 +232,55 @@ class GitDao {
           true
         ])
       }
-  
+      //需新建分支
+      const branchId = util.uuid()
+      if (param.branchId == "") {
+        const sql = `INSERT INTO source_branch(id, name, description, create_time, source_id, creator) VALUES(?,?,?,?,?,?)`
+        await pool.writeInTransaction(connect, sql, [
+          branchId,
+          param.branchName,
+          param.branchDesc,
+          new Date(),
+          gitId,
+          creatorId
+        ])
+      }
       //查询配置项。插入
-      const Info = await this.getInfo(gitId, connect)
-      const lastVersionInfo = Info.versionList[Info.versionList.length-1]
-      // todo 版本号重复校验
-      const sql = `INSERT INTO source_version ( id, source_id, version,
-         description, publish_time, status, compile_orders, source_type, source_value, creator_id )
-      VALUES
-        ( ?,?,?,?,?,?,?,?,?,?)`
-      await pool.writeInTransaction(connect, sql, [
-        versionId,
-        gitId,
-        param.version,
-        param.description,
-        new Date().getTime(),
-        VersionStatus.normal,
-        JSON.stringify(lastVersionInfo ? lastVersionInfo.compileOrders : []),
-        param.source,
-        param.sourceValue,
-        creatorId
-      ])
-      if (lastVersionInfo) {
-        await Promise.all(lastVersionInfo.configs.map(config => {
-          return this.addConfig({
-            sourceId: config.sourceId, 
-            versionId: versionId, 
-            description: config.description, 
-            reg: config.reg, 
-            typeId: String(config.typeId), 
-            filePath: config.filePath, 
-            targetValue: config.targetValue
-          }, connect)
-        }))
+      const info = await this.getInfo(gitId, connect)
+      const infoBranch = info.branchList.filter( item => item.id == branchId)
+      if (infoBranch.length) {
+        const lastVersionInfo = infoBranch[0].versionList[infoBranch[0].versionList.length-1]
+        // todo 版本号重复校验
+        const sql = `INSERT INTO source_version ( id, source_id, version, branch_id,
+          description, publish_time, status, compile_orders, source_type, source_value, creator_id )
+        VALUES
+          ( ?,?,?,?,?,?,?,?,?,?,?)`
+        await pool.writeInTransaction(connect, sql, [
+          versionId,
+          gitId,
+          param.version,
+          branchId,
+          param.description,
+          new Date().getTime(),
+          VersionStatus.normal,
+          JSON.stringify(lastVersionInfo ? lastVersionInfo.compileOrders : []),
+          param.source,
+          param.sourceValue,
+          creatorId
+        ])
+        if (lastVersionInfo) {
+          await Promise.all(lastVersionInfo.configs.map(config => {
+            return this.addConfig({
+              sourceId: config.sourceId, 
+              versionId: versionId, 
+              description: config.description, 
+              reg: config.reg, 
+              typeId: String(config.typeId), 
+              filePath: config.filePath, 
+              targetValue: config.targetValue
+            }, connect)
+          }))
+        }
       }
       await pool.commit(connect)
       return await this.getVersionById(versionId)
@@ -297,7 +289,6 @@ class GitDao {
       throw(err)
     }
   }
-
 
   async getVersionById (versionId: string): Promise<GitVersion> {
     const sql = `select 
@@ -309,6 +300,7 @@ class GitDao {
       v.publish_time,
       v.compile_orders,
       v.readme_doc,
+      v.branch_id,
       v.build_doc,
       v.update_doc,
       v.source_type,

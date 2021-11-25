@@ -71,9 +71,10 @@ class TimeLinePanel extends React.Component<Props, State> {
               afterAdd={this.afterAdd}></CreateGitVersion>
           ) : null
         }
-        <Form layout="inline" onValuesChange={this.onFilter} wrapperCol={{span: 24}}>
+        <Form layout="inline" onValuesChange={this.onFilter} wrapperCol={{span: 24}} >
           <Form.Item name="search">
             <Input.Search
+              style={{width:"80%"}}
               autoComplete="off"
               className={styles.versionSearch}
               size="middle"
