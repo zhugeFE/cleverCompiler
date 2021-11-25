@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 16:26:25
+ * @LastEditTime: 2021-11-25 11:18:59
  */
 /**
  * 模板
@@ -930,7 +930,8 @@ class TemplateDao {
         LEFT JOIN source_version ON source_version.id = git_source_version_id
         LEFT JOIN git_source ON git_source.id = source_version.source_id 
       WHERE
-        template_version_id = ?` 
+        template_version_id = ?
+      ORDER BY NAME DESC` 
     const templateVersion = await pool.query<TemplateVersionUpdateInfo>(queryVersionSql, [id])
     for (const version of templateVersion) {
       version['gitInfo'] = await pool.query<TemplateVersionGitUpdateInfo>(queryVersionGitSql, [version.id])

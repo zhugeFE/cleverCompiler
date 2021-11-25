@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 14:33:11
+ * @LastEditTime: 2021-11-25 11:06:25
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -28,7 +28,9 @@ class Project {
         c.compile_time AS last_compile_time,
         c.compile_result AS last_compile_result,
         p.customer AS customer,
-        u.NAME AS compileUser 
+        u.NAME AS compileUser,
+        p.template_id,
+				p.template_version 
       FROM
         project AS p
         LEFT JOIN (

@@ -4,19 +4,18 @@
  * @Author: Adxiong
  * @Date: 2021-11-24 14:23:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 22:40:57
+ * @LastEditTime: 2021-11-25 11:22:23
  */
 
 import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { IRouteComponentProps } from "@umijs/renderer-react";
-import { Select } from "antd";
+import { Modal, Select } from "antd";
 import React from "react";
 import { connect, Dispatch } from "umi";
 import style from "./styles/updateVersion.less";
 import {TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo, updateTag} from "@/models/template";
 import util from "@/utils/utils";
-import { green } from "@umijs/deps/compiled/chalk";
-
+import * as ReactMarkdown from 'react-markdown'
 
 interface Props extends IRouteComponentProps <{
   id: string;
@@ -37,7 +36,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
     this.state = {
       updateInfo: null,
       leftGitList: [],
-      rightGitList: []
+      rightGitList: [],
     }
     this.onLeftSelect = this.onLeftSelect.bind(this)
     this.onRightSelect = this.onRightSelect.bind(this)
@@ -67,10 +66,12 @@ class UpdateVersionDoc extends React.Component <Props, State> {
   onRightSelect (value: string) {
     const data = this.queryGetlistByGitId(value)
     const leftGitNameList = this.state.leftGitList.map(item => item.name)
-    data.map( right => {
+    data.map( (right,index) => {
       if (!leftGitNameList.includes(right.name)){
-        right['tag'] = updateTag.add
-        
+        const git = data.splice(index,1)[0]
+        git['tag'] = updateTag.add
+        git['updateDoc'] += "# 此git为新增\n" 
+        data.push(git)
       } else {
         this.state.leftGitList.map(left => {
           const leftVersion = Number(left.version.split(".").join(""))
@@ -90,13 +91,13 @@ class UpdateVersionDoc extends React.Component <Props, State> {
     })
     if (data.length < this.state.leftGitList.length) {
       const rightGitNameList = data.map(item => item.name)
-      this.state.leftGitList.map(left => {
+      this.state.leftGitList.map((left,index) => {
         if (!rightGitNameList.includes(left.name)) {
-          data.push({
+          data.splice(index,0,{
             name: left.name,
             version: left.version,
             description: left.description,
-            updateDoc: left.updateDoc,
+            updateDoc: "# 此git已移除\n" + left.updateDoc,
             publishTime: left.publishTime,
             tag: updateTag.del
           })
@@ -124,6 +125,18 @@ class UpdateVersionDoc extends React.Component <Props, State> {
           leftGitList: gitList
         })
       }
+    })
+  }
+  checkGitItem (git: TemplateVersionGitUpdateInfo) {
+    Modal.info({
+      title: `${git.name}-${git.version} 更新信息`,
+      content:(
+        <div>
+          <p>{`更新时间：${new Date(git.publishTime).toLocaleDateString()}`}</p>
+          <ReactMarkdown children={git.updateDoc}></ReactMarkdown>
+        </div>
+      ),
+      onOk(){}
     })
   }
   render () {
@@ -157,8 +170,11 @@ class UpdateVersionDoc extends React.Component <Props, State> {
               {
                 this.state.leftGitList.map((git,index) => {
                   return (
-                    <div key={git.version} className={style.gitItem}>
-                     【{index}】 { git.name } - {git.version}
+                    <div
+                      onClick={()=>this.checkGitItem(git)}
+                      key={git.version} 
+                      className={style.gitItem}>
+                      <span>【{index}】 { git.name } - {git.version}</span>
                     </div>
                   )
                 })
@@ -190,8 +206,11 @@ class UpdateVersionDoc extends React.Component <Props, State> {
               {
                 this.state.rightGitList.map((git,index)=> {
                   return (
-                    <div key={git.version} className={style.gitItem}>
-                     【{index}】 { git.name } - {git.version}
+                    <div
+                      onClick={()=>this.checkGitItem(git)} 
+                      key={git.version}
+                      className={style.gitItem}>
+                      <span>【{index}】 { git.name } - {git.version}</span>
                       {
                         git.tag == updateTag.up && <ArrowUpOutlined style={{color:"green",fontSize:"24px"}}/>
                       }
