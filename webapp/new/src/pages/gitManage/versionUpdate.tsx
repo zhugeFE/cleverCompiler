@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-23 17:31:08
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 14:20:44
+ * @LastEditTime: 2021-11-26 10:43:52
  */
 
 import { LeftOutlined } from '@ant-design/icons';
@@ -51,6 +51,10 @@ class VersionUpdate extends React.Component<Props, State> {
   }
   render () {
     return (
+      /**
+       * 改为 左侧树图显示分支和小版本
+       * 右侧改为 版本内容显示
+       */
       <div className={style.versionUpdatePanel}>
         <div className={style.goback}>
           <a onClick={() => {this.props.history.goBack()}}><LeftOutlined/>返回</a>

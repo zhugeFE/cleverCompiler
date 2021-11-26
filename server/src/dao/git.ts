@@ -467,6 +467,11 @@ class GitDao {
   }
 
   async getVersionUpdateDocByGitId (gitId: string): Promise<VersionUpdateDocInfo[]> {
+
+    /**
+     * 改为分支 
+     * 分支下面包含多版本更新内容
+     */
     const sql = 'SELECT id, update_doc, publish_time, version, description from source_version WHERE source_id = ? ORDER BY version DESC'
     const data = await pool.query<VersionUpdateDocInfo>(sql, [gitId])
     return data
