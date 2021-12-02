@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:49:26
+ * @LastEditTime: 2021-12-02 16:44:58
  */
 import { Customer } from '@/models/customer';
 import { Button, Form, Input, Table } from 'antd';
@@ -52,10 +52,6 @@ class CustomerList extends React.Component<Props, States> {
     this.props.dispatch({
       type: "customer/getCustomerList"
     })
-
-    setTimeout(() => {
-      console.log(this.props.customerList)
-    }, 0);
   }
 
   //客户编辑

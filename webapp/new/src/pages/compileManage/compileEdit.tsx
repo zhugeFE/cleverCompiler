@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 22:42:57
+ * @LastEditTime: 2021-12-02 16:45:34
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -163,7 +163,6 @@ class CompileEdit extends React.Component<Props, States> {
   }
 
   selectProject (value: string) {
-    console.log(value)
     let publicType = 0
     let gitList: ProjectCompileGitParams[] = []
 

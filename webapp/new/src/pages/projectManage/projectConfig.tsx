@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 18:10:02
+ * @LastEditTime: 2021-12-02 16:45:21
  */
 
 import { TypeMode } from "@/models/common";
@@ -50,9 +50,6 @@ class ProjectConfig extends React.Component <Props, States> {
     this.updateConfigList = this.updateConfigList.bind(this)
   }
 
-  componentDidMount(){
-    console.log(this.props.gitList.filter(item => item.id == this.props.activeKey))
-  }
 
   onChangeTabs (activeKey: string) {
     this.props.onChangeActiveKey(activeKey)
