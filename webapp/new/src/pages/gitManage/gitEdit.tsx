@@ -59,7 +59,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onChangeBuild = this.onChangeBuild.bind(this)
     this.onChangeUpdate = this.onChangeUpdate.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
-    this.onPlaceOnFile = this.onPlaceOnFile.bind(this)
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
     this.afterChangeBranchOrVersion = this.afterChangeBranchOrVersion.bind(this)
     this.onChangeOutputName = this.onChangeOutputName.bind(this)
@@ -97,7 +96,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   initDelInterval (version: GitVersion | null) {
     clearInterval(this.state.delInterval as unknown as number)
-    if (!version || version.status == VersionStatus.placeOnFile) {
+    if (!version || version.status != VersionStatus.normal) {
       this.setState({
         delTimeout: 0,
         delTooltip: ''
@@ -397,13 +396,13 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
     }
   }
-  onPlaceOnFile () {
+  onChangeVersionStatue (status: VersionStatus) {
     if (!this.state.currentVersion) return
     this.props.dispatch({
       type: "git/updateGitVersionStatus",
       payload: {
         id: this.state.currentVersion.id,
-        status: Number(VersionStatus.placeOnFile)
+        status: Number(status)
       },
       callback: () => {
         const currentVersion = util.clone( this.state.currentVersion )
@@ -483,11 +482,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
               {
                 this.state.currentVersion?.status === VersionStatus.placeOnFile ? (
                    <a style={{marginLeft: '10px', color: '#faad14'}}>已发布</a>): (
-                   <a style={{marginLeft: '10px', color: '#faad14'}} onClick={this.onPlaceOnFile} >发布 </a> )
+                   <a style={{marginLeft: '10px', color: '#faad14'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.placeOnFile)} >发布 </a> )
               }
             </Tooltip>
             <Tooltip title="废弃后，新建项目中该版本将不可用">
-              <a style={{marginLeft: '10px', color: '#f5222d'}}>废弃</a>
+              <a style={{marginLeft: '10px', color: '#f5222d'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.deprecated)} >废弃</a>
             </Tooltip>
             {
               this.state.delTimeout > 0 && this.state.currentVersion?.status === VersionStatus.normal ? (
