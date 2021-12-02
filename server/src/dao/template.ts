@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 15:31:29
+ * @LastEditTime: 2021-12-02 17:13:28
  */
 /**
  * 模板
@@ -931,6 +931,7 @@ class TemplateDao {
         git_source.NAME,
         version,
         update_doc,
+        build_doc,
         source_version.description,
         source_version.publish_time,
         git_source_branch_id,
