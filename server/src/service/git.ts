@@ -1,11 +1,11 @@
-import { GitList, UpdateGitStatus, UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
+import { GitList, UpdateGitStatus, UpdateConfigParam, VersionUpdateDocInfo, GitInfoBranch, BranchUpdateDocInfo } from './../types/git';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 18:50:50
+ * @LastEditTime: 2021-12-01 17:00:25
  */
 import gitDao from '../dao/git'
 import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
@@ -28,7 +28,8 @@ class GitService {
     return gitList
   }
   async getInfoById (repoId: string): Promise<GitInfo> {
-    return await gitDao.getInfo(repoId)
+    const gitInfo = await gitDao.getInfo(repoId)
+    return gitInfo
   }
   async getBranchsById (repoId: string | number): Promise<GitBranch[]> {
     return await gitDao.getBranchsById(repoId)
@@ -39,7 +40,7 @@ class GitService {
   async getCommitsById (repoId: string | number): Promise<GitCommit[]> {
     return await gitDao.getCommitsById(repoId)
   }
-  async addVersion (param: GitCreateVersionParam, creatorId: string): Promise<GitVersion> {
+  async addVersion (param: GitCreateVersionParam, creatorId: string): Promise<GitInfo> {
     return await gitDao.addVersion(param, creatorId)
   }
   async initRepo (gitId: string, versionId: string, userId: string): Promise<string> {
@@ -89,6 +90,9 @@ class GitService {
   async updateVersion (version: GitVersion): Promise<void> {
     await gitDao.updateVersion(version)
   }
+  async deleteBranch (id: string): Promise<void>{
+    await gitDao.deleteBranch(id)
+  }
   async deleteVersion (id: string): Promise<void> {
     await gitDao.deleteVersion(id)
   }
@@ -101,8 +105,8 @@ class GitService {
   async deleteGit (id: string): Promise<void> {
     await gitDao.deleteGit(id)
   }
-  async getVersionUpdateDocByGitId(gitId: string): Promise<VersionUpdateDocInfo[]>{
-    return await gitDao.getVersionUpdateDocByGitId(gitId)
+  async getBranchUpdateDocByGitId(gitId: string): Promise<BranchUpdateDocInfo[]>{
+    return await gitDao.getBranchUpdateDocByGitId(gitId)
   }
 }
 

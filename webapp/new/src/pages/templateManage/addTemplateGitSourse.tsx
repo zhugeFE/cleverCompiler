@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-08 15:17:46
+ * @LastEditTime: 2021-12-01 22:07:40
  */
 import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
@@ -23,6 +23,7 @@ const { Option } = Select;
 interface FormData {
   gitId: string;
   version: string;
+  branch: string;
 }
 
 interface Props {
@@ -50,6 +51,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
       form: {
         gitId: '',
         version: '',
+        branch: ''
       },
     };
     this.onCancel = this.onCancel.bind(this);
@@ -62,15 +64,16 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   }
 
   onCommit() {
-    const { gitId, version } = this.state.form
+    const { gitId, version, branch} = this.state.form
 
-    if( !gitId || !version){
+    if( !gitId || !version || !branch){
       message.error('数据未填写完整！', 1);
       return
     }
     const data: CreateTemplateVersionGitParams = {
       templateId: this.props.templateId,
       templateVersionId: this.props.templateVersionId,
+      gitSourceBranchId: branch,
       gitSourceId: gitId,
       gitSourceVersionId: version,
     };
@@ -147,9 +150,21 @@ class CreateTemplateVersion extends React.Component<Props, States> {
                   ))}
                 </Select>
               </Form.Item>
+              <Form.Item label="git源分支" name="branch" >
+                <Select>
+                  {gitInfo?.branchList.map((item) => (
+                    <Option value={item.id} key={item.id} title={item.name}>
+                      {item.name}
+                      <div className={styles.versionDesc}>{item.description}</div>
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
               <Form.Item label="git源版本" name="version" >
                 <Select>
-                  {gitInfo?.versionList.map((item) => (
+                  { 
+                  this.state.form.branch &&
+                  gitInfo?.branchList.filter(item => item.id == this.state.form.branch)[0].versionList.map((item) => (
                     item.status === VersionStatus.placeOnFile &&
                     <Option value={item.id} key={item.id} title={item.name}>
                       {item.name}

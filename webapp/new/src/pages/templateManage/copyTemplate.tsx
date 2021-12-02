@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-08 15:43:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:45:19
+ * @LastEditTime: 2021-12-02 14:28:03
  */
 import { TemplateInstance } from "@/models/template";
 import util from "@/utils/utils";
@@ -63,7 +63,7 @@ class CopyTemplate extends React.Component <Props, State> {
       payload: id,
       callback: (versionList: VersionInfo[]) => {
         const form = util.clone(this.state.form)
-        form.templateVersionId = versionList[0].id
+        form.templateVersionId = versionList.length ? versionList[0].id : ""
         this.setState({
           versionList,
           form
@@ -75,6 +75,7 @@ class CopyTemplate extends React.Component <Props, State> {
   onClickOk () {
     if (!this.state.form.templateVersionId){
       message.error("请填写数据后再来找我！")
+      return
     }
     this.copyTemplateForm.current?.validateFields()
     .then( (form: FormData) => {

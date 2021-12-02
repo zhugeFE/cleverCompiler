@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-07 00:19:55
+ * @LastEditTime: 2021-12-01 15:20:05
  */
 import * as React from 'react'
 import styles from './styles/gitConfig.less'
@@ -19,7 +19,7 @@ import UpdateFileConfig from "./gitFileConfig";
 
 export interface GitConfigPanelProps {
   store: GitConfig[],
-  mode: number;
+  mode: number | undefined;
   onSubmit? (config: GitConfig): void,
   afterDelConfig? (configId: string): void;
   dispatch: Dispatch;
@@ -69,6 +69,7 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
     this.onCancelEditConfig = this.onCancelEditConfig.bind(this)
     this.afterEditConfig = this.afterEditConfig.bind(this)
   }
+
   onTableClick ( order: string, config: GitConfig) {
     if (this[order]) this[order](config)
   }

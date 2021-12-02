@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-25 11:18:59
+ * @LastEditTime: 2021-12-02 15:31:29
  */
 /**
  * 模板
@@ -347,9 +347,10 @@ class TemplateDao {
       template_id,
       template_version_id,
       git_source_id,
-      git_source_version_id
+      git_source_version_id,
+      git_source_branch_id
     )values(
-      ?,?,?,?,?
+      ?,?,?,?,?,?
     )`
     const gitId = util.uuid()
     try {
@@ -358,7 +359,8 @@ class TemplateDao {
         templateId,
         templateVersionId,
         git.gitSourceId,
-        git.gitSourceVersionId
+        git.gitSourceVersionId,
+        git.gitSourceBranchId
       ])
       
       for(const config of git.configList) {
@@ -415,7 +417,7 @@ class TemplateDao {
     let versionList =  await pool.query<TemplateVersion>(sql, [templateid])
     //处理未归档版本但已经时间超过24小时
     for (const version of versionList) {
-      const isExpire = (new Date( String(version.publishTime) )).getTime() < (new Date()).getTime()
+      const isExpire = 24 * 60 * 60 * 1000 < (new Date().getTime() - version.publishTime)
       if (  version.status == VersionStatus.normal && isExpire) {
         version.status = VersionStatus.placeOnFile
         await this.updateVersion(version)
@@ -538,9 +540,10 @@ class TemplateDao {
        template_id,
        template_version_id,
        git_source_id,
-       git_source_version_id
+       git_source_version_id,
+       git_source_branch_id
      )values(
-       ?,?,?,?,?
+       ?,?,?,?,?,?
      )`
     const id = util.uuid()
     const connect = await pool.beginTransaction()
@@ -551,7 +554,8 @@ class TemplateDao {
         params.templateId,
         params.templateVersionId,
         params.gitSourceId,
-        params.gitSourceVersionId
+        params.gitSourceVersionId,
+        params.gitSourceBranchId
       ])
       const gitVersionDoc = await this.getGitDocByGitVersionID(params.gitSourceVersionId)
       const versionDoc = await this.getVersionDocByID(params.templateVersionId)
@@ -646,11 +650,13 @@ class TemplateDao {
     const sql = `SELECT
       vg.*,
       source_version.version as version,
-      name
+      git_source.name,
+      source_branch.name as branchName
     FROM
       template_version_git AS vg
       LEFT JOIN git_source ON vg.git_source_id = git_source.id
       LEFT JOIN source_version ON source_version.id = vg.git_source_version_id
+      LEFT JOIN source_branch ON source_branch.id = vg.git_source_branch_id
     WHERE
       vg.id = ?`
     const list = await pool.query<TemplateVersionGit>(sql, [tvId])
@@ -668,11 +674,13 @@ class TemplateDao {
     const sql = `SELECT
       vg.*,
       source_version.version as version,
-      name
+      git_source.name,
+      source_branch.name as branchName
     FROM
       template_version_git AS vg
       LEFT JOIN git_source ON vg.git_source_id = git_source.id
       LEFT JOIN source_version ON source_version.id = vg.git_source_version_id
+      LEFT JOIN source_branch ON source_branch.id = vg.git_source_branch_id
     WHERE
       vg.template_version_id = ?`
 
@@ -919,16 +927,19 @@ class TemplateDao {
         tp.id = ?
       ORDER BY tv.version DESC`
     const queryVersionGitSql = `
-      SELECT 
-        NAME,
+        SELECT 
+        git_source.NAME,
         version,
         update_doc,
         source_version.description,
-        source_version.publish_time 
+        source_version.publish_time,
+        git_source_branch_id,
+        source_branch.name as branch_name
       FROM
         template_version_git
         LEFT JOIN source_version ON source_version.id = git_source_version_id
-        LEFT JOIN git_source ON git_source.id = source_version.source_id 
+        LEFT JOIN git_source ON git_source.id = source_version.source_id
+        LEFT JOIN source_branch ON source_branch.id = template_version_git.git_source_branch_id 
       WHERE
         template_version_id = ?
       ORDER BY NAME DESC` 

@@ -7,6 +7,7 @@ import { VersionStatus } from '@/models/common'
 interface Props {
   tags: string[];
   mode: number;
+  closeEnable: boolean;
   onChange ?(tags: string[]): void;
 }
 interface State {
@@ -87,7 +88,7 @@ class Commands extends React.Component<Props, State> {
         {
           this.state.tags?.map((tag, i) => {
             return (
-              <Tag key={`${tag}_${i}`} color="blue" closable onClose={this.onDel.bind(this, i)}>{tag}</Tag>
+              <Tag key={`${tag}_${i}`} color="blue" closable={this.props.closeEnable} onClose={this.onDel.bind(this, i)}>{tag}</Tag>
             )
           })
         }

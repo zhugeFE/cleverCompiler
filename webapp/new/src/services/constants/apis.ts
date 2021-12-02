@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 16:15:01
+ * @LastEditTime: 2021-12-01 17:02:37
  */
 export default {
   user: {
@@ -23,7 +23,7 @@ export default {
     queryGitList: '/git/list',
     getFileTree: '/git/filetree',
     getInfo: '/git/{{id}}/info',
-    getVersionUpdateInfo: '/git/version/updateInfo',
+    getBranchUpdateInfo: '/git/version/updateInfo',
     queryBranch: '/git/{{gitId}}/branchs',
     queryTags: '/git/{{gitId}}/tags',
     queryCommits: '/git/{{gitId}}/commits',
@@ -34,6 +34,7 @@ export default {
     updateConfig: '/git/config/update',
     updateVersion: '/git/version/update',
     deleteVersion: '/git/version',
+    deleteBranch: '/git/branch',
     updateGitStatus: '/git/status',
     updateGitVersionStatus: '/git/version/status',
     deleteGit: '/git/info'

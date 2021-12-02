@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-11-24 14:23:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-25 11:22:23
+ * @LastEditTime: 2021-12-02 16:22:12
  */
 
 import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { IRouteComponentProps } from "@umijs/renderer-react";
-import { Modal, Select } from "antd";
+import { Drawer, Modal, Select } from "antd";
 import React from "react";
 import { connect, Dispatch } from "umi";
 import style from "./styles/updateVersion.less";
@@ -27,6 +27,7 @@ interface State {
   updateInfo: TemplateVersionUpdateInfo[] | null;
   leftGitList: TemplateVersionGitUpdateInfo[];
   rightGitList: TemplateVersionGitUpdateInfo[];
+  currentGit: TemplateVersionGitUpdateInfo | null;
 }
 
 
@@ -37,9 +38,11 @@ class UpdateVersionDoc extends React.Component <Props, State> {
       updateInfo: null,
       leftGitList: [],
       rightGitList: [],
+      currentGit: null
     }
     this.onLeftSelect = this.onLeftSelect.bind(this)
     this.onRightSelect = this.onRightSelect.bind(this)
+    this.onCloseDrawer = this.onCloseDrawer.bind(this)
   }
 
   componentDidMount () {
@@ -65,6 +68,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
   }
   onRightSelect (value: string) {
     const data = this.queryGetlistByGitId(value)
+    
     const leftGitNameList = this.state.leftGitList.map(item => item.name)
     data.map( (right,index) => {
       if (!leftGitNameList.includes(right.name)){
@@ -99,6 +103,8 @@ class UpdateVersionDoc extends React.Component <Props, State> {
             description: left.description,
             updateDoc: "# 此git已移除\n" + left.updateDoc,
             publishTime: left.publishTime,
+            gitSourceBranchId: left.gitSourceBranchId,
+            branchName: left.branchName,
             tag: updateTag.del
           })
         }
@@ -127,16 +133,26 @@ class UpdateVersionDoc extends React.Component <Props, State> {
       }
     })
   }
-  checkGitItem (git: TemplateVersionGitUpdateInfo) {
-    Modal.info({
-      title: `${git.name}-${git.version} 更新信息`,
-      content:(
-        <div>
-          <p>{`更新时间：${new Date(git.publishTime).toLocaleDateString()}`}</p>
-          <ReactMarkdown children={git.updateDoc}></ReactMarkdown>
-        </div>
-      ),
-      onOk(){}
+  // checkGitItem (git: TemplateVersionGitUpdateInfo) {
+  //   Modal.info({
+  //     title: `${git.name}-${git.branchName}-${git.version} 更新信息`,
+  //     content:(
+  //       <div>
+  //         <p>{`更新时间：${new Date(git.publishTime).toLocaleDateString()}`}</p>
+  //         <ReactMarkdown children={git.updateDoc}></ReactMarkdown>
+  //       </div>
+  //     ),
+  //     onOk(){}
+  //   })
+  // }
+  onOpenDrawer (git: TemplateVersionGitUpdateInfo) {
+    this.setState({
+      currentGit: git
+    })
+  }
+  onCloseDrawer () {
+    this.setState({
+      currentGit: null
     })
   }
   render () {
@@ -171,10 +187,10 @@ class UpdateVersionDoc extends React.Component <Props, State> {
                 this.state.leftGitList.map((git,index) => {
                   return (
                     <div
-                      onClick={()=>this.checkGitItem(git)}
+                      onClick={()=>this.onOpenDrawer(git)}
                       key={git.version} 
                       className={style.gitItem}>
-                      <span>【{index}】 { git.name } - {git.version}</span>
+                      <span>【{index}】 {git.name} - {git.branchName} - {git.version}</span>
                     </div>
                   )
                 })
@@ -207,10 +223,10 @@ class UpdateVersionDoc extends React.Component <Props, State> {
                 this.state.rightGitList.map((git,index)=> {
                   return (
                     <div
-                      onClick={()=>this.checkGitItem(git)} 
-                      key={git.version}
+                      onClick={()=>this.onOpenDrawer(git)} 
+                      key={git.gitSourceBranchId}
                       className={style.gitItem}>
-                      <span>【{index}】 { git.name } - {git.version}</span>
+                      <span>【{index}】 {git.name} - {git.branchName} - {git.version}</span>
                       {
                         git.tag == updateTag.up && <ArrowUpOutlined style={{color:"green",fontSize:"24px"}}/>
                       }
@@ -230,6 +246,23 @@ class UpdateVersionDoc extends React.Component <Props, State> {
             </div>
           </div>
         </div>
+        <Drawer
+          title="模版更新对比"
+          placement="right"
+          width="35%"
+          closable={false}
+          onClose={this.onCloseDrawer}
+          visible={!!this.state.currentGit}
+        >
+         {
+           this.state.currentGit && (
+            <div>
+              <p>{`更新时间：${new Date(this.state.currentGit.publishTime).toLocaleDateString()}`}</p>
+              <ReactMarkdown children={this.state.currentGit.updateDoc}></ReactMarkdown>
+            </div>
+           )
+         }
+        </Drawer>
       </div>
     )
   }

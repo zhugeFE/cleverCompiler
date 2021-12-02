@@ -12,6 +12,7 @@ import { ConnectState } from '@/models/connect';
 interface Props {
   gitId: string;
   versionId: string;
+  branchId: string;
   configTypes: ConfigType[];
   dispatch: Dispatch;
   onClose ?(): void;
@@ -59,6 +60,7 @@ class GitAddConfig extends React.Component<Props, State> {
     form.append("sourceId", this.props.gitId)
     form.append("versionId", this.props.versionId)
     form.append("typeId", String(this.state.type!.id))
+    form.append("branchId", this.props.branchId)
     this.props.dispatch({
       type: 'git/addConfig',
       payload: form,

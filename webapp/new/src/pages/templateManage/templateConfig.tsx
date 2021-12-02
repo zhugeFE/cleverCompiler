@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 15:08:56
+ * @LastEditTime: 2021-12-02 16:08:26
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -42,6 +42,7 @@ export interface ConfigPanelProps {
 interface State {
   fileContent: string;
   showAddGitSource: boolean;
+  currentBranch: string;
   currentConfig: TemplateConfig | null;
   activeKey: string;
 }
@@ -52,6 +53,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     super(props);
     this.state = {
       fileContent: "",
+      currentBranch: "",
       showAddGitSource: false,
       currentConfig: null,
       activeKey: "",
@@ -63,13 +65,23 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.onCancelUpdateConfig = this.onCancelUpdateConfig.bind(this);
     this.afterAddGitSource = this.afterAddGitSource.bind(this);
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this);
-    this.selectGitVersion = this.selectGitVersion.bind(this)
+    this.selectGitVersion = this.selectGitVersion.bind(this);
+    this.selectGitBranch = this.selectGitBranch.bind(this);
   }
 
   onChange(activeKey: string) {
-    if (this.props.onChangeGit) this.props.onChangeGit(activeKey)
+    this.setState({
+      currentBranch: ""
+    })
+    if (this.props.onChangeGit) this.props.onChangeGit(activeKey)    
   }
 
+  selectGitBranch (value: string) {
+    this.setState({
+      currentBranch: value
+    })
+  }
+  
   selectGitVersion ( value: string ) {
     this.props.afterSelectGitVersion( value )
   }
@@ -82,6 +94,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
   // 显示添加gitSource
   add = () => {
     this.setState({
+      currentBranch: "",
       showAddGitSource: true,
     });
   };
@@ -99,6 +112,9 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       type: 'template/delVersionGit',
       payload: targetKey,
       callback: () => {
+        this.setState({
+          currentBranch: ""
+        })
         if (this.props.afterDelGit) this.props.afterDelGit(targetKey)
       }
     });
@@ -331,30 +347,59 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             onEdit={this.onEdit}>
             {gitList.map((item, index) => {
               return (
-                <Tabs.TabPane className={styles.tabPanel}  tab={`${item.name}-${item.version}`} key={item.id}>
+                
+                <Tabs.TabPane className={styles.tabPanel}  tab={`${item.name}-${item.branchName}-${item.version}`} key={item.id}>
                   {
                     this.props.mode == VersionStatus.normal &&  (
-                      <Select 
-                        placeholder={"切换git版本"}
-                        size="small" 
-                        className={styles.tabHandle} 
-                        onChange={this.selectGitVersion}>
-                        {
-                          !this.props.gitInfo ? (
-                            <Select.Option value="" >
-                              <Skeleton active></Skeleton>
-                            </Select.Option>
-                          ):
-                          this.props.gitInfo?.versionList.map( item => (
-                            <Select.Option className={styles.versionDesc} key={item.id} value={item.id}>
-                              {this.props.gitInfo?.name} -{item.name}
-                              <div>
-                                {item.description}
-                              </div>
-                            </Select.Option>
-                          ))
-                        }
-                      </Select>
+                      <div>
+                        <Select 
+                          placeholder={"切换branch"}
+                          size="small" 
+                          className={styles.tabHandle} 
+                          onChange={this.selectGitBranch}>
+                          {
+                            !this.props.gitInfo ? (
+                              <Select.Option value="" >
+                                <Skeleton active></Skeleton>
+                              </Select.Option>
+                            ): 
+                            this.props.gitInfo.branchList.map( item => (
+                              <Select.Option 
+                                className={styles.VersionDesc}
+                                key={item.id}
+                                value={item.id}
+                              >
+                                {this.props.gitInfo?.name} - {item.name}
+                                <div>
+                                  {item.description}
+                                </div>
+                              </Select.Option>
+                            ))   
+                          }
+                        </Select>
+                        <Select
+                          placeholder={"切换version"}
+                          size="small"
+                          className={styles.tabHandle}
+                          onChange={this.selectGitVersion}
+                        >
+                          {
+                            !this.state.currentBranch ? (
+                              <Select.Option value="" >
+                                <Skeleton active></Skeleton>
+                              </Select.Option>
+                            ): 
+                              this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].versionList.map( item => (
+                              <Select.Option className={styles.versionDesc} key={item.id} value={item.id}>
+                                {this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].name} -{item.name}
+                                <div>
+                                  {item.description}
+                                </div>
+                              </Select.Option>
+                            ))   
+                          }
+                        </Select>
+                      </div>
                     )
                   }
                   

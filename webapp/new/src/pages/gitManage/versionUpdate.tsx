@@ -4,17 +4,17 @@
  * @Author: Adxiong
  * @Date: 2021-11-23 17:31:08
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-26 10:43:52
+ * @LastEditTime: 2021-12-01 17:14:23
  */
 
 import { LeftOutlined } from '@ant-design/icons';
 import { IRouteComponentProps } from '@umijs/renderer-react';
 import { Dispatch } from 'dva';
 import React from 'react';
-import { connect, VersionUpdateDocInfo } from 'umi';
+import { BranchUpdateDocInfo, connect, VersionUpdateDocInfo } from 'umi';
 import style from "./styles/versionUpdate.less";
 import * as ReactMarkdown from 'react-markdown'
-import { Skeleton, Timeline } from 'antd';
+import { Collapse, Skeleton } from 'antd';
 
 interface Props extends IRouteComponentProps<{
   id: string;
@@ -23,14 +23,14 @@ interface Props extends IRouteComponentProps<{
 }
 
 interface State {
-  versionInfo: VersionUpdateDocInfo[] | null;
+  data: BranchUpdateDocInfo[] | null;
 }
 
 class VersionUpdate extends React.Component<Props, State> {
   constructor (props: Props) {
     super(props)
     this.state = {
-      versionInfo: null
+      data: null
     }
   }
 
@@ -40,11 +40,11 @@ class VersionUpdate extends React.Component<Props, State> {
 
   getVersionDoc (id: string) {
     this.props.dispatch({
-      type: "git/getVersionUpdateInfo",
+      type: "git/getBranchUpdateInfo",
       payload: id,
-      callback: (data: VersionUpdateDocInfo[]) => {
+      callback: (data: BranchUpdateDocInfo[]) => {
         this.setState({
-          versionInfo: data
+          data
         })
       }
     })
@@ -61,14 +61,25 @@ class VersionUpdate extends React.Component<Props, State> {
         </div>
         <div className={style.content}>
           {
-            this.state.versionInfo  ? (
-              this.state.versionInfo?.map( info => {
-                return <div className={style.versionItem} key={info.id}>
-                  <p className={style.title}>{this.props.location.query.title}-v{info.version}</p>
-                  <p className={style.subTitle}>版本描述：{info.description}</p>
-                  <ReactMarkdown children={info.updateDoc}></ReactMarkdown>
-                </div>
-              })
+            this.state.data ? (
+              <Collapse accordion>
+                {
+                  this.state.data.map( branch => {
+                    return <Collapse.Panel header={branch.name} key={branch.id}>
+                      <span>{branch.createTime} {branch.description}</span>
+                      {
+                        branch.children.map (info => {
+                          return <div className={style.versionItem} key={info.id}>
+                            <p className={style.title}>{this.props.location.query.title}-v{info.version}</p>
+                            <p className={style.subTitle}>版本描述：{info.description}</p>
+                            <ReactMarkdown children={info.updateDoc}></ReactMarkdown>
+                          </div>
+                        })
+                      }
+                    </Collapse.Panel>
+                  })
+                }
+              </Collapse>
             ) : <Skeleton active></Skeleton>
           }
         </div>

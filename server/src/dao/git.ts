@@ -1,4 +1,4 @@
-import { GitInfoBranch, UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
+import { BranchUpdateDocInfo, GitInfoBranch, UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
 import { GitList, UpdateGitStatus } from './../types/git';
 import pool from './pool'
 import sysDao from './sys'
@@ -150,7 +150,9 @@ class GitDao {
         source_id,
         creator 
       FROM
-        source_branch`
+        source_branch
+      WHERE source_id = ?
+      ORDER BY create_time desc`
     if (conn) {
       gitInfo.branchList = await pool.queryInTransaction<GitInfoBranch>(conn, branchSql, [id]) as GitInfoBranch[]
     } else {
@@ -164,41 +166,41 @@ class GitDao {
       from 
         source_version as version 
       where 
-        version.source_id = ? 
+        version.branch_id = ? 
       order by 
         version.publish_time desc`
     if (conn) {
       for (const branch of gitInfo.branchList) {
         branch.versionList = await pool.queryInTransaction<GitVersion>(conn, versionSql, [branch.id])
       }
-      // gitInfo.versionList = await pool.queryInTransaction<GitVersion>(conn, versionSql, [id]) as GitVersion[]
     } else {
       for (const branch of gitInfo.branchList) {
         branch.versionList =  await pool.query<GitVersion>(versionSql, [branch.id])
          //处理未归档版本但已经时间超过24小时
         for (const version of branch.versionList) {
-          const isExpire = (new Date(version.publishTime)).getTime() < (new Date()).getTime()
+          const isExpire = 24 * 60 * 60 * 1000 < (new Date().getTime() - version.publishTime)
           if (  version.status == VersionStatus.normal && isExpire) {
             version.status = VersionStatus.placeOnFile
             delete version.name
             await this.updateVersion(version)
           }
         }
-        branch.versionList = await pool.query<GitVersion>(versionSql, [id]) as GitVersion[]
-
-        for (let i = 0; i < branch.versionList.length; i++) {
-          const version = branch.versionList[i]
-          version.compileOrders = JSON.parse(version.compileOrders as unknown as string) || []
-          version.configs = await this.queryConfigByVersionId(version.id, conn)
-        }        
+        branch.versionList = await pool.query<GitVersion>(versionSql, [branch.id]) as GitVersion[]
+      
       }
     }
-    
+    for (const branch of gitInfo.branchList) {
+      for (let i = 0; i < branch.versionList.length; i++) {
+        const version = branch.versionList[i]
+        version.compileOrders = JSON.parse(version.compileOrders as unknown as string) || []
+        version.configs = await this.queryConfigByVersionId(version.id, conn)
+      } 
+    }
     return gitInfo
   }
 
 
-  async addVersion (param: GitCreateVersionParam, creatorId: string): Promise<GitVersion> {
+  async addVersion (param: GitCreateVersionParam, creatorId: string): Promise<GitInfo> {
     let gitId = param.gitId
     const connect = await pool.beginTransaction()
     const versionId = util.uuid()
@@ -233,10 +235,16 @@ class GitDao {
         ])
       }
       //需新建分支
-      const branchId = util.uuid()
-      if (param.branchId == "") {
-        const sql = `INSERT INTO source_branch(id, name, description, create_time, source_id, creator) VALUES(?,?,?,?,?,?)`
-        await pool.writeInTransaction(connect, sql, [
+      let branchId = param.branchId
+      const createBranchSql = `INSERT INTO source_branch(id, name, description, create_time, source_id, creator) VALUES(?,?,?,?,?,?)`
+      const createVersionSql = `INSERT INTO source_version ( id, source_id, version, branch_id,
+        description, publish_time, status, compile_orders, source_type, source_value, creator_id,output_name )
+      VALUES
+        ( ?,?,?,?,?,?,?,?,?,?,?,?)`
+
+      if (branchId == "") {
+        branchId = util.uuid()
+        await pool.writeInTransaction(connect, createBranchSql, [
           branchId,
           param.branchName,
           param.branchDesc,
@@ -244,18 +252,14 @@ class GitDao {
           gitId,
           creatorId
         ])
-      }
+        
+      } 
       //查询配置项。插入
       const info = await this.getInfo(gitId, connect)
       const infoBranch = info.branchList.filter( item => item.id == branchId)
       if (infoBranch.length) {
         const lastVersionInfo = infoBranch[0].versionList[infoBranch[0].versionList.length-1]
-        // todo 版本号重复校验
-        const sql = `INSERT INTO source_version ( id, source_id, version, branch_id,
-          description, publish_time, status, compile_orders, source_type, source_value, creator_id )
-        VALUES
-          ( ?,?,?,?,?,?,?,?,?,?,?)`
-        await pool.writeInTransaction(connect, sql, [
+        await pool.writeInTransaction(connect, createVersionSql, [
           versionId,
           gitId,
           param.version,
@@ -266,12 +270,14 @@ class GitDao {
           JSON.stringify(lastVersionInfo ? lastVersionInfo.compileOrders : []),
           param.source,
           param.sourceValue,
-          creatorId
-        ])
+          creatorId,
+          lastVersionInfo ? lastVersionInfo.outputName : ''
+          ])
         if (lastVersionInfo) {
           await Promise.all(lastVersionInfo.configs.map(config => {
             return this.addConfig({
               sourceId: config.sourceId, 
+              branchId: config.branchId,
               versionId: versionId, 
               description: config.description, 
               reg: config.reg, 
@@ -282,12 +288,47 @@ class GitDao {
           }))
         }
       }
+    
       await pool.commit(connect)
-      return await this.getVersionById(versionId)
+      return await this.getInfo(gitId)
     } catch (err) {
       pool.rollback(connect)
       throw(err)
     }
+  }
+  async getBranchById (branchId: string): Promise<GitInfoBranch> {
+    const sql = `select * from _branch where id = ?`
+    const branch = await pool.query<GitInfoBranch>(sql, [branchId])
+    if (branch.length) {
+      branch[0].versionList = await this.getVersionByBranchId(branch[0].id)
+    }
+    return branch.length ? branch[0] : null
+  }
+
+  async getVersionByBranchId (branchId: string): Promise<GitVersion[]> {
+    const sql = `select 
+      v.id,
+      v.source_id,
+      v.version as name,
+      v.description,
+      v.status,
+      v.publish_time,
+      v.compile_orders,
+      v.readme_doc,
+      v.branch_id,
+      v.build_doc,
+      v.update_doc,
+      v.source_type,
+      v.source_value from source_version as v where v.branch_id = ?`
+    const versionList = await pool.query<GitVersion>(sql, [branchId])
+    if ( versionList.length) {
+      for (const item of versionList){
+        item.compileOrders = JSON.parse(item.compileOrders)
+        item.configs = await this.queryConfigByVersionId(item.id)
+      }
+      return versionList
+    }
+    return null
   }
 
   async getVersionById (versionId: string): Promise<GitVersion> {
@@ -306,9 +347,13 @@ class GitDao {
       v.source_type,
       v.source_value from source_version as v where v.id = ?`
     const versionList = await pool.query<GitVersion>(sql, [versionId])
-    versionList[0].compileOrders = JSON.parse(versionList[0].compileOrders)
-    versionList[0].configs = await this.queryConfigByVersionId(versionId)
-    return versionList[0]
+    logger.info('versionList ====>', versionList)
+    if ( versionList.length) {
+      versionList[0].compileOrders = JSON.parse(versionList[0].compileOrders)
+      versionList[0].configs = await this.queryConfigByVersionId(versionId)
+      return versionList[0]
+    }
+    return null
   }
 
 
@@ -322,9 +367,10 @@ class GitDao {
         reg, 
         type_id, 
         file_path, 
-        target_value
+        target_value,
+        branch_id
       ) values(
-        ?,?,?,?,?,?,?,?
+        ?,?,?,?,?,?,?,?,?
       )`
     const configId = util.uuid()
     if (conn) {
@@ -336,7 +382,8 @@ class GitDao {
         param.reg ? param.reg : null, 
         param.typeId, 
         param.filePath, 
-        param.targetValue
+        param.targetValue,
+        param.branchId
       ])
       return configId
     }
@@ -348,7 +395,8 @@ class GitDao {
       param.reg ? param.reg : null, 
       param.typeId, 
       param.filePath, 
-      param.targetValue
+      param.targetValue,
+      param.branchId
     ])
     return configId
   }
@@ -406,6 +454,22 @@ class GitDao {
     }  
   }
 
+  async deleteBranch (id: string): Promise<void> {
+    const delConfig = 'delete from source_config where branch_id = ?'
+    const delVersion = `delete from source_version where branch_id=?`
+    const delBranch = `delete from source_branch where id =?`
+    const conn = await pool.beginTransaction()
+    try {
+      await pool.writeInTransaction(conn, delConfig, [id])
+      await pool.writeInTransaction(conn, delVersion, [id])
+      await pool.writeInTransaction(conn, delBranch, [id])
+      await pool.commit(conn)
+    } catch (e) {
+      pool.rollback(conn)
+      throw e
+    }
+  }
+
   async deleteVersion (id: string): Promise<void> {
     const delConfig = 'delete from source_config where version_id = ?'
     const sql = `delete from source_version where id=?`
@@ -422,11 +486,13 @@ class GitDao {
   async deleteGit (id: string): Promise<void>{
     const delGit = 'delete from git_source where id = ?'
     const delConfig = 'delete from source_config where source_id = ?'
-    const sql = `delete from source_version where source_id=?`
+    const delBranch = `delete from source_branch where source_id =?`
+    const delVersion = `delete from source_version where source_id=?`
     const conn = await pool.beginTransaction()
     try {
       await pool.writeInTransaction(conn, delConfig, [id])
-      await pool.writeInTransaction(conn, sql, [id])
+      await pool.writeInTransaction(conn, delVersion, [id])
+      await pool.writeInTransaction(conn, delBranch, [id])
       await pool.writeInTransaction(conn, delGit, [id])
       await pool.commit(conn)
     } catch (e) {
@@ -466,14 +532,20 @@ class GitDao {
     }
   }
 
-  async getVersionUpdateDocByGitId (gitId: string): Promise<VersionUpdateDocInfo[]> {
+  async getBranchUpdateDocByGitId (gitId: string): Promise<BranchUpdateDocInfo[]> {
 
     /**
      * 改为分支 
      * 分支下面包含多版本更新内容
      */
-    const sql = 'SELECT id, update_doc, publish_time, version, description from source_version WHERE source_id = ? ORDER BY version DESC'
-    const data = await pool.query<VersionUpdateDocInfo>(sql, [gitId])
+    const queryBranch = `SELECT id, name, description, create_time FROM source_branch WHERE source_id = ? ORDER BY create_time DESC`
+    const queryVersion = 'SELECT id, update_doc, publish_time, version, description from source_version WHERE branch_id = ? ORDER BY version DESC'
+
+    const data = await pool.query<BranchUpdateDocInfo>(queryBranch, [gitId])
+
+    for (const item of data) {
+      item.children = await pool.query<VersionUpdateDocInfo>(queryVersion, [item.id])
+    }
     return data
   }
 }

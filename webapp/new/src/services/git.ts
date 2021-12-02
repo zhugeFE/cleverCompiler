@@ -100,6 +100,14 @@ class GitService {
       }
     })
   }
+  async deleteBranch (branchId: string) {
+    return request(apis.git.deleteBranch, {
+      method: 'delete',
+      params: {
+        id: branchId
+      }
+    })
+  }
 
   async updateGitStatus (gitList: UpdateGitStatus[]) {
     return request(apis.git.updateGitStatus, {
@@ -130,8 +138,8 @@ class GitService {
     })
   }
 
-  async getVersionUpdateInfo (id: string) {
-    return request(apis.git.getVersionUpdateInfo, {
+  async getBranchUpdateInfo (id: string) {
+    return request(apis.git.getBranchUpdateInfo, {
       method: "post",
       data: {
         id

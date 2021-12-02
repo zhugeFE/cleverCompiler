@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 15:17:51
+ * @LastEditTime: 2021-12-02 15:50:08
  */
 
 import { connect } from 'dva';
@@ -12,7 +12,7 @@ import React from 'react';
 import styles from './styles/templateEdit.less';
 import { withRouter } from 'react-router';
 import { IRouteComponentProps } from '@umijs/renderer-react';
-import { Dispatch, GitInfo, GitInstance, GitVersion } from '@/.umi/plugin-dva/connect';
+import { Dispatch, GitInfo, GitInfoBranch, GitInstance, GitVersion } from '@/.umi/plugin-dva/connect';
 import { Button, Progress, Spin, Tabs, Tag, Tooltip } from 'antd';
 import {
   ChangeGitVersionParams,
@@ -52,6 +52,7 @@ interface State {
   delTooltip: string;
   delInterval?: NodeJS.Timeout;
   currentGitId: string;
+  currentBranch: GitInfoBranch | null;
   gitInfo: GitInfo | null;
 }
 
@@ -61,6 +62,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.state = {
       templateInfo: null,
       currentVersion: null,
+      currentBranch: null,
       showAddGlobalConfig: false,
       savePercent: 100,
       delTimeout: 0,
@@ -109,7 +111,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
   onChangeGit (id: string) {
     this.getGitInfo(id)
     this.setState({
-      currentGitId: id
+      currentGitId: id,
     })
   }
 
@@ -355,16 +357,26 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
   }
 
   afterSelectGitVersion ( value: string) {
-    const version = this.state.gitInfo?.versionList.filter( git => git.id == value)[0]
+    if (!this.state.gitInfo) return
+
+    let versionData: GitVersion
+    for (const branch of this.state.gitInfo.branchList) {
+      for (const version of branch.versionList) {
+        if (version.id == value) {
+          versionData = version
+          break
+        }
+      }
+    }
     const currentVersion = util.clone(this.state.currentVersion)
     const data = {}
     if (currentVersion) {
       currentVersion.gitList.map( git => {
         if ( git.id === this.state.currentGitId){
           data['id'] = git.id
-          data['gitSourceVersionId'] = version?.id
+          data['gitSourceVersionId'] = versionData?.id
           data['configList'] = []
-          version?.configs.map( config => {
+          versionData?.configs.map( config => {
             data['configList'].push({
               templateId: git.templateId,
               templateVersionId: git.templateVersionId,

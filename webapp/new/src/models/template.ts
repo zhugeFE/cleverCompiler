@@ -5,7 +5,7 @@ import { download } from '@/utils/download';
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 18:35:58
+ * @LastEditTime: 2021-12-02 15:33:42
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -29,6 +29,8 @@ export interface TemplateVersionGitUpdateInfo {
   updateDoc: string;
   description: string;
   publishTime: string;
+  gitSourceBranchId: string;
+  branchName: string;
   tag?: number;
 }
 
@@ -88,6 +90,7 @@ export interface CreateTemplateVersionGitParams {
   templateId: string ; //模板id
   templateVersionId: string; //模板版本id
   gitSourceId: string; //git源id
+  gitSourceBranchId: string; //git源分支
   gitSourceVersionId: string; //git源版本
 }
 
@@ -97,8 +100,10 @@ export interface TemplateVersionGit {
   templateVersionId: string; //模板版本id
   gitSourceId: string; //git来源id
   gitSourceVersionId: string; //git版本来源id
+  gitSourceBranchId: string;
   name: string; //git来源名称
   version: string;
+  branchName: string;
   configList: TemplateConfig[]; //配置项
   buildDoc?: string; //所在版本的配置文档
   readmeDoc?: string; //所在版本的说明文档

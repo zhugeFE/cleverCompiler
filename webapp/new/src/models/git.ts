@@ -109,6 +109,14 @@ export interface GitTextConfigParam extends TextConfigParam{
   versionId: string;
   typeId: ConfigType['id'];
 }
+
+export interface BranchUpdateDocInfo {
+  id: string;
+  name: string;
+  description: string;
+  createTime: Date;
+  children: VersionUpdateDocInfo[];
+}
 export interface GitUpdateVersionParam {
   id: string;
   compileOrders: string;
@@ -128,7 +136,7 @@ export type GitModelType = {
     query: Effect;
     getInfo: Effect;
     getFileTree: Effect;
-    getVersionUpdateInfo: Effect;
+    getBranchUpdateInfo: Effect;
     queryRemoteGitList: Effect;
     queryBranchs: Effect;
     queryCommits: Effect;
@@ -143,6 +151,7 @@ export type GitModelType = {
     updateVersion: Effect;
     updateGitStatus: Effect;
     deleteVersion: Effect;
+    deleteBranch: Effect;
   };
   reducers: {
     setList: Reducer<GitModelState>;
@@ -163,8 +172,8 @@ const GitModel: GitModelType = {
         payload: res.data
       })
     },
-    *getVersionUpdateInfo ({payload, callback}, {call}) {
-      const res = yield call(gitService.getVersionUpdateInfo, payload as string)
+    *getBranchUpdateInfo ({payload, callback}, {call}) {
+      const res = yield call(gitService.getBranchUpdateInfo, payload as string)
       if (res.status === -1) return
       callback(res.data)
     },
@@ -257,6 +266,11 @@ const GitModel: GitModelType = {
     },
     *deleteVersion ({payload, callback}, {call}) {
       const res = yield call(gitService.deleteVersion, payload)
+      if (res.status === -1) return
+      if (callback) callback(res.data)
+    },
+    *deleteBranch ({payload, callback}, {call}) {
+      const res = yield call(gitService.deleteBranch, payload)
       if (res.status === -1) return
       if (callback) callback(res.data)
     },

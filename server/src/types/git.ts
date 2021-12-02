@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-25 16:11:54
+ * @LastEditTime: 2021-12-02 10:55:21
  */
 import { Version } from './common';
 
@@ -78,6 +78,7 @@ export interface GitCreateVersionParam {
 export interface GitCreateConfigParam {
   configId?: string;
   sourceId: string;
+  branchId: string;
   versionId: string;
   typeId: string;
   filePath: string;
@@ -96,6 +97,7 @@ export interface UpdateConfigParam {
 export interface GitConfig {
   id: string; // 配置项id
   sourceId: string;
+  branchId: string;
   versionId: string;
   typeId: number; // 类型id
   type: string; // 类型名称
@@ -130,6 +132,13 @@ export interface CompileGitParams {
   buildDoc: string;
 }
 
+export interface BranchUpdateDocInfo {
+  id: string;
+  name: string;
+  description: string;
+  createTime: Date;
+  children: VersionUpdateDocInfo[];
+}
 export interface VersionUpdateDocInfo {
   id: string;
   updateDoc: string;

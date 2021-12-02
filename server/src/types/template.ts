@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 16:12:04
+ * @LastEditTime: 2021-12-02 15:32:54
  */
 import { Version } from "./common";
 
@@ -66,6 +66,7 @@ export interface CreateTemplateVersionGitParams {
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
   gitSourceId: string; //git来源id
+  gitSourceBranchId: string; //git分支id
   gitSourceVersionId: string; //git版本来源id
 }
 
@@ -74,10 +75,12 @@ export interface TemplateVersionGit {
   pid: string;
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
+  gitSourceBranchId: string;
   gitSourceId: string; //git来源id
   gitSourceVersionId: string; //git版本来源id
   name: string; //git来源名称
   version: string;
+  branchName: string;
   configList: TemplateConfig[]; //配置项
   buildDoc?: string; //所在版本的配置文档
   readmeDoc?: string; //所在版本的说明文档
@@ -115,6 +118,8 @@ export interface TemplateVersionGitUpdateInfo {
   updateDoc: string;
   description: string;
   publishTime: string;
+  gitSourceBranchId: string;
+  branchName: string;
 }
 
 

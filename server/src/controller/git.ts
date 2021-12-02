@@ -1,4 +1,4 @@
-import { GitList, UpdateGitStatus, VersionUpdateDocInfo } from './../types/git';
+import { BranchUpdateDocInfo, GitInfoBranch, GitList, UpdateGitStatus, VersionUpdateDocInfo } from './../types/git';
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -77,8 +77,8 @@ router.post('/version/updateInfo', (req: Request, res: Response, next: NextFunct
     res.json(new ApiResult(ResponseStatus.fail, "id为空"))
     return
   }
-  gitService.getVersionUpdateDocByGitId(req.body.id)
-  .then ( (data: VersionUpdateDocInfo[]) => {
+  gitService.getBranchUpdateDocByGitId(req.body.id)
+  .then ( (data: BranchUpdateDocInfo[]) => {
     res.json(new ApiResult(ResponseStatus.success, data))
   })
   .catch (next)
@@ -86,8 +86,8 @@ router.post('/version/updateInfo', (req: Request, res: Response, next: NextFunct
 
 router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
   gitService.addVersion(req.body as GitCreateVersionParam, req.session.currentUser.id)
-  .then((version: GitVersion) => {
-    res.json(new ApiResult(ResponseStatus.success, version))
+  .then((data: GitInfo) => {
+    res.json(new ApiResult(ResponseStatus.success, data))
   })
   .catch(next)
 })
@@ -116,7 +116,22 @@ router.post('/version/update', (req: Request, res: Response, next: NextFunction)
   })
   .catch(next)
 })
+router.delete('/branch', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.query.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'branchId 不存在！'))
+    return
+  }
+  gitService.deleteBranch(req.query.id)
+  .then( () => {
+    res.json(new ApiResult(ResponseStatus.success))
+  })
+  .catch(next)
+})
 router.delete('/version', (req: Request, res: Response, next: NextFunction) => {
+  if (!req.query.id) {
+    res.json(new ApiResult(ResponseStatus.fail, 'versionId 不存在！'))
+    return
+  }
   gitService.deleteVersion(req.query.id)
   .then(() => {
     res.json(new ApiResult(ResponseStatus.success))
@@ -149,6 +164,7 @@ router.post('/config/add', (req: Request, res: Response, next: NextFunction) => 
     }
     gitService.addConfig({
       sourceId: fields['sourceId'] as string,
+      branchId: fields['branchId'] as string,
       versionId: fields['versionId'] as string,
       typeId: fields['typeId'] as string,
       reg: fields["reg"] as string,

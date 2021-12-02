@@ -17,7 +17,7 @@ import { withRouter } from 'react-router';
 import { connect } from 'dva';
 import { Customer } from "@/models/customer";
 import styles from './styles/projectEdit.less';
-import { compileType, EditMode, publicType, TypeMode } from '@/models/common';
+import { compileType, EditMode, publicType, TypeMode, VersionStatus, VersionType } from '@/models/common';
 import ProjectGlobalConfig from './projectGlobalConfig';
 import ProjectConfig from './projectConfig';
 import { ConnectState } from '@/models/connect';
@@ -211,8 +211,12 @@ class ProjectEdit extends React.Component<Props, States> {
           templateId: id,
           showLoading: false
         })
-        this.onTemplateVersionSelectChange(data.versionList[0].id)
-
+        for ( const version of data.versionList) {
+          if (version.status === VersionStatus.placeOnFile) {
+            this.onTemplateVersionSelectChange(version.id)
+            return
+          }
+        }
       }
     })
   }
@@ -521,10 +525,12 @@ class ProjectEdit extends React.Component<Props, States> {
                 >
                   {
                     this.state.templateInfo?.versionList.map( item => {
-                      return <Select.Option key={item.id} value={item.id}> 
-                        {item.version}
-                        <div className={styles.versionDesc}>{item.description}</div>
-                      </Select.Option>
+                      if (item.status === VersionStatus.placeOnFile) {
+                        return <Select.Option key={item.id} value={item.id}> 
+                          {item.version}
+                          <div className={styles.versionDesc}>{item.description}</div>
+                        </Select.Option>
+                      }
                     })
                   }
                 </Select>
