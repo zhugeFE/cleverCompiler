@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-29 17:49:55
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 14:44:49
+ * @LastEditTime: 2021-12-02 16:47:38
  */
 
 import { GitInfo, GitInfoBranch, GitVersion } from '@/models/git';
@@ -108,7 +108,7 @@ class LeftPanel extends React.Component<Props, State> {
         { this.renderAddComponent() }
         <div className={styles.leftPanelTopBtns}>
           <Button onClick={this.onClickAddBranch}>添加分支</Button>
-          <Button onClick={this.props.deleteBranch}>删除分支</Button>
+          {/* <Button onClick={this.props.deleteBranch}>删除分支</Button> */}
           <Button onClick={this.onClickAddVersion} >添加版本</Button>
         </div>
         <BranchTree
