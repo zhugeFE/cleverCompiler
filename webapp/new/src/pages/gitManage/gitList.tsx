@@ -181,12 +181,12 @@ class GitList extends React.Component<GitListProps, State> {
                 style={{marginRight: 5}}
                 disabled={!record.enable}
                 onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
-              <Button 
+              {/* <Button 
                 type="primary"
                 danger 
                 style={{marginRight: 5}} 
                 disabled={!record.enable}
-                onClick={this.onClickDel.bind(this, record)}>删除</Button>
+                onClick={this.onClickDel.bind(this, record)}>删除</Button> */}
               <Button                 
                 style={{marginRight: 5}} 
                 disabled={!record.enable}
