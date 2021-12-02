@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 17:22:52
+ * @LastEditTime: 2021-12-02 16:56:34
  */
 import { Table, Button, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -227,12 +227,12 @@ class TemplateList extends React.Component<TemplateListProps, State> {
                 style={{marginRight: 5}}
                 disabled={!record.enable}
                 onClick={this.onClickUpdateEntry.bind(this, record)}>升级</Button>
-              <Button 
+              {/* <Button 
                 type="primary"
                 danger 
                 style={{marginRight: 5}} 
                 disabled={!record.enable}
-                onClick={this.onClickDel.bind(this, record)}>删除</Button>
+                onClick={this.onClickDel.bind(this, record)}>删除</Button> */}
               {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
             </div>
           );
