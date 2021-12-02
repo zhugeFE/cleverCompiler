@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 17:13:25
+ * @LastEditTime: 2021-12-02 17:48:18
  */
 import { Version } from "./common";
 
@@ -112,15 +112,25 @@ export interface TemplateVersionUpdateInfo {
   gitInfo: TemplateVersionGitUpdateInfo[];
 }
 
+export interface HistoryVersion {
+  id: string;
+  version: string;
+  sourceId: string;
+  buildDoc: string;
+  updateDoc: string;
+}
+
 export interface TemplateVersionGitUpdateInfo {
   name: string;
   version: string;
   updateDoc: string;
   buildDoc: string;
+  gitSourceId: string;
   description: string;
   publishTime: string;
   gitSourceBranchId: string;
   branchName: string;
+  historyVersion: HistoryVersion[];
 }
 
 

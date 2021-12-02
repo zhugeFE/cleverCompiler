@@ -5,7 +5,7 @@ import { download } from '@/utils/download';
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 15:33:42
+ * @LastEditTime: 2021-12-02 17:49:01
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -23,14 +23,24 @@ export interface TemplateVersionUpdateInfo {
   gitInfo: TemplateVersionGitUpdateInfo[];
 }
 
+export interface HistoryVersion {
+  id: string;
+  version: string;
+  sourceId: string;
+  buildDoc: string;
+  updateDoc: string;
+}
+
 export interface TemplateVersionGitUpdateInfo {
   name: string;
   version: string;
   updateDoc: string;
+  buildDoc: string;
   description: string;
   publishTime: string;
   gitSourceBranchId: string;
   branchName: string;
+  historyVersion: HistoryVersion[];
   tag?: number;
 }
 

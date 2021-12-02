@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 17:13:28
+ * @LastEditTime: 2021-12-02 17:54:02
  */
 /**
  * 模板
  */
-import { ChangeGitVersionParams, TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo } from './../types/template';
+import { ChangeGitVersionParams, HistoryVersion, TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo } from './../types/template';
 import { PoolConnection } from 'mysql';
 import {
   UpdateTemplateGlobalConfig,
@@ -934,6 +934,7 @@ class TemplateDao {
         build_doc,
         source_version.description,
         source_version.publish_time,
+        git_source_id,
         git_source_branch_id,
         source_branch.name as branch_name
       FROM
@@ -944,11 +945,26 @@ class TemplateDao {
       WHERE
         template_version_id = ?
       ORDER BY NAME DESC` 
+
+    const queryHistoryVersionSql = `
+      SELECT
+        id,
+        source_id,
+        version,
+        build_doc,
+        update_doc
+      FROM
+        source_version 
+      WHERE
+        source_id = ?
+      ORDER BY version ASC`
     const templateVersion = await pool.query<TemplateVersionUpdateInfo>(queryVersionSql, [id])
     for (const version of templateVersion) {
       version['gitInfo'] = await pool.query<TemplateVersionGitUpdateInfo>(queryVersionGitSql, [version.id])
+      for (const git of version['gitInfo']) {
+        git['historyVersion'] = await pool.query<HistoryVersion>(queryHistoryVersionSql,[git.gitSourceId])
+      }
     }
-
     return templateVersion
   }
 }

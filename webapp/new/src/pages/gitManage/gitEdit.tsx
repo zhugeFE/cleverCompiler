@@ -238,7 +238,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onUpdateVersion()
   }
 
-  onChangeUpdate (content: string) {
+  onChangeUpdate (content: string) {    
     const currentVersion = util.clone(this.state.currentVersion)
     currentVersion!.updateDoc = content
     this.setState({
