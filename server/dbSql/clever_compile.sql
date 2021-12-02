@@ -11,7 +11,7 @@
  Target Server Version : 80025
  File Encoding         : 65001
 
- Date: 25/11/2021 18:52:55
+ Date: 02/12/2021 16:29:20
 */
 
 SET NAMES utf8mb4;
@@ -190,6 +190,7 @@ CREATE TABLE `source_config` (
   `type_id` int DEFAULT NULL COMMENT '配置项类型id',
   `file_path` varchar(1000) DEFAULT NULL COMMENT '原始文件路径',
   `target_value` text COMMENT '目标值。类型是文件类型时，该值是文件存放地址',
+  `branch_id` varchar(50) DEFAULT NULL COMMENT '分支id',
   PRIMARY KEY (`id`),
   KEY `source_id` (`source_id`),
   KEY `version_id` (`version_id`),
@@ -331,6 +332,7 @@ CREATE TABLE `template_version_git` (
   `template_version_id` varchar(50) DEFAULT NULL COMMENT '模板版本id',
   `git_source_id` varchar(50) DEFAULT NULL COMMENT 'git源id',
   `git_source_version_id` varchar(50) DEFAULT NULL COMMENT 'git源版本id',
+  `git_source_branch_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT 'git源branchId',
   PRIMARY KEY (`id`),
   KEY `template_id` (`template_id`),
   KEY `template_version_id` (`template_version_id`),
