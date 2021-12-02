@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 15:50:08
+ * @LastEditTime: 2021-12-02 16:58:57
  */
 
 import { connect } from 'dva';
@@ -76,7 +76,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.onAddGlobalConfig = this.onAddGlobalConfig.bind(this);
     this.onChangeVersion = this.onChangeVersion.bind(this);
     this.onDeleteVersion = this.onDeleteVersion.bind(this);
-    this.onPlaceOnFile = this.onPlaceOnFile.bind(this);
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this);
     this.afterUpdateGlobalConfig = this.afterUpdateGlobalConfig.bind(this);
     this.afterDelGlobalConfig = this.afterDelGlobalConfig.bind(this);
@@ -161,7 +160,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
 
   initDelInterval (version: TemplateVersion | null) {
     clearInterval(this.state.delInterval as unknown as number)
-    if (!version || version.status == VersionStatus.placeOnFile) {
+    if (!version || version.status != VersionStatus.normal) {
       this.setState({
         delTimeout: 0,
         delTooltip: ''
@@ -510,17 +509,17 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     })
   }
 
-  onPlaceOnFile () {
+  onChangeVersionStatue (status: VersionStatus) {
     if (!this.state.currentVersion) return
     this.props.dispatch({
       type: "template/updateTemplateVersionStatus",
       payload: {
         id: this.state.currentVersion.id,
-        status: Number(VersionStatus.placeOnFile)
+        status: Number(status)
       },
       callback: () => {
         const currentVersion = util.clone( this.state.currentVersion )
-        currentVersion!.status = Number(VersionStatus.placeOnFile)
+        currentVersion!.status = Number(status)
 
         const templateInfo = util.clone(this.state.templateInfo)
         templateInfo?.versionList.map( (version, index) => {
@@ -567,11 +566,11 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
               {
                 this.state.currentVersion?.status === VersionStatus.placeOnFile ? (
                    <a style={{marginLeft: '10px', color: '#faad14'}}>已发布</a>): (
-                   <a style={{marginLeft: '10px', color: '#faad14'}} onClick={this.onPlaceOnFile} >发布 </a> )
+                   <a style={{marginLeft: '10px', color: '#faad14'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.placeOnFile)} >发布 </a> )
               }
             </Tooltip>
             <Tooltip title="废弃后，新建项目中该版本将不可用">
-              <a style={{marginLeft: '10px', color: '#f5222d'}}>废弃</a>
+              <a style={{marginLeft: '10px', color: '#f5222d'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.deprecated)}>废弃</a>
             </Tooltip>
             {
               this.state.delTimeout > 0 && this.state.currentVersion?.status === VersionStatus.normal ? (
