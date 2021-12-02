@@ -406,7 +406,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
       },
       callback: () => {
         const currentVersion = util.clone( this.state.currentVersion )
-        currentVersion!.status = Number(VersionStatus.placeOnFile)
+        currentVersion!.status = Number(status)
         const branch = util.clone(this.state.currentBranch)
         branch?.versionList.forEach( (item, i) => {
           if (item.id == currentVersion?.id) {
