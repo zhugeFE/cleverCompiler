@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 16:13:52
+ * @LastEditTime: 2021-12-07 14:08:59
  */
 import { ChangeGitVersionParams, TemplateConfig, TemplateVersionUpdateInfo } from './../types/template';
 import {Router, Response, Request, NextFunction} from 'express'
@@ -25,7 +25,16 @@ import { IncomingForm } from "formidable"
 const router = Router()
 
 router.get('/list', (req: Request, res: Response, next: NextFunction) => {
-  templateService.query()
+  templateService.query(req.session.currentUser.id)
+  .then((templateList: TemplateInstance[]) => {
+    res.json(new ApiResult(ResponseStatus.success, templateList))
+  })
+  .catch(next)
+})
+
+//无身份验证
+router.get('/u.list', (req: Request, res: Response, next: NextFunction) => {
+  templateService.uquery()
   .then((templateList: TemplateInstance[]) => {
     res.json(new ApiResult(ResponseStatus.success, templateList))
   })
@@ -97,12 +106,11 @@ router.post('/version/status', (req: Request, res: Response, next: NextFunction)
     return
   }
   templateService.updateVersion(req.body)
-  .then ( () => {
+  .then (() => {
     res.json(new ApiResult(ResponseStatus.success))
   })
   .catch(next)
 })
-
 
 router.post('/version/update', (req: Request, res: Response, next: NextFunction) => {
   const param = req.body as TemplateVersion
@@ -139,16 +147,6 @@ router.delete('/version', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
-
-// router.get('/version/:id/info', (req: Request, res: Response, next: NextFunction) => {
-//   templateService.getVersionInfo(req.params.id)
-//   .then((version: TemplateVersion) => {
-//     res.json(new ApiResult(ResponseStatus.success, version))
-//   })
-//   .catch(next)
-// })
-
-
 router.post('/git/add', (req: Request, res: Response, next: NextFunction) => {
   templateService.addGit(req.body as CreateTemplateVersionGitParams)
   .then((version: TemplateVersionGit) => {
@@ -165,9 +163,7 @@ router.delete('/git', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 
-
 router.post('/config/update', (req: Request, res: Response, next: NextFunction) => {
-
   const saveFilePath = path.resolve(__dirname, '../../file')
   const form = new IncomingForm({keepExtensions:true, uploadDir:saveFilePath})
   form.parse(req, (err, fields, files) => {
@@ -249,7 +245,7 @@ router.post('/globalconfig/status/update', (req: Request, res: Response, next: N
     return
   }
   templateService.updateGlobalConfigStatus({id: req.body.id, status: req.body.status})
-  .then ( () => {
+  .then (() => {
     res.json(new ApiResult(ResponseStatus.success))
   })
   .catch(next)

@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-11-05 20:08:04
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-12-06 10:59:55
+ */
 import userService from '@/services/user';
 import { getPageQuery } from '@/utils/utils';
 import { message } from 'antd';
@@ -40,6 +48,7 @@ export type UserModelType = {
   state: UserModelState;
   effects: {
     login: Effect;
+    logout: Effect;
     fetchCurrent: Effect;
   };
   reducers: {
@@ -63,6 +72,12 @@ const UserModel: UserModelType = {
         payload: res.data,
       });
       afterLogin()
+    },
+    *logout({_}, {put}) {
+      yield put({
+        type: 'saveCurrentUser',
+        payload: null
+      })
     },
     *fetchCurrent(_, { call, put }) {
       const res = yield call(userService.getCurrent)

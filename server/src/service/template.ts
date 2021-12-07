@@ -1,13 +1,15 @@
-import { ChangeGitVersionParams, TemplateVersionUpdateInfo, UpdateTemplateGlobalConfig } from './../types/template';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 16:13:20
+ * @LastEditTime: 2021-12-07 14:08:51
  */
-import { 
+import {
+  ChangeGitVersionParams,
+  TemplateVersionUpdateInfo,
+  UpdateTemplateGlobalConfig,
   CreateTemplateGlobalConfigParams, 
   CreateTemplateVersionGitParams, 
   CreateTemplateVersionParams, 
@@ -22,8 +24,12 @@ import {
 import templateDao from "../dao/template"
 
 class TemplateService {
-  async query (): Promise<TemplateInstance[]> {
-    return await templateDao.query()
+  async query (userId: string): Promise<TemplateInstance[]> {
+    return await templateDao.query(userId)
+  }
+
+  async uquery (): Promise<TemplateInstance[]> {
+    return await templateDao.uquery()
   }
 
   async getVersionList (id: string): Promise<TemplateInfo[]> {
@@ -56,6 +62,7 @@ class TemplateService {
   async updateVersion (param: TemplateVersion): Promise<void> {
     await templateDao.updateVersion(param)
   }
+
 
   async changeGitVersion (param: ChangeGitVersionParams): Promise<TemplateVersionGit> {
     return await templateDao.changeGitVersion(param)

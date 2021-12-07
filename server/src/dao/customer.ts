@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 18:26:42
+ * @LastEditTime: 2021-12-05 18:40:48
  */
 
 import pool from './pool'
@@ -14,8 +14,6 @@ import {
 } from "../types/customer"
 import util from '../utils/util'
 import _ = require('lodash')
-
-
 class Customer {
   //客户列表
   async customerList (): Promise<ProjectCustomer[]>{
@@ -37,7 +35,6 @@ class Customer {
     const sql = `INSERT INTO customer ( id, name, description, tel, creator_id )
       VALUES
         ( ?, ?, ?, ?, ? )`
-    
     const id = util.uuid()
     await pool.write(sql,[
       id,
@@ -47,7 +44,6 @@ class Customer {
       params.creatorId
     ])
     return await this.getCustomerById(id)
-    
   }
 
   //客户表查询 根据客户id
@@ -62,7 +58,6 @@ class Customer {
       customer 
     WHERE
       id = ?`
-    
     const list = await pool.query<ProjectCustomer>(sql, [id])
     return list.length > 0 ? list[0] : null
   }

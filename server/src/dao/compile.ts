@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:18:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 11:12:26
+ * @LastEditTime: 2021-12-07 15:32:38
  */
 
 import pool from './pool'
@@ -18,7 +18,6 @@ import util from '../utils/util'
 import _ = require('lodash')
 
 class Compile {
- 
    //新建编译
    async addProjectCompile(data: CompileParam): Promise<ProjectCompile>{
     const sql = `INSERT INTO compile ( id, compile_time, compile_user, compile_result, project_id, description )
@@ -35,7 +34,6 @@ class Compile {
     ])
     return await this.getProjectCompileById(id)
   }
-  
   //根据id查询编译记录
   async getProjectCompileById (id: string): Promise<ProjectCompile>{
     const sql = `SELECT
@@ -53,8 +51,6 @@ class Compile {
     const list = await pool.query<ProjectCompile>(sql, [id])
     return list.length > 0 ? list[0] : null
   }
-
-
   //查询编译记录根据项目配置id
   async getProjectCompile (id: string): Promise<ProjectCompile[]>{
     const sql = `SELECT
@@ -76,11 +72,9 @@ class Compile {
     ON p.customer = cus.id
     WHERE p.id = ?
     ORDER BY
-      compile_time DESC
-    `
+      compile_time DESC`
     return await pool.query<ProjectCompile>(sql, [id])
   }
-
   //编译状态更新
   async updateProjectCompile (data: ProjectCompile | {id: string; file: string; compileResult: string}): Promise<void>{
     const props = []
@@ -100,7 +94,10 @@ class Compile {
     const sql = `
       SELECT 
         pg.NAME,
-        sv.output_name
+        sv.output_name,
+        sv.public_type,
+        sv.public_git,
+        sv.public_branch
       FROM
         project_git as pg
       LEFT JOIN template_version_git as tg ON pg.template_git_id = tg.id
@@ -108,7 +105,6 @@ class Compile {
       WHERE pg.id = ?`
     const data  = await pool.query<CompileGitData>(sql, [projectGitId])
     return data.length ? data[0] : null
-  
   }
 
   async getTemplateDoc (projectId: string): Promise<CompileDoc> {
@@ -116,15 +112,19 @@ class Compile {
       SELECT
         tv.build_doc,
         tv.readme_doc,
-        tv.update_doc
+        tv.update_doc,
+        sv.public_type,
+        sv.public_git,
+        sv.public_branch
       FROM
         project
       LEFT JOIN template_version as tv ON tv.id = project.template_version
+      LEFT JOIN template_version_git as tg ON tg.template_version_id = tv.id
+      LEFT JOIN source_version as sv ON sv.id = tg.git_source_version_id
       WHERE project.id = ?`
     const data = await pool.query<CompileDoc>(sql, [projectId])
     return data.length ? data[0] : null
   }
 }
 
-const compile = new Compile()
-export default compile
+export default new Compile()

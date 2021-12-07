@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-01 17:02:37
+ * @LastEditTime: 2021-12-07 14:07:34
  */
 export default {
   user: {
@@ -45,6 +45,7 @@ export default {
     getVersionUpdateInfo: '/template/version/updateInfo',
     getTemplateVersionInfo: '/template/version/list',
     queryTemplateList: '/template/list',
+    uqueryTemplateList: '/template/u.list',
     updateTemplateStatus: "/template/status",
     copyTemplate: '/template/copy',
     getVersionInfo: '/template/version/{{id}}/info',

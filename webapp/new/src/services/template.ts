@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 16:15:53
+ * @LastEditTime: 2021-12-07 14:09:44
  */
 
 import request from "@/utils/request";
@@ -15,6 +15,9 @@ import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, Crea
 class TemplateService {
   async queryTemplateList () {
     return request(api.template.queryTemplateList)
+  }
+  async uqueryTemplateList () {
+    return request(api.template.uqueryTemplateList)
   }
   async getInfo (id: string) {
     return request(api.template.getInfo, {
@@ -124,6 +127,7 @@ class TemplateService {
     })
   }
   
+
   async delVersionGit (id : string) {
     return request(api.template.delVersionGit , {
       method:"delete",
@@ -180,9 +184,7 @@ class TemplateService {
       data
     })
   }
-
-
-
+  
   async updateGlobalConfigStatus (data: {id: string; status: number}) {
     return request(api.template.updateGlobalConfigStatus, {
       method: "post",

@@ -6,7 +6,7 @@ import { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "./temp
  * @Author: Adxiong
  * @Date: 2021-08-25 17:14:31
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-25 11:06:41
+ * @LastEditTime: 2021-12-06 11:14:54
  */
 export interface ProjectInstance {
   id: string; //项目id
@@ -21,6 +21,7 @@ export interface ProjectInstance {
   creatorId: string;
   templateId: string;
   templateVersion: string;
+  receiveUserId: string;
 }
 
 export interface ProjectInfo extends ProjectType{

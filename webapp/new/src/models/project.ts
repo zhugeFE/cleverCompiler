@@ -5,7 +5,7 @@ import { publicType } from './common';
  * @Author: Adxiong
  * @Date: 2021-08-25 18:37:57
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-25 11:07:23
+ * @LastEditTime: 2021-12-06 14:17:46
  */
 
 import { Effect, TemplateGlobalConfig, TemplateVersionGit } from "@/.umi/plugin-dva/connect"
@@ -35,6 +35,8 @@ export interface ProjectInstance {
   lastCompileResult: number; // 上次编译结果
   lastCompileUser: string; //上次编译人
   createTime: Date; //创建时间
+  creatorId: string;
+  receiveUserId: string;
   enable: number;
   templateId: string;
   templateVersion: string;
@@ -50,6 +52,7 @@ export interface ProjectInfo {
   publicType: number;
   createTime: Date; //创建时间
   gitList: TemplateVersionGit[] // git
+  creatorId: string;
   shareMember: string; //分享成员
   customer: string; //客户id
   globalConfigList: TemplateGlobalConfig[];//全局配置

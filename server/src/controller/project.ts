@@ -1,10 +1,10 @@
-import { ProjectCompileParams } from './../types/project';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-25 17:12:16
  */
+import { ProjectCompileParams } from './../types/project';
 import {Router, Response, Request, NextFunction} from 'express'
 import { IncomingForm } from 'formidable';
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -17,10 +17,9 @@ import { ProjectCompile } from '../types/compile'
 import fsUtil from '../utils/fsUtil';
 const router = Router()
 
-
 //项目列表
 router.get('/list', (req: Request, res: Response, next: NextFunction) => {
-  ProjectService.projectList()
+  ProjectService.projectList(req.session.currentUser.id)
   .then((projectList: ProjectInstance[]) => {
     res.json(new ApiResult(ResponseStatus.success, projectList))
   })
@@ -29,11 +28,8 @@ router.get('/list', (req: Request, res: Response, next: NextFunction) => {
 
 //项目添加
 router.post('/add', (req: Request, res: Response, next: NextFunction) => {
-
   const saveFilePath = path.resolve(__dirname, '../../file')
-
   const form = new IncomingForm({keepExtensions: true, uploadDir:saveFilePath})
-
   const projectInfo = {}
 
   form.parse( req, (err, fields, file) => {
@@ -46,9 +42,7 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
       if (key == 'configList') {
         projectInfo[key] = []
         const configList = JSON.parse(fields[key] as string)
-
         configList.map( config => {
-          
           projectInfo[key].push(config)
         })
       } else if ( key == 'gitList') {
@@ -69,7 +63,6 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
       await fsUtil.rename(oldPath, newPath)
     })
     
-    
     ProjectService.addProject(projectInfo as CreateProjectParams, req.session.currentUser.id)
     .then((project: ProjectType) => {
       res.json(new ApiResult(ResponseStatus.success, project))
@@ -80,15 +73,10 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
 
 //项目更新
 router.post('/update', (req: Request, res: Response, next: NextFunction) => {
-
   const saveFilePath = path.resolve(__dirname, '../../file')
-
   const form = new IncomingForm({keepExtensions: true, uploadDir:saveFilePath})
-
   const projectInfo = {}
-
   form.parse( req, (err, fields, file) => {
-
     if (err) {
       res.json(new ApiResult(ResponseStatus.fail,err))
       return
@@ -98,9 +86,7 @@ router.post('/update', (req: Request, res: Response, next: NextFunction) => {
       if (key == 'globalConfigList') {
         projectInfo[key] = []
         const configList = JSON.parse(fields[key] as string)
-
-        configList.map( config => {
-          
+        configList.map( config => {          
           projectInfo[key].push(config)
         })
       }
@@ -113,11 +99,8 @@ router.post('/update', (req: Request, res: Response, next: NextFunction) => {
       }
       else {
         projectInfo[key] = fields[key]
-
       }      
-
     })
-
 
     Object.keys(file).map( async name=> {
       const newname = file[name]['newFilename'] 
@@ -125,7 +108,6 @@ router.post('/update', (req: Request, res: Response, next: NextFunction) => {
       const newPath = path.resolve(saveFilePath, name)
       await fsUtil.rename(oldPath, newPath)
     })
-    
     
     ProjectService.updateProject(projectInfo as UpdateProjectParams)
     .then(() => {
@@ -170,8 +152,6 @@ router.get('/:id/list', (req: Request, res: Response, next: NextFunction) => {
   })
   .catch(next)
 })
-
-
 
 router.get('/members', (req: Request, res: Response, next: NextFunction) => {
   ProjectService.getMemberList()

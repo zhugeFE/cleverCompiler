@@ -11,25 +11,25 @@ import TextArea from 'antd/lib/input/TextArea';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import React from 'react';
 import { TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersionGit } from "@/models/template"
-import { Member, ProjectInfo, CreateProjectParams } from "@/models/project"
+import { Member, ProjectInfo } from "@/models/project"
 import { IRouteComponentProps } from '@umijs/renderer-react';
 import { withRouter } from 'react-router';
 import { connect } from 'dva';
 import { Customer } from "@/models/customer";
 import styles from './styles/projectEdit.less';
-import { compileType, EditMode, publicType, TypeMode, VersionStatus, VersionType } from '@/models/common';
+import { compileType, EditMode, publicType, TypeMode, VersionStatus } from '@/models/common';
 import ProjectGlobalConfig from './projectGlobalConfig';
 import ProjectConfig from './projectConfig';
 import { ConnectState } from '@/models/connect';
 import util from '@/utils/utils';
-import { utils } from 'umi';
+import { CurrentUser } from '@/models/user';
 
 export interface Props extends IRouteComponentProps<{id: string;}>{
   templateList: TemplateInstance[] | null
   customerList: Customer[] | null;
+  currentUser: CurrentUser | null;
   dispatch: Dispatch;
 }
-
 
 interface States {
   mode: EditMode;
@@ -118,8 +118,6 @@ class ProjectEdit extends React.Component<Props, States> {
         }
       })
     }
-
-    
   }
 
 
@@ -171,7 +169,7 @@ class ProjectEdit extends React.Component<Props, States> {
       }
     })
     await this.props.dispatch({
-      type:"template/query"
+      type:"template/uquery"
     })
   }
   
@@ -223,12 +221,15 @@ class ProjectEdit extends React.Component<Props, States> {
 
   onTemplateVersionSelectChange(value: string) {
     if( this.state.templateInfo){
-      const current = this.state.templateInfo.versionList.filter( item =>item.id === value)[0]
+      const current = this.state.templateInfo.versionList.filter( item =>item.id === value)[0] 
+      console.log(current.publicType);
+      
       this.setState({
         templateVersionId: value,
         gitList: current.gitList,
         activeKey: current.gitList.length ? current.gitList[0].id : "",
-        globalConfigList: current.globalConfigList
+        globalConfigList: current.globalConfigList,
+        publicType: current.publicType
       })
     }
   }
@@ -242,7 +243,7 @@ class ProjectEdit extends React.Component<Props, States> {
   onRadioChange (e: any) {
     this.setState({
       publicType: e.target.value
-    })
+    })    
   }
 
   onClickSave () {
@@ -260,6 +261,7 @@ class ProjectEdit extends React.Component<Props, States> {
 
   updateProject (projectId: string) {
     const { description, templateId, publicType, templateVersionId, globalConfigList, gitList, shareMember } = this.state
+    console.log(publicType);
     
     const form = new FormData()
 
@@ -453,7 +455,7 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={wrapperCol} className={styles.colFlex}> 
               <Input 
                 placeholder="请输入名称"
-                disabled={this.state.mode == EditMode.update}
+                disabled={this.state.mode == EditMode.update || this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                 style={{width: 300}} onChange={(event) => {
                   this.onChangeEdit('name', event)
                 }} defaultValue={this.state.name}></Input>
@@ -467,7 +469,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.customer}
                 placeholder="请选择"
                 style={{ width: 200 }}
-                disabled={this.state.mode == EditMode.update}
+                disabled={this.state.mode == EditMode.update || this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                 onChange={this.onCustomerSelectChange}
               >
                 {
@@ -486,7 +488,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.compileType}
                 placeholder="请选择"
                 style={{width: 200}}
-                disabled={this.state.mode == EditMode.update}
+                disabled={this.state.mode == EditMode.update || this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                 onChange={this.onCompileTypeSelectChange}
               >
                 {
@@ -504,6 +506,7 @@ class ProjectEdit extends React.Component<Props, States> {
               <Select
                 defaultValue={this.state.templateId}
                 placeholder="请选择"
+                disabled={this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                 style={{ width: 200 }}
                 onChange={this.onTemplateSelectChange}
               >
@@ -520,6 +523,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 this.state.templateVersionId && 
                 <Select
                   value={this.state.templateVersionId}
+                  disabled={this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                   style={{width: 200}}
                   onChange={this.onTemplateVersionSelectChange}
                 >
@@ -537,13 +541,14 @@ class ProjectEdit extends React.Component<Props, States> {
               }
             </Col>
           </Row>
-
-        
-
           <Row className={styles.rowMargin}>
             <Col span={labelCol}>发布方式</Col>
             <Col span={wrapperCol}>
-              <Radio.Group className={styles.radio} onChange={this.onRadioChange} defaultValue={this.state.publicType}>
+              <Radio.Group
+                disabled={this.state.projectInfo?.creatorId != this.props.currentUser?.id}
+                className={styles.radio} 
+                onChange={this.onRadioChange} 
+                value={this.state.publicType}>
                 {
                   publicType.map( item => {
                     return <Radio key={item.value} value={item.value}>{item.text}</Radio>
@@ -557,6 +562,7 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>全局配置：</Col>
             <Col span={wrapperCol}>
               <ProjectGlobalConfig   
+                disabled={this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                 globalConfigList={this.state.globalConfigList?.length ? this.state.globalConfigList : []}
                 onUpdateConfig={this.afterUpdateGlobalConfig}
                 onUpdateConfigHidden={this.onUpdateGlobalConfigHidden}
@@ -568,6 +574,7 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>项目配置：</Col>
             <Col span={wrapperCol}>
                 <ProjectConfig
+                  disabled={this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                   onUpdateConfig={this.afterUpdateConfig}
                   globalConfigList={this.state.globalConfigList!}
                   activeKey={this.state.activeKey}
@@ -585,6 +592,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 mode="multiple"
                 allowClear
                 showSearch
+                disabled={this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                 style={{ width: 200 }}
                 placeholder="请选择"
                 defaultValue={this.state.shareMember.length > 0 ? this.state.shareMember : undefined }
@@ -605,6 +613,7 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>描述：</Col>
             <Col span={wrapperCol}>
               <TextArea 
+                disabled={this.state.projectInfo?.creatorId != this.props.currentUser?.id}
                 placeholder="请输入描述内容"
                 defaultValue={this.state.description}
                 rows={10} onChange={(event) => {
@@ -612,23 +621,24 @@ class ProjectEdit extends React.Component<Props, States> {
                 }}></TextArea>
             </Col>
           </Row>
-
-          <Row className={styles.rowMargin}>
-            <Button type="primary" onClick={this.onClickSave}>保存</Button>
-            <Button style={{marginLeft:5}} onClick={this.onClickCancel}>取消</Button>
-          </Row>
-
-         
+          {
+            this.state.projectInfo?.creatorId == this.props.currentUser?.id &&
+            <Row className={styles.rowMargin}>
+              <Button type="primary" onClick={this.onClickSave}>保存</Button>
+              <Button style={{marginLeft:5}} onClick={this.onClickCancel}>取消</Button>
+            </Row>
+          }
         </div> 
       </div>
     )
   }
 }
 
-export default connect( ({ customer, template } : ConnectState) => {
+export default connect( ({ customer, template, user} : ConnectState) => {
   return {
     customerList: customer.customerList,
-    templateList:template.templateList
+    templateList:template.templateList,
+    currentUser: user.currentUser,
   }
 })(withRouter(ProjectEdit))
 

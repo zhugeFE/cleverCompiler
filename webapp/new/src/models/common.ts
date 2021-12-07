@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:58:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-06 09:33:54
+ * @LastEditTime: 2021-12-07 11:32:19
  */
 export enum VersionStatus {
   deprecated = 0, // 已废弃

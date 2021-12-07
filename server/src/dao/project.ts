@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-25 11:06:25
+ * @LastEditTime: 2021-12-06 14:23:17
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -15,9 +15,8 @@ import logger from "../utils/logger";
 import { CompileGitParams } from '../types/git';
 
 class Project {
-
    // 项目列表
-   async projectList (): Promise<ProjectInstance[]>{
+   async projectList (userId: string): Promise<ProjectInstance[]>{
     const sql = `
       SELECT
         p.id AS id,
@@ -30,7 +29,8 @@ class Project {
         p.customer AS customer,
         u.NAME AS compileUser,
         p.template_id,
-				p.template_version 
+				p.template_version,
+        p.receive_user_id
       FROM
         project AS p
         LEFT JOIN (
@@ -43,9 +43,14 @@ class Project {
             LEFT JOIN compile AS c ON c.project_id = a.project_id 
             AND a.compile_time = c.compile_time ) AS c
         LEFT JOIN \`user\` AS u ON u.id = c.compile_user 
-        ) ON p.id = c.project_id
-    `
-    return await pool.query<ProjectInstance>(sql)
+        ) ON p.id = c.project_id`
+    const data = await pool.query<ProjectInstance>(sql)
+    if (data.length) {
+      return data.filter( item => {
+        return item.creatorId == userId || JSON.parse(item.receiveUserId).includes(userId)
+      })
+    }
+    return data
   }
 
   //编译项目创建
@@ -58,11 +63,9 @@ class Project {
     const globalConfigDataList = []
     const gitDataList = []
     const configDataList = []
-
     const sql = `INSERT INTO project ( id, NAME, template_id, template_version, compile_type, public_type, description, create_time, customer, receive_user_id, creator_id)
       VALUES
         ( ?,?,?,?,?,?,?,?,?,?,? )`
-    
     try {
       const projectId = util.uuid()
       await pool.writeInTransaction(conn,sql, [
@@ -92,7 +95,6 @@ class Project {
         const gitId = util.uuid()
         gitMap[git.id] = gitId
         gitDataList.push([gitId, git.name, projectId, git.id])
-  
       })
 
       if (gitDataList.length) {
@@ -109,10 +111,8 @@ class Project {
       if (configDataList.length) {
         await this.insertConfig(conn, configDataList)
       }
-
       await pool.commit(conn)
       return this.getProjectInfo(projectId)
-
     }
     catch (err){
       await pool.rollback(conn)
@@ -123,7 +123,6 @@ class Project {
 
   async insertProjectGit (conn, data: string[][]): Promise<void> {
     const sql = 'INSERT INTO project_git (id, name, project_id, template_git_id) VALUES ?'
-
     await pool.writeInTransaction(conn,sql, [data])
   }
 
@@ -140,7 +139,6 @@ class Project {
     const projectData = await this.getProjectById(id)
     const globalConfig = await this.getGlobalConfigByProjectId(id)
     const gitList = await this.getProjectGit(id)
-
     const data: ProjectInfo = {
       ...projectData,
       globalConfigList: globalConfig,
@@ -153,7 +151,6 @@ class Project {
     const projectData = await this.getProjectById(id)
     const globalConfig = await this.getGlobalConfigByProjectIdReturnPid(id)
     const gitList = await this.getProjectGitReturnPid(id)
-
     const data: ProjectInfo = {
       ...projectData,
       globalConfigList: globalConfig,
@@ -161,7 +158,6 @@ class Project {
     }
     return data
   }
-
 
   //根据项目id查询信息
   async getProjectById(id: string): Promise<ProjectType>{
@@ -174,20 +170,19 @@ class Project {
       public_type,
       description,
       create_time,
+      creator_id,
       receive_user_id as share_member,
       customer
     FROM
       project 
     WHERE
       id = ?`
-    
     const list = await pool.query<ProjectType>(sql, [id])
     return list.length > 0 ? list[0] : null
   }
 
   //项目基本信息更新
   async updateProject (data: UpdateProjectParams): Promise<void>{
-    
     //创建config
     const conn = await pool.beginTransaction()
     const gitMap = {}
@@ -195,7 +190,6 @@ class Project {
     const globalConfigMap = {}
     const globalConfigData = []
     const configData = []
-
     const updateProjectSql = `UPDATE project 
       SET template_id = ?,
         template_version = ?,
@@ -205,11 +199,8 @@ class Project {
       WHERE id = ?`
     try {
       await pool.writeInTransaction(conn, updateProjectSql, [data.templateId, data.templateVersionId,data.publicType,data.description,data.shareMember,data.id])
-      
       await this.deleteProjectGitByProjectId(conn,data.id)
       await this.deleteProjectGlobalConfigByProjectId(conn, data.id)
-
-
       data.globalConfigList.map( config => {
         const globalConfigId = util.uuid()
         globalConfigMap[config.id] = globalConfigId
@@ -218,9 +209,6 @@ class Project {
       if ( globalConfigData.length) {
         await this.insetGlobalConfig(conn, globalConfigData)
       }
-
-  
-
       data.gitList.map( git => {
         const gitId = util.uuid()
         gitMap[git.id] = gitId
@@ -288,7 +276,6 @@ class Project {
     WHERE p.project_id = ?`
 
     const data = await pool.query<TemplateVersionGit>(sql, [projectId])
-
     await Promise.all(data.map( async item => {
       item['configList'] = await this.getConfigByProjectGitId(item.pid)
     }))
@@ -315,7 +302,6 @@ class Project {
     WHERE p.project_id = ?`
 
     const data = await pool.query<TemplateVersionGit>(sql, [projectId])
-
     await Promise.all(data.map( async item => {
       item['configList'] = await this.getConfigByProjectGitIdReturnPid(item.pid)
     }))
@@ -361,7 +347,6 @@ class Project {
     return await pool.query<TemplateGlobalConfig>(sql, [projectId])
   }
 
- 
   //根据项目id查询局部配置
   async getConfigByProjectGitId (projectGitId: string): Promise<TemplateConfig[]>{
     const sql =  `SELECT
@@ -440,15 +425,11 @@ class Project {
     const queryProjectGitSql = 'SELECT id, name FROM project_git WHERE project_id = ?'
 
     const projectInfo = await pool.query<ProjectCompileParams>(queryProjectSql)
-
     await Promise.all(projectInfo.map( async item => {
       item.gitList = await pool.query<{id: string; name: string}>(queryProjectGitSql, [item.id])
     }))
-
     return projectInfo.length ? projectInfo : []
-
   }
-
 }
 
 export default new Project()

@@ -1,12 +1,12 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
 import { Version, VersionStatus } from '@/models/common'
-import { GitBranch, GitConfig, GitInfo, GitInfoBranch, GitUpdateVersionParam, GitVersion } from '@/models/git'
+import { GitBranch, GitConfig, GitInfo, GitInfoBranch, GitList, GitUpdateVersionParam, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import * as _ from 'lodash'
 import { LeftOutlined } from '@ant-design/icons'
 import { IRouteComponentProps } from '@umijs/renderer-react'
-import { Button, Tabs, Tag, Spin, Tooltip, Progress, Input, Select, message } from 'antd'
+import { Button, Tabs, Tag, Spin, Tooltip, Progress, Input, Select, message, Skeleton, Radio } from 'antd'
 import { connect } from 'dva'
 import React from 'react'
 import { withRouter } from 'react-router'
@@ -32,6 +32,11 @@ interface State {
   savePercent: number;
   delInterval?: NodeJS.Timeout;
   delTooltip: string;
+
+  gitList: GitList[] | null;
+  branchList: GitBranch[] ;
+  queryGitData: boolean;
+  queryBranchData: boolean;
 }
 
 class GitEdit extends React.Component<GitEditProps, State> {
@@ -46,6 +51,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
       delTimeout: 0,
       savePercent: 100,
       delTooltip: '',
+
+      gitList: null,
+      branchList: [],
+      queryGitData: false,
+      queryBranchData: false,
     }
 
     this.onCancelConfig = this.onCancelConfig.bind(this)
@@ -63,9 +73,13 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.afterChangeBranchOrVersion = this.afterChangeBranchOrVersion.bind(this)
     this.onChangeOutputName = this.onChangeOutputName.bind(this)
     this.onDeleteBranch = this.onDeleteBranch.bind(this)
+    this.selectPubliceGit = this.selectPubliceGit.bind(this)
+    this.selectPubliceGitBranch = this.selectPubliceGitBranch.bind(this)
+    this.onRadioChange = this.onRadioChange.bind(this)
   }
 
   componentDidMount () {
+    this.getRemoteList () 
     if (this.props.match.params.id != "createGit") {
       this.getGitInfo(this.props.match.params.id)
     }
@@ -82,12 +96,12 @@ class GitEdit extends React.Component<GitEditProps, State> {
         
         const currentBranch = info.branchList[0]
         const currentVersion = currentBranch.versionList[0]
-        
         this.setState({
           gitInfo: info,
           currentBranch,
           currentVersion
         }) 
+        this.getBranchList(currentVersion.publicGit)
         this.initDelInterval(currentVersion)   
 
       }
@@ -202,6 +216,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
         const param: GitUpdateVersionParam = {
           id: currentVersion!.id,
           outputName: currentVersion!.outputName,
+          publicGit: currentVersion?.publicType == 0 ? currentVersion!.publicGit : 0,
+          publicBranch: currentVersion?.publicType == 0 ? currentVersion!.publicBranch : "",
+          publicType: currentVersion!.publicType,
           compileOrders: JSON.stringify(currentVersion!.compileOrders),
           readmeDoc: currentVersion!.readmeDoc,
           buildDoc: currentVersion!.buildDoc,
@@ -456,6 +473,107 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
+
+  getRemoteList () {
+    this.setState({
+      queryGitData: true
+    })
+    this.props.dispatch({
+      type: 'git/queryRemoteGitList',
+      callback: (list: GitList[]) => {
+        this.setState({
+          gitList: list,
+          queryGitData: false,
+        })
+      }
+    })
+  }
+
+  getBranchList (id: number) {
+    this.setState({
+      queryBranchData: true
+    })
+    this.props.dispatch({
+      type: 'git/queryBranchs',
+      payload: id,
+      callback: (list: GitBranch[]) => {
+        this.setState({
+          branchList: list,
+          queryBranchData: false,
+        })
+      }
+    })
+  }
+
+  selectPubliceGit (id: number) {
+    this.getBranchList(id)
+    const version = util.clone(this.state.currentVersion)
+    const branch = util.clone(this.state.currentBranch)
+    version!.publicGit = id
+    branch?.versionList.forEach( (item, i) => {
+      if (item.id === version?.id) {
+        branch.versionList[i] = version
+      }
+    })
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo?.branchList.forEach((item, i) => {
+      if (item.id === branch?.id) {
+        gitInfo.branchList[i] = branch
+      }
+    })
+    this.setState({
+      currentVersion: version,
+      currentBranch: branch,
+      gitInfo
+    })
+    this.onUpdateVersion()
+  }
+  selectPubliceGitBranch (name: string) {
+    const version = util.clone(this.state.currentVersion)
+    const branch = util.clone(this.state.currentBranch)
+    version!.publicBranch = name
+    branch?.versionList.forEach( (item, i) => {
+      if (item.id === version?.id) {
+        branch.versionList[i] = version
+      }
+    })
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo?.branchList.forEach((item, i) => {
+      if (item.id === branch?.id) {
+        gitInfo.branchList[i] = branch
+      }
+    })
+    this.setState({
+      gitInfo,
+      currentVersion: version,
+      currentBranch: branch
+    })
+    this.onUpdateVersion()
+  }
+
+  onRadioChange (e: any) {
+    const version = util.clone(this.state.currentVersion)
+    const branch = util.clone(this.state.currentBranch)
+    version!.publicType = e.target.value
+    branch?.versionList.forEach( (item, i) => {
+      if (item.id === version?.id) {
+        branch.versionList[i] = version
+      }
+    })
+    const gitInfo = util.clone(this.state.gitInfo)
+    gitInfo?.branchList.forEach((item, i) => {
+      if (item.id === branch?.id) {
+        gitInfo.branchList[i] = branch
+      }
+    })
+    this.setState({
+      gitInfo,
+      currentBranch: branch,
+      currentVersion: version
+    })
+    this.onUpdateVersion()
+  }
+
   render () {
     const labelWidth = 75
     if (!this.state.gitInfo && this.props.match.params.id != 'createGit') {
@@ -546,7 +664,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     afterDelConfig={this.afterDelConfig}></GitConfigPanel>
                   {this.state.currentVersion?.status === VersionStatus.normal && <Button className={styles.btnAddConfigItem} onClick={this.onAddConfig}>添加配置项</Button>}
                 </Description>
-                <Description label="编译命令" display="flex" labelWidth={labelWidth}>
+                <Description label="编译命令" display="flex" labelWidth={labelWidth} style={{marginBottom:10}}>
                   {this.state.currentVersion ? (
                     <Commands 
                       onChange={this.onChangeOrders}
@@ -556,7 +674,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       : 
                     null}
                 </Description>
-                <Description label="输出文件" display="flex" labelWidth={labelWidth} >
+                <Description label="输出文件" display="flex" labelWidth={labelWidth} style={{marginBottom:10}}>
                   {this.state.currentVersion ? <div className={!this.state.currentVersion.outputName ? styles.nullValue : ""}>
                     <Input 
                       style={{width: 350}} 
@@ -567,6 +685,55 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       value={this.state.currentVersion.outputName}></Input> 
                   </div> : null}
                 </Description>
+                <Description label="是否发布到git">
+                  <Radio.Group 
+                    onChange={this.onRadioChange} 
+                    disabled={this.state.currentVersion?.status != VersionStatus.normal}  
+                    value={this.state.currentVersion?.publicType}>
+                    <Radio id="0" value={0}>是</Radio>
+                    <Radio id="1" value={1}>否</Radio>
+                  </Radio.Group>
+                </Description>
+                {
+                  this.state.currentVersion?.publicType == 0 &&
+                  this.state.gitList &&
+                  (
+                    <Description 
+                      label="发布代码库"
+                      style={{marginTop:10}}
+                      labelWidth={labelWidth}
+                      display="flex">
+                      <Select 
+                        style={{width:250}} 
+                        disabled={this.state.currentVersion?.status != VersionStatus.normal} 
+                        onChange={this.selectPubliceGit} 
+                        placeholder="选择发布代码库"
+                        value={this.state.currentVersion.publicGit}>
+                        {
+                          this.state.queryGitData ? 
+                          <Select.Option key='1' value="1"><Skeleton active></Skeleton> </Select.Option>:
+                          this.state.gitList?.map(item => {
+                            return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
+                          })
+                        }
+                      </Select>
+                      <Select 
+                        style={{width:150, marginLeft:10}} 
+                        onChange={this.selectPubliceGitBranch} 
+                        placeholder="选择发布分支"
+                        value={this.state.currentVersion.publicBranch}
+                        disabled={this.state.currentVersion?.status != VersionStatus.normal}>
+                        {
+                          this.state.queryBranchData ? 
+                          <Select.Option key='1' value="1"><Skeleton active></Skeleton> </Select.Option>:
+                          this.state.branchList.map(item => {
+                            return <Select.Option key={item.name} value={item.name}>{item.name}</Select.Option>
+                          })
+                        }
+                      </Select>
+                    </Description>
+                  )
+                }
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
                     {this.state.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.state.currentVersion.readmeDoc}></Markdown> : null}

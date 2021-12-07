@@ -54,6 +54,9 @@ export interface GitVersion extends Version{
   sourceId: string;
   sourceType: string;
   sourceValue: string;
+  publicType: number;
+  publicGit: number;
+  publicBranch: string;
   compileOrders: string[]; // 编译命令组
   configs: GitConfig[];
   outputName: string;
@@ -124,6 +127,9 @@ export interface GitUpdateVersionParam {
   buildDoc: string;
   updateDoc: string;
   outputName: string;
+  publicGit: number;
+  publicBranch: string;
+  publicType: number;
 }
 export type GitModelState = {
   gitList: GitInstance[];

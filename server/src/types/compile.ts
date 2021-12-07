@@ -1,14 +1,12 @@
-import { TemplateConfig } from './template';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-23 16:55:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-16 18:56:34
+ * @LastEditTime: 2021-12-07 15:33:16
  */
-
-
+import { TemplateConfig } from './template';
 
 export interface ProjectCompile {
   id: string; //编译id
@@ -23,14 +21,12 @@ export interface ProjectCompile {
   file: string; //文件位置
   config: string;
 }
-
 export interface CompileParam {
   compileUser: string; //编译者id
   compileResult: string; //编译结果
   projectId: string; //项目id
   description: string; //编译描述
 }
-
 export interface CompileConfig {
   userId: string; //编译者id
   gitName: string; //仓库名称
@@ -43,13 +39,13 @@ export interface CompileConfig {
   templateId: string;
   templateVersionId: string;
 }
-
-
 export interface CompileGitData {
   name: string;
   outputName: string;
+  publicType: number;
+  publicGit: string;
+  publicBranch: string;
 }
-
 export interface CompileDoc {
   buildDoc: string;
   updateDoc: string;

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 10:55:21
+ * @LastEditTime: 2021-12-07 10:40:34
  */
 import { Version } from './common';
 
@@ -12,7 +12,6 @@ export interface GitList {
   id: string;
   name: string;
 }
-
 export interface GitInstance {
   id: string;
   name: string;
@@ -27,7 +26,6 @@ export interface UpdateGitStatus {
   id: string;
   enable: number;
 }
-
 export interface GitInfo {
   id: string;
   gitId: string;
@@ -35,8 +33,6 @@ export interface GitInfo {
   gitRepo: string;
   branchList?: GitInfoBranch[];
 }
-
-
 export interface GitInfoBranch {
   id: string;
   name: string;
@@ -46,13 +42,11 @@ export interface GitInfoBranch {
   publishTime: Date;
   versionList?: GitVersion[];
 }
-
 export interface GitCommit {
   id: string;
   message: string;
   createdAt?: string;
 }
-
 export interface GitBranch {
   name: string;
   commit: GitCommit;
@@ -73,8 +67,6 @@ export interface GitCreateVersionParam {
   branchDesc: string;
   branchId: string;
 }
-
-
 export interface GitCreateConfigParam {
   configId?: string;
   sourceId: string;
@@ -86,7 +78,6 @@ export interface GitCreateConfigParam {
   targetValue: string;
   description: string;
 }
-
 export interface UpdateConfigParam {
   configId: string;
   reg: string;
@@ -106,7 +97,6 @@ export interface GitConfig {
   filePath: string; // 原始文件路径
   targetValue: string; // 目标值，配置项类型是文件时，该值是文件存放地址
 }
-
 export interface GitVersion extends Version{
   sourceId: string; 
   sourceType: string; // 版本来源类型：branch/tag/commit
@@ -116,10 +106,10 @@ export interface GitVersion extends Version{
   compileOrders: string; // 编译命令组
   branchId: string;
   outputName: string;
+  publicType: number;
+  publicGit: number;
+  publicBranch: string;
 }
-
-
-
 export interface CompileGitParams {
   id: string;
   name: string;
@@ -131,7 +121,6 @@ export interface CompileGitParams {
   updateDoc: string;
   buildDoc: string;
 }
-
 export interface BranchUpdateDocInfo {
   id: string;
   name: string;

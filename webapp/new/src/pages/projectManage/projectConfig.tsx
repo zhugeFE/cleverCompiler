@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 16:45:21
+ * @LastEditTime: 2021-12-06 14:30:36
  */
 
 import { TypeMode } from "@/models/common";
@@ -20,6 +20,7 @@ import util from "@/utils/utils";
 import ConfigMarage from "./configMarage";
 
 interface Props {
+  disabled?: boolean;
   globalConfigList: TemplateGlobalConfig[];
   activeKey: string;
   gitList: TemplateVersionGit[];
@@ -155,7 +156,7 @@ class ProjectConfig extends React.Component <Props, States> {
         render: (value: any, record: TemplateConfig) => {
           return (
             <Button
-              disabled={!!record.globalConfigId}
+              disabled={!!record.globalConfigId || this.props.disabled}
               onClick={this.onClickConfig.bind(this, record)}>编辑</Button>
           );
         },
@@ -187,8 +188,9 @@ class ProjectConfig extends React.Component <Props, States> {
           this.props.activeKey &&
           <ConfigMarage
             visible={this.state.showMarageConfig}
+            disabled={this.props.disabled}
             dataSource={
-              this.filterSourceData(this.props.gitList.filter(item => item.id == this.props.        activeKey)[0].configList, 1)
+              this.filterSourceData(this.props.gitList.filter(item => item.id == this.props.activeKey)[0].configList, 1)
             }
             onAddConfig={this.updateConfigList}
             onCancel={this.hideConfigManage}

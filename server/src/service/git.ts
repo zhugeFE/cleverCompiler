@@ -1,14 +1,26 @@
-import { GitList, UpdateGitStatus, UpdateConfigParam, VersionUpdateDocInfo, GitInfoBranch, BranchUpdateDocInfo } from './../types/git';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-01 17:00:25
+ * @LastEditTime: 2021-12-06 11:06:55
  */
 import gitDao from '../dao/git'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
+import { 
+  GitList,
+  UpdateGitStatus,
+  UpdateConfigParam,
+  BranchUpdateDocInfo,
+  GitInstance, 
+  GitInfo, 
+  GitBranch, 
+  GitTag, 
+  GitCommit, 
+  GitCreateVersionParam, 
+  GitVersion, 
+  GitCreateConfigParam, 
+  GitConfig } from '../types/git';
 import { DirNode } from '../types/common';
 import * as path from 'path'
 import config from '../config';
@@ -22,9 +34,8 @@ class GitService {
     const gitList = await gitDao.getRemoteGitList()
     return gitList
   }
-  async query (): Promise<GitInstance[]> {
-    // await gitDao.syncRep()
-    const gitList = await gitDao.query()
+  async query (userId: string): Promise<GitInstance[]> {
+    const gitList = await gitDao.query(userId)
     return gitList
   }
   async getInfoById (repoId: string): Promise<GitInfo> {

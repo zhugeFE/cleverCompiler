@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-25 11:07:39
+ * @LastEditTime: 2021-12-06 14:13:58
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -13,11 +13,13 @@ import { Button, Form, Input, Table } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import React from 'react';
+import { CurrentUser } from '@/models/user';
 import { withRouter } from 'react-router-dom';
 import { Dispatch, IRouteComponentProps } from 'umi';
 import styles from "./styles/projectList.less";
 
 interface Props extends IRouteComponentProps{
+  currentUser: CurrentUser | null;
   projectList: ProjectInstance[] | null;
   dispatch: Dispatch;
 }
@@ -180,13 +182,13 @@ class ProjectList extends React.Component<Props, States> {
                 style={{marginRight: 5}}
                 onClick={this.onClickUpdateEntry.bind(this, record)}>升级</Button>
               <Button 
-              type="primary" 
-              style={{marginRight: 5}}
-              onClick={this.onClickCompileLog.bind(this, record)}>编译记录</Button>
+                type="primary" 
+                style={{marginRight: 5}}
+                onClick={this.onClickCompileLog.bind(this, record)}>编译记录</Button>
               <Button 
                 type="primary" 
                 style={{marginRight: 5}}
-                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+                onClick={this.onClickEdit.bind(this, record)}>{this.props.currentUser?.id == record.creatorId ? "编辑" : "查看"}</Button>
             </div>
           );
         },
@@ -224,8 +226,9 @@ class ProjectList extends React.Component<Props, States> {
 }
 
 
-export default connect( ( { project } : ConnectState) => {
+export default connect( ( { project, user } : ConnectState) => {
   return {
-    projectList: project.projectList
+    projectList: project.projectList,
+    currentUser: user.currentUser,
   }
 })(withRouter(ProjectList))

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-18 14:25:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 17:32:02
+ * @LastEditTime: 2021-12-06 14:30:23
  */
 import { TypeMode } from "@/models/common";
 import { TemplateGlobalConfig } from "@/models/template";
@@ -14,6 +14,7 @@ import { Key } from "antd/lib/table/interface";
 import React from "react"
 
 interface Props {
+  disabled?: boolean;
   visible: boolean;
   dataSource: TemplateGlobalConfig[]
   onAddConfig (data: string[]): void;
@@ -36,6 +37,10 @@ class GlobalConfigMarage extends React.Component<Props,State> {
   }
 
   onOk () {
+    if (this.props.disabled) {
+      message.warn("您没有操作权限！")
+      return
+    }
     if (!this.state.selectedRowKeys.length) {
       message.warn("请选择数据，再来添加！")
       return

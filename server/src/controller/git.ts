@@ -1,4 +1,4 @@
-import { BranchUpdateDocInfo, GitInfoBranch, GitList, UpdateGitStatus, VersionUpdateDocInfo } from './../types/git';
+import { BranchUpdateDocInfo, GitList, UpdateGitStatus } from './../types/git';
 import { Router, Response, Request, NextFunction } from 'express'
 import gitService from '../service/git'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -20,7 +20,7 @@ router.get('/remotelist', (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.get('/list', (req: Request, res: Response, next: NextFunction) => {
-  gitService.query()
+  gitService.query(req.session.currentUser.id)
   .then((gitList: GitInstance[]) => {
     res.json(new ApiResult(ResponseStatus.success, gitList))
   })

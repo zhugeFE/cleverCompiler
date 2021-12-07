@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 16:45:34
+ * @LastEditTime: 2021-12-07 14:42:28
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -18,8 +18,8 @@ import styles from "./styles/compileEdit.less"
 import util from '@/utils/utils'
 import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled } from '@ant-design/icons'
 import proxy from "../../../config/proxy"
-import { query } from '@umijs/deps/compiled/express'
 import { download } from '@/utils/download'
+import { publicType } from '@/models/common'
 const socket = SocketIO(proxy.dev['/api/'].target, {transports:["websocket"]})
 
 interface Props extends IRouteComponentProps<{
@@ -131,7 +131,6 @@ class CompileEdit extends React.Component<Props, States> {
     this.initSocket()
     this.getProjectInfo()
     this.getCurrentUser()
-
   }
 
   
@@ -139,14 +138,12 @@ class CompileEdit extends React.Component<Props, States> {
     this.props.dispatch({
       type: "project/getCompileParams",
       callback: (data: ProjectCompileParams[]) => {
- 
         this.setState({
           projectList: data
         })
         if (this.props.location.query.id) {
           this.selectProject(this.props.location.query.id as string)
         }
-       
       }
     })
   }
@@ -211,7 +208,6 @@ class CompileEdit extends React.Component<Props, States> {
       message.warning("信息描述不完整")
       return
     }
-    console.log(compileGit)
     const data = {
       userId: this.props.currentUser?.id,
       projectId,
@@ -292,21 +288,6 @@ class CompileEdit extends React.Component<Props, States> {
     socket.emit("pack", data)
   }
   render() {
-    const publicType = [
-      {
-        id: 0,
-        text: "发布到git"
-      },
-      {
-        id: 1,
-        text: "下载"
-      },
-      {
-        id: 3,
-        text: "自动"
-      }
-    ]
-
     if (!this.state.projectList) {
       return <Spin>正在路上</Spin>
     }
@@ -338,7 +319,7 @@ class CompileEdit extends React.Component<Props, States> {
                   <Radio.Group onChange={this.onRadioChange} defaultValue={this.state.publicType}>
                     {
                       publicType.map( item => {
-                        return <Radio key={item.id} value={item.id}>{item.text}</Radio>
+                        return <Radio key={item.value} value={item.value}>{item.text}</Radio>
                       })
                     }
                   </Radio.Group>
@@ -385,12 +366,12 @@ class CompileEdit extends React.Component<Props, States> {
                     </Tabs>
                  }
                 </Form.Item>
-                <Form.Item label="打包结果">
+                <Form.Item label="打包结果 || 发布结果">
                   <div className={styles.tarResult} ref={this.compileTagRef}>
                     {
                       this.state.compileResult.length ?
                       this.state.compileResult.map((item,index) => <p key={index}>{item}</p>)
-                      : "暂未开始打包"
+                      : "暂未开始打包或发布"
                     }
                   </div>
                 </Form.Item>

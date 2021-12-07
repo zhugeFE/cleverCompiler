@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 17:41:45
+ * @LastEditTime: 2021-12-06 14:30:53
  */
 import { TemplateGlobalConfig } from "@/models/template";
 import { ColumnProps  } from "antd/lib/table";
@@ -21,6 +21,7 @@ import GlobalConfigMarage from "./globalConfigMarage";
 
 
 export interface Props {
+  disabled?: boolean;
   globalConfigList: TemplateGlobalConfig[];
   onUpdateConfigHidden(data: string[]): void;
   onUpdateConfig (config: TemplateGlobalConfig): void;
@@ -127,7 +128,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           title: '操作',
           render: (value: any, record: TemplateGlobalConfig) => {
             return (
-              <Button onClick={this.onEdit.bind(this, record)}>编辑</Button>
+              <Button onClick={this.onEdit.bind(this, record)} disabled={this.props.disabled}>编辑</Button>
             );
           },
         },
@@ -153,6 +154,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           }
           <GlobalConfigMarage
             visible={this.state.showGlobalConfigMarage}
+            disabled={this.props.disabled}
             dataSource={
               this.filterSourceData(this.props.globalConfigList, 1)
             }

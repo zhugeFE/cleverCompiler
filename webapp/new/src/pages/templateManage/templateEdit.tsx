@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 16:58:57
+ * @LastEditTime: 2021-12-07 14:20:08
  */
 
 import { connect } from 'dva';
@@ -12,8 +12,8 @@ import React from 'react';
 import styles from './styles/templateEdit.less';
 import { withRouter } from 'react-router';
 import { IRouteComponentProps } from '@umijs/renderer-react';
-import { Dispatch, GitInfo, GitInfoBranch, GitInstance, GitVersion } from '@/.umi/plugin-dva/connect';
-import { Button, Progress, Spin, Tabs, Tag, Tooltip } from 'antd';
+import { Dispatch, GitInfo, GitInfoBranch, GitVersion } from '@/.umi/plugin-dva/connect';
+import { Button, Progress, Radio, RadioChangeEvent, Spin, Tabs, Tag, Tooltip } from 'antd';
 import {
   ChangeGitVersionParams,
   TemplateConfig,
@@ -33,7 +33,7 @@ import TemplateConfigPanel from './templateConfig';
 import CreateTemplateVersion from './createTemplateVersion';
 import TemplateAddGlobalConfig from './addTemplateGlobalConfig';
 import TemplateGlobalConfigComponent from './templateGlobalConfig';
-import { VersionStatus } from '@/models/common';
+import { publicType, VersionStatus } from '@/models/common';
 
 export interface TemplateEditProps
   extends IRouteComponentProps<{
@@ -54,6 +54,7 @@ interface State {
   currentGitId: string;
   currentBranch: GitInfoBranch | null;
   gitInfo: GitInfo | null;
+  publicType: number;
 }
 
 class TemplateEdit extends React.Component<TemplateEditProps, State> {
@@ -69,7 +70,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       delTooltip: '',
       currentGitId: "",
       updateTimeout: 0,
-      gitInfo: null
+      gitInfo: null,
+      publicType: 2,
     };
 
     this.afterUpdateGlobalConfigStatus = this.afterUpdateGlobalConfigStatus.bind(this)
@@ -90,6 +92,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.afterDelGit = this.afterDelGit.bind(this);
     this.onChangeGit = this.onChangeGit.bind(this);
     this.afterSelectGitVersion = this.afterSelectGitVersion.bind(this)
+    this.onRadioChange = this.onRadioChange.bind(this)
   }
 
 
@@ -97,7 +100,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     const id = this.props.match.params.id;
 
     this.getGitList()
-
     if (id != 'createTemplate') {
       this.getTemplateInfo(id)
     }
@@ -199,6 +201,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
         const {currentVersion} = this.state
         const param: UpdateTemplateVersion = {
           id: currentVersion!.id,
+          publicType: currentVersion!.publicType,
           readmeDoc: currentVersion!.readmeDoc,
           buildDoc: currentVersion!.buildDoc,
           updateDoc: currentVersion!.updateDoc,
@@ -535,7 +538,21 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       }
     })
   }
-
+  onRadioChange (e: RadioChangeEvent) {
+    const version = util.clone(this.state.currentVersion)
+    version!.publicType = e.target.value
+    const template = util.clone(this.state.templateInfo)
+    template?.versionList.forEach( (item, index) => {
+      if (item.id == version?.id) {
+        template.versionList[index] = version
+      }
+    })
+    this.setState({
+      templateInfo: template,
+      currentVersion: version
+    })
+    this.onUpdateVersion()
+  }
   render() {
     const labelWidth = 75;
     if (!this.state.templateInfo && this.props.match.params.id != 'createTemplate') {
@@ -659,6 +676,19 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
 
                 </Description>
 
+                <Description
+                  label='发布方式'
+                  labelWidth={labelWidth}
+                >
+                 <Radio.Group onChange={this.onRadioChange} defaultValue={this.state.publicType}>
+                    {
+                      publicType.map( item => {
+                        return <Radio key={item.value} value={item.value}>{item.text}</Radio>
+                      })
+                    }
+                  </Radio.Group>
+                </Description>
+                
                 <Tabs defaultActiveKey="readme" style={{ margin: '10px 0 10px 85px' }}>
                   <Tabs.TabPane tab="使用文档" key="readme">
                     {

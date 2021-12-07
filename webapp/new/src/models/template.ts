@@ -5,13 +5,13 @@ import { download } from '@/utils/download';
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 17:49:01
+ * @LastEditTime: 2021-12-07 14:19:33
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
 import templateService from '@/services/template';
 import util from '@/utils/utils';
-import { Version } from './common';
+import { Version, publicType } from './common';
 
 
 
@@ -79,6 +79,7 @@ export interface TemplateVersion extends Version{
   templateId: string ; //模板版本id
   description: string; //模板版本描述
   version: string; //模板版本号
+  publicType: number;
   gitList: TemplateVersionGit[]; //配置项
   globalConfigList: TemplateGlobalConfig[]; //全局配置项
 }
@@ -152,6 +153,7 @@ export interface UpdateTemplateVersion {
   readmeDoc: string; //介绍文档
   buildDoc: string; //部署文档
   updateDoc: string; //更新文档
+  publicType: number;
 }
 
 export interface TemplateGlobalConfig {
@@ -172,6 +174,7 @@ export interface ChangeGitVersionParams {
   gitSourceVersionId: string;
   configList: CreateTemplateConfig[];
 }
+
 export interface CreateTemplateConfig {
   templateId: string; //模板id
   templateVersionId: string; //模板版本id
@@ -203,6 +206,7 @@ export type TemplateModelType = {
   state: TemplateModelState;
   effects: {
     query: Effect;
+    uquery: Effect;
     getInfo: Effect;
     getTemplateVersionInfo: Effect;
     getVersionUpdateInfo: Effect;
@@ -239,6 +243,14 @@ const TemplateModel: TemplateModelType = {
   effects: {
     *query (_ , {put , call}){
       const res = yield call(templateService.queryTemplateList)
+      if (res.status === -1)return
+      yield put({
+        type: "setList",
+        payload: res.data
+      })
+    },
+    *uquery (_ , {put , call}){
+      const res = yield call(templateService.uqueryTemplateList)
       if (res.status === -1)return
       yield put({
         type: "setList",

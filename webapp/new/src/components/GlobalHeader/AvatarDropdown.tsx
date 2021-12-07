@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-11-05 20:08:04
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-12-06 11:00:00
+ */
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Menu, Spin } from 'antd';
 import React from 'react';
@@ -20,6 +28,7 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
     item: React.ReactInstance;
     domEvent: React.MouseEvent<HTMLElement>;
   }) => {
+
     const { key } = event;
 
     if (key === 'logout') {
@@ -27,7 +36,7 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
 
       if (dispatch) {
         dispatch({
-          type: 'login/logout',
+          type: 'user/logout',
         });
       }
 

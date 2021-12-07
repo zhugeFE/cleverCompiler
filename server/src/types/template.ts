@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 17:48:18
+ * @LastEditTime: 2021-12-07 15:11:36
  */
 import { Version } from "./common";
 
@@ -48,10 +48,10 @@ export interface TemplateVersion extends Version{
   templateId: string ; //模板版本id
   description: string; //模板版本描述
   version: string; //模板版本号
+  publicType: number;
   gitList: TemplateVersionGit[]; //配置项
   globalConfigList?: TemplateGlobalConfig[]; //全局配置项
 }
-
 
 export interface CreateTemplateVersionParams {
   templateId: string ; //模板id
@@ -60,7 +60,6 @@ export interface CreateTemplateVersionParams {
   version: string; //模板版本号
   versionDescription: string; //版本描述
 }
-
 
 export interface CreateTemplateVersionGitParams {
   templateId: string; //模板id

@@ -1,10 +1,11 @@
+import { SysInfo } from './../types/sys';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-11-16 14:13:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 16:03:20
+ * @LastEditTime: 2021-12-07 15:45:44
  */
 
 import * as Socket from "socket.io";
@@ -22,6 +23,7 @@ import SocketLogge from "./socketLogger";
 import { SocketEventNames } from "./workFlowUtil";
 import GitService from "../service/compile";
 import util from "./util";
+import sys from "../middleware/sys";
 
 class SocketUtil{
   server
@@ -45,7 +47,7 @@ class SocketUtil{
        
         const compileInfo: ProjectInfo = await ProjectService.projectCompileInfo(ctx.projectId)
         const gitInfo: CompileGitParams[] = await ProjectService.getCompileGitData(ctx['gitIds'])
-  
+        const sysInfo: SysInfo = await ProjectService.getSysInfo()
         const compileList: CompileConfig[] = []
         
         const globalConfigMap = {}
@@ -90,11 +92,52 @@ class SocketUtil{
           const result = await new Compile(workDir).start(socket, item)
           SocketLogge(socket, SocketEventNames.compileStatus, item.gitName, result ? "success" : "fails")
           compileResult.push( `项目：${item.gitName} ===》 编译 ${result}`)
-        } 
+        }
+
+        if (ctx.publicType == 0) {
+          const gitData = []
+
+          for ( const id of ctx.gitIds) {
+            const data = await GitService.getGitData(id) 
+            logger.info(data)
+            gitData.push( data)
+          }
+          
+          await new WorkFlowUtil(workDir).publiceToGit(socket, sysInfo.gitAccount, gitData, ctx.description, (message: string) => {
+            compileResult.push(message)
+          })
+        }
+        
+        if (ctx.publicType == 1) {
+          const gitData = []
+
+          for ( const id of ctx.gitIds) {
+            const data = await GitService.getGitData(id) 
+            logger.info(data)
+            gitData.push( data)
+          }
+
+          const doc = await GitService.getTemplateDoc(ctx.projectId)
+          // 根据id 查询git 打包目录
+          SocketLogge(socket, SocketEventNames.result,'result','Step: 开始执行打包。。。。')
+          const fileName = util.createFileName(ctx.userId)
+          //传入 publicDoc， buildDoc， updateDoc
+          const res = await new WorkFlowUtil(workDir).tarAndOutput(socket, fileName, gitData, doc ,ctx.publicType)
+          compileResult.push(res ? "打包成功" : "打包失败")
+          compileInstance.file =  res ? fileName : ""
+          SocketLogge(socket, SocketEventNames.result,'result',`Step: ${res ? "打包成功" : "打包失败"}`)
+          SocketLogge(socket, SocketEventNames.download,'download',fileName)
+        }
+
+        if (ctx.publicType == 2) {
+          console.log(12);
+          
+        }
 
         compileInstance.compileResult = JSON.stringify(compileResult)
   
         CompileDao.updateProjectCompile(compileInstance)
+
   
       })
   
