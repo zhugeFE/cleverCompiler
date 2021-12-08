@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 14:42:28
+ * @LastEditTime: 2021-12-08 14:38:52
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -337,7 +337,7 @@ class CompileEdit extends React.Component<Props, States> {
                 <Form.Item label="编译结果" className={styles.tabsForm}>
                  {
                   !this.state.compileGit.length ? (
-                    <div style={{background: "#fff", padding: 20,}}>暂未开始编译</div>) : 
+                    <div className={styles.tarResult}>暂未开始编译</div>) : 
                     <Tabs tabPosition="left">
                       {
                         this.state.compileGit.map( item => {
@@ -377,7 +377,7 @@ class CompileEdit extends React.Component<Props, States> {
                 </Form.Item>
                 <Form.Item label="操作">
                   <Button type="primary" style={{marginRight:10}} onClick={this.onClickCompile}>编译</Button>
-                  <Button type="primary"  style={{marginRight:10}} onClick={this.onPack}>打包</Button>
+                  {/* <Button type="primary"  style={{marginRight:10}} onClick={this.onPack}>打包</Button> */}
                   {
                     this.state.downloadAddr && 
                     <Button 

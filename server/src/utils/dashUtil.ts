@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 15:14:42
+ * @LastEditTime: 2021-12-08 10:28:50
  */
 import * as childProcess from 'child_process'
 import * as _ from 'lodash';
@@ -12,7 +12,6 @@ import logger from './logger';
 import * as path from 'path';
 import fsUtil from './fsUtil';
 import SocketLogge from './socketLogger';
-import { SocketEventNames } from './workFlowUtil';
 class DashUtil {
   workdir: string
 
@@ -20,11 +19,11 @@ class DashUtil {
     this.workdir = workdir
   }
 
-  async cd (originPath: string, socket?, gitName?: string): Promise <void> {
+  async cd (originPath: string, socket?, socketEvent?, gitName?: string): Promise <void> {
     return new Promise( (resolve, reject) => {
       const dir = path.resolve(this.workdir, originPath)
       if (socket) {
-        SocketLogge(socket, SocketEventNames.compileMessage, gitName, `检测 ${dir} 路径是否存在`)
+        SocketLogge(socket, socketEvent, gitName, `检测 ${dir} 路径是否存在`)
       } else {
         logger.info(`检测 ${dir} 路径是否存在`)
       }
@@ -32,7 +31,7 @@ class DashUtil {
       .then((exist: boolean) => {
         if (exist) {
           this.workdir = dir
-          if (socket) SocketLogge(socket, SocketEventNames.compileMessage, gitName, `cd ${dir} `)
+          if (socket) SocketLogge(socket, socketEvent, gitName, `cd ${dir} `)
           resolve()
           return
         }
@@ -42,12 +41,13 @@ class DashUtil {
   }
   exec (command: string, 
     socket?,
+    socketEvent?,
     gitName?: string,
     onData?: (data: string) => void): Promise<void> {
     
     return new Promise((resolve, reject) => {
       logger.info(`exec command: ${command}`)
-      if (socket) SocketLogge(socket,SocketEventNames.compileMessage, gitName, `exec command: ${command} , path===> ${this.workdir}`)
+      if (socket) SocketLogge(socket,socketEvent, gitName, `exec command: ${command} , path===> ${this.workdir}`)
       // const arr = command.split(/\s+/)
       // const c = arr[0]
       // const args = arr.length > 1 ? arr.slice(1, arr.length) : []
@@ -59,7 +59,7 @@ class DashUtil {
       }, err => {
         if (err) {
           if( socket) {
-            SocketLogge(socket,SocketEventNames.compileMessage, gitName, err.message)
+            SocketLogge(socket,socketEvent, gitName, err.message)
           }else {
             logger.error(`命令行(${command})执行异常: ${err.message}`)
           }
@@ -79,14 +79,14 @@ class DashUtil {
       p.stdout.on('data', (chunk) => {
         if (onData) onData(chunk.toString())
         if (socket) {
-          SocketLogge(socket,SocketEventNames.compileMessage, gitName, chunk.toString())
+          SocketLogge(socket,socketEvent, gitName, chunk.toString())
         } else {
           logger.info('command stdout >>>>', chunk.toString())
         }
       })
       p.stderr.on('data', chunk => {
         if (socket) {
-          SocketLogge(socket,SocketEventNames.compileMessage, gitName, chunk.toString())
+          SocketLogge(socket,socketEvent, gitName, chunk.toString())
         } else {
           logger.error('command stderr >>>>', chunk.toString())
         }

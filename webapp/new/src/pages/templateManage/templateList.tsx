@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 16:56:34
+ * @LastEditTime: 2021-12-07 19:27:14
  */
 import { Table, Button, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -163,7 +163,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         width: 250,
         ellipsis: true,
         render(text: string, record: TemplateInstance) {
-          return <div> {text || '-' || record.name} </div>;
+          return text || '-' || record.name
         },
       },
       {
@@ -172,7 +172,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         width: "20%",
         ellipsis: true,
         render(text: string, record: TemplateInstance) {
-          return <div> {text || '-' || record.description} </div>;
+          return text || '-' || record.description
         },
       },
       {
@@ -192,7 +192,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         // defaultSortOrder: 'descend',
         sorter: (a, b) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
         render(text: string) {
-          return <div>{util.dateTimeFormat(new Date(text)) || '-'}</div>;
+          return util.dateTimeFormat(new Date(text)) || '-'
         },
       },
       {

@@ -6,7 +6,7 @@ import util from '@/utils/utils';
 
 
 export interface GitList {
-  id: string;
+  id: number;
   name: string;
 }
 
@@ -56,7 +56,6 @@ export interface GitVersion extends Version{
   sourceValue: string;
   publicType: number;
   publicGit: number;
-  publicBranch: string;
   compileOrders: string[]; // 编译命令组
   configs: GitConfig[];
   outputName: string;
@@ -128,7 +127,6 @@ export interface GitUpdateVersionParam {
   updateDoc: string;
   outputName: string;
   publicGit: number;
-  publicBranch: string;
   publicType: number;
 }
 export type GitModelState = {

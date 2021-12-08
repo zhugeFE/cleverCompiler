@@ -117,12 +117,7 @@ class GitList extends React.Component<GitListProps, State> {
         width: 300,
         ellipsis: true,
         render (text, record: GitInstance) {
-          return (
-            <div>
-              <div>{text}</div>
-              <div>{record.description}</div>
-            </div>
-          )
+          return text
         }
       },
       {

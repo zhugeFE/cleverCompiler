@@ -12,7 +12,7 @@ import * as _ from 'lodash';
 import redisClient from '../utils/redis';
 import config from '../config';
 import { PoolConnection } from 'mysql';
-interface Repo {
+export interface Repo {
   id: string;
   name: string;
   'ssh_url_to_repo': string;
@@ -55,6 +55,8 @@ class GitDao {
     client.close()
     return gitListInfo
   }
+
+
   
   async getBranchsById (id: string | number): Promise<GitBranch[]> {
     const res = await gitUtil.ajax<GitBranch[]>(`projects/${id}/repository/branches`, 'GET')
@@ -217,9 +219,9 @@ class GitDao {
           data: Repo;
         }
         const sql = `
-          INSERT INTO git_source ( id, \`NAME\`, git, git_id, description, \`ENABLE\` )
+          INSERT INTO git_source ( id, \`NAME\`, git, git_id, description, \`ENABLE\`,creator_id )
           VALUES
-            (?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?)
         `
         gitId = util.uuid() //编译平台里的gitid
         await pool.writeInTransaction(connect, sql, [
@@ -228,16 +230,17 @@ class GitDao {
           res.data.ssh_url_to_repo,
           res.data.id,
           res.data.description,
-          true
+          true,
+          creatorId
         ])
       }
       //需新建分支
       let branchId = param.branchId
       const createBranchSql = `INSERT INTO source_branch(id, name, description, create_time, source_id, creator) VALUES(?,?,?,?,?,?)`
       const createVersionSql = `INSERT INTO source_version ( id, source_id, version, branch_id,
-        description, publish_time, status, compile_orders, source_type, source_value, creator_id,output_name, public_type, public_git, public_branch )
+        description, publish_time, status, compile_orders, source_type, source_value, creator_id,output_name, public_type, public_git )
       VALUES
-        ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 
       if (branchId == "") {
         branchId = util.uuid()
@@ -269,8 +272,7 @@ class GitDao {
           creatorId,
           lastVersionInfo ? lastVersionInfo.outputName : '',
           lastVersionInfo ? lastVersionInfo.publicType : 1,
-          lastVersionInfo ? lastVersionInfo.publicGit : null,
-          lastVersionInfo ? lastVersionInfo.publicBranch : ''
+          lastVersionInfo ? lastVersionInfo.publicGit : null
           ])
         if (lastVersionInfo) {
           await Promise.all(lastVersionInfo.configs.map(config => {

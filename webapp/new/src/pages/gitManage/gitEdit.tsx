@@ -1,6 +1,6 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
-import { Version, VersionStatus } from '@/models/common'
+import { VersionStatus } from '@/models/common'
 import { GitBranch, GitConfig, GitInfo, GitInfoBranch, GitList, GitUpdateVersionParam, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import * as _ from 'lodash'
@@ -34,9 +34,7 @@ interface State {
   delTooltip: string;
 
   gitList: GitList[] | null;
-  branchList: GitBranch[] ;
   queryGitData: boolean;
-  queryBranchData: boolean;
 }
 
 class GitEdit extends React.Component<GitEditProps, State> {
@@ -53,9 +51,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
       delTooltip: '',
 
       gitList: null,
-      branchList: [],
       queryGitData: false,
-      queryBranchData: false,
     }
 
     this.onCancelConfig = this.onCancelConfig.bind(this)
@@ -74,7 +70,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onChangeOutputName = this.onChangeOutputName.bind(this)
     this.onDeleteBranch = this.onDeleteBranch.bind(this)
     this.selectPubliceGit = this.selectPubliceGit.bind(this)
-    this.selectPubliceGitBranch = this.selectPubliceGitBranch.bind(this)
     this.onRadioChange = this.onRadioChange.bind(this)
   }
 
@@ -101,9 +96,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
           currentBranch,
           currentVersion
         }) 
-        this.getBranchList(currentVersion.publicGit)
         this.initDelInterval(currentVersion)   
-
       }
     })
   }
@@ -217,7 +210,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
           id: currentVersion!.id,
           outputName: currentVersion!.outputName,
           publicGit: currentVersion?.publicType == 0 ? currentVersion!.publicGit : 0,
-          publicBranch: currentVersion?.publicType == 0 ? currentVersion!.publicBranch : "",
           publicType: currentVersion!.publicType,
           compileOrders: JSON.stringify(currentVersion!.compileOrders),
           readmeDoc: currentVersion!.readmeDoc,
@@ -489,24 +481,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
-  getBranchList (id: number) {
-    this.setState({
-      queryBranchData: true
-    })
-    this.props.dispatch({
-      type: 'git/queryBranchs',
-      payload: id,
-      callback: (list: GitBranch[]) => {
-        this.setState({
-          branchList: list,
-          queryBranchData: false,
-        })
-      }
-    })
-  }
 
   selectPubliceGit (id: number) {
-    this.getBranchList(id)
     const version = util.clone(this.state.currentVersion)
     const branch = util.clone(this.state.currentBranch)
     version!.publicGit = id
@@ -525,28 +501,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
       currentVersion: version,
       currentBranch: branch,
       gitInfo
-    })
-    this.onUpdateVersion()
-  }
-  selectPubliceGitBranch (name: string) {
-    const version = util.clone(this.state.currentVersion)
-    const branch = util.clone(this.state.currentBranch)
-    version!.publicBranch = name
-    branch?.versionList.forEach( (item, i) => {
-      if (item.id === version?.id) {
-        branch.versionList[i] = version
-      }
-    })
-    const gitInfo = util.clone(this.state.gitInfo)
-    gitInfo?.branchList.forEach((item, i) => {
-      if (item.id === branch?.id) {
-        gitInfo.branchList[i] = branch
-      }
-    })
-    this.setState({
-      gitInfo,
-      currentVersion: version,
-      currentBranch: branch
     })
     this.onUpdateVersion()
   }
@@ -714,20 +668,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
                           <Select.Option key='1' value="1"><Skeleton active></Skeleton> </Select.Option>:
                           this.state.gitList?.map(item => {
                             return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
-                          })
-                        }
-                      </Select>
-                      <Select 
-                        style={{width:150, marginLeft:10}} 
-                        onChange={this.selectPubliceGitBranch} 
-                        placeholder="选择发布分支"
-                        value={this.state.currentVersion.publicBranch}
-                        disabled={this.state.currentVersion?.status != VersionStatus.normal}>
-                        {
-                          this.state.queryBranchData ? 
-                          <Select.Option key='1' value="1"><Skeleton active></Skeleton> </Select.Option>:
-                          this.state.branchList.map(item => {
-                            return <Select.Option key={item.name} value={item.name}>{item.name}</Select.Option>
                           })
                         }
                       </Select>

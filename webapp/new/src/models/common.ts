@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:58:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 11:32:19
+ * @LastEditTime: 2021-12-07 19:53:08
  */
 export enum VersionStatus {
   deprecated = 0, // 已废弃
@@ -84,14 +84,10 @@ export const compileType = [
 export const publicType = [
   {
     value: 0,
-    text: "发布到git"
+    text: "全部下载"
   },
   {
     value: 1,
-    text: "下载"
-  },
-  {
-    value: 2,
     text: "自动"
   }
 ]

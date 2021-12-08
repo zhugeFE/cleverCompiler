@@ -1,10 +1,11 @@
+import { SysInfo } from './../types/sys';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 16:08:18
+ * @LastEditTime: 2021-12-08 15:39:08
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -15,6 +16,8 @@ import FsUtil from './fsUtil';
 import logger from './logger';
 import SocketLogge from './socketLogger';
 import fsUtil from './fsUtil';
+import axios from 'axios';
+import { Repo } from '../dao/git';
 
 export const SocketEventNames  = {
   compileMessage: 'compileMessage',
@@ -52,33 +55,35 @@ class WorkFlow {
     const srcRepoDir =  path.join( this.workDir , sourceName )
     const exist = await FsUtil.pathExist(srcRepoDir)
     if (exist) {
-      await dashUtil.cd(sourceName, socket, sourceName)
+      await dashUtil.cd(sourceName, socket, SocketEventNames.compileMessage,  sourceName)
     }
     else {
       SocketLogge(socket, SocketEventNames.compileMessage , sourceName, `Step: 克隆源码仓库 ${sourceName}`)
-      await dashUtil.exec(`git clone ${sourceSsh}`, socket, sourceName)
-      await dashUtil.cd(sourceName, socket, sourceName)
-      await dashUtil.exec(`git pull`, socket, sourceName)
+      await dashUtil.exec(`git clone ${sourceSsh}`, socket,SocketEventNames.compileMessage, sourceName)
+      await dashUtil.cd(sourceName, socket,SocketEventNames.compileMessage, sourceName)
+      await dashUtil.exec(`git pull`, socket,SocketEventNames.compileMessage, sourceName)
     }
     // 此处由于可能存在未提交的新建分支，此处可能存在异常，需要单独处理 回退到上一次成功的点
-    await dashUtil.exec(`git reset --hard FETCH_HEAD`, socket, sourceName).catch( err => {
+    await dashUtil.exec(`git reset --hard FETCH_HEAD`, socket,SocketEventNames.compileMessage, sourceName).catch( err => {
       SocketLogge(socket, SocketEventNames.compileMessage, sourceName, err.message)
     })
     let currentRemoteBranchName: string
-    await dashUtil.exec(`git branch -r`, socket,sourceName, (data: string) =>{
-      currentRemoteBranchName = data.split('\n')[0].split('->')[1].split('/')[1] 
+    await dashUtil.exec(`git branch -r`, socket,SocketEventNames.compileMessage,sourceName, (data: string) =>{
+      logger.info(data)
+      const reg = new RegExp("origin/HEAD -> (.*?)\\n")
+      currentRemoteBranchName = reg.exec(data)[1].split('/')[1] 
     })
     SocketLogge(socket, SocketEventNames.compileMessage, sourceName, `当前仓库${sourceName}---分支${currentRemoteBranchName}`)
     //删除没有git add的文件和目录
-    await dashUtil.exec(`git clean -df`, socket, sourceName)
-    await dashUtil.exec(`git checkout ${currentRemoteBranchName}`, socket, sourceName)
-    await dashUtil.exec(`git fetch`, socket, sourceName)
-    await dashUtil.exec(`git reset --hard FETCH_HEAD`, socket, sourceName)
+    await dashUtil.exec(`git clean -df`, socket,SocketEventNames.compileMessage, sourceName)
+    await dashUtil.exec(`git checkout ${currentRemoteBranchName}`, socket,SocketEventNames.compileMessage, sourceName)
+    await dashUtil.exec(`git fetch`, socket,SocketEventNames.compileMessage, sourceName)
+    await dashUtil.exec(`git reset --hard FETCH_HEAD`, socket,SocketEventNames.compileMessage, sourceName)
     //删除非main以外的其它分支
-    await dashUtil.exec(`git branch | grep -v "^[*| ]*${currentRemoteBranchName}$" | xargs git branch -D`, socket, sourceName).catch( err => {
+    await dashUtil.exec(`git branch | grep -v "^[*| ]*${currentRemoteBranchName}$" | xargs git branch -D`, socket,SocketEventNames.compileMessage, sourceName).catch( err => {
       SocketLogge(socket, SocketEventNames.compileMessage, sourceName, err.message)
     })
-    await dashUtil.exec(`git pull`, socket, sourceName)
+    await dashUtil.exec(`git pull`, socket,SocketEventNames.compileMessage, sourceName)
     if (sourceValue !== currentRemoteBranchName) {
       let cmdStr = `git checkout `
       switch (sourceType) {
@@ -95,7 +100,7 @@ class WorkFlow {
           break;
         }
       }
-      await dashUtil.exec(cmdStr, socket, sourceName).then( () => {
+      await dashUtil.exec(cmdStr, socket,SocketEventNames.compileMessage, sourceName).then( () => {
         SocketLogge(socket, SocketEventNames.compileMessage, sourceName, `初始化源码仓库 执行完毕`)
       })
     } else {
@@ -148,15 +153,15 @@ class WorkFlow {
 
   async runCompile (socket, gitName: string, buildCommand: string[]): Promise<void> {
     const dashUtil = new DashUtil(this.workDir)
-    await dashUtil.cd(gitName, socket, gitName).catch(err => {throw(err)})
+    await dashUtil.cd(gitName, socket,SocketEventNames.compileMessage, gitName).catch(err => {throw(err)})
     SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 开始执行编译动作`)
     try{
       for (const cmd of buildCommand) {
         logger.info(`Step: 正在执行 =》 ${cmd}`)
         if (cmd.split(" ")[0] == 'cd') {
-          await dashUtil.cd( cmd.split(" ")[1], socket, gitName)
+          await dashUtil.cd( cmd.split(" ")[1], socket,SocketEventNames.compileMessage, gitName)
         } else{
-          await dashUtil.exec(`${cmd}`, socket, gitName)
+          await dashUtil.exec(`${cmd}`, socket,SocketEventNames.compileMessage, gitName)
         }
       }
     } catch(e) {
@@ -166,28 +171,88 @@ class WorkFlow {
     }
   }
   
-  async publiceToGit (socket, email: string, gitData: CompileGitData[], description: string, callback: (message: string) => void): Promise<void> {
+  async publiceToGit (socket, sysInfo: SysInfo, gitData: CompileGitData[], customerName: string, description: string, callback: (message: string) => void): Promise<void> {
     for(const item of gitData){
       try {
-        const fileDir =  `${item.name}${item.outputName}`
+        const res = await axios({
+          url: `api/v3/projects/${item.publicGit}`,
+          method: 'GET',
+          baseURL: sysInfo.gitHost,
+          headers: {
+            'PRIVATE-TOKEN': sysInfo.gitToken
+          }
+        }) as {
+          data: Repo;
+        }
+        await this.initPublishRepoDir(socket, res.data.ssh_url_to_repo, res.data.name, customerName)
+        const fileDir =  path.resolve(this.workDir, `${item.name}${item.outputName}`)
+        const publichRepo = path.resolve(this.workDir, res.data.name)
         SocketLogge(socket, SocketEventNames.result, 'result', `Step: 执行${item.name}代码发布动作`)
         const cmds = [
-          `git checkout -b ${item.publicBranch}`,
-          `git config --local user.email "${email}"`,
+          `git checkout ${customerName}`,
+          `cp -rf ${fileDir} ${publichRepo}`,
+          `git config --local user.email "${sysInfo.gitAccount}"`,
           `git add --all`,
           `git commit -m "${description}"`,
-          `git push origin ${item.publicBranch}`
+          `git push origin ${customerName}`
         ]
-        const dashUtil =  new DashUtil(path.resolve(this.workDir, fileDir))
+        const dashUtil =  new DashUtil(publichRepo)
         for (const cmd of cmds) {
-          await dashUtil.exec(cmd)
+          await dashUtil.exec(cmd, socket,SocketEventNames.result, 'result')
         }
-        callback(`发布到git${item.publicGit}-${item.publicBranch}成功`)
+        callback(`发布到git${item.publicGit}-${customerName}成功`)
       }
       catch (e) {
         SocketLogge(socket, SocketEventNames.result, 'result', `Step: 发布到git失败 info:${e.message.toString()}`)
-        callback(`发布到git${item.publicGit}-${item.publicBranch}失败`)
+        callback(`发布到git${item.publicGit}-${customerName}失败`)
       }
+    }
+  }
+
+  async initPublishRepoDir (socket, sshHost: string, sourceName: string, sourceValue: string): Promise<void> {
+    //初始化发布仓库
+
+    const dashUtil = new DashUtil(this.workDir)
+    SocketLogge(socket, SocketEventNames.result, 'result', `Step: 初始化发布仓库 ${sourceName}`)
+    const srcRepoDir =  path.join( this.workDir , sourceName )
+    const exist = await FsUtil.pathExist(srcRepoDir)
+    if (exist) {
+      await dashUtil.cd(sourceName, socket,SocketEventNames.result, 'result')
+    }
+    else {
+      SocketLogge(socket, SocketEventNames.result , 'result', `Step: 克隆源码仓库 ${sourceName}`)
+      await dashUtil.exec(`git clone ${sshHost}`, socket,SocketEventNames.result, 'result')
+      await dashUtil.cd(sourceName, socket,SocketEventNames.result, 'result')
+      await dashUtil.exec(`git pull`, socket,SocketEventNames.result, 'result')
+    }
+    // 此处由于可能存在未提交的新建分支，此处可能存在异常，需要单独处理 回退到上一次成功的点
+    await dashUtil.exec(`git reset --hard FETCH_HEAD`, socket,SocketEventNames.result, 'result').catch( err => {
+      SocketLogge(socket, SocketEventNames.result, 'result', err.message)
+    })
+    let currentRemoteBranchName: string
+    await dashUtil.exec(`git branch -r`, socket,SocketEventNames.result,'result', (data: string) =>{
+      logger.info(data)
+      const reg = new RegExp("origin/HEAD -> (.*?)\\n")
+      currentRemoteBranchName = reg.exec(data)[1].split('/')[1] 
+    })
+    SocketLogge(socket, SocketEventNames.result, 'result', `当前仓库${sourceName}---分支${currentRemoteBranchName}`)
+    //删除没有git add的文件和目录
+    await dashUtil.exec(`git clean -df`, socket,SocketEventNames.result, 'result')
+    await dashUtil.exec(`git checkout ${currentRemoteBranchName}`, socket, SocketEventNames.result,'result')
+    await dashUtil.exec(`git fetch`, socket,SocketEventNames.result, 'result')
+    await dashUtil.exec(`git reset --hard FETCH_HEAD`, socket,SocketEventNames.result, 'result')
+    //删除非main以外的其它分支
+    await dashUtil.exec(`git branch | grep -v "^[*| ]*${currentRemoteBranchName}$" | xargs git branch -D`, socket,SocketEventNames.result, 'result').catch( err => {
+      SocketLogge(socket, SocketEventNames.result, 'result', err.message)
+    })
+    await dashUtil.exec(`git pull`, socket,SocketEventNames.result, 'result')
+    if (sourceValue !== currentRemoteBranchName) {
+      const cmdStr = `git checkout ${sourceValue} `
+      await dashUtil.exec(cmdStr, socket,SocketEventNames.result, 'result').then( () => {
+        SocketLogge(socket, SocketEventNames.result, 'result', `初始化源码仓库 执行完毕`)
+      })
+    } else {
+      SocketLogge(socket, SocketEventNames.result, 'result', `初始化源码仓库 执行完毕`)
     }
   }
 
@@ -197,7 +262,7 @@ class WorkFlow {
     const tmpPath = path.resolve(this.workDir, "tmp")
     const exist = await fsUtil.pathExist(tmpPath)
     if (exist){
-      await new DashUtil(tmpPath).exec('rm -rf ./*', socket, 'result')
+      await new DashUtil(tmpPath).exec('rm -rf ./*', socket,SocketEventNames.result, 'result')
     }
     await fsUtil.mkdir(tmpPath)
 
@@ -230,36 +295,13 @@ class WorkFlow {
 
       SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始打包文件`)
       
-      await new DashUtil(tmpPath).exec(`tar czvf ${savePath} ./`, socket, 'result')
+      await new DashUtil(tmpPath).exec(`tar czvf ${savePath} ./`, socket,SocketEventNames.result, 'result')
 
       return true
     } catch(err) {
       SocketLogge(socket, SocketEventNames.result,'result',`打包失败：${err.message}`)
       return false
     }
-  }
-
-  async tarAndOutput (socket, fileName: string, gitData: CompileGitData[], doc: CompileDoc, publicType: number): Promise<boolean> {
-    /**
-     * 传递 工作路径  git名称 一个或者多个
-     * 
-     * 判断发布类型
-     * 0 发布到git
-     * 1 打包下载 查询模版中的三个文档 根据gitName 数组拼接 需要压缩的文件路径 复制到www文件下 以10位时间戳+6位随机数（100000-999999）+ userID
-     * 2 自动 循环gitName 进行压缩 查询对应git版本的三个文档 
-     * 保存到数据库中  compileId  string[]的 文件路径
-     */
-    let flag = false
-    switch (publicType) {
-      case 0: 
-        break
-      case 1: 
-        flag = await this.pack(socket, fileName, gitData, doc)
-        break
-      case 2:
-        break
-    }
-    return flag
   }
 }
 

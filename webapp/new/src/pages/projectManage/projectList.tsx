@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-06 14:13:58
+ * @LastEditTime: 2021-12-07 19:25:06
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -120,7 +120,7 @@ class ProjectList extends React.Component<Props, States> {
         ellipsis:true,
         width: 100,
         render(text: string, record: ProjectInstance) {
-          return <div> {text || '-' || record.name} </div>;
+          return text || '-' || record.name
         },
       },
       {
@@ -128,7 +128,7 @@ class ProjectList extends React.Component<Props, States> {
         dataIndex: 'compileType',
         width: 50,
         render(text: string) {
-          return <div> {compileType[Number(text)] || '-' } </div>;
+          return compileType[Number(text)] || '-' 
         },
       },
       {
@@ -137,7 +137,7 @@ class ProjectList extends React.Component<Props, States> {
         ellipsis: true,
         width: 60,
         render(text: string) {
-          return <> { text ? util.dateTimeFormat(new Date(text)) : '-'} </>;
+          return text ? util.dateTimeFormat(new Date(text)) : '-'
         },
       },
       {
@@ -146,7 +146,7 @@ class ProjectList extends React.Component<Props, States> {
         ellipsis: true,
         dataIndex: 'lastCompileResult',
         render(text: string, record: ProjectInstance) {
-          return <div> {text || '-' || record.lastCompileResult} </div>;
+          return text || '-' || record.lastCompileResult
         },
       },
       {
@@ -155,7 +155,7 @@ class ProjectList extends React.Component<Props, States> {
         ellipsis: true,
         dataIndex: 'compileUser',
         render(text: string, record: ProjectInstance) {
-          return <div> {text || '-' || record.lastCompileUser} </div>;
+          return text || '-' || record.lastCompileUser
         },
       },
       {
@@ -163,7 +163,7 @@ class ProjectList extends React.Component<Props, States> {
         width: 80,
         dataIndex: 'createTime',
         render(text: string) {
-          return <div> {util.dateTimeFormat(new Date(text)) || '-'} </div>;
+          return util.dateTimeFormat(new Date(text)) || '-'
         },
       },
       {

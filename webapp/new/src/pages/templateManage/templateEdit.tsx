@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 14:20:08
+ * @LastEditTime: 2021-12-08 14:59:50
  */
 
 import { connect } from 'dva';
@@ -71,7 +71,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       currentGitId: "",
       updateTimeout: 0,
       gitInfo: null,
-      publicType: 2,
+      publicType: 0,
     };
 
     this.afterUpdateGlobalConfigStatus = this.afterUpdateGlobalConfigStatus.bind(this)
@@ -140,6 +140,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
         const currentVersion = info.versionList.length ? info.versionList[0] : null
         this.setState({
           templateInfo: info,
+          publicType: currentVersion!.publicType,
           currentVersion,
           currentGitId: currentVersion?.gitList.length ? currentVersion.gitList[0].id : ""
         })
@@ -295,9 +296,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
   onCancelAddVersion () {
     this.props.history.goBack()
   }
- 
-
-
   afterUpdateConfigStatus (data: {id: string; status: number}) {
     const currentVersion = util.clone(this.state.currentVersion)
     currentVersion?.gitList.forEach( (git) => {
@@ -680,7 +678,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                   label='发布方式'
                   labelWidth={labelWidth}
                 >
-                 <Radio.Group onChange={this.onRadioChange} defaultValue={this.state.publicType}>
+                 <Radio.Group onChange={this.onRadioChange} defaultValue={this.state.publicType} disabled={this.state.currentVersion?.status != VersionStatus.normal}>
                     {
                       publicType.map( item => {
                         return <Radio key={item.value} value={item.value}>{item.text}</Radio>

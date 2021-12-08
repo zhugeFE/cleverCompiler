@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:55:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 15:33:16
+ * @LastEditTime: 2021-12-08 10:27:43
  */
 import { TemplateConfig } from './template';
 
@@ -43,8 +43,7 @@ export interface CompileGitData {
   name: string;
   outputName: string;
   publicType: number;
-  publicGit: string;
-  publicBranch: string;
+  publicGit: number;
 }
 export interface CompileDoc {
   buildDoc: string;

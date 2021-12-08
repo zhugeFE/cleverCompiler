@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 15:11:43
+ * @LastEditTime: 2021-12-07 19:55:46
  */
 import { ChangeGitVersionParams, HistoryVersion, TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo } from './../types/template';
 import { PoolConnection } from 'mysql';
@@ -326,7 +326,7 @@ class TemplateDao {
         lastVersionInfo ? lastVersionInfo.buildDoc : '',
         lastVersionInfo ? lastVersionInfo.readmeDoc : '',
         lastVersionInfo ? lastVersionInfo.updateDoc : '',
-        lastVersionInfo ? lastVersionInfo.publicType : 2,
+        lastVersionInfo ? lastVersionInfo.publicType : 0,
       ])
 
       const globalConfigMap = {}

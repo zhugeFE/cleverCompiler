@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-06 14:23:17
+ * @LastEditTime: 2021-12-08 14:09:32
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -162,21 +162,23 @@ class Project {
   //根据项目id查询信息
   async getProjectById(id: string): Promise<ProjectType>{
     const sql = `SELECT
-      id,
-      name,
+      project.id,
+      project.name,
       template_id,
       template_version,
       compile_type,
       public_type,
-      description,
+      project.description,
       create_time,
-      creator_id,
+      project.creator_id,
       receive_user_id as share_member,
-      customer
+      customer,
+      customer.name as customer_name
     FROM
-      project 
+      project
+    LEFT JOIN customer ON customer.id = project.customer 
     WHERE
-      id = ?`
+      project.  id = ?`
     const list = await pool.query<ProjectType>(sql, [id])
     return list.length > 0 ? list[0] : null
   }

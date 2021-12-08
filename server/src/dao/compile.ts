@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-23 16:18:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 15:32:38
+ * @LastEditTime: 2021-12-08 10:27:19
  */
 
 import pool from './pool'
@@ -90,14 +90,13 @@ class Compile {
     await pool.query(sql, params)
   }
 
-  async getGitData (projectGitId: string): Promise<CompileGitData>{
+  async getGitData (projectGitId: string): Promise<CompileGitData>{          
     const sql = `
       SELECT 
         pg.NAME,
         sv.output_name,
         sv.public_type,
-        sv.public_git,
-        sv.public_branch
+        sv.public_git
       FROM
         project_git as pg
       LEFT JOIN template_version_git as tg ON pg.template_git_id = tg.id
@@ -112,15 +111,10 @@ class Compile {
       SELECT
         tv.build_doc,
         tv.readme_doc,
-        tv.update_doc,
-        sv.public_type,
-        sv.public_git,
-        sv.public_branch
+        tv.update_doc
       FROM
         project
       LEFT JOIN template_version as tv ON tv.id = project.template_version
-      LEFT JOIN template_version_git as tg ON tg.template_version_id = tv.id
-      LEFT JOIN source_version as sv ON sv.id = tg.git_source_version_id
       WHERE project.id = ?`
     const data = await pool.query<CompileDoc>(sql, [projectId])
     return data.length ? data[0] : null
