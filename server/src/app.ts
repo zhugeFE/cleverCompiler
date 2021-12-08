@@ -4,11 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-22 10:48:30
+ * @LastEditTime: 2021-12-08 19:05:18
  */
 import * as express from 'express'
 import config from './config'
-import * as path from 'path';
 import api from './controller/index'
 import './dao/pool'
 import auth from './middleware/auth'

@@ -1,7 +1,7 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
 import { VersionStatus } from '@/models/common'
-import { GitBranch, GitConfig, GitInfo, GitInfoBranch, GitList, GitUpdateVersionParam, GitVersion } from '@/models/git'
+import { GitConfig, GitInfo, GitInfoBranch, GitList, GitUpdateVersionParam, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import * as _ from 'lodash'
 import { LeftOutlined } from '@ant-design/icons'
@@ -32,7 +32,6 @@ interface State {
   savePercent: number;
   delInterval?: NodeJS.Timeout;
   delTooltip: string;
-
   gitList: GitList[] | null;
   queryGitData: boolean;
 }

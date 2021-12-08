@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-01 15:20:05
+ * @LastEditTime: 2021-12-08 19:02:55
  */
 import * as React from 'react'
 import styles from './styles/gitConfig.less'
@@ -60,7 +60,11 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
                 style={{marginLeft: '5px'}} 
                 disabled={this.props.mode != VersionStatus.normal}
                 onClick={this.onTableClick.bind(this, 'edit', record)}>编辑</Button>
-              <Button danger style={{marginLeft: '5px'}} onClick={this.onTableClick.bind(this, 'delete', record)}>删除</Button>
+              <Button 
+                danger 
+                disabled={this.props.mode != VersionStatus.normal}
+                style={{marginLeft: '5px'}} 
+                onClick={this.onTableClick.bind(this, 'delete', record)}>删除</Button>
             </div>
           )
         }}
