@@ -453,7 +453,7 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={wrapperCol} className={styles.colFlex}> 
               <Input 
                 placeholder="请输入名称"
-                disabled={this.state.mode == EditMode.update ||  this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
+                disabled={this.state.mode == EditMode.update ||  (this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false)}
                 style={{width: 300}} onChange={(event) => {
                   this.onChangeEdit('name', event)
                 }} defaultValue={this.state.name}></Input>
@@ -467,7 +467,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.customer}
                 placeholder="请选择"
                 style={{ width: 200 }}
-                disabled={this.state.mode == EditMode.update || this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
+                disabled={this.state.mode == EditMode.update || (this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false)}
                 onChange={this.onCustomerSelectChange}
               >
                 {

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 14:38:52
+ * @LastEditTime: 2021-12-08 19:33:27
  */
 import { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -176,10 +176,16 @@ class CompileEdit extends React.Component<Props, States> {
       gitList.map(item => {
         GitMap[item.name] = item.id
       })
+      
       this.setState({
         projectId: value,
         publicType,
         GitMap,
+        description: "",
+        compileLog: [],
+        compileStatus:[],
+        compileGit:[],
+        compileResult: [],
         checkboxOptions: gitList?.map( item => item.name)
       })
     }
@@ -327,11 +333,11 @@ class CompileEdit extends React.Component<Props, States> {
                 </Form.Item>
 
                 <Form.Item label="要编译的项目">
-                  <Checkbox.Group options={this.state.checkboxOptions}  onChange={this.onCheckBoxChange} />
+                  <Checkbox.Group value={this.state.compileGit} options={this.state.checkboxOptions}  onChange={this.onCheckBoxChange} />
                 </Form.Item>
 
                 <Form.Item label="描述">
-                  <TextArea rows={5} onChange={this.TextAreaChange}></TextArea>
+                  <TextArea rows={5} value={this.state.description} onChange={this.TextAreaChange}></TextArea>
                 </Form.Item>
 
                 <Form.Item label="编译结果" className={styles.tabsForm}>
