@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-24 14:23:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 18:41:19
+ * @LastEditTime: 2021-12-08 19:42:28
  */
 
 import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
@@ -100,7 +100,6 @@ class UpdateVersionDoc extends React.Component <Props, State> {
                 flag = 1
               }
             }
-            console.log(right);
             
           }
           if (left.name == right.name && leftVersion > rightVersion) {

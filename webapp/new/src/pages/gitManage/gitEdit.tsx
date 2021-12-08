@@ -394,7 +394,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
     }
     else {
       const branch = gitInfo.branchList.filter( item => item.id == this.state.currentBranch!.id)[0]
-      console.log(branch);
       this.setState({
         gitInfo,
         currentBranch: branch,

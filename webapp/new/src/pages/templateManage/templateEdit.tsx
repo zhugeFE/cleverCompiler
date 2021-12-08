@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 14:59:50
+ * @LastEditTime: 2021-12-08 19:43:52
  */
 
 import { connect } from 'dva';
@@ -283,7 +283,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     }else{
       const templateInfo = util.clone(this.state.templateInfo)
       templateInfo!.versionList.unshift(version)
-      console.log(templateInfo)
       this.props.match.params.id = version.templateId
       this.setState({
         templateInfo,
@@ -460,7 +459,6 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     const currentVersion = util.clone(this.state.currentVersion)
     currentVersion?.globalConfigList.forEach( (item, index) => {
       if (item.id == data.id) {
-        console.log(item.isHidden , data.status)
         item.isHidden = data.status
       }
     })

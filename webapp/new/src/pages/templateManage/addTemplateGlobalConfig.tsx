@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-12 08:30:26
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 10:48:10
+ * @LastEditTime: 2021-12-08 19:43:43
  */
 import * as React from 'react';
 import { Modal, Card, Row, Col } from 'antd';
@@ -57,7 +57,6 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
     const form = new FormData()
     for (let key of Object.keys(formData)) {
       if (key == 'file') {
-        console.log(formData[key])
         form.append("files", formData[key]['file'])
       } else {
         form.append(key, formData[key])

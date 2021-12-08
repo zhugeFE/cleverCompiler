@@ -51,7 +51,6 @@ class GitAddConfig extends React.Component<Props, State> {
     const form = new FormData()
     for (let key of Object.keys(formData)) {
       if (key == 'file') {
-        console.log(formData[key])
         form.append("files", formData[key]['file'])
       } else {
         form.append(key, formData[key])

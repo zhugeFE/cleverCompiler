@@ -259,7 +259,6 @@ class ProjectEdit extends React.Component<Props, States> {
 
   updateProject (projectId: string) {
     const { description, templateId, publicType, templateVersionId, globalConfigList, gitList, shareMember } = this.state
-    console.log(publicType);
     
     const form = new FormData()
 

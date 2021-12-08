@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 16:44:58
+ * @LastEditTime: 2021-12-08 19:43:12
  */
 import { Customer } from '@/models/customer';
 import { Button, Form, Input, Table } from 'antd';
@@ -72,7 +72,6 @@ class CustomerList extends React.Component<Props, States> {
         break
       }
       case "info": {
-        console.log("info")
         console.log(data)
       }
     }

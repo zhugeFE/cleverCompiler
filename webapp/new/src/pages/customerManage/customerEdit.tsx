@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:49:01
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 16:52:49
+ * @LastEditTime: 2021-12-08 19:42:54
  */
 import { LeftOutlined } from '@ant-design/icons';
 import { Progress } from 'antd';
@@ -38,7 +38,6 @@ class CustomerEdit extends React.Component<Props, States> {
 
   componentDidMount () {
     const id = this.props.match.params.id
-    console.log(id)
     if( id === 'addCustomer') {
       this.setState({
         showAddCustomer: true

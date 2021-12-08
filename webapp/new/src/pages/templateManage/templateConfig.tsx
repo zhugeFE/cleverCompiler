@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 16:08:26
+ * @LastEditTime: 2021-12-08 19:43:48
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -187,7 +187,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     const form = new FormData()
     for (let key of Object.keys(formData)) {
       if (key == 'file') {
-        console.log(formData[key])
         form.append("files", formData[key]['file'])
       } else {
         form.append(key, formData[key])

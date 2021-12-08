@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-09 21:40:46
+ * @LastEditTime: 2021-12-08 19:44:00
  */
 
 import * as React from 'react';
@@ -104,7 +104,6 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         this.setState({
           currentGlobalConfig: null
         })
-        console.log(config)
         if (this.props.onSubmit) this.props.onSubmit(config)
       }
     })

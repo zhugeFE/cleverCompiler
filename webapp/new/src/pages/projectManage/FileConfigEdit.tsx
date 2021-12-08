@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:54
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 11:11:45
+ * @LastEditTime: 2021-12-08 19:43:33
  */
 
 
@@ -64,7 +64,6 @@ class UpdateTextConfig extends React.Component<Props, States> {
     this.projectFileConfigForm.current?.validateFields()
     .then((form: FormData) => {
       if (!this.props.onSubmit) return
-      console.log(form)
       this.props.onSubmit({
         targetValue: JSON.stringify({originalFilename: form.file!['file'].name, newFilename: ""}),
         file: form.file!

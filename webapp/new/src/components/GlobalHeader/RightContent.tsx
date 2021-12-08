@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2021-11-05 20:08:04
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2021-12-08 19:42:49
+ */
 import { Tooltip, Tag } from 'antd';
 import type { Settings as ProSettings } from '@ant-design/pro-layout';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -49,9 +57,6 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = (props) => {
             value: 'Pro Layout',
           },
         ]}
-        // onSearch={value => {
-        //   //console.log('input', value);
-        // }}
       />
       <Tooltip title="使用文档">
         <a
