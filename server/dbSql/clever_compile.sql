@@ -11,7 +11,7 @@
  Target Server Version : 80025
  File Encoding         : 65001
 
- Date: 02/12/2021 16:29:20
+ Date: 08/12/2021 17:22:22
 */
 
 SET NAMES utf8mb4;
@@ -74,6 +74,7 @@ CREATE TABLE `git_source` (
   `git` varchar(100) DEFAULT NULL COMMENT 'git地址',
   `enable` tinyint(1) DEFAULT '1' COMMENT '是否启用为源',
   `git_id` int DEFAULT NULL COMMENT 'git库中的id',
+  `creator_id` varchar(50) DEFAULT NULL COMMENT '创建者id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='git源\n会将当前git账号有权限的所有git库都导入进来';
 
@@ -220,6 +221,8 @@ CREATE TABLE `source_version` (
   `creator_id` varchar(50) DEFAULT NULL COMMENT '创建者id',
   `output_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '输出文件路径',
   `branch_id` varchar(50) DEFAULT NULL COMMENT '分支id',
+  `public_type` int DEFAULT NULL COMMENT '0 git 1 下载',
+  `public_git` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `source_id` (`source_id`),
   KEY `creator_id` (`creator_id`),
@@ -317,6 +320,7 @@ CREATE TABLE `template_version` (
   `readme_doc` text COMMENT '说明文档',
   `build_doc` text COMMENT '部署文档',
   `update_doc` text COMMENT '更新文档',
+  `public_type` int DEFAULT NULL COMMENT '0 发布git 1 下载',
   PRIMARY KEY (`id`),
   KEY `template_id` (`template_id`),
   CONSTRAINT `template_version_ibfk_3` FOREIGN KEY (`template_id`) REFERENCES `template` (`id`)
