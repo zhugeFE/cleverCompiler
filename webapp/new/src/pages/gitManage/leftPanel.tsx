@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-29 17:49:55
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 16:47:38
+ * @LastEditTime: 2021-12-09 16:01:33
  */
 
 import { GitInfo, GitInfoBranch, GitVersion } from '@/models/git';
@@ -16,6 +16,7 @@ import CreateGitVersion from './createGitVersion';
 
 interface Props {
   disabled: boolean;
+  gitInfo?: GitInfo;
   expandedKeys: string[];
   selectedKeys: string[];
   data: GitInfoBranch[];
@@ -81,6 +82,7 @@ class LeftPanel extends React.Component<Props, State> {
           mode='branch'
           gitId={this.props.gitId} 
           title='新建分支'
+          gitInfo={this.props.gitInfo}
           repoId={this.props.repoId}
           versionList={this.props.versionList}
           onCancel={this.onHideAddBranch}

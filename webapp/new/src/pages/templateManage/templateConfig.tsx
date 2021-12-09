@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:43:48
+ * @LastEditTime: 2021-12-09 15:51:11
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -389,6 +389,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                               </Select.Option>
                             ): 
                               this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].versionList.map( item => (
+                              item.status == VersionStatus.placeOnFile && 
                               <Select.Option className={styles.versionDesc} key={item.id} value={item.id}>
                                 {this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].name} -{item.name}
                                 <div>

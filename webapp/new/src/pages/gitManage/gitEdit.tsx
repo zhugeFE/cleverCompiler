@@ -164,7 +164,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     const { currentVersion, currentBranch, gitInfo} = this.state
     if ( !gitInfo || !currentBranch || !currentVersion) return
     if ( currentBranch.versionList.length == 1) {
-      message.error('分支初始版本，不可删除！') 
+      this.onDeleteBranch()
       return
     }
     this.props.dispatch({
@@ -552,11 +552,19 @@ class GitEdit extends React.Component<GitEditProps, State> {
               {
                 this.state.currentVersion?.status === VersionStatus.placeOnFile ? (
                    <a style={{marginLeft: '10px', color: '#faad14'}}>已发布</a>): (
-                   <a style={{marginLeft: '10px', color: '#faad14'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.placeOnFile)} >发布 </a> )
+                     
+                    this.state.currentVersion?.status !== VersionStatus.deprecated) &&
+                     <a style={{marginLeft: '10px', color: '#faad14'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.placeOnFile)} >发布 </a> 
               }
             </Tooltip>
             <Tooltip title="废弃后，新建项目中该版本将不可用">
-              <a style={{marginLeft: '10px', color: '#f5222d'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.deprecated)} >废弃</a>
+              {
+                this.state.currentVersion?.status === VersionStatus.deprecated ? (
+                  <a style={{marginLeft: '10px', color: '#f5222d'}} >已废弃</a>
+                ) : (
+                  <a style={{marginLeft: '10px', color: '#f5222d'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.deprecated)} >废弃</a>
+                )
+              }
             </Tooltip>
             {
               this.state.delTimeout > 0 && this.state.currentVersion?.status === VersionStatus.normal ? (
@@ -580,6 +588,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 disabled={this.state.currentVersion?.status != VersionStatus.normal}
                 expandedKeys={[this.state.currentBranch!.id]}
                 selectedKeys={[this.state.currentVersion!.id]}
+                gitInfo={this.state.gitInfo!}
                 data={this.state.gitInfo!.branchList}
                 gitId={this.state.gitInfo!.id} 
                 repoId={this.state.gitInfo!.gitId}

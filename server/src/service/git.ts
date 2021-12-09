@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-06 11:06:55
+ * @LastEditTime: 2021-12-09 15:34:28
  */
 import gitDao from '../dao/git'
 import { 
@@ -61,25 +61,29 @@ class GitService {
     await fsUtil.mkdir(workDir)
     const repoDir = path.resolve(workDir, gitInfo.name)
     const repoExist = await fsUtil.pathExist(repoDir)
+    
+    const dashUtil = new DashUtil(workDir)
     if (!repoExist) {
       logger.info('初始化项目代码到本地')
       // 代码还没clone到本地
-      const dashUtil = new DashUtil(workDir)
       await dashUtil.exec(`git clone ${gitInfo.gitRepo}`)
-      const version = await gitDao.getVersionById(versionId)
-      await dashUtil.cd(`${gitInfo.name}`)
-      switch (version.sourceType) {
-        case 'branch':
-        case 'commit':
-          await dashUtil.exec(`git checkout ${version.sourceValue}`)
-          break;
-        case 'tag':
-          await dashUtil.exec(`git checkout tags/${version.sourceValue}`)
-          break;
-      }
+    }
+    const version = await gitDao.getVersionById(versionId)
+    await dashUtil.cd(`${gitInfo.name}`)
+    await dashUtil.exec(`git checkout .`)
+    await dashUtil.exec(`git clean -df`)
+    switch (version.sourceType) {
+      case 'branch':
+      case 'commit':
+        await dashUtil.exec(`git checkout ${version.sourceValue}`)
+        break;
+      case 'tag':
+        await dashUtil.exec(`git checkout tags/${version.sourceValue}`)
+        break;
     }
     return repoDir
   }
+
   async getFileTree (session: Express.Session, id: string, versionId: string, currentUser: User): Promise<DirNode[]> {
     const repoDir = await this.initRepo(id, versionId, currentUser.id)
     session.repoDir = repoDir

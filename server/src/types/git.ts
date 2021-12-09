@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 19:50:06
+ * @LastEditTime: 2021-12-09 16:38:52
  */
 import { Version } from './common';
 
@@ -66,6 +66,8 @@ export interface GitCreateVersionParam {
   branchName: string;
   branchDesc: string;
   branchId: string;
+  originVersionId: string;
+  originBranchId: string;
 }
 export interface GitCreateConfigParam {
   configId?: string;

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:43:52
+ * @LastEditTime: 2021-12-09 15:53:09
  */
 
 import { connect } from 'dva';
@@ -578,12 +578,19 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
             <Tooltip title="发布后版本将变为只读状态">
               {
                 this.state.currentVersion?.status === VersionStatus.placeOnFile ? (
-                   <a style={{marginLeft: '10px', color: '#faad14'}}>已发布</a>): (
-                   <a style={{marginLeft: '10px', color: '#faad14'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.placeOnFile)} >发布 </a> )
+                  <a style={{marginLeft: '10px', color: '#faad14'}}>已发布</a>): (
+                  this.state.currentVersion?.status !== VersionStatus.deprecated &&
+                  <a style={{marginLeft: '10px', color: '#faad14'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.placeOnFile)} >发布 </a> )
               }
             </Tooltip>
             <Tooltip title="废弃后，新建项目中该版本将不可用">
-              <a style={{marginLeft: '10px', color: '#f5222d'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.deprecated)}>废弃</a>
+              {
+                this.state.currentVersion?.status === VersionStatus.deprecated ? (
+                  <a style={{marginLeft: '10px', color: '#f5222d'}} >已废弃</a>
+                ) : (
+                  <a style={{marginLeft: '10px', color: '#f5222d'}} onClick={()=>this.onChangeVersionStatue(VersionStatus.deprecated)}>废弃</a>
+                )
+              }
             </Tooltip>
             {
               this.state.delTimeout > 0 && this.state.currentVersion?.status === VersionStatus.normal ? (

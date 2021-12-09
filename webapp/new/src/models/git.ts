@@ -104,6 +104,8 @@ export interface GitCreateVersionParam {
   branchName: string;
   branchDesc: string;
   branchId: string;
+  originBranchId: string;
+  originVersionId: string;
 }
 
 export interface GitTextConfigParam extends TextConfigParam{

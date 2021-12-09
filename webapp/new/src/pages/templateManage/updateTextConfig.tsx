@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:29
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:42:13
+ * @LastEditTime: 2021-12-08 19:45:22
  */
 
 import { Checkbox, Form, FormInstance, Input, Modal } from 'antd';
@@ -113,7 +113,6 @@ class UpdateTextConfig extends React.Component<Props, States> {
 
   onChange (changedValues: FormData, formData: FormData) {
     let reg = null
-    
     try {
       reg =  new RegExp(formData.reg || '', `${formData.global ? 'g' : ''}${formData.ignoreCase ? 'i' : ''}`)
       this.setState({

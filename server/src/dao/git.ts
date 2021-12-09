@@ -255,9 +255,19 @@ class GitDao {
       } 
       //查询配置项。插入
       const info = await this.getInfo(gitId, connect)
-      const infoBranch = info.branchList.filter( item => item.id == branchId)
+      let infoBranch 
+      if (param.originBranchId) {
+        infoBranch = info.branchList.filter(item => item.id == param.originBranchId)
+      } else{
+        infoBranch = info.branchList.filter( item => item.id == branchId)
+      }
       if (infoBranch.length) {
-        const lastVersionInfo = infoBranch[0].versionList[0]
+        let lastVersionInfo
+        if (param.originVersionId) {
+          lastVersionInfo = infoBranch[0].versionList.filter(item => item.id == param.originVersionId)[0]
+        } else {
+          lastVersionInfo = infoBranch[0].versionList[0]
+        }
         await pool.writeInTransaction(connect, createVersionSql, [
           versionId,
           gitId,
@@ -278,7 +288,7 @@ class GitDao {
           await Promise.all(lastVersionInfo.configs.map(config => {
             return this.addConfig({
               sourceId: config.sourceId, 
-              branchId: config.branchId,
+              branchId: branchId,
               versionId: versionId, 
               description: config.description, 
               reg: config.reg, 
