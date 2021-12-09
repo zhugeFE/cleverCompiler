@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 19:25:06
+ * @LastEditTime: 2021-12-09 18:35:48
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -68,7 +68,7 @@ class ProjectList extends React.Component<Props, States> {
   }
 
   onClickUpdateEntry (project: ProjectInstance){
-    this.props.history.push(`/manage/template/updateInfo/${project.templateId}?vid=${project.templateVersion}`)
+    this.props.history.push(`/manage/template/updateInfo/${project.templateId}?vid=${project.templateVersion}&source=${project.id}`)
   }
 
   onCreateProject () {

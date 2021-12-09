@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 14:07:34
+ * @LastEditTime: 2021-12-09 19:01:33
  */
 export default {
   user: {
@@ -74,6 +74,7 @@ export default {
     getInfo: '/project/{{id}}/info',
     createProject: '/project/add',
     updateProject: '/project/update',
+    templateUpdateProject: '/project/template/update',
     projectList: '/project/list',
     getMemberList: "/project/members",
     compileInfo: '/project/{{id}}/list',

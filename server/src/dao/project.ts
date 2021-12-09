@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 14:09:32
+ * @LastEditTime: 2021-12-09 19:40:33
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -12,7 +12,9 @@ import { CreateProjectParams, ProjectInfo, ProjectInstance, ProjectType, UpdateP
 import util from "../utils/util";
 import pool from "./pool";
 import logger from "../utils/logger";
+import templateDao from './template';
 import { CompileGitParams } from '../types/git';
+import { string } from '@hapi/joi';
 
 class Project {
    // 项目列表
@@ -183,8 +185,25 @@ class Project {
     return list.length > 0 ? list[0] : null
   }
 
+  async updateTemplateProject( projectId: string, versionId: string): Promise<boolean> {
+    const projectInfo = await this.getProjectInfo(projectId)
+    const templateInfo = await templateDao.getVersionbyId(versionId)
+    let data: UpdateProjectParams 
+    data['id'] = projectInfo.id
+    data['publicType'] = templateInfo.publicType
+    data['templateId'] = projectInfo.templateId
+    data['templateVersionId'] = versionId
+    data['gitList'] = templateInfo.gitList
+    data['shareMember'] = projectInfo.shareMember
+    data['description'] = projectInfo.description
+    data['globalConfigList'] = projectInfo.globalConfigList
+
+    return await this.updateProject(data)
+
+  }
+
   //项目基本信息更新
-  async updateProject (data: UpdateProjectParams): Promise<void>{
+  async updateProject (data: UpdateProjectParams): Promise<boolean>{
     //创建config
     const conn = await pool.beginTransaction()
     const gitMap = {}
@@ -231,11 +250,12 @@ class Project {
         await this.insertConfig(conn, configData)
       }
       await pool.commit(conn)
+      return true
     }
     catch (err) {
       logger.info(err)
       await pool.rollback(conn)
-      throw(err)
+      return false
     }
   }
 

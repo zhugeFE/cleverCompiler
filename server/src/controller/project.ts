@@ -15,6 +15,7 @@ import { Member } from '../types/user'
 import * as path from 'path'
 import { ProjectCompile } from '../types/compile'
 import fsUtil from '../utils/fsUtil';
+import logger from '../utils/logger';
 const router = Router()
 
 //项目列表
@@ -69,6 +70,26 @@ router.post('/add', (req: Request, res: Response, next: NextFunction) => {
     })
     .catch(next)
   }) 
+})
+
+//项目中模版升级
+router.post('/template/update', (req: Request, res: Response, next: NextFunction) => {
+  const projectId = req.body.projectId
+  const versionId = req.body.versionId
+  if (!projectId || !versionId) {
+    res.json(new ApiResult(ResponseStatus.fail, "数据不完整"))
+    return
+  }
+  ProjectService.updateTemplateProject(projectId, versionId)
+  .then( (result: boolean) => {
+    if (result) {
+      res.json(new ApiResult(ResponseStatus.success, '更新成功'))
+      return
+    } else {
+      res.json(new ApiResult(ResponseStatus.fail, '更新成功'))
+    }
+  })
+  .catch(next)
 })
 
 //项目更新

@@ -4,18 +4,19 @@
  * @Author: Adxiong
  * @Date: 2021-11-24 14:23:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:42:28
+ * @LastEditTime: 2021-12-09 19:29:49
  */
 
-import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
+import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined, QuestionCircleTwoTone, DownSquareTwoTone, UpSquareTwoTone, MinusSquareTwoTone } from "@ant-design/icons";
 import { IRouteComponentProps } from "@umijs/renderer-react";
-import { Drawer, Modal, Select, Tabs } from "antd";
+import { Button, Drawer, Modal, Select, Tabs, Tooltip } from "antd";
 import React from "react";
-import { connect, Dispatch } from "umi";
+import { connect, Dispatch, ProjectInfo } from "umi";
 import style from "./styles/updateVersion.less";
 import {TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo, updateTag} from "@/models/template";
 import util from "@/utils/utils";
 import * as ReactMarkdown from 'react-markdown'
+import projectApi from '../../services/project';
 
 interface Props extends IRouteComponentProps <{
   id: string;
@@ -28,6 +29,11 @@ interface State {
   leftGitList: TemplateVersionGitUpdateInfo[];
   rightGitList: TemplateVersionGitUpdateInfo[];
   currentGit: TemplateVersionGitUpdateInfo | null;
+  leftValue: string;
+  rightValue: string;
+  compareIcon: any;
+  projectId: string;
+  updatePendding: boolean;
 }
 
 
@@ -38,19 +44,31 @@ class UpdateVersionDoc extends React.Component <Props, State> {
       updateInfo: null,
       leftGitList: [],
       rightGitList: [],
-      currentGit: null
+      currentGit: null,
+      leftValue: "",
+      rightValue: "",
+      projectId: "",
+      updatePendding: false,
+      compareIcon: <QuestionCircleTwoTone />,
     }
     this.onLeftSelect = this.onLeftSelect.bind(this)
     this.onRightSelect = this.onRightSelect.bind(this)
     this.onCloseDrawer = this.onCloseDrawer.bind(this)
+    this.onUpdate = this.onUpdate.bind(this)
   }
 
   componentDidMount () {
+    if (this.props.location.query.source){
+      this.setState({
+        projectId: this.props.location.query.source as string
+      })
+    }
     this.getVersionUpdateInfo(this.props.match.params.id)
   }
 
   onLeftSelect (value: string) {
     this.setState({
+      leftValue: value,
       leftGitList: this.queryGetlistByGitId(value)
     })
   }
@@ -68,7 +86,26 @@ class UpdateVersionDoc extends React.Component <Props, State> {
   }
   onRightSelect (value: string) {
     const data = this.queryGetlistByGitId(value)
-    
+    let leftVersion 
+    let rightVersion
+    let compareResult: any
+    for ( const item of this.state.updateInfo!) {
+      
+      if (item.id == this.state.leftValue) {
+        leftVersion = item.version
+      }
+      if (item.id == value) {
+        rightVersion = item.version
+      }
+    }    
+    const compare = Number(leftVersion?.split('.').join("")) - Number(rightVersion?.split('.').join(""))
+    if (compare == 0) {
+      compareResult = <MinusSquareTwoTone />
+    } else if ( compare > 0) {
+      compareResult = <UpSquareTwoTone />
+    } else  {
+      compareResult = <DownSquareTwoTone />
+    }
     const leftGitNameList = this.state.leftGitList.map(item => item.name)
     data.map( (right,index) => {
       if (!leftGitNameList.includes(right.name)){
@@ -128,7 +165,9 @@ class UpdateVersionDoc extends React.Component <Props, State> {
       })
     }
     this.setState({
-      rightGitList: data
+      rightValue: value,
+      rightGitList: data,
+      compareIcon: compareResult
     })
   }
   getVersionUpdateInfo (id: string) {
@@ -137,6 +176,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
       payload: id,
       callback: (data: TemplateVersionUpdateInfo[]) => {        
         let gitList: TemplateVersionGitUpdateInfo[] = []
+        const v = this.props.location.query.vid
         for (const item of data) {
           if (item.id == this.props.location.query.vid) {
             gitList =  item.gitInfo
@@ -145,6 +185,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
         }
         this.setState({
           updateInfo: data,
+          leftValue: v as string,
           leftGitList: gitList
         })
       }
@@ -172,6 +213,17 @@ class UpdateVersionDoc extends React.Component <Props, State> {
       currentGit: null
     })
   }
+  async onUpdate () {
+    console.log(this.state.projectId);
+    console.log(this.state.rightValue);
+    this.setState({
+      updatePendding: true
+    })
+    const result = await projectApi.updateTemplateProject({projectId: this.state.projectId, versionId: this.state.rightValue})
+    this.setState({
+      updatePendding: false
+    })
+  }
   render () {
     return (
       <div className={style.updateVersionPanel}>
@@ -180,6 +232,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
         </div>
         <div className={style.container}>
           <div className={style.content}>
+            源版本
             <div className={style.selectBox}>
               <Select 
                 size="large"
@@ -215,7 +268,14 @@ class UpdateVersionDoc extends React.Component <Props, State> {
 
             </div>
           </div>
+          <div className={style.compare}>
+            {this.state.compareIcon}
+          </div>
           <div className={style.content}>
+            待比较版本
+            {
+              this.state.projectId && <Button className={style.update} size="small" type="primary" onClick={this.onUpdate}>更新</Button>
+            } 
             <div className={style.selectBox}>
               <Select 
                 size="large"

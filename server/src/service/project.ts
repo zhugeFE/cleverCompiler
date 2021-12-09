@@ -5,7 +5,7 @@ import { SysInfo } from './../types/sys';
  * @Author: Adxiong
  * @Date: 2021-08-25 17:13:39
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 15:45:20
+ * @LastEditTime: 2021-12-09 19:26:55
  */
 import { ProjectCompileParams } from './../types/project';
 import projectDao from "../dao/project";
@@ -37,6 +37,9 @@ class Project {
     await projectDao.updateProject(data)
   }
 
+  async updateTemplateProject(projectId: string, versionId: string): Promise<boolean>{
+    return await projectDao.updateTemplateProject(projectId, versionId)
+  }
   //项目详细
   async projectInfo(id: string): Promise<ProjectInfo>{
     return await projectDao.getProjectInfo(id)
