@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, Form, Input, Checkbox, Button, message } from 'antd';
+import { Modal, Form, Input, Checkbox, Button, message, Tooltip } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import FileTree from './fileTree';
 import { FormInstance } from 'antd/lib/form';
@@ -41,6 +41,7 @@ interface State {
   formData: FormData;
   reg?: RegExp;
   displayContent: string;
+  formPending: boolean;
 }
 class GitTextConfig extends React.Component<Props, State> {
   form: React.RefObject<FormInstance> = React.createRef();
@@ -49,6 +50,7 @@ class GitTextConfig extends React.Component<Props, State> {
     this.state = {
       filePath: props.configInfo?.filePath || "",
       fileContent: '',
+      formPending: false,
       formData: {
         filePath: props.configInfo?.filePath || "",
         description: props.configInfo?.description || "",
@@ -66,6 +68,7 @@ class GitTextConfig extends React.Component<Props, State> {
     this.onSubmit = this.onSubmit.bind(this)
     this.onCancel = this.onCancel.bind(this)
     this.onBack = this.onBack.bind(this)
+    this.onContinue = this.onContinue.bind(this)
   }
 
   componentDidMount () {
@@ -109,28 +112,29 @@ class GitTextConfig extends React.Component<Props, State> {
       displayContent: this.state.fileContent
     })
   }
-  onSubmit () {
+  async onSubmit () {
     if (!this.state.filePath) {
       message.error('请选择目标文件')
       return;
     }
-    this.form.current?.validateFields()
-    .then((form) => {
-      if (!this.props.onSubmit) return
-      const reg = this.state.reg
-      this.props.onSubmit({
-        filePath: this.state.filePath,
-        reg: JSON.stringify({
-          source: reg!.source,
-          global: reg!.global,
-          ignoreCase: reg!.ignoreCase
-        }),
-        targetValue: form.targetValue!,
-        description: form.description!
-      })
+    const form = await this.form.current?.validateFields()
+    if (!this.props.onSubmit) return
+    this.setState({
+      formPending: true
     })
-    .catch((err) => {
-      console.error('表单验证失败', err)
+    const reg = this.state.reg
+    this.props.onSubmit({
+      filePath: this.state.filePath,
+      reg: JSON.stringify({
+        source: reg!.source,
+        global: reg!.global,
+        ignoreCase: reg!.ignoreCase
+      }),
+      targetValue: form.targetValue!,
+      description: form.description!
+    })
+    this.setState({
+      formPending: false
     })
   }
   onCancel () {
@@ -139,6 +143,10 @@ class GitTextConfig extends React.Component<Props, State> {
   onBack () {
     if (this.props.onBack) this.props.onBack()
   }
+  async onContinue () {
+    await this.onSubmit()
+    this.form.current?.resetFields()
+  }
   render () {
     return (
       <Modal 
@@ -146,10 +154,15 @@ class GitTextConfig extends React.Component<Props, State> {
         visible={true} 
         title={<a onClick={this.onBack}><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>} 
         width="60%" 
-        okText="保存" 
-        cancelText="取消"
-        onCancel={this.onCancel}
-        onOk={this.onSubmit}>
+        footer={
+          <>
+          <Button onClick={this.onCancel}>取消</Button>
+          <Button loading={this.state.formPending} type="primary" onClick={this.onSubmit}>保存</Button>
+          {/* <Tooltip title="保存当前配置，并继续添加下一个配置">
+            <Button loading={this.state.formPending} type="primary" onClick={this.onContinue}>继续添加</Button>
+          </Tooltip> */}
+          </>
+        }>
         <FileTree 
           defauleSelect={this.state.filePath}
           onSelect={this.onSelectFile} 

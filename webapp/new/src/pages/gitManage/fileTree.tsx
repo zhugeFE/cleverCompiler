@@ -112,7 +112,7 @@ class FileTree extends React.Component<FileTreeProps, State> {
             ]}></Result>
           }
           if (this.state.loading) {
-            return <Skeleton></Skeleton>
+            return <Skeleton active></Skeleton>
           }
           return <Tree.DirectoryTree
             defaultSelectedKeys={[this.props.defauleSelect!]}
