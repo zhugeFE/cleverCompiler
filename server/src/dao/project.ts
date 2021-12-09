@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-09 19:40:33
+ * @LastEditTime: 2021-12-09 23:09:44
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -188,7 +188,7 @@ class Project {
   async updateTemplateProject( projectId: string, versionId: string): Promise<boolean> {
     const projectInfo = await this.getProjectInfo(projectId)
     const templateInfo = await templateDao.getVersionbyId(versionId)
-    let data: UpdateProjectParams 
+    const data = {}
     data['id'] = projectInfo.id
     data['publicType'] = templateInfo.publicType
     data['templateId'] = projectInfo.templateId
@@ -198,7 +198,7 @@ class Project {
     data['description'] = projectInfo.description
     data['globalConfigList'] = projectInfo.globalConfigList
 
-    return await this.updateProject(data)
+    return await this.updateProject(data as UpdateProjectParams)
 
   }
 
