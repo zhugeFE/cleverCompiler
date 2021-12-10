@@ -305,7 +305,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onUpdateVersion()
   }
 
-  afterAddConfig (config: GitConfig) {
+  afterAddConfig (config: GitConfig, isContonue: boolean) {
     const currentVersion = util.clone(this.state.currentVersion)
     const branch = util.clone(this.state.currentBranch)
     currentVersion?.configs.push(config)
@@ -321,7 +321,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
       }
     })
     this.setState({
-      showAddConfig: false,
+      showAddConfig: isContonue ,
       currentBranch: branch,
       currentVersion,
       gitInfo
@@ -588,7 +588,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 disabled={this.state.currentVersion?.status != VersionStatus.normal}
                 expandedKeys={[this.state.currentBranch!.id]}
                 selectedKeys={[this.state.currentVersion!.id]}
-                gitInfo={this.state.gitInfo!}
+                gitInfo={this.state.gitInfo}
                 data={this.state.gitInfo!.branchList}
                 gitId={this.state.gitInfo!.id} 
                 repoId={this.state.gitInfo!.gitId}

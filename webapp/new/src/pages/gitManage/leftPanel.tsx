@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-29 17:49:55
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-09 16:01:33
+ * @LastEditTime: 2021-12-10 16:35:28
  */
 
 import { GitInfo, GitInfoBranch, GitVersion } from '@/models/git';
@@ -16,7 +16,7 @@ import CreateGitVersion from './createGitVersion';
 
 interface Props {
   disabled: boolean;
-  gitInfo?: GitInfo;
+  gitInfo: GitInfo;
   expandedKeys: string[];
   selectedKeys: string[];
   data: GitInfoBranch[];

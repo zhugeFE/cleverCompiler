@@ -5,7 +5,7 @@ import { SysInfo } from './../types/sys';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 15:39:08
+ * @LastEditTime: 2021-12-10 19:39:18
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -114,6 +114,7 @@ class WorkFlow {
       source: string;
       global: boolean;
       ignoreCase: boolean;
+      matchIndex: number;
     }
     let regModifiers = ""
     let Reg: RegExp 
@@ -133,7 +134,14 @@ class WorkFlow {
           SocketLogge(socket, SocketEventNames.compileMessage, gitName, `warning 匹配失败：${item.filePath} => ${Reg}`)
         } else {
           SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 执行文字替换 ${Reg} => ${item.targetValue}`)
-          text = text.replace(Reg, item.targetValue)
+          const matchs = text.match(Reg)
+          const targetValue = parseInt(String(regex.matchIndex)).toString() != "NaN" ? (
+            matchs[0].substring(0, matchs[0].search(matchs[regex.matchIndex])) + item.targetValue
+          ) : (
+            item.targetValue
+          )
+          
+          text = text.replace(Reg, targetValue)
           fs.writeFileSync(fileDir, text, 'utf8')
         }
       }

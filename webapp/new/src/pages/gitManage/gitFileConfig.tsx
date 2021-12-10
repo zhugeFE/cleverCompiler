@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-11-06 08:50:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 10:32:18
+ * @LastEditTime: 2021-12-10 16:55:12
  */
 import { EditMode } from '@/models/common';
 import { GitConfig } from '@/models/git';
 import { InboxOutlined, LeftOutlined } from '@ant-design/icons';
-import { Form, FormInstance, Input, message, Modal } from 'antd';
+import { Button, Form, FormInstance, Input, message, Modal, Tooltip } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
 import { connect, Dispatch } from 'dva';
@@ -25,7 +25,7 @@ interface Props {
   configInfo?: GitConfig;
   onBack? (): void;
   onCancel (): void;
-  onSubmit(form: FormData): void;
+  onSubmit(form: FormData, isContinue: boolean): void;
   dispatch: Dispatch;
 }
 
@@ -36,7 +36,9 @@ interface FormData {
 }
 
 interface State {
-  form: FormData
+  form: FormData;
+  formPending: boolean;
+
 }
 
 
@@ -47,6 +49,7 @@ class GitFileConfig extends React.Component<Props, State> {
   constructor (props: Props) {
     super(props)
     this.state = {
+      formPending: false,
       form: {
         file: null,
         description: props.configInfo?.description || "",
@@ -57,7 +60,6 @@ class GitFileConfig extends React.Component<Props, State> {
     this.onCancel = this.onCancel.bind(this)
     this.onSelectFile = this.onSelectFile.bind(this)
     this.onFormChange = this.onFormChange.bind(this)
-    this.onSubmit = this.onSubmit.bind(this)
   }
 
   onBack () {
@@ -80,7 +82,7 @@ class GitFileConfig extends React.Component<Props, State> {
       form: formData
     })
   }
-  onSubmit () {
+  async onSubmit (e: any, isContinue: boolean) {
     if (!this.state.form.filePath) {
       message.error('请选择目标文件')
       return;
@@ -90,19 +92,23 @@ class GitFileConfig extends React.Component<Props, State> {
       message.error('请选择上传文件')
       return;
     }
-    this.gitFileForm.current?.validateFields()
-    .then(() => {
-      if (!this.props.onSubmit) return
-      const {form} = this.state
-      this.props.onSubmit({
-        filePath: form.filePath,
-        file: form.file,
-        description: form.description
-      })
+    const form = await this.gitFileForm.current?.validateFields()
+    if (!this.props.onSubmit) return
+    this.setState({
+      formPending: true
     })
-    .catch((err) => {
-      console.error('表单验证失败', err)
+    this.props.onSubmit({
+      filePath: form.filePath,
+      file: form.file,
+      description: form.description
+    },isContinue)
+    this.setState({
+      formPending: false
     })
+  }
+  async onContinue () {
+    await this.onSubmit( null, true)
+    this.gitFileForm.current?.resetFields()
   }
   
   render () {
@@ -115,10 +121,15 @@ class GitFileConfig extends React.Component<Props, State> {
           <a onClick={this.onBack}><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>
         } 
         width="40%"
-        okText="保存" 
-        cancelText="取消"
-        onCancel={this.onCancel}
-        onOk={this.onSubmit}
+        footer={
+          <>
+            <Button onClick={this.onCancel}>取消</Button>
+            <Button loading={this.state.formPending} type="primary" onClick={()=>this.onSubmit(this, false)}>保存</Button>
+            <Tooltip title="保存当前配置，并继续添加下一个配置">
+              <Button loading={this.state.formPending} type="primary" onClick={this.onContinue}>继续添加</Button>
+            </Tooltip>
+            </>
+        }
       >
         <FileTree
           gitId={this.props.gitId}

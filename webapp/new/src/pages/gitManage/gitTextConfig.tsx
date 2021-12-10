@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, Form, Input, Checkbox, Button, message, Tooltip } from 'antd';
+import { Modal, Form, Input, Checkbox, Button, message, Tooltip, Select } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import FileTree from './fileTree';
 import { FormInstance } from 'antd/lib/form';
@@ -18,6 +18,7 @@ interface FormData {
   description?: string;
   global?: boolean;
   ignoreCase?: boolean;
+  matchIndex: number | null;
 }
 export interface TextConfigParam {
   filePath: string;
@@ -31,7 +32,7 @@ interface Props {
   gitVersionId: string;
   configInfo?: GitConfig;
   onCancel (): void;
-  onSubmit (data: TextConfigParam): void;
+  onSubmit (data: TextConfigParam, isContinue: boolean): void;
   onBack? (): void;
   dispatch: Dispatch;
 }
@@ -55,6 +56,7 @@ class GitTextConfig extends React.Component<Props, State> {
         filePath: props.configInfo?.filePath || "",
         description: props.configInfo?.description || "",
         targetValue: props.configInfo?.targetValue || "",
+        matchIndex: null,
         reg: props.configInfo ? JSON.parse(props.configInfo.reg)['source'] : "",
         global: props.configInfo ? JSON.parse(props.configInfo.reg)['global'] : false,
         ignoreCase: props.configInfo ? JSON.parse(props.configInfo.reg)['ignoreCase'] : false
@@ -65,7 +67,6 @@ class GitTextConfig extends React.Component<Props, State> {
     this.onChange = this.onChange.bind(this)
     this.onReplace = this.onReplace.bind(this)
     this.onReset = this.onReset.bind(this)
-    this.onSubmit = this.onSubmit.bind(this)
     this.onCancel = this.onCancel.bind(this)
     this.onBack = this.onBack.bind(this)
     this.onContinue = this.onContinue.bind(this)
@@ -103,16 +104,28 @@ class GitTextConfig extends React.Component<Props, State> {
     
   }
   onReplace () {
+    if (  !this.state.displayContent 
+      && parseInt(String(this.state.formData.matchIndex)).toString() != "NaN"
+      && !this.state.reg ) return
+    const content =  this.state.displayContent
+    const matchs = content.match(this.state.reg!)!
+    const matchIndex = this.state.formData.matchIndex!
+    const targetValue = parseInt(String(this.state.formData.matchIndex)).toString() != "NaN" ? (
+      matchs[0].substring(0, matchs[0].search(matchs[matchIndex])) + this.state.formData.targetValue
+    ) : (
+      this.state.formData.targetValue
+    )
     this.setState({
-      displayContent: this.state.displayContent.replace(this.state.reg!, this.state.formData.targetValue || '')
+      displayContent: content.replace(this.state.reg!, targetValue|| '')
     })
   }
+  
   onReset () {
     this.setState({
       displayContent: this.state.fileContent
     })
   }
-  async onSubmit () {
+  async onSubmit (e: any, isContinue: boolean) {
     if (!this.state.filePath) {
       message.error('请选择目标文件')
       return;
@@ -128,11 +141,12 @@ class GitTextConfig extends React.Component<Props, State> {
       reg: JSON.stringify({
         source: reg!.source,
         global: reg!.global,
-        ignoreCase: reg!.ignoreCase
+        ignoreCase: reg!.ignoreCase,
+        matchIndex: form.matchIndex!,
       }),
       targetValue: form.targetValue!,
       description: form.description!
-    })
+    }, isContinue)
     this.setState({
       formPending: false
     })
@@ -144,7 +158,7 @@ class GitTextConfig extends React.Component<Props, State> {
     if (this.props.onBack) this.props.onBack()
   }
   async onContinue () {
-    await this.onSubmit()
+    await this.onSubmit( null, true)
     this.form.current?.resetFields()
   }
   render () {
@@ -157,10 +171,10 @@ class GitTextConfig extends React.Component<Props, State> {
         footer={
           <>
           <Button onClick={this.onCancel}>取消</Button>
-          <Button loading={this.state.formPending} type="primary" onClick={this.onSubmit}>保存</Button>
-          {/* <Tooltip title="保存当前配置，并继续添加下一个配置">
+          <Button loading={this.state.formPending} type="primary" onClick={()=>this.onSubmit(this, false)}>保存</Button>
+          <Tooltip title="保存当前配置，并继续添加下一个配置">
             <Button loading={this.state.formPending} type="primary" onClick={this.onContinue}>继续添加</Button>
-          </Tooltip> */}
+          </Tooltip>
           </>
         }>
         <FileTree 
@@ -187,7 +201,16 @@ class GitTextConfig extends React.Component<Props, State> {
               <Checkbox>忽略大小写</Checkbox>
             </Form.Item>
             <div className={styles.formDivider}/>
-            <Form.Item label="替换为" name="targetValue" className={styles.long}>
+            <Form.Item label="匹配组" name="matchIndex" className={styles.long} required>
+              <Select>
+                {
+                  this.state.fileContent.match(this.state.reg!)?.map((item,index) => {
+                    return <Select.Option key={index} value={index}> {item}</Select.Option>
+                  })
+                }
+              </Select>
+            </Form.Item>
+            <Form.Item label="替换为" name="targetValue"  required>
               <Input autoComplete="off"></Input>
             </Form.Item>
             <div className={styles.formDivider}/>
@@ -201,7 +224,7 @@ class GitTextConfig extends React.Component<Props, State> {
             <Button type="primary" onClick={this.onReplace}>替换</Button>
             <Button onClick={this.onReset}>还原</Button>
           </Form>
-          <GitFileEditor reg={this.state.reg!} content={this.state.displayContent}></GitFileEditor>
+          <GitFileEditor reg={this.state.reg!} matchIndex={this.state.formData.matchIndex} content={this.state.displayContent}></GitFileEditor>
         </div>
       </Modal>
     )
