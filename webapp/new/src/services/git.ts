@@ -3,6 +3,10 @@ import { GitCreateVersionParam, GitTextConfigParam, GitUpdateVersionParam, GitCo
 import request from '@/utils/request';
 import apis from './constants/apis';
 
+let updateVersionTimer: {
+  [timer: number]: any
+} = {}
+
 class GitService {
   async queryRemoteGitList() {
     return request(apis.git.queryRemoteGitList)
@@ -86,10 +90,23 @@ class GitService {
   }
 
   async updateVersion (data: GitUpdateVersionParam) {
-    return request(apis.git.updateVersion, {
-      method: 'post',
-      data
+    for (const timer in updateVersionTimer) {
+      clearTimeout(Number(timer))
+      updateVersionTimer[timer]()
+      delete updateVersionTimer[timer]
+    }
+    const d = await new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        const res = request(apis.git.updateVersion, {
+          method: 'post',
+          data
+        })
+        delete updateVersionTimer[Number(timer)]
+        resolve(res)
+      }, 500)
+      updateVersionTimer[Number(timer)] = resolve
     })
+    return d
   }
 
   async deleteVersion (versionId: string) {

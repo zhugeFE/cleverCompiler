@@ -455,7 +455,7 @@ class GitDao {
       await pool.writeInTransaction(conn,sql, params)
       await pool.commit(conn)
     }catch(e){
-      await pool.rollback(conn)
+      pool.rollback(conn)
       throw(e)
     }  
   }

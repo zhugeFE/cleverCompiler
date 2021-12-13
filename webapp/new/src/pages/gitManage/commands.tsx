@@ -3,12 +3,15 @@ import './styles/commands.less'
 import { Input, Tag } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { VersionStatus } from '@/models/common'
+import util from '@/utils/utils'
+import { ConnectState } from '@/models/connect'
+import { connect, Dispatch } from 'umi'
 
 interface Props {
+  dispatch: Dispatch;
   tags: string[];
   mode: number;
   closeEnable: boolean;
-  onChange ?(tags: string[]): void;
 }
 interface State {
   tags: string[];
@@ -30,29 +33,18 @@ class Commands extends React.Component<Props, State> {
     this.onInput = this.onInput.bind(this)
     this.onBlurInput = this.onBlurInput.bind(this)
   }
-  static getDerivedStateFromProps(props:Props, state: State) {
-    if (props.tags !== state.tags) {
-      return {
-        tags: props.tags
-      }
-    }
-    return null
-  }
   onEnterTag () {
-    this.setState({
-      value: this.state.value.trim()
-    })
-    let tags = this.state.tags
-    if (this.state.value) {
-      tags = (this.state.tags || []).concat([this.state.value])
+    const value = this.state.value.trim()
+    let tags = util.clone(this.state.tags)
+    if (value) {
+      tags = (tags || []).concat([value])
     }
     this.setState({
       tags,
       value: ''
+    }, () => {
+      this.onChange()
     })
-    if (this.props.onChange) {
-      this.props.onChange(tags)
-    }
   }
   onBlurInput () {
     this.setState({
@@ -73,14 +65,21 @@ class Commands extends React.Component<Props, State> {
     })
   }
   onDel (i: number) {
-    let tags = this.state.tags
+    let tags = util.clone(this.state.tags)
     tags.splice(i, 1)
     this.setState({
       tags
+    }, () => {
+      this.onChange()
     })
-    if (this.props.onChange) {
-      this.props.onChange(tags)
-    }
+  }
+  onChange () {
+    this.props.dispatch({
+      type: 'git/updateVersion',
+      payload: {
+        compileOrders: JSON.stringify(this.state.tags)
+      }
+    })
   }
   render () {
     return (
@@ -88,7 +87,10 @@ class Commands extends React.Component<Props, State> {
         {
           this.state.tags?.map((tag, i) => {
             return (
-              <Tag key={`${tag}_${i}`} color="blue" closable={this.props.closeEnable} onClose={this.onDel.bind(this, i)}>{tag}</Tag>
+              <Tag key={`${tag}_${i}`} 
+                color="blue" 
+                closable={this.props.closeEnable} 
+                onClose={this.onDel.bind(this, i)}>{tag}</Tag>
             )
           })
         }
@@ -119,4 +121,11 @@ class Commands extends React.Component<Props, State> {
     )
   }
 }
-export default Commands
+export default connect(({git}: ConnectState) => {
+  const {currentVersion} = git
+  return {
+    tags: currentVersion!.compileOrders,
+    mode: currentVersion!.status,
+    closeEnable: currentVersion?.status === VersionStatus.normal
+  }
+})(Commands)

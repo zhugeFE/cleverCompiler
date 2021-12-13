@@ -5,6 +5,7 @@ import { TextConfigParam } from '@/pages/gitManage/gitTextConfig';
 import gitService from '@/services/git';
 import { ConfigType, Version } from './common';
 import util from '@/utils/utils';
+import { ConnectState } from './connect';
 
 
 export interface GitList {
@@ -71,6 +72,9 @@ export interface GitInfo {
   branchList: GitInfoBranch[];
 }
 
+/**
+ * 编译平台的分支概念
+ */
 export interface GitInfoBranch {
   id: string;
   name: string;
@@ -88,6 +92,9 @@ export interface GitCommit {
   message: string;
   createdAt: string;
 }
+/**
+ * git源上的分支信息
+ */
 export interface GitBranch {
   name: string;
   commit: GitCommit;
@@ -135,6 +142,13 @@ export interface GitUpdateVersionParam {
 }
 export type GitModelState = {
   gitList: GitInstance[];
+  currentGit?: GitInfo;
+  currentBranch?: GitInfoBranch;
+  currentVersion?: GitVersion;
+  /**
+   * git是否在请求更新中
+   */
+  updateLoading: boolean;
 }
 
 export type GitModelType = {
@@ -163,13 +177,20 @@ export type GitModelType = {
   };
   reducers: {
     setList: Reducer<GitModelState>;
+    setInfo: Reducer<GitModelState>;
+    setUpdateLoading: Reducer<GitModelState>;
+    _addConfig: Reducer<GitModelState>;
+    _updateConfig: Reducer<GitModelState>;
+    _delConfig: Reducer<GitModelState>;
+    _updateVersion: Reducer<GitModelState>;
   };
 }
 
 const GitModel: GitModelType = {
   namespace: 'git',
   state: {
-    gitList: []
+    gitList: [],
+    updateLoading: false
   },
   effects: {
     *query (_, { put, call}) {
@@ -185,10 +206,13 @@ const GitModel: GitModelType = {
       if (res.status === -1) return
       callback(res.data)
     },
-    *getInfo ({payload, callback}, {call}) {
+    *getInfo ({payload}, {call, put}) {
       const res = yield call(gitService.getInfo, payload as string)
       if (res.status === -1) return
-      callback(res.data)
+      yield put({
+        type: 'setInfo',
+        info: res.data
+      })
     },
     *getFileTree ({payload, callback}, {call}) {
       const res = yield call(gitService.getFileTree, payload)
@@ -223,20 +247,31 @@ const GitModel: GitModelType = {
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
-    *delConfig ({payload, callback}, {call}) {
+    *delConfig ({payload}, {call, put}) {
       const res = yield call(gitService.delConfig, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      yield put({
+        type: '_delConfig',
+        id: payload
+      })
     },
-    *addConfig ({payload, callback}, {call}) {
+    *addConfig ({payload, callback}, {call, put}) {
       const res = yield call(gitService.addConfig, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      yield put({
+        type: '_addConfig',
+        config: res.data
+      })
+      if (callback) callback()
     },
-    *updateConfig ({payload, callback}, {call}) {
+    *updateConfig ({payload, callback}, {call, put}) {
       const res = yield call(gitService.updateConfig, payload)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      yield put({
+        type: '_updateConfig',
+        config: res.data
+      })
+      if (callback) callback()
     },
     *getFileContent ({payload, callback}, {call}) {
       const res = yield call(gitService.getFileContent, payload)
@@ -248,10 +283,20 @@ const GitModel: GitModelType = {
       if (res.status === -1) return
       if (callback) callback()
     },
-    *updateVersion ({payload, callback}, {call}) {
-      const res = yield call(gitService.updateVersion, payload)
-      if (res.status === -1) return
-      if (callback) callback(res.data)
+    *updateVersion ({payload}, {call, put, select}) {
+      yield put({
+        type: 'setUpdateLoading',
+        loading: true
+      })
+      const currentState = yield select((conn: ConnectState) => conn.git)
+      const param = util.clone(payload)
+      param.id = currentState.currentVersion.id
+      let res = yield call(gitService.updateVersion, param)
+      if (res && res.status === -1) return
+      yield put({
+        type: '_updateVersion',
+        param: payload
+      })
     },
     *updateGitStatus ({payload, callback}, {call, select, put}) {
       const res = yield call( gitService.updateGitStatus, payload as UpdateGitStatus[])
@@ -300,11 +345,116 @@ const GitModel: GitModelType = {
   },
   reducers: {
     setList (state, {payload}): GitModelState {
-      return {
-        ...state,
-        gitList: payload
+      const res = util.clone(state)!
+      res.gitList = payload
+      return res!
+    },
+    setInfo(state, p): GitModelState {
+      const { info } = p as unknown as {
+        info: GitInfo;
       }
-    }   
+      const res = util.clone(state)
+      if (info.branchList.length) res!.currentBranch = info.branchList[0]
+      if (res?.currentBranch &&
+         res.currentBranch.versionList.length) {
+        res.currentVersion = res.currentBranch.versionList[0]
+      }
+      res!.currentGit = info
+      return res!
+    },
+    _addConfig(state, p): GitModelState {
+      const {config} = p as unknown as {
+        config: GitConfig;
+      }
+      const res = util.clone(state)
+      res!.currentVersion!.configs.push(config)
+      res?.currentBranch?.versionList.forEach((item, i) => {
+        if (item.id === res.currentVersion!.id) {
+          res!.currentBranch!.versionList![i] = res!.currentVersion!
+        }
+      })
+      res?.currentGit?.branchList.forEach((branch, i) => {
+        if (branch.id === res.currentBranch!.id) {
+          res.currentGit!.branchList[i] = res.currentBranch!
+        }
+      })
+      return res!
+    },
+    _updateConfig(state, p): GitModelState {
+      const {config} = p as unknown as {
+        config: GitConfig;
+      }
+      const res = util.clone(state)
+      res?.currentVersion?.configs.forEach((item, i) => {
+        if (item.id === config.id) {
+          res.currentVersion!.configs[i] = config
+        }
+      })
+      res?.currentBranch?.versionList.forEach((item, i) => {
+        if (item.id === res.currentVersion!.id) {
+          res!.currentBranch!.versionList![i] = res!.currentVersion!
+        }
+      })
+      res?.currentGit?.branchList.forEach((branch, i) => {
+        if (branch.id === res.currentBranch!.id) {
+          res.currentGit!.branchList[i] = res.currentBranch!
+        }
+      })
+      return res!
+    },
+    _delConfig(state, p): GitModelState {
+      const {id} = p as unknown as {
+        id: string;
+      }
+      const res = util.clone(state)
+      res?.currentVersion?.configs.forEach((item, i) => {
+        if (item.id === id) {
+          res.currentVersion!.configs.splice(i, 1)
+        }
+      })
+      res?.currentBranch?.versionList.forEach((item, i) => {
+        if (item.id === res.currentVersion!.id) {
+          res!.currentBranch!.versionList![i] = res!.currentVersion!
+        }
+      })
+      res?.currentGit?.branchList.forEach((branch, i) => {
+        if (branch.id === res.currentBranch!.id) {
+          res.currentGit!.branchList[i] = res.currentBranch!
+        }
+      })
+      return res!
+    },
+    setUpdateLoading (state, {loading}): GitModelState {
+      const res = util.clone(state)!
+      res.updateLoading = loading
+      return res
+    },
+    _updateVersion (state, {param}): GitModelState {
+      const res = util.clone(state)!
+      res.updateLoading = false
+      for (const prop in param) {
+        let val = param[prop]
+        switch (prop) {
+          case 'compileOrders':
+            val = JSON.parse(val)
+            break
+          default:
+            break
+        }
+        res.currentVersion![prop] = val
+      }
+      res?.currentBranch?.versionList.forEach((item, i) => {
+        if (item.id === res.currentVersion!.id) {
+          res!.currentBranch!.versionList![i] = res!.currentVersion!
+        }
+      })
+      res?.currentGit?.branchList.forEach((branch, i) => {
+        if (branch.id === res.currentBranch!.id) {
+          res.currentGit!.branchList[i] = res.currentBranch!
+        }
+      })
+      return res
+    }
   }
 }
 

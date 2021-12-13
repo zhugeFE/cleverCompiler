@@ -16,7 +16,6 @@ interface Props {
   configTypes: ConfigType[];
   dispatch: Dispatch;
   onClose ?(): void;
-  onSubmit ?(config: GitConfig, isContinue: boolean): void;
 }
 interface State {
   type?: ConfigType;
@@ -47,7 +46,7 @@ class GitAddConfig extends React.Component<Props, State> {
     })
   }
 
-  onSubmitForm (formData: any, isContinue: boolean) {
+  onSubmitForm (formData: any) {
     const form = new FormData()
     for (let key of Object.keys(formData)) {
       if (key == 'file') {
@@ -63,8 +62,8 @@ class GitAddConfig extends React.Component<Props, State> {
     this.props.dispatch({
       type: 'git/addConfig',
       payload: form,
-      callback: (config: GitConfig) => {
-        if (this.props.onSubmit) this.props.onSubmit(config,isContinue)
+      callback: () => {
+        if (this.props.onClose) this.props.onClose()
       }
     })
   }
@@ -137,8 +136,12 @@ class GitAddConfig extends React.Component<Props, State> {
   }
 }
 
-export default connect(({sys}: ConnectState) => {
+export default connect(({sys, git}: ConnectState) => {
+  const {currentGit, currentBranch, currentVersion} = git
   return {
-    configTypes: sys.configTypes
+    configTypes: sys.configTypes,
+    gitId: currentGit!.id,
+    versionId: currentVersion!.id,
+    branchId: currentBranch!.id
   }
 })(GitAddConfig)

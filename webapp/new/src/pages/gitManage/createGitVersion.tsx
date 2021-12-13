@@ -1,14 +1,13 @@
 import * as React from 'react'
 import { Modal, Form, Input, Radio, Select, Spin, FormInstance } from 'antd'
-import { Version, VersionStatus } from '@/models/common';
-import { GitBranch, GitCommit, GitCreateVersionParam, GitInfo, GitInfoBranch, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
+import { VersionStatus } from '@/models/common';
+import { GitBranch, GitCommit, GitCreateVersionParam, GitInfo, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
 import util from '@/utils/utils';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { ConnectState } from '@/models/connect';
 import { VersionType } from "@/models/common";
 import style from "./styles/createGitVersion.less";
-import { version } from 'yargs';
 
 interface FormData {
   option: string;
@@ -61,7 +60,7 @@ class CreateGitVersion extends React.Component<Props, States> {
       form: {
         option: '',
         description: '',
-        source: 'branch',
+        source: 'commit',
         repoId: '',
         branch: '',
         tag: '',
@@ -325,9 +324,9 @@ class CreateGitVersion extends React.Component<Props, States> {
           }
           <Form.Item label="来源" name="source" required>
             <Radio.Group>
-              <Radio.Button value="branch">branch</Radio.Button>
               <Radio.Button value="tag">tag</Radio.Button>
               <Radio.Button value="commit">commit</Radio.Button>
+              <Radio.Button value="branch">branch</Radio.Button>
             </Radio.Group>
           </Form.Item>
           <Form.Item label="branch" name="branch" style={{display: branchDisplay}} required>
