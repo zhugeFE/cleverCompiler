@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-29 17:49:55
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-10 16:35:28
+ * @LastEditTime: 2021-12-14 14:58:55
  */
 
 import { GitInfo, GitInfoBranch, GitVersion } from '@/models/git';
@@ -13,8 +13,12 @@ import React from 'react';
 import BranchTree from './branchTree';
 import styles from './styles/leftPanel.less';
 import CreateGitVersion from './createGitVersion';
+import { ConnectState } from '@/models/connect';
+import { connect, Dispatch } from 'dva';
+import { VersionStatus } from '@/models/common';
+import { IRouteProps } from '@umijs/types';
 
-interface Props {
+interface Props extends IRouteProps{
   disabled: boolean;
   gitInfo: GitInfo;
   expandedKeys: string[];
@@ -23,9 +27,7 @@ interface Props {
   gitId: string;
   repoId: string;
   versionList: GitVersion[];
-  onChange(id: string[], type: string): void;
-  deleteBranch(): void;
-  afterAdd(gitInfo: GitInfo): void;
+  dispatch: Dispatch;
 }
 
 interface State {
@@ -43,7 +45,7 @@ class LeftPanel extends React.Component<Props, State> {
     this.onHideAddBranch = this.onHideAddBranch.bind(this)
     this.onClickAddVersion = this.onClickAddVersion.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
-    
+    this.onChange = this.onChange.bind(this)
   }
 
   onHideAddBranch () {
@@ -51,9 +53,9 @@ class LeftPanel extends React.Component<Props, State> {
       showAddType: '',
     })
   }
-  afterAdd (gitInfo: GitInfo) {
+
+  afterAdd () {
     this.state.showAddType == 'branch' ? this.onHideAddBranch() : this.onCancelAddVersion()
-    if (this.props.afterAdd) this.props.afterAdd(gitInfo)
   }
 
   onClickAddBranch () {
@@ -74,7 +76,25 @@ class LeftPanel extends React.Component<Props, State> {
     })
   }
 
-
+  onChange (id: string[], type: string) {
+    switch (type) {
+      case "branch": 
+        this.props.dispatch({
+          type: "git/setBranch",
+          payload: id[0]
+        })
+        break
+      case "version":
+        this.props.dispatch({
+          type: "git/setVersion",
+          payload: id[1]
+        })
+        break
+      default:
+        break
+      
+    }
+  }
   renderAddComponent () {
     if (this.state.showAddType == 'branch') {
       return (
@@ -118,11 +138,22 @@ class LeftPanel extends React.Component<Props, State> {
           expandedKeys={this.props.expandedKeys}
           selectedKeys={this.props.selectedKeys}
           data={this.props.data}
-          onChange={this.props.onChange}
+          onChange={this.onChange}
         ></BranchTree>
       </div>
     )
   }
 }
 
-export default  LeftPanel
+export default connect( ({git}: ConnectState) => {  
+  return {
+    disabled : git.currentVersion?.status != VersionStatus.normal,
+    expandedKeys: [git.currentBranch!.id],
+    selectedKeys: [git.currentVersion!.id],
+    gitInfo: git.currentGit!,
+    data: git.currentGit?.branchList!,
+    gitId: git.currentGit?.id!,
+    repoId: git.currentGit?.gitId!,
+    versionList: git.currentBranch?.versionList!
+  }
+})(LeftPanel)  

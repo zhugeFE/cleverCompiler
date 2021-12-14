@@ -1,12 +1,12 @@
 import { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
 import { VersionStatus } from '@/models/common'
-import { GitConfig, GitInfo, GitInfoBranch, GitList, GitUpdateVersionParam, GitVersion } from '@/models/git'
+import { GitInfo, GitInfoBranch, GitList, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import * as _ from 'lodash'
 import { LeftOutlined } from '@ant-design/icons'
 import { IRouteComponentProps } from '@umijs/renderer-react'
-import { Button, Tabs, Tag, Spin, Tooltip, Progress, Input, Select, message, Skeleton, Radio } from 'antd'
+import { Button, Tabs, Tag, Spin, Tooltip, Progress, Input, Select, message, Radio } from 'antd'
 import { connect } from 'dva'
 import React from 'react'
 import { withRouter } from 'react-router'
@@ -31,19 +31,17 @@ interface State {
   updateTimeout: number;
   delTimeout: number;
   savePercent: number;
-  delInterval?: NodeJS.Timeout;
   delTooltip: string;
   gitList: GitList[] | null;
   queryGitData: boolean;
 }
 
 class GitEdit extends React.Component<GitEditProps, State> {
+  delInterval?: NodeJS.Timeout;
   constructor (props: GitEditProps) {
     super(props)
     this.state = {
       showAddConfig: false,
-      currentBranch: null,
-      currentVersion: null,
       updateTimeout: 0,
       delTimeout: 0,
       savePercent: 100,
@@ -57,15 +55,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.afterAddConfig = this.afterAddConfig.bind(this)
     this.onDeleteVersion = this.onDeleteVersion.bind(this)
     this.afterCreateGit = this.afterCreateGit.bind(this)
-    this.afterDelConfig = this.afterDelConfig.bind(this)
     this.onAddConfig = this.onAddConfig.bind(this)
-    this.onChangeOrders = this.onChangeOrders.bind(this)
     this.onChangeReadme = this.onChangeReadme.bind(this)
     this.onChangeBuild = this.onChangeBuild.bind(this)
     this.onChangeUpdate = this.onChangeUpdate.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
-    this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
-    this.afterChangeBranchOrVersion = this.afterChangeBranchOrVersion.bind(this)
     this.onChangeOutputName = this.onChangeOutputName.bind(this)
     this.onDeleteBranch = this.onDeleteBranch.bind(this)
     this.selectPubliceGit = this.selectPubliceGit.bind(this)
@@ -73,35 +67,28 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
 
   componentDidMount () {
+    this.delInterval = setInterval( () => this.initDelInterval(this.props.currentVersion), 1000)
     this.getRemoteList () 
     if (this.props.match.params.id != "createGit") {
       this.getGitInfo(this.props.match.params.id)
     }
   }
+  componentDidUpdate () {
+    this.delInterval = setInterval( () => this.initDelInterval(this.props.currentVersion), 1000)
+  }
   componentWillUnmount () {
-    if (this.state.delInterval) clearInterval(this.state.delInterval)
+    if (this.delInterval) clearInterval(this.delInterval)
   }
   
   getGitInfo (id: string) {
     this.props.dispatch({
       type: 'git/getInfo',
       payload: id
-      // callback: (info: GitInfo) => {
-        
-      //   const currentBranch = info.branchList[0]
-      //   const currentVersion = currentBranch.versionList[0]
-      //   this.setState({
-      //     gitInfo: info,
-      //     currentBranch,
-      //     currentVersion
-      //   }) 
-      //   this.initDelInterval(currentVersion)   
-      // }
     })
   }
 
   initDelInterval (version: GitVersion | null) {
-    clearInterval(this.state.delInterval as unknown as number)
+    clearInterval(this.delInterval as unknown as number)
     if (!version || version.status != VersionStatus.normal) {
       this.setState({
         delTimeout: 0,
@@ -111,20 +98,12 @@ class GitEdit extends React.Component<GitEditProps, State> {
     }
     let delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() - version!.publishTime)
     let delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
+    if (delTimeout <= 0) {
+      clearInterval(this.initDelInterval as unknown as number)
+    }
     this.setState({
       delTimeout,
-      delTooltip,
-      delInterval: setInterval(() => {
-        delTimeout = delTimeout - 1000    
-        delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
-        if (delTimeout <= 0) {
-          clearInterval(this.state.delInterval as unknown as number)
-        }
-        this.setState({
-          delTimeout,
-          delTooltip
-        })
-      }, 1000)
+      delTooltip
     })
   }
 
@@ -133,8 +112,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
       showAddConfig: false
     })
   }
+
   onDeleteBranch () {
-    const { currentVersion, currentBranch} = this.state
+    const { currentVersion, currentBranch} = this.props
     const { gitInfo } = this.props
     if ( !gitInfo || !currentBranch || !currentVersion) return
     if ( gitInfo.branchList.length == 1) {
@@ -144,24 +124,17 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.props.dispatch({
       type: 'git/deleteBranch',
       payload: currentBranch.id,
-      callback: () => {
-        const cloneGitInfo = util.clone(gitInfo)
-        cloneGitInfo.branchList.forEach( (item, index) => {
-          if ( item.id === currentBranch.id) {
-            cloneGitInfo.branchList.splice(index, 1)
-          }
-        })
-        this.setState({
-          currentBranch: cloneGitInfo.branchList[0],
-          currentVersion: cloneGitInfo.branchList[0].versionList[0]
-        })
-        this.initDelInterval(currentVersion)
-      }
+      callback: (res: boolean) => {
+        if (!res) {
+          message.error("删除失败")
+        } else {
+          message.success("删除成功")
+        }
+      }   
     })
-
   }
   onDeleteVersion () {
-    const { currentVersion, currentBranch} = this.state
+    const { currentVersion, currentBranch} = this.props
     const { gitInfo } = this.props
     if ( !gitInfo || !currentBranch || !currentVersion) return
     if ( currentBranch.versionList.length == 1) {
@@ -171,21 +144,12 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.props.dispatch({
       type: 'git/deleteVersion',
       payload: currentVersion.id,
-      callback: () => {
-        const cloneBranch = util.clone(currentBranch)
-
-        cloneBranch.versionList = cloneBranch.versionList.filter(item => item.id != currentVersion.id)
-        const cloneGitInfo = util.clone(gitInfo)
-        cloneGitInfo.branchList.forEach( (item, index) => {
-          if ( item.id === cloneBranch.id) {
-            cloneGitInfo.branchList[index] = cloneBranch
-          }
-        })
-        this.setState({
-          currentBranch: cloneBranch,
-          currentVersion: cloneBranch.versionList.length > 0 ? cloneBranch.versionList[0] : null
-        })
-        this.initDelInterval(currentVersion)
+      callback: (res: boolean) => {
+        if (!res) {
+          message.error("删除失败")
+        } else {
+          message.success("删除成功")
+        }
       }
     })
   }
@@ -196,88 +160,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
-  onUpdateVersion () {
-    if (this.state.updateTimeout) {
-      clearTimeout(this.state.updateTimeout)
-    }
-    this.setState({
-      savePercent: _.random(10, 90, false),
-      updateTimeout: setTimeout(() => {
-        const { currentVersion } = this.props
-        const param: GitUpdateVersionParam = {
-          id: currentVersion!.id,
-          outputName: currentVersion!.outputName,
-          publicGit: currentVersion?.publicType == 0 ? currentVersion!.publicGit : 0,
-          publicType: currentVersion!.publicType,
-          compileOrders: JSON.stringify(currentVersion!.compileOrders),
-          readmeDoc: currentVersion!.readmeDoc,
-          buildDoc: currentVersion!.buildDoc,
-          updateDoc: currentVersion!.updateDoc
-        }
-        this.props.dispatch({
-          type: 'git/updateVersion',
-          payload: param,
-          callback: () => {
-            this.setState({
-              savePercent: 100
-            })
-          }
-        })
-      }, 500) as unknown as number
-    })
-  }
-
-  onChangeReadme (content: string) {
-    const currentVersion = util.clone(this.state.currentVersion)
-    currentVersion!.readmeDoc = content
-    this.setState({
-      currentVersion
-    })
-    this.onUpdateVersion()
-  }
-
-  onChangeBuild (content: string) {
-    const currentVersion = util.clone(this.state.currentVersion)
-    currentVersion!.buildDoc = content
-    this.setState({
-      currentVersion
-    })
-    this.onUpdateVersion()
-  }
-
-  onChangeUpdate (content: string) {    
-    const currentVersion = util.clone(this.state.currentVersion)
-    currentVersion!.updateDoc = content
-    this.setState({
-      currentVersion
-    })
-    this.onUpdateVersion()
-  }
-
   onCancelAddVersion () {
     this.props.history.goBack()
-  }
-
-  onChangeOrders (orders: string[]) {
-    const version = util.clone(this.props.currentVersion)
-    const branch = util.clone(this.props.currentBranch)
-    version!.compileOrders = orders
-    branch?.versionList.forEach( (item, i) => {
-      if (item.id === version!.id) {
-        branch.versionList[i] = version!
-      }
-    })
-    const gitInfo = util.clone(this.props.gitInfo)
-    gitInfo?.branchList.forEach((item, i) => {
-      if (item.id === branch?.id) {
-        gitInfo.branchList[i] = branch
-      }
-    })
-    this.setState({
-      currentBranch: branch,
-      currentVersion: version
-    })
-    this.onUpdateVersion()
   }
 
   onChangeOutputName (event: any) {    
@@ -287,158 +171,32 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
-  afterAddConfig (config: GitConfig, isContonue: boolean) {
-    const currentVersion = util.clone(this.state.currentVersion)
-    const branch = util.clone(this.state.currentBranch)
-    currentVersion?.configs.push(config)
-    branch?.versionList.forEach((item, i) => {
-      if (branch.id === currentVersion?.id) {
-        branch.versionList[i] = currentVersion
-      }
-    })
-    const gitInfo = util.clone(this.props.gitInfo)
-    gitInfo?.branchList.forEach((item, i) => {
-      if (item.id === branch?.id) {
-        gitInfo.branchList[i] = branch
-      }
-    })
+  afterAddConfig (isContonue: boolean) {
     this.setState({
-      showAddConfig: isContonue ,
-      currentBranch: branch,
-      currentVersion
+      showAddConfig: isContonue 
     })
   }
-
-  afterUpdateConfig (config: GitConfig) {
-    const currentVersion = util.clone(this.state.currentVersion)
-    const branch = util.clone(this.state.currentBranch)
-    currentVersion?.configs.map( (item, index) => {
-      if (item.id == config.id) {
-        currentVersion.configs[index] = config
-      }
-    })
-    branch?.versionList.forEach( (item, i) => {
-      if (item.id == currentVersion?.id) {
-        branch.versionList[i] = currentVersion
-      }
-    })
-    const gitInfo = util.clone(this.props.gitInfo)
-    gitInfo?.branchList.forEach((item, i) => {
-      if (item.id === branch?.id) {
-        gitInfo.branchList[i] = branch
-      }
-    })
-    this.setState({
-      showAddConfig: false,
-      currentBranch: branch,
-      currentVersion
-    })
-  }
-  afterChangeBranchOrVersion ( id: string[], type: string) {
-    if (type == 'branch') {
-      const branch = this.props.gitInfo!.branchList.filter( item => id[0] === item.id)[0]
-      this.setState({
-        currentBranch: branch,
-        currentVersion: branch.versionList[0]
-      })
-      this.initDelInterval(branch.versionList[0])
-    } else if (type == 'version') {
-      // id[0] === branchId, id[1] === versionid
-      const branch = this.props.gitInfo!.branchList.filter( item => id[0] === item.id)[0]
-      const version = branch.versionList.filter(item => item.id == id[1])[0]
-      this.setState({
-        currentBranch: branch,
-        currentVersion: version
-      })
-      this.initDelInterval(version)
-    }
-  }
-  afterCreateGit (gitInfo: GitInfo) {    
-    if (this.props.match.params.id == 'createGit') {
-      this.props.match.params.id = gitInfo.id
-      this.props.history.push(`/manage/git/${gitInfo.id}`)
-      this.setState({
-        currentBranch: gitInfo.branchList[0],
-        currentVersion: gitInfo.branchList[0].versionList[0]
-      })
-      this.initDelInterval(gitInfo.branchList[0].versionList[0])      
-    }
-    else if ( this.props.gitInfo?.branchList.length != gitInfo.branchList.length) {
-      //长度不同，意味着为新加
-      this.setState({
-        currentBranch: gitInfo.branchList[0],
-        currentVersion: gitInfo.branchList[0].versionList[0]
-      })      
-      this.initDelInterval(gitInfo.branchList[0].versionList[0])
-    }
-    else {
-      const branch = gitInfo.branchList.filter( item => item.id == this.state.currentBranch!.id)[0]
-      this.setState({
-        currentBranch: branch,
-        currentVersion: branch.versionList[0],
-      })
-      this.initDelInterval(branch.versionList[0])
-
-    }
+ 
+  afterCreateGit () {    
+    this.props.history.push(`/manage/git/${this.props.gitInfo.id}`)
   }
   onChangeVersionStatue (status: VersionStatus) {
-    if (!this.state.currentVersion) return
+    if (!this.props.currentVersion) return
     this.props.dispatch({
       type: "git/updateGitVersionStatus",
       payload: {
-        id: this.state.currentVersion.id,
+        id: this.props.currentVersion.id,
         status: Number(status)
       },
-      callback: () => {
-        const currentVersion = util.clone( this.state.currentVersion )
-        currentVersion!.status = Number(status)
-        const branch = util.clone(this.state.currentBranch)
-        branch?.versionList.forEach( (item, i) => {
-          if (item.id == currentVersion?.id) {
-            branch.versionList[i] = currentVersion
-          }
-        })
-        const gitInfo = util.clone(this.props.gitInfo)
-        gitInfo?.branchList.forEach( (item, i) => {
-          if (item.id == branch?.id) {
-            gitInfo.branchList[i] = branch
-          }
-        })
-        this.setState({
-          currentBranch: branch,
-          currentVersion,
-        })
-        this.initDelInterval(currentVersion)
+      callback: (res: boolean) => {
+        if(!res) {
+          message.error("操作失败")
+        } else{
+          message.success("操作成功")
+        }
       }
     })
   }
-
-  afterDelConfig (configId: string) {
-    const currentVersion = util.clone(this.state.currentVersion)
-    currentVersion?.configs.forEach((config, i) => {
-      if (configId === config.id) {
-        currentVersion.configs.splice(i, 1)
-      }
-    })
-    const branch = util.clone(this.state.currentBranch)
-    branch?.versionList.forEach( (item, i) => {
-      if (item.id === currentVersion?.id) {
-        branch.versionList[i] = currentVersion
-      }
-    })
-
-    const gitInfo = util.clone(this.props.gitInfo)
-    gitInfo!.branchList.forEach((item, i) => {
-      if (item.id === branch?.id) {
-        gitInfo!.branchList[i] = branch
-      }
-    })
-    this.setState({
-      currentBranch: branch,
-      currentVersion
-    })
-  }
-
 
   getRemoteList () {
     this.setState({
@@ -454,23 +212,32 @@ class GitEdit extends React.Component<GitEditProps, State> {
       }
     })
   }
+  onChangeReadme (content: string) {
+    const readmeDoc = content
+    this.updateVersion({
+      readmeDoc
+    })
+  }
+
+  onChangeBuild (content: string) {
+    const buildDoc = content
+    this.updateVersion({
+      buildDoc
+    })
+  }
+
+  onChangeUpdate (content: string) {    
+    const updateDoc = content
+    this.updateVersion({
+      updateDoc
+    })
+  }
 
   selectPubliceGit (id: number) {
-    const version = util.clone(this.props.currentVersion)
-    const branch = util.clone(this.props.currentBranch)
-    version!.publicGit = id
-    branch?.versionList.forEach( (item, i) => {
-      if (item.id === version?.id) {
-        branch.versionList[i] = version
-      }
+    const publicGit = id
+    this.updateVersion({
+      publicGit
     })
-    const gitInfo = util.clone(this.props.gitInfo)
-    gitInfo?.branchList.forEach((item, i) => {
-      if (item.id === branch?.id) {
-        gitInfo.branchList[i] = branch
-      }
-    })
-    this.onUpdateVersion()
   }
 
   onRadioChange (e: any) {
@@ -530,25 +297,14 @@ class GitEdit extends React.Component<GitEditProps, State> {
               percent={this.state.savePercent} 
               size="small"
               strokeWidth={2}
-              format={percent => percent === 100 ? 'saved' : 'saving'}></Progress>
+              format={percent => percent === 100 ? 'saved' : 'saving'}
+              ></Progress>
           </span>
         </div>
         {           
-          this.props.gitInfo?.branchList.length ? (
+          this.props.match.params.id !== 'createGit' ? (
             <div className={styles.gitPanelCenter}>
-              <SlidePanel
-                disabled={this.props.currentVersion?.status != VersionStatus.normal}
-                expandedKeys={[this.props.currentBranch!.id]}
-                selectedKeys={[this.props.currentVersion!.id]}
-                gitInfo={this.props.gitInfo}
-                data={this.props.gitInfo!.branchList}
-                gitId={this.props.gitInfo!.id} 
-                repoId={this.props.gitInfo!.gitId}
-                versionList={this.props.currentBranch!.versionList}
-                afterAdd={this.afterCreateGit}
-                deleteBranch={this.onDeleteBranch}
-                onChange={this.afterChangeBranchOrVersion}
-              >
+              <SlidePanel>
               </SlidePanel>
               <div className={styles.gitDetail}>
                 <Description label="项目名称" labelWidth={labelWidth}>
@@ -577,8 +333,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     onClick={this.onAddConfig}>添加配置项</Button>
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth} style={{marginBottom:10}}>
-                  {this.props.currentVersion ? (
-                    <Commands/>) : null}
+                  {this.props.currentVersion && <Commands/>}
                 </Description>
                 <Description label="输出文件" display="flex" labelWidth={labelWidth} style={{marginBottom:10}}>
                   {this.props.currentVersion ? <div className={!this.props.currentVersion.outputName ? styles.nullValue : ""}>
@@ -614,10 +369,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
                         disabled={this.props.currentVersion?.status != VersionStatus.normal} 
                         onChange={this.selectPubliceGit} 
                         placeholder="选择发布代码库"
-                        value={this.props.currentVersion.publicGit}>
+                        defaultValue={this.props.currentVersion.publicGit}>
                         {
-                          this.state.queryGitData ? 
-                          <Select.Option key='1' value="1"><Skeleton active></Skeleton> </Select.Option>:
                           this.state.gitList?.map(item => {
                             return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
                           })

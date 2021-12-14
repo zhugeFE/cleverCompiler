@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 18:15:36
+ * @LastEditTime: 2021-12-13 22:36:45
  */
 import * as React from 'react'
 import * as ReactMarkdown from 'react-markdown'
@@ -33,14 +33,6 @@ class Markdown extends React.Component<Props, State> {
       mode: Mode.preview
     }
     this.onChange = this.onChange.bind(this)
-  }
-  static getDerivedStateFromProps (props: Props, state: State) {
-    if (props.content !== state.content) {
-      return {
-        content: props.content
-      }
-    }
-    return null
   }
   onTogleMode () {
     if( this.props.DisabledEdit ) {

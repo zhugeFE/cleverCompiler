@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Modal, Form, Input, Radio, Select, Spin, FormInstance } from 'antd'
+import { Modal, Form, Input, Radio, Select, Spin, FormInstance, message } from 'antd'
 import { VersionStatus } from '@/models/common';
 import { GitBranch, GitCommit, GitCreateVersionParam, GitInfo, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
 import util from '@/utils/utils';
@@ -33,7 +33,7 @@ interface Props {
   versionList?: GitVersion[];
   dispatch: Dispatch;
   onCancel? (): void;
-  afterAdd? (gitinfo: GitInfo): void;
+  afterAdd? (): void;
 }
 interface States {
   show: boolean;
@@ -219,11 +219,16 @@ class CreateGitVersion extends React.Component<Props, States> {
     this.props.dispatch({
       type: 'git/createVersion',
       payload: data,
-      callback: (gitInfo: GitInfo) => {
+      callback: (res: true) => {
+        if (!res) {
+          message.error("创建失败")
+          return
+        }
         this.setState({
           show: false
         })
-        if (this.props.afterAdd) this.props.afterAdd(gitInfo)
+        message.info("创建成功")
+        if (this.props.afterAdd) this.props.afterAdd()
       }
     })
   }
