@@ -4,18 +4,19 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-09 15:51:11
+ * @LastEditTime: 2021-12-15 14:52:25
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
-import { Button, Select, Skeleton, Table, Tabs } from 'antd';
+import { Button, message, Select, Skeleton, Table, Tabs } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
-import { GitInfo } from '../../models/git';
+import { GitInfo, GitVersion } from '../../models/git';
 import {
   TemplateConfig,
   TemplateGlobalConfig,
+  TemplateVersion,
   TemplateVersionGit,
 } from '@/models/template';
 import util from '@/utils/utils';
@@ -23,6 +24,7 @@ import AddTemplateGitSourse from './addTemplateGitSourse';
 import { EditMode, TypeMode, VersionStatus } from '@/models/common';
 import UpdateTextConfig from "./updateTextConfig";
 import UpdateFileConfig from "./updateFileConfig";
+import { ConnectState } from '@/models/connect';
 
 export interface ConfigPanelProps {
   mode: VersionStatus;
@@ -32,11 +34,7 @@ export interface ConfigPanelProps {
   templateVersionId: string;
   activeKey: string;
   gitInfo: GitInfo | null;
-  onChangeGit(activeKey: string): void;
-  onSubmit(config: TemplateConfig): void;
-  afterDelGit(id: string): void;
-  afterAddGit(git: TemplateVersionGit): void;
-  afterSelectGitVersion(version: string): void;
+  currentVersion: TemplateVersion;
   dispatch: Dispatch;
 }
 interface State {
@@ -45,6 +43,8 @@ interface State {
   currentBranch: string;
   currentConfig: TemplateConfig | null;
   activeKey: string;
+  gitInfo: GitInfo | null;
+
 }
 
 class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
@@ -57,23 +57,44 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       showAddGitSource: false,
       currentConfig: null,
       activeKey: "",
+      gitInfo: null,
+
     };
     this.onEdit = this.onEdit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.remove = this.remove.bind(this);
     this.hideAddGitSource = this.hideAddGitSource.bind(this);
     this.onCancelUpdateConfig = this.onCancelUpdateConfig.bind(this);
-    this.afterAddGitSource = this.afterAddGitSource.bind(this);
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this);
     this.selectGitVersion = this.selectGitVersion.bind(this);
     this.selectGitBranch = this.selectGitBranch.bind(this);
   }
 
+  componentDidMount () {
+    if (this.props.activeKey && this.props.currentVersion) {
+      this.getGitInfo(this.props.activeKey)
+    }
+  }
+
+  //获取git版本数据
+  getGitInfo(id: string) {
+    const gitList = util.clone(this.props.currentVersion.gitList)!
+    const currentGit = gitList.filter(item => item.id == id)[0]      
+    this.props.dispatch({
+      type: 'git/getInfo',
+      payload: currentGit.gitSourceId
+    });
+  }
+  
   onChange(activeKey: string) {
     this.setState({
       currentBranch: ""
     })
-    if (this.props.onChangeGit) this.props.onChangeGit(activeKey)    
+    this.getGitInfo(activeKey)
+    this.props.dispatch({
+      type: "template/setCurrentGitId",
+      payload: activeKey
+    })
   }
 
   selectGitBranch (value: string) {
@@ -83,7 +104,47 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
   }
   
   selectGitVersion ( value: string ) {
-    this.props.afterSelectGitVersion( value )
+    // this.props.afterSelectGitVersion( value )
+    let versionData: GitVersion
+    for (const branch of this.props.gitInfo!.branchList) {
+      for (const version of branch.versionList) {
+        if (version.id == value) {
+          versionData = version
+          break
+        }
+      }
+    }
+    const currentVersion = util.clone(this.props.currentVersion)
+    const data = {}
+    if (currentVersion) {
+      currentVersion.gitList.map( git => {
+        if ( git.id === this.props.activeKey){
+          data['id'] = git.id
+          data['gitSourceVersionId'] = versionData?.id
+          data['configList'] = []
+          versionData?.configs.map( config => {
+            data['configList'].push({
+              templateId: git.templateId,
+              templateVersionId: git.templateVersionId,
+              templateVersionGitId: git.id,
+              gitSourceConfigId: config.id,
+              targetValue: config.targetValue,
+            })
+          })
+        }
+      })
+    }
+    this.props.dispatch({
+      type: "template/changeGitVersion",
+      payload: data,
+      callback: (res: boolean) => {
+        if( res) {
+          message.success("git切换成功")
+        } else {
+          message.error("git切换失败")
+        }
+      }
+    })
   }
 
   
@@ -111,43 +172,70 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.props.dispatch({
       type: 'template/delVersionGit',
       payload: targetKey,
-      callback: () => {
-        this.setState({
-          currentBranch: ""
-        })
-        if (this.props.afterDelGit) this.props.afterDelGit(targetKey)
+      callback: (res: boolean) => {
+        if (res) {
+          message.success({
+            content: "git删除成功",
+            duration: 0.5
+          })
+          this.setState({
+            currentBranch: ""
+          })
+        } else {
+          message.error({
+            content: "git删除失败",
+            duration: 0.5
+          })
+        }
       }
     });
   }
   
   //配置修改
   onChangeConfig(config: TemplateConfig, type: string, value: any) {
-    const data = util.clone(config);
     switch (type) {
       case 'globalConfig': {
-        data.globalConfigId = value === "0" ? null : value
         this.props.dispatch({
           type: "template/updateConfigGlobalConfig",
           payload: {
             id: config.id,
-            globalConfig: data.globalConfigId,
+            globalConfigId: value === "0" ? null : value,
           },
-          callback: () => {
-            if (this.props.onSubmit) this.props.onSubmit(data)
+          callback: (res: boolean) => {
+            if (res) {
+              message.success({
+                content: "全局配置属性修改成功",
+                duration: 0.5
+              })
+            } else {
+              message.error({
+                content: "全局配置属性修改失败",
+                duration: 0.5
+              })
+            }
           }
         })
         break;
       }
       case 'hidden': {
-        data.isHidden = Number(!config.isHidden)
         this.props.dispatch({
           type: 'template/updateConfigStatus',
           payload: {
             id: config.id,
             status: Number(!config.isHidden)
           },
-          callback: () => {
-            if( this.props.onSubmit) this.props.onSubmit(data)
+          callback: (res: boolean) => {
+            if (res) {
+              message.success({
+                content: "修改属性成功",
+                duration: 0.5
+              })
+            } else {
+              message.error({
+                content: "修改属性失败",
+                duration: 0.5
+              })
+            }
           }
         })
         break;
@@ -158,23 +246,14 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           payload: config.filePath,
           callback: fileContent => {
             this.setState({
-              fileContent
+              fileContent,
+              currentConfig: config
             })
           }
-        })
-        this.setState({
-          currentConfig: data
         })
         return 
       }
     }
-  }
-
-
-  //增加git源
-  afterAddGitSource(git: TemplateVersionGit){
-    this.hideAddGitSource()
-    if (this.props.afterAddGit) this.props.afterAddGit(git)
   }
 
   onCancelUpdateConfig () {
@@ -196,17 +275,28 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.props.dispatch({
       type: 'template/updateConfig',
       payload: form,
-      callback: (config: TemplateConfig) => {
-        this.setState({
-          currentConfig: null
-        })
-        if (this.props.onSubmit) this.props.onSubmit(config)
+      callback: (res: boolean) => {
+        if(res) {
+          message.success({
+            content: "配置修改成功",
+            duration: 0.5
+          })
+          this.setState({
+            currentConfig: null
+          })
+        } else {
+          message.error({
+            content: "配置修改失败",
+            duration: 0.5
+          })
+        }
+        
       }
     })
   }
 
   render() {
-    this.props.globalConfigList.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
+    this.props.globalConfigList?.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
     const columns: ColumnProps<TemplateConfig>[] = [
       { title: '文件位置', width: 150, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
       {
@@ -300,28 +390,36 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       },
     ];
     const gitList = this.props.gitList;
+    const {currentConfig} = this.state;
     return (
       <div className={styles.templateConfigPanel}>
         {
-          this.state.currentConfig && (
-            this.state.currentConfig.typeId == TypeMode.text ? (
-              <UpdateTextConfig
-                mode={EditMode.update}
-                config={this.state.currentConfig}
-                gitId={this.props.gitList.filter(git => this.state.currentConfig?.templateVersionGitId == git.id)[0]['gitSourceId']}
-                gitVersionId={this.props.gitList.filter(git => this.state.currentConfig?.templateVersionGitId == git.id)[0]['gitSourceVersionId']}
-                onCancel={this.onCancelUpdateConfig}
-                onSubmit={this.afterUpdateConfig}
-              ></UpdateTextConfig>
-            ) : (
-              <UpdateFileConfig
-                mode={EditMode.update}
-                config={this.state.currentConfig}
-                onCancel={this.onCancelUpdateConfig}
-                onSubmit={this.afterUpdateConfig}
-              ></UpdateFileConfig>
-            )
-          )
+          currentConfig && ((()=>{
+            let res = null
+            switch(currentConfig.typeId) {
+              case TypeMode.text:
+                res = <UpdateTextConfig
+                  mode={EditMode.update}
+                  config={currentConfig}
+                  gitId={this.props.gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0]['gitSourceId']}
+                  gitVersionId={this.props.gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0]['gitSourceVersionId']}
+                  onCancel={this.onCancelUpdateConfig}
+                  onSubmit={this.afterUpdateConfig}
+                ></UpdateTextConfig>
+                break
+              case TypeMode.file:
+                res = <UpdateFileConfig
+                  mode={EditMode.update}
+                  config={currentConfig}
+                  onCancel={this.onCancelUpdateConfig}
+                  onSubmit={this.afterUpdateConfig}
+                ></UpdateFileConfig>
+                break
+              default:
+                console.warn('无法识别的配置类型', currentConfig.typeId)
+            }
+            return res
+          })())
         }
         
         {
@@ -330,7 +428,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             existGits={this.props.gitList}
             templateId={this.props.templateId}
             templateVersionId={this.props.templateVersionId}
-            afterAdd={this.afterAddGitSource}
             onCancel={this.hideAddGitSource} />
           }
         { !this.props.activeKey ? (
@@ -423,4 +520,15 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     );
   }
 }
-export default connect()(GitConfigPanel);
+export default connect(({template, git}: ConnectState) => {  
+  return {
+    gitInfo: git.currentGit!,
+    currentVersion: template.currentVersion!,
+    mode: template.currentVersion?.status!,
+    activeKey: template.currentGitId!,
+    templateId: template.currentVersion?.templateId!,
+    templateVersionId: template.currentVersion?.id!,
+    gitList: template.currentVersion?.gitList!,
+    globalConfigList: template.currentVersion?.globalConfigList!
+  }
+})(GitConfigPanel);

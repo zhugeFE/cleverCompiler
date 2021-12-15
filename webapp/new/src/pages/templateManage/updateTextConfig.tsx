@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:29
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:45:22
+ * @LastEditTime: 2021-12-15 14:38:08
  */
 
 import { Checkbox, Form, FormInstance, Input, Modal } from 'antd';
@@ -70,6 +70,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
     this.onCancel = this.onCancel.bind(this);
     this.onCommit = this.onCommit.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.onSelectFile = this.onSelectFile.bind(this);
   }
 
   componentDidMount () {
@@ -145,7 +146,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
         onOk={this.onCommit}>
         <FileTree 
           defauleSelect={this.state.form.filePath}
-          // onSelect={this.onSelectFile} 
+          onSelect={this.onSelectFile} 
           versionId={this.props.gitVersionId}
           gitId={this.props.gitId}></FileTree>
     

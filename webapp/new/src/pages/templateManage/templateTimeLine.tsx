@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 21:22:00
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:39:41
+ * @LastEditTime: 2021-12-14 17:46:19
  */
 import * as React from 'react';
 import { Timeline, Tag, Input, Form } from 'antd';
@@ -16,12 +16,13 @@ import CreateTemplateVersion from './createTemplateVersion';
 import styles from './styles/timeline.less';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from '@/.umi/plugin-dva/exports';
+import { ConnectState } from '@/models/connect';
 
 interface Props {
   currentVersion: TemplateVersion;
   versionList: TemplateVersion[]
-  afterAdd?(version: TemplateVersion): void;
-  onChange?(version: TemplateVersion): void;
+  // afterAdd?(version: TemplateVersion): void;
+  // onChange?(version: TemplateVersion): void;
   dispatch: Dispatch;
 }
 interface State {
@@ -42,13 +43,15 @@ class TimeLinePanel extends React.Component<Props, State> {
   }
 
   //添加新版本后 更改state值
-  afterAddVersion(version: TemplateVersion) {
+  afterAddVersion() {
     this.hideAddVersion()
-    if (this.props.afterAdd) this.props.afterAdd(version)
   }
   // 选中项
-  onChangeVersion(version: TemplateVersion) {
-    if (this.props.onChange) this.props.onChange(version)
+  onChangeVersion(versionId: string) {
+    this.props.dispatch({
+      type: "template/setCurrentVersion",
+      payload: versionId
+    })
   }
 
   onFilter(changedValues: { search: string }) {
@@ -114,7 +117,7 @@ class TimeLinePanel extends React.Component<Props, State> {
                   >
                     <a
                       className={version.status === 0 ? styles.disabled : null}
-                      onClick={this.onChangeVersion.bind(this, version)}
+                      onClick={this.onChangeVersion.bind(this, version.id)}
                     >
                       <Tag color="blue" title={version.description}>
                         {version.version}
@@ -128,7 +131,7 @@ class TimeLinePanel extends React.Component<Props, State> {
                     <a
                       title={version.description}
                       className={version.status === 0 ? styles.disabled : null}
-                      onClick={this.onChangeVersion.bind(this, version)}
+                      onClick={this.onChangeVersion.bind(this, version.id)}
                     >
                       {version.version}
                     </a>
@@ -141,4 +144,9 @@ class TimeLinePanel extends React.Component<Props, State> {
     );
   }
 }
-export default connect()(TimeLinePanel);
+export default connect( ({template}: ConnectState) => {
+  return {
+    versionList: template.templateInfo!.versionList,
+    currentVersion: template.currentVersion!
+  }
+})(TimeLinePanel);

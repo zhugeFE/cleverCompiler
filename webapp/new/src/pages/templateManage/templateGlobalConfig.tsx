@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:44:00
+ * @LastEditTime: 2021-12-14 17:10:20
  */
 
 import * as React from 'react';
-import {Button, Table } from 'antd';
+import {Button, message, Table } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -17,14 +17,12 @@ import UpdateTextGlobalConfig from './addTemplateGlobalTextConfig';
 import UpdateFileGlobalConfig from './addTemplateGlobalFileConfig';
 import { EditMode, TypeMode, VersionStatus } from '@/models/common';
 import styles from './styles/templateGlobalConfig.less';
+import { ConnectState } from '@/models/connect';
 
 
 export interface GitConfigPanelProps {
   mode: VersionStatus;
   globalConfigList: TemplateGlobalConfig[];
-  afterUpdateGlobalConfigStatus(data: {id: string; status: number}): void;
-  onSubmit(config: TemplateGlobalConfig): void;
-  afterDelConfig(id: string): void;
   dispatch: Dispatch;
 }
 interface State {
@@ -58,8 +56,18 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         this.props.dispatch({
           type: 'template/delGlobalConfig',
           payload: config.id,
-          callback: () => {
-            if (this.props.afterDelConfig) this.props.afterDelConfig(config.id)
+          callback: (res: boolean) => {
+            if (res) {
+              message.success({
+                content: "删除成功",
+                duration: 0.5
+              })
+            } else {
+              message.error({
+                content: "删除失败",
+                duration: 0.5
+              })
+            }
           }
         });
         break;
@@ -71,10 +79,19 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
             id: config.id,
             status: Number(!config.isHidden)
           },
-          callback: () => {
-            if (this.props.afterUpdateGlobalConfigStatus) this.props.afterUpdateGlobalConfigStatus({id: config.id, status: Number(!config.isHidden)})
+          callback: (res: boolean) => {
+            if (res) {
+              message.success({
+                content:"修改状态成功",
+                duration: 0.5
+              })
+            } else {
+              message.error({
+                content:"修改状态失败",
+                duration: 0.5,
+              })
+            }
           }
-          
         })
       }
     }
@@ -100,11 +117,21 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
     this.props.dispatch({
       type: 'template/updateGlobalConfig',
       payload: form,
-      callback: (config: TemplateGlobalConfig) => {
-        this.setState({
-          currentGlobalConfig: null
-        })
-        if (this.props.onSubmit) this.props.onSubmit(config)
+      callback: (res: boolean) => {
+        if (res) {
+          message.success({
+            content: "修改成功",
+            duration: 0.5
+          })
+          this.setState({
+            currentGlobalConfig: null
+          })
+        } else {
+          message.error({
+            content: "修改失败",
+            duration: 0.5
+          })
+        }
       }
     })
   }
@@ -203,4 +230,9 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
     );
   }
 }
-export default connect()(GlobalConfigPanel);
+export default connect( ({template}: ConnectState) => {
+  return {
+    mode: template.currentVersion?.status!,
+    globalConfigList: template.currentVersion?.globalConfigList!,
+  }
+})(GlobalConfigPanel);

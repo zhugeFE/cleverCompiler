@@ -1,17 +1,17 @@
-import { download } from '@/utils/download';
 /*
  * @Descripttion: 
  * @version: 
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 14:19:33
+ * @LastEditTime: 2021-12-15 14:51:18
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
 import templateService from '@/services/template';
 import util from '@/utils/utils';
-import { Version, publicType } from './common';
+import { Version } from './common';
+import { ConnectState } from './connect';
 
 
 
@@ -198,6 +198,9 @@ export interface CreateTemplateGlobalConfigParams {
 
 export type TemplateModelState = {
   templateList: TemplateInstance[] ;
+  templateInfo?: TemplateInfo;
+  currentVersion?: TemplateVersion;
+  currentGitId?: string;
 }
 
 
@@ -231,6 +234,23 @@ export type TemplateModelType = {
   };
   reducers: {
     setList: Reducer<TemplateModelState>;
+    setInfo: Reducer<TemplateModelState>;
+    setCurrentGitId: Reducer<TemplateModelState>;
+    setCurrentVersion: Reducer<TemplateModelState>;
+    _addGlobalConfig: Reducer<TemplateModelState>;
+    _delGlobalConfig: Reducer<TemplateModelState>;
+    _updateGlobalConfigStatus: Reducer<TemplateModelState>;
+    _updateGlobalConfig: Reducer<TemplateModelState>;
+    _addVersion: Reducer<TemplateModelState>;
+    _deleteVersion: Reducer<TemplateModelState>;
+    _updateTemplateVersionStatus: Reducer<TemplateModelState>;
+    _updateVersion: Reducer<TemplateModelState>;
+    _delVersionGit: Reducer<TemplateModelState>;
+    _addVersionGit: Reducer<TemplateModelState>;
+    _changeGitVersion: Reducer<TemplateModelState>;
+    _updateConfigStatus: Reducer<TemplateModelState>;
+    _updateConfigGlobalConfig: Reducer<TemplateModelState>;
+    _updateConfig: Reducer<TemplateModelState>;
   };
 }
 
@@ -270,7 +290,11 @@ const TemplateModel: TemplateModelType = {
     *getInfo ({payload, callback}, {put , call}) {
       const res = yield call(templateService.getInfo, payload as string)
       if (res.status === -1) return
-      if (callback) callback(res.data)
+      yield put({
+        type: 'setInfo',
+        payload: res.data
+      })
+      if (callback) callback()
     },
     *delTemplateInfo ({payload, callback}, {call, select, put}) {
       const res = yield call(templateService.deleteTemplate, payload)
@@ -316,83 +340,385 @@ const TemplateModel: TemplateModelType = {
       if (res.status === -1) return
       if (callback) callback(res.data)
     },
-    *addVersion ({payload, callback},{call}){
+    *addVersion ({payload, callback},{call,put}){
       const res = yield call(templateService.addVersion, payload)
-      if (res.status === -1) return
-      if(callback) callback(res.data)
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put ({
+        type: "_addVersion",
+        payload: res.data
+      })
+      if(callback) callback(true)
     },
-    *updateTemplateVersionStatus ({payload, callback}, {call}) {
+    *updateTemplateVersionStatus ({payload, callback}, {call, put}) {
       const res = yield call(templateService.updateTemplateVersionStatus, payload)
-      if (res.status === -1) return
-      if (callback) callback()
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put({
+        type: "_updateTemplateVersionStatus",
+        payload: payload
+      })
+      if (callback) callback(true)
     },
-    *updateVersion ({payload, callback},{call}){
-      const res = yield call(templateService.updateVersion, payload)
+    *updateVersion ({payload, callback},{call, put,select}){
+      const currentState = yield select((conn: ConnectState) => conn.template)
+      const param = util.clone(payload)
+      param.id = currentState.currentVersion.id
+      
+      const res = yield call(templateService.updateVersion, param)
       if (res.status === -1) return
+      yield put({
+        type: "_updateVersion",
+        param: payload
+      })
       if (callback) callback(res.data)
     },
-    *deleteVersion ({payload, callback}, {call}){
+    *deleteVersion ({payload, callback}, {call, put}){
       const res = yield call(templateService.delVersion, payload)
-      if (res.status === -1) return
-      if (callback) callback(res.data)
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put({
+        type: "_deleteVersion",
+        versionId: payload
+      })
+      if (callback) callback(true)
     },
-    *addVersionGit({payload, callback},{call}){
+    *addVersionGit({payload, callback},{call,put}){
       const res = yield call(templateService.addVersionGit, payload)
-      if (res.status === -1) return
-      if (callback) callback(res.data)
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put ({
+        type: "_addVersionGit",
+        payload: res.data
+      })
+      if (callback) callback(true)
     },
-    *changeGitVersion({payload, callback}, {call}) {
+    *changeGitVersion({payload, callback}, {call,put}) {
       const res = yield call(templateService.changeGitVersion, payload)
-      if (res.status === -1) return
-      if (callback) callback(res.data)
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put ({
+        type: "_changeGitVersion",
+        payload: res.data
+      })
+      if (callback) callback(true)
     },
-    *delVersionGit ({payload,callback}, {call}){
+    *delVersionGit ({payload,callback}, {call, put}){
       const res = yield call(templateService.delVersionGit, payload)
-      if (res.status === -1) return
-      if (callback) callback(res.data)
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put({
+        type: '_delVersionGit',
+        payload: payload
+      })
+      if (callback) callback(true)
     },
 
-    *updateConfig ({payload,callback},{call}){
+    *updateConfig ({payload,callback},{call,put}){
       const res = yield call(templateService.updateConfig, payload)
-      if (res.status === -1) return
-      if (callback) callback(res.data)
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put({
+        type: '_updateConfig',
+        payload: res.data
+      })
+      if (callback) callback(true)
     },
-    *updateConfigStatus ({payload, callback}, {call} ) {
+    *updateConfigStatus ({payload, callback}, {call,put} ) {
       const res = yield call(templateService.updateConfigStatus, payload)
-      if (res.status === -1) return
-      if (callback) callback()
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put ({
+        type: "_updateConfigStatus",
+        payload: payload
+      })
+      if (callback) callback(true)
     },
-    *updateConfigGlobalConfig ({payload, callback}, {call}) {
+    *updateConfigGlobalConfig ({payload, callback}, {call,put}) {
       const res = yield call(templateService.updateConfigGlobalConfig, payload)
-      if (res.status === -1) return
-      if (callback) callback()
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put({
+        type: "_updateConfigGlobalConfig",
+        payload: payload
+      })
+      if (callback) callback(true)
     },
-    *addGlobalConfig ({payload,callback},{call}){
+    *addGlobalConfig ({payload,callback},{call,put}){
       const res = yield call(templateService.addGlobalConfig, payload)
-      if (res.status === -1) return
-      if (callback) callback(res.data)
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put({
+        type: "_addGlobalConfig",
+        payload: res.data
+      })
+      if (callback) callback(true)
     },
-    *updateGlobalConfig ({payload, callback}, {call}) {
+    *updateGlobalConfig ({payload, callback}, {call,put}) {
       const res = yield call(templateService.updateGlobalConfig, payload)
-      if (res.status === -1) return
-      if (callback) callback(res.data)
+      if (res.status === -1) {
+        callback(false)
+        return
+      }      
+      yield put({
+        type: "_updateGlobalConfig",
+        payload: res.data
+      })
+      if (callback) callback(true)
     },
-    *updateGlobalConfigStatus ({payload, callback}, {call} ) {
+    *updateGlobalConfigStatus ({payload, callback}, {call,put} ) {
       const res = yield call(templateService.updateGlobalConfigStatus, payload)
-      if (res.status === -1) return
-      if (callback) callback()
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put({
+        type: "_updateGlobalConfigStatus",
+        payload: payload
+      })
+      if (callback) callback(true)
     },
-    *delGlobalConfig ({payload, callback}, {call}) {
+    *delGlobalConfig ({payload, callback}, {call,put}) {
       const res = yield call(templateService.delGlobalConfig, payload)
-      if (res.status === -1) return
-      if (callback) callback()
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
+      yield put ({
+        type: "_delGlobalConfig",
+        payload: payload
+      })
+      if (callback) callback(true)
     }
   },
   reducers: {
     setList (state, {payload}): TemplateModelState {
-      return {
-        ...state,
-        templateList: payload,      }
+      const res =  util.clone(state)!
+      res.templateList = payload
+      return res
+    },
+    setInfo (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.templateInfo = payload
+      res.currentVersion = payload.versionList[0]
+      res.currentGitId = res.currentVersion?.gitList.length ? res.currentVersion.gitList[0].id : ''
+      return res
+    },
+    _addGlobalConfig (state, {payload}): TemplateModelState {
+      const res =  util.clone(state)!
+      res.currentVersion!.globalConfigList.unshift(payload)
+      res.templateInfo?.versionList.forEach( (item, index) => {
+        res.templateInfo!.versionList[index] = res.currentVersion!
+      })
+      return res
+    },
+    _delGlobalConfig (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.globalConfigList.forEach( (item,index) => {
+        if (item.id == payload) {
+          res.currentVersion?.globalConfigList.splice(index,1)
+        }
+      })
+      res.templateInfo?.versionList.forEach( (item,index) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[index] = res.currentVersion!
+        }
+      })
+      return res
+    },
+    _updateGlobalConfigStatus (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.globalConfigList.forEach( (item) => {
+        if (item.id == payload.id) {
+          item.isHidden = payload.status
+        }
+      })
+      res.templateInfo?.versionList.forEach( (item,index) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[index] = res.currentVersion!
+        }
+      })
+      return res
+    },
+    _updateGlobalConfig (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.globalConfigList.forEach( (item,index) => {
+        if (item.id == payload.id) {
+          res.currentVersion!.globalConfigList[index] = payload
+        }
+      })
+      res.templateInfo?.versionList.forEach( (item,index) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[index] = res.currentVersion!
+        }
+      })
+      return res
+    },
+    setCurrentVersion( state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.templateInfo?.versionList.forEach( item => {
+        if (item.id == payload) {
+          res.currentVersion = item
+          res.currentGitId = res.currentVersion.gitList.length ? res.currentVersion.gitList[0].id : ""
+        }
+      })
+      return res
+    },
+    _addVersion (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.templateInfo?.versionList.unshift(payload)
+      res.currentVersion = payload
+      res.currentGitId = res.currentVersion?.gitList.length ? res.currentVersion.gitList[0].id : ""
+      return res
+    },
+    _deleteVersion (state, {versionId}): TemplateModelState {
+      const res = util.clone(state)! as TemplateModelState
+      res.templateInfo?.versionList.forEach( (item,index) => {
+        if (item.id == versionId) {
+          res.templateInfo?.versionList.splice(index,1)
+        }
+      })
+      res.currentVersion = res.templateInfo?.versionList[0]
+      res.currentGitId = res.currentVersion?.gitList.length ? res.currentVersion.gitList[0].id : ""
+      return res
+    },
+    _updateTemplateVersionStatus (state, {payload}): TemplateModelState {
+      const res = util.clone(state)! as TemplateModelState
+      res.currentVersion!.status =  payload.status
+      res.templateInfo?.versionList.forEach( (item,index) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[index] = res.currentVersion!
+        }
+      })
+      return res
+
+    },
+    _updateVersion (state, {param}): TemplateModelState {
+      const res = util.clone(state)!
+      for (const prop in param) {
+        const val = param[prop]
+        res.currentVersion![prop] = val
+      }
+      res.templateInfo?.versionList.forEach( (item,index) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[index] = res.currentVersion!
+        }
+      })
+      return res
+    },
+    setCurrentGitId (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentGitId = payload
+      return res
+    },
+    _delVersionGit (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.gitList.forEach( (item,i) => {
+        if (item.id == payload) {
+          res.currentVersion?.gitList.splice(i,1)
+          res.currentGitId = res.currentVersion?.gitList.length ? res.currentVersion.gitList[i-1].id : ""
+        }
+      })
+      res.templateInfo?.versionList.forEach( (item,i) => {
+        if ( item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[i] = res.currentVersion!
+        }
+      })
+      return res
+    },
+    _addVersionGit (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.gitList.push(payload)
+      res.currentGitId = payload.id
+      res.templateInfo?.versionList.forEach( (item,i) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[i] =  res.currentVersion!
+        }
+      })
+      return res
+    },
+    _changeGitVersion (state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.gitList.forEach( (item, i) => {
+        if (item.id == payload.id) {
+          res.currentVersion!.gitList[i] = payload
+          res.currentGitId = payload.id
+        }
+      })
+      res.templateInfo?.versionList.forEach( (item,i) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[i] =  res.currentVersion!
+        }
+      })
+      return res
+    },
+    _updateConfigStatus( state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.gitList.forEach( git => {
+        git.configList.forEach( config => {
+          if (config.id == payload.id) {
+            config.isHidden = payload.status
+          }
+        })
+      })
+      res.templateInfo?.versionList.forEach( (item,i) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[i] =  res.currentVersion!
+        }
+      })
+      return res
+    },
+    _updateConfigGlobalConfig(state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.gitList.forEach( git => {
+        git.configList.forEach( config => {
+          if (config.id == payload.id) {
+            config.globalConfigId = payload.globalConfigId
+          }
+        })
+      })
+      res.templateInfo?.versionList.forEach( (item,i) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[i] =  res.currentVersion!
+        }
+      })
+      return res
+    },
+    _updateConfig(state, {payload}): TemplateModelState {
+      const res = util.clone(state)!
+      res.currentVersion?.gitList.forEach( git => {
+        git.configList.forEach( (config, i) => {
+          if( config.id = payload.id) {
+            git.configList[i] = payload
+          }
+        })
+      })
+      res.templateInfo?.versionList.forEach( (item,i) => {
+        if (item.id == res.currentVersion!.id) {
+          res.templateInfo!.versionList[i] =  res.currentVersion!
+        }
+      })
+      return res
     }
   }
 }

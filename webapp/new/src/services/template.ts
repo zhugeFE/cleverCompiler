@@ -4,13 +4,17 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 14:09:44
+ * @LastEditTime: 2021-12-15 14:56:09
  */
 
 import request from "@/utils/request";
 import api from "./constants/apis";
 import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus, ChangeGitVersionParams } from "@/models/template";
 
+
+let updateVersionTimer: {
+  [timer: number]: any
+} = {}
 
 class TemplateService {
   async queryTemplateList () {
@@ -106,10 +110,23 @@ class TemplateService {
   }
 
   async updateVersion ( data: TemplateVersion) {
-    return request(api.template.updateVersion, {
-      method:"post",
-      data
+    for (const timer in updateVersionTimer) {
+      clearTimeout(Number(timer))
+      updateVersionTimer[timer]()
+      delete updateVersionTimer[timer]
+    }
+    const d = await new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        const res = request(api.template.updateVersion, {
+          method:"post",
+          data
+        })
+        delete updateVersionTimer[Number(timer)]
+        resolve(res)
+      }, 500)
+      updateVersionTimer[Number(timer)] = resolve
     })
+    return d
   }
 
 

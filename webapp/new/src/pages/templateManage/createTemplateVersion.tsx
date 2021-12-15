@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:38:20
+ * @LastEditTime: 2021-12-14 17:45:44
  */
 
-import { Form, FormInstance, Input, Modal, Select } from 'antd';
+import { Form, FormInstance, Input, message, Modal, Select } from 'antd';
 import React from 'react';
 import { Dispatch, TemplateVersion } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
@@ -30,7 +30,7 @@ interface Props {
   templateId?: string;
   versionList?: TemplateVersion[];
   onCancel?(): void;
-  afterAdd?(version: TemplateVersion): void;
+  afterAdd?(): void;
   dispatch: Dispatch;
 }
 
@@ -77,11 +77,23 @@ class CreateTemplateVersion extends React.Component<Props, States> {
       this.props.dispatch({
         type: 'template/addVersion',
         payload: data,
-        callback: (version: TemplateVersion) => {
-          this.setState({
-            show: false
-          })
-          if (this.props.afterAdd) this.props.afterAdd(version)
+        callback: (res: boolean) => {
+          if (res) {
+            message.success({
+              content: "创建版本成功",
+              duration: 0.5
+            })
+            this.setState({
+              show: false
+            })
+            if (this.props.afterAdd) this.props.afterAdd()
+
+          } else {
+            message.success({
+              content: "创建版本失败",
+              duration: 0.5
+            })
+          }
         }
       })
     })

@@ -4,16 +4,15 @@
  * @Author: Adxiong
  * @Date: 2021-08-12 08:30:26
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:43:43
+ * @LastEditTime: 2021-12-14 16:42:07
  */
 import * as React from 'react';
-import { Modal, Card, Row, Col } from 'antd';
+import { Modal, Card, Row, Col, message } from 'antd';
 import AddTextConfig from './addTemplateGlobalTextConfig';
 import AddFileConfig from './addTemplateGlobalFileConfig';
 import styles from './styles/templateAddConfig.less';
 import { ConfigType, EditMode } from '@/models/common';
 import { connect } from 'dva';
-import { TemplateGlobalConfig } from '@/models/template';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { ConnectState } from '@/models/connect';
 
@@ -23,7 +22,6 @@ interface Props {
   configTypes: ConfigType[];
   dispatch: Dispatch;
   onClose?(): void;
-  onSubmit?(config: TemplateGlobalConfig): void;
 }
 interface State {
   type?: ConfigType;
@@ -68,8 +66,13 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
     this.props.dispatch({
       type: 'template/addGlobalConfig',
       payload: form,
-      callback: (config: TemplateGlobalConfig) => {
-        if (this.props.onSubmit) this.props.onSubmit(config)
+      callback: (res: boolean)=>{
+        if (!res){
+          message.error("添加失败")
+        } else {
+          message.success("添加成功")
+        }
+        if (this.props.onClose) this.props.onClose()
       }
     })
   }
@@ -141,8 +144,10 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
   }
 }
 
-export default connect(({ sys }: ConnectState) => {
+export default connect(({ sys, template }: ConnectState) => {
   return {
     configTypes: sys.configTypes,
+    templateId: template.templateInfo?.id!,
+    versionId: template.currentVersion?.id!
   };
 })(AddTemplateGlobalConfig);

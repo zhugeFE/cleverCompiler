@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-01 22:07:40
+ * @LastEditTime: 2021-12-15 10:46:28
  */
 import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
@@ -17,7 +17,7 @@ import {
 } from '@/models/template';
 import { GitInfo, GitInstance } from '@/models/git';
 import { ConnectState } from '@/models/connect';
-import { VersionStatus, VersionType } from '@/models/common';
+import { VersionStatus } from '@/models/common';
 import styles from './styles/addGitSource.less'
 const { Option } = Select;
 interface FormData {
@@ -31,7 +31,7 @@ interface Props {
   templateVersionId: string;
   existGits: TemplateVersionGit[];
   gitList: GitInstance[];
-  afterAdd(version: TemplateVersionGit): void;
+  gitInfo: GitInfo;
   onCancel(): void;
   dispatch: Dispatch;
 }
@@ -39,14 +39,12 @@ interface Props {
 interface States {
   show: boolean;
   form: FormData;
-  gitInfo: GitInfo | null;
 }
 
 class CreateTemplateVersion extends React.Component<Props, States> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      gitInfo: null,
       show: true,
       form: {
         gitId: '',
@@ -80,8 +78,17 @@ class CreateTemplateVersion extends React.Component<Props, States> {
     this.props.dispatch({
       type: 'template/addVersionGit',
       payload: data,
-      callback: (version: TemplateVersionGit) => {
-        if (this.props.afterAdd) this.props.afterAdd(version);
+      callback: (res: boolean) => {
+        if(res){
+          message.success({
+            content: "添加git仓库成功",
+            duration: 0.5
+          })
+          this.props.onCancel()
+
+        } else {
+          message.error("添加git仓库失败")
+        }
       }
     });
     
@@ -89,7 +96,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
 
   async onChangeForm(chanedValue: any, values: FormData) {
     const form = util.clone(values);
-    if (Object.keys(chanedValue)[0] == 'gitId') {
+    if (Object.keys(chanedValue)[0] == 'gitId') {      
       await this.getGitInfo(chanedValue.gitId);
     }
     this.setState({
@@ -101,12 +108,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   getGitInfo(id: string) {
     this.props.dispatch({
       type: 'git/getInfo',
-      payload: id,
-      callback: (info: GitInfo) => {
-        this.setState({
-          gitInfo: info,
-        });
-      },
+      payload: id
     });
   }
 
@@ -114,7 +116,8 @@ class CreateTemplateVersion extends React.Component<Props, States> {
     const existGits = {}
     this.props.existGits.map(item => {existGits[String(item.gitSourceId)]=true})
     const gitList = this.props.gitList.filter(item => !existGits[item.id] && item.enable)
-    const gitInfo = this.state.gitInfo;
+    const gitInfo = this.props.gitInfo;
+    
     return (
       <>
         {
@@ -184,5 +187,6 @@ class CreateTemplateVersion extends React.Component<Props, States> {
 export default connect(({ git }: ConnectState) => {
   return {
     gitList: git.gitList,
+    gitInfo: git.currentGit!
   };
 })(CreateTemplateVersion);
