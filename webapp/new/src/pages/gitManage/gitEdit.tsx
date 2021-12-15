@@ -189,7 +189,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
  
-  afterCreateGit () {    
+  afterCreateGit () {        
     this.props.history.push(`/manage/git/${this.props.gitInfo.id}`)
   }
   onChangeVersionStatue (status: VersionStatus) {

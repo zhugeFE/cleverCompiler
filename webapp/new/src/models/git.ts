@@ -141,9 +141,9 @@ export interface GitUpdateVersionParam {
 }
 export type GitModelState = {
   gitList: GitInstance[];
-  currentGit?: GitInfo;
-  currentBranch?: GitInfoBranch;
-  currentVersion?: GitVersion;
+  currentGit: GitInfo | null;
+  currentBranch: GitInfoBranch | null;
+  currentVersion: GitVersion | null;
   /**
    * git是否在请求更新中
    */
@@ -196,6 +196,9 @@ const GitModel: GitModelType = {
   namespace: 'git',
   state: {
     gitList: [],
+    currentGit: null,
+    currentBranch: null,
+    currentVersion: null,
     updateLoading: false
   },
   effects: {
@@ -506,19 +509,23 @@ const GitModel: GitModelType = {
     },
     _createVersion (state, {payload}): GitModelState {
       const res = util.clone(state)!
-      console.log(payload);
-      if (res.currentGit!.branchList.length != payload.branchList.length) {
-        res.currentGit!.branchList = payload.branchList
+      
+      if ( !res.currentGit) {
+        res.currentGit = payload
+        res.currentBranch = payload.branchList[0]
+      }
+      else if (res.currentGit && res.currentGit?.branchList.length != payload.branchList.length) {    
+        res.currentGit!["branchList"] = payload.branchList
         res.currentBranch = payload.branchList[0]
       } else {
-        res.currentGit!.branchList = payload.branchList
+        res.currentGit!["branchList"] = payload.branchList
         res.currentGit?.branchList.forEach( item => {
           if( item.id == res.currentBranch!.id) {
             res.currentBranch = item
           }
         })
       }
-      res.currentVersion = res.currentBranch?.versionList[0]
+      res.currentVersion = res.currentBranch?.versionList[0]!
       return res
     },
     _updateGitVersionStatus (state, {payload}): GitModelState {
@@ -548,7 +555,7 @@ const GitModel: GitModelType = {
           res.currentGit!.branchList[i] = res.currentBranch!
         }
       })
-      res.currentVersion = res.currentBranch?.versionList[0]
+      res.currentVersion = res.currentBranch?.versionList[0]!
       return res
     },
     _delBranch (state, {payload}): GitModelState {
@@ -558,8 +565,8 @@ const GitModel: GitModelType = {
           res.currentGit!.branchList.splice(i,1)
         }
       })
-      res.currentBranch = res.currentGit?.branchList[0]
-      res.currentVersion = res.currentBranch?.versionList[0]
+      res.currentBranch = res.currentGit?.branchList[0]!
+      res.currentVersion = res.currentBranch?.versionList[0]!
       return res
     },
     _updateGitStatus (state, {payload}): GitModelState {
