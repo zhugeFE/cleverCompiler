@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, Card, Row, Col } from 'antd';
+import { Modal, Card, Row, Col, message } from 'antd';
 import GitTextConfig from './gitTextConfig';
 import GitFileConfig from './gitFileConfig';
 import styles from './styles/gitAddConfig.less'
@@ -46,7 +46,7 @@ class GitAddConfig extends React.Component<Props, State> {
     })
   }
 
-  onSubmitForm (formData: any) {
+  onSubmitForm (formData: any, isContinue: boolean) {
     const form = new FormData()
     for (let key of Object.keys(formData)) {
       if (key == 'file') {
@@ -62,8 +62,20 @@ class GitAddConfig extends React.Component<Props, State> {
     this.props.dispatch({
       type: 'git/addConfig',
       payload: form,
-      callback: () => {
-        if (this.props.onClose) this.props.onClose()
+      callback: (res: boolean) => {
+        if (res) {
+          message.success({
+            content: "配置项添加成功",
+            duration: 0.5
+          })
+          if (!isContinue) {
+            if (this.props.onClose) this.props.onClose()
+          }
+        } else {
+          message.error({
+            content: "配置项添加失败"
+          })
+        }
       }
     })
   }

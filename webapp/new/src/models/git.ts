@@ -186,6 +186,9 @@ export type GitModelType = {
     setBranch: Reducer<GitModelState>;
     setVersion: Reducer<GitModelState>;
     _createVersion: Reducer<GitModelState>;
+    _delVersion: Reducer<GitModelState>;
+    _delBranch: Reducer<GitModelState>;
+    _updateGitStatus: Reducer<GitModelState>;
   };
 }
 
@@ -251,41 +254,35 @@ const GitModel: GitModelType = {
         callback(false)
         return
       }
-      // const currentState = util.clone( yield select( (conn: ConnectState) => conn.git)) as GitModelState
-      // const { currentBranch, currentGit } = currentState
-      // let branch: GitInfoBranch 
-      
-      // if (res.data.branchList.length != currentGit?.branchList.length) {
-      //   branch = res.data.branchList[0]
-      // } else {
-      //   res.data.branchList.forEach( (item: GitInfoBranch, i: number) => {
-      //     if (item.id == currentBranch!.id) {
-      //       branch = item
-      //     } 
-      //   });
-      // }
       yield put ({
         type: "_createVersion",
         payload: res.data
       })
       if (callback) callback(true)
     },
-    *delConfig ({payload}, {call, put}) {
+    *delConfig ({payload, callback}, {call, put}) {
       const res = yield call(gitService.delConfig, payload)
-      if (res.status === -1) return
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
       yield put({
         type: '_delConfig',
         id: payload
       })
+      callback(true)
     },
     *addConfig ({payload, callback}, {call, put}) {
       const res = yield call(gitService.addConfig, payload)
-      if (res.status === -1) return
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
       yield put({
         type: '_addConfig',
         config: res.data
       })
-      if (callback) callback()
+      if (callback) callback(true)
     },
     *updateConfig ({payload, callback}, {call, put}) {
       const res = yield call(gitService.updateConfig, payload)
@@ -330,49 +327,25 @@ const GitModel: GitModelType = {
     },
     *updateGitStatus ({payload, callback}, {call, select, put}) {
       const res = yield call( gitService.updateGitStatus, payload as UpdateGitStatus[])
-      if (res.status === -1) return
-      const gitList: GitInstance[] = util.clone( yield select( (_: {git: {gitList: GitInstance[]}}) => _.git.gitList))
-      let payloadMap = {}
-      payload.map( (item: UpdateGitStatus) => {
-        payloadMap[item.id] = item.enable
-      })
-      gitList.map( (git, index) => {
-        if (Object.keys(payloadMap).includes(git.id)) {
-          git.enable = Boolean(payloadMap[git.id]) 
-        } 
-      })
+      if (res.status === -1) {
+        callback(false)
+        return
+      }
        yield put({
-        type: 'setList',
-        payload: gitList
+        type: '_updateGitStatus',
+        payload: payload
       })
-      if (callback) callback()
+      if (callback) callback(true)
     },
-    *deleteVersion ({payload, callback}, {call,select,put}) {
+    *deleteVersion ({payload, callback}, {call,put}) {
       const res = yield call(gitService.deleteVersion, payload)
       if (res.status === -1) {
         callback(false)
         return
       } 
-      const currentState = util.clone(yield select ((conn: ConnectState) => conn.git)) as GitModelState
-      const {currentGit, currentBranch, currentVersion} = currentState
-      currentBranch?.versionList.forEach( (item,i) => {
-        if (item.id == currentVersion!.id) {
-          currentBranch.versionList.splice(i,1)
-        }
-      })
-      currentGit?.branchList.forEach( (item,i) => {
-        if (item.id == currentBranch!.id) {
-          currentGit.branchList[i] = currentBranch!
-        }
-      })
-      const version = currentBranch?.versionList[0]
       yield put ({
-        type: 'setInfo',
-        payload: {
-          info: currentState.currentGit,
-          branch: currentState.currentBranch,
-          version
-        }
+        type: '_delVersion',
+        payload: payload
       })
       if (callback) callback(true)
     },
@@ -382,22 +355,9 @@ const GitModel: GitModelType = {
         callback(false)
         return
       } 
-      const currentState = util.clone(yield select ((conn: ConnectState) => conn.git)) as GitModelState
-      const {currentGit, currentBranch} = currentState
-      currentGit?.branchList.forEach( (item,i) => {
-        if (item.id == currentBranch!.id) {
-          currentGit.branchList.splice(i,1)
-        }
-      })
-      const branch = currentGit?.branchList[0]
-      const version = branch?.versionList[0]
       yield put ({
-        type: 'setInfo',
-        payload: {
-          info: currentState.currentGit,
-          branch: branch,
-          version
-        }
+        type: '_delBranch',
+        payload: payload
       })
       if (callback) callback(true)
     },
@@ -546,17 +506,17 @@ const GitModel: GitModelType = {
     },
     _createVersion (state, {payload}): GitModelState {
       const res = util.clone(state)!
-      res.currentBranch = payload.branch
-      res.currentGit = payload.info
-      res.currentVersion = payload.version
+      console.log(payload);
       if (res.currentGit!.branchList.length != payload.branchList.length) {
+        res.currentGit!.branchList = payload.branchList
         res.currentBranch = payload.branchList[0]
       } else {
-          payload.branchList.forEach( (item: GitInfoBranch, i: number) => {
-          if (item.id == res.currentBranch!.id) {
+        res.currentGit!.branchList = payload.branchList
+        res.currentGit?.branchList.forEach( item => {
+          if( item.id == res.currentBranch!.id) {
             res.currentBranch = item
-          } 
-        });
+          }
+        })
       }
       res.currentVersion = res.currentBranch?.versionList[0]
       return res
@@ -573,6 +533,45 @@ const GitModel: GitModelType = {
         if (item.id == res.currentBranch?.id) {
           res.currentGit!.branchList[i] = res.currentBranch!
         }
+      })
+      return res
+    },
+    _delVersion (state, {payload}): GitModelState {
+      const res = util.clone(state)!
+      res.currentBranch?.versionList.forEach( (item,i) => {
+        if (item.id == payload) {
+          res.currentBranch!.versionList.splice(i,1)
+        }
+      })
+      res.currentGit?.branchList.forEach( (item,i) => {
+        if (item.id == res.currentBranch!.id) {
+          res.currentGit!.branchList[i] = res.currentBranch!
+        }
+      })
+      res.currentVersion = res.currentBranch?.versionList[0]
+      return res
+    },
+    _delBranch (state, {payload}): GitModelState {
+      const res = util.clone(state)!
+      res.currentGit?.branchList.forEach( (item,i) => {
+        if (item.id == res.currentBranch!.id) {
+          res.currentGit!.branchList.splice(i,1)
+        }
+      })
+      res.currentBranch = res.currentGit?.branchList[0]
+      res.currentVersion = res.currentBranch?.versionList[0]
+      return res
+    },
+    _updateGitStatus (state, {payload}): GitModelState {
+      const res = util.clone(state)!
+      let payloadMap = {}
+      payload.map( (item: UpdateGitStatus) => {
+        payloadMap[item.id] = item.enable
+      })
+      res.gitList.map( (git, index) => {
+        if (Object.keys(payloadMap).includes(git.id)) {
+          git.enable = Boolean(payloadMap[git.id]) 
+        } 
       })
       return res
     }

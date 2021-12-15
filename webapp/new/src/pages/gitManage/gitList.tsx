@@ -1,6 +1,6 @@
 import { ConnectState } from '@/models/connect'
 import { GitInstance } from '@/models/git'
-import { Button, Form, Input, Table } from 'antd'
+import { Button, Form, Input, message, Table } from 'antd'
 import { ColumnProps } from 'antd/lib/table'
 import { connect } from 'dva'
 import React from 'react'
@@ -92,8 +92,18 @@ class GitList extends React.Component<GitListProps, State> {
     this.props.dispatch({
       type: 'git/updateGitStatus',
       payload: data,
-      callback: () => {
-
+      callback: (res: boolean) => {
+        if (res) {
+          message.success({
+            content: "状态修改成功",
+            duration: 0.5
+          })
+        } else {
+          message.error({
+            content: "状态修改失败",
+            duration: 0.5
+          })
+        }
       }
     })
   }

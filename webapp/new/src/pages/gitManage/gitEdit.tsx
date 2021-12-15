@@ -126,9 +126,15 @@ class GitEdit extends React.Component<GitEditProps, State> {
       payload: currentBranch.id,
       callback: (res: boolean) => {
         if (!res) {
-          message.error("删除失败")
+          message.error({
+            content: "删除失败",
+            duration: 0.5
+          })
         } else {
-          message.success("删除成功")
+          message.success({
+            content: "删除成功",
+            duration: 0.5
+          })
         }
       }   
     })
@@ -146,9 +152,15 @@ class GitEdit extends React.Component<GitEditProps, State> {
       payload: currentVersion.id,
       callback: (res: boolean) => {
         if (!res) {
-          message.error("删除失败")
+          message.error({
+            content: "删除失败",
+            duration: 0.5
+          })
         } else {
-          message.success("删除成功")
+          message.success({
+            content: "删除成功",
+            duration: 0.5
+          })
         }
       }
     })
@@ -190,9 +202,15 @@ class GitEdit extends React.Component<GitEditProps, State> {
       },
       callback: (res: boolean) => {
         if(!res) {
-          message.error("操作失败")
+          message.error({
+            content: "操作失败",
+            duration: 0.5
+          })
         } else{
-          message.success("操作成功")
+          message.success({
+            content: "操作成功",
+            duration: 0.5
+          })
         }
       }
     })

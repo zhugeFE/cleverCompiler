@@ -221,13 +221,19 @@ class CreateGitVersion extends React.Component<Props, States> {
       payload: data,
       callback: (res: true) => {
         if (!res) {
-          message.error("创建失败")
+          message.error({
+            content: "创建失败",
+            duration: 0.5
+          })
           return
         }
         this.setState({
           show: false
         })
-        message.info("创建成功")
+        message.info({
+          content: "创建成功",
+          duration: 0.5
+        })
         if (this.props.afterAdd) this.props.afterAdd()
       }
     })

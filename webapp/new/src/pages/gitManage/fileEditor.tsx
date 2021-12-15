@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-10 19:10:58
+ * @LastEditTime: 2021-12-15 19:22:09
  */
 import * as React from 'react';
 import './styles/fileEditor.less'
@@ -20,10 +20,6 @@ class GitFileEditor extends React.Component<Props, State> {
     super(props)
     this.state = {}
   }
-  componentDidUpdate () {
-    console.log(this.props.matchIndex);
-    
-  }
   render () {
     if (!this.props.content || !this.props.reg) {
       return <div className="git-file-editor">{this.props.content}</div>
@@ -34,17 +30,24 @@ class GitFileEditor extends React.Component<Props, State> {
     
     const splitStr = `<<<<You must not guess it's me>>>>`
     const chunks = content.replace(reg, splitStr).split(splitStr)
+
     return (
       parseInt(String(this.props.matchIndex)).toString() != "NaN" ?
       <div className="git-file-editor">
-        {chunks.map((item, i) => {          
+        
+        {chunks.map((item, i) => {  
+                          
           return (
-            
               <span key={item + i}>{item}{
-                matchs && matchs[i] && matchs[this.props.matchIndex!] ? 
-                <span className="editor-match">{matchs[i].substring(0, matchs[i].search(matchs[this.props.matchIndex!]))}
+                matchs && matchs[i] && matchs[this.props.matchIndex!] && item =="" ? 
+                <span className="editor-match">{matchs[i].substring(0, matchs[i].indexOf(matchs[this.props.matchIndex!]))}
                   <span className="editor-match-group">
-                  {matchs[this.props.matchIndex!]}
+                   {matchs[this.props.matchIndex!]}
+                  </span>
+                  <span>
+                    {
+                      matchs[i].substring(matchs[i].indexOf(matchs[this.props.matchIndex!])+matchs[this.props.matchIndex!].length)
+                    }
                   </span>
                 </span>
                : null

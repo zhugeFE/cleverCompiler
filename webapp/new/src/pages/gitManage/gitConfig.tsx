@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:43:21
+ * @LastEditTime: 2021-12-15 15:58:12
  */
 import * as React from 'react'
 import styles from './styles/gitConfig.less'
-import { Button, Table } from 'antd'
+import { Button, message, Table } from 'antd'
 import { GitConfig } from '@/models/git'
 import { connect } from 'dva'
 import { Dispatch } from '@/.umi/plugin-dva/connect'
@@ -47,7 +47,20 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
   delete (config: GitConfig) {
     this.props.dispatch({
       type: 'git/delConfig',
-      payload: config.id
+      payload: config.id,
+      callback: (res: boolean) => {
+        if (res) {
+          message.success({
+            content: "删除配置项成功",
+            duration: 0.5
+          })
+        } else {
+          message.error({
+            content: "删除配置项失败",
+            duration: 0.5
+          })
+        }
+      }
     })
   }
 

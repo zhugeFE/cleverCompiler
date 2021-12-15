@@ -48,6 +48,7 @@ class GitTextConfig extends React.Component<Props, State> {
   form: React.RefObject<FormInstance> = React.createRef();
   constructor (props: Props) {
     super(props)
+    
     this.state = {
       filePath: props.configInfo?.filePath || "",
       fileContent: '',
@@ -56,7 +57,7 @@ class GitTextConfig extends React.Component<Props, State> {
         filePath: props.configInfo?.filePath || "",
         description: props.configInfo?.description || "",
         targetValue: props.configInfo?.targetValue || "",
-        matchIndex: null,
+        matchIndex: props.configInfo ? JSON.parse(props.configInfo.reg)['matchIndex'] : "",
         reg: props.configInfo ? JSON.parse(props.configInfo.reg)['source'] : "",
         global: props.configInfo ? JSON.parse(props.configInfo.reg)['global'] : false,
         ignoreCase: props.configInfo ? JSON.parse(props.configInfo.reg)['ignoreCase'] : false
@@ -75,6 +76,12 @@ class GitTextConfig extends React.Component<Props, State> {
   componentDidMount () {
     if (this.props.mode === EditMode.update) {
       this.onSelectFile(this.state.filePath)
+      const {configInfo} = this.props
+      if (configInfo?.reg) {
+        this.setState({
+          reg : new RegExp(JSON.parse(configInfo.reg)['source'] || '', `${JSON.parse(configInfo.reg)['global'] ? 'g' : ''}${JSON.parse(configInfo.reg)['ignoreCase'] ? 'i' : ''}`),
+        })
+      }
     }
   }
   onSelectFile (filePath: string) {
@@ -111,7 +118,9 @@ class GitTextConfig extends React.Component<Props, State> {
     const matchs = content.match(this.state.reg!)!
     const matchIndex = this.state.formData.matchIndex!
     const targetValue = parseInt(String(this.state.formData.matchIndex)).toString() != "NaN" ? (
-      matchs[0].substring(0, matchs[0].search(matchs[matchIndex])) + this.state.formData.targetValue
+      matchs[0].substring(0, matchs[0].indexOf(matchs[matchIndex])) +
+      this.state.formData.targetValue +
+      matchs[0].substring(matchs[0].indexOf(matchs[matchIndex])+matchs[matchIndex!].length)
     ) : (
       this.state.formData.targetValue
     )
@@ -201,10 +210,14 @@ class GitTextConfig extends React.Component<Props, State> {
               <Checkbox>忽略大小写</Checkbox>
             </Form.Item>
             <div className={styles.formDivider}/>
-            <Form.Item label="匹配组" name="matchIndex" className={styles.long} required>
-              <Select>
+            <Form.Item 
+              label="匹配组" 
+              name="matchIndex" 
+              className={styles.long} 
+              required>
+              <Select placeholder="未选择匹配">
                 {
-                  this.state.fileContent.match(this.state.reg!)?.map((item,index) => {
+                  this.state.fileContent.match(this.state.reg!)?.map((item,index) => {                    
                     return <Select.Option key={index} value={index}> {item}</Select.Option>
                   })
                 }
@@ -213,6 +226,8 @@ class GitTextConfig extends React.Component<Props, State> {
             <Form.Item label="替换为" name="targetValue"  required>
               <Input autoComplete="off"></Input>
             </Form.Item>
+        
+            
             <div className={styles.formDivider}/>
             <Form.Item label="配置描述" name="description" className={styles.long}
               rules={[{
