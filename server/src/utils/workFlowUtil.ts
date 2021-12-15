@@ -5,7 +5,7 @@ import { SysInfo } from './../types/sys';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-10 19:39:18
+ * @LastEditTime: 2021-12-15 17:24:52
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -136,7 +136,9 @@ class WorkFlow {
           SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 执行文字替换 ${Reg} => ${item.targetValue}`)
           const matchs = text.match(Reg)
           const targetValue = parseInt(String(regex.matchIndex)).toString() != "NaN" ? (
-            matchs[0].substring(0, matchs[0].search(matchs[regex.matchIndex])) + item.targetValue
+            matchs[0].substring(0, matchs[0].indexOf(matchs[regex.matchIndex])) + item.targetValue +
+            matchs[0].substring(matchs[0].indexOf(matchs[regex.matchIndex])+matchs[regex.matchIndex].length)
+
           ) : (
             item.targetValue
           )
