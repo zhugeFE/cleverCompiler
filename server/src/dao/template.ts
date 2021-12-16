@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 19:55:46
+ * @LastEditTime: 2021-12-16 14:35:37
  */
 import { ChangeGitVersionParams, HistoryVersion, TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo } from './../types/template';
 import { PoolConnection } from 'mysql';
@@ -900,6 +900,7 @@ class TemplateDao {
         tv.id,
         tp.NAME,
         tv.description,
+        tv.status,
         tv.version 
       FROM
         template_version AS tv

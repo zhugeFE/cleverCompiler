@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 15:11:36
+ * @LastEditTime: 2021-12-16 14:35:35
  */
 import { Version } from "./common";
 
@@ -106,6 +106,7 @@ export interface TemplateConfig extends CreateTemplateConfig {
 export interface TemplateVersionUpdateInfo {
   id: string;
   name: string;
+  status: number;
   description: string;
   version: string;
   gitInfo: TemplateVersionGitUpdateInfo[];
