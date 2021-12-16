@@ -102,6 +102,10 @@ class CreateGitVersion extends React.Component<Props, States> {
     }
     
   }
+
+  componentWillUnmount() {
+    this.setState = ()=>false;
+  }
   getRemoteList () {
     this.props.dispatch({
       type: 'git/queryRemoteGitList',
@@ -278,7 +282,7 @@ class CreateGitVersion extends React.Component<Props, States> {
             this.props.mode == 'branch' ? (
               <>
                 <Form.Item label="源分支" name="originBranchId">
-                  <Select>
+                  <Select allowClear>
                     {
                       this.props.gitInfo?.branchList.map( item => {
                         return (
@@ -291,7 +295,7 @@ class CreateGitVersion extends React.Component<Props, States> {
                 {
                   this.state.form.originBranchId &&
                   <Form.Item label="源版本" name="originVersionId">
-                    <Select>
+                    <Select allowClear>
                     {
                       this.props.gitInfo?.branchList.filter( branch => branch.id == this.state.form.originBranchId)[0].versionList.map(item => {
                         if( item.status == VersionStatus.placeOnFile) {

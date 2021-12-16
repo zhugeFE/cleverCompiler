@@ -77,9 +77,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.delInterval = setInterval( () => this.initDelInterval(this.props.currentVersion), 1000)
   }
   componentWillUnmount () {
-    if (this.delInterval) clearInterval(this.delInterval)
+    if (this.delInterval) clearInterval(this.delInterval);
+    this.setState = ()=>false;
+
   }
-  
+
   getGitInfo (id: string) {
     this.props.dispatch({
       type: 'git/getInfo',

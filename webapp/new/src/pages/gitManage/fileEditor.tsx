@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-15 19:22:09
+ * @LastEditTime: 2021-12-16 11:34:02
  */
 import * as React from 'react';
 import './styles/fileEditor.less'
@@ -29,17 +29,17 @@ class GitFileEditor extends React.Component<Props, State> {
     const matchs = content.match(reg) 
     
     const splitStr = `<<<<You must not guess it's me>>>>`
+
     const chunks = content.replace(reg, splitStr).split(splitStr)
 
     return (
       parseInt(String(this.props.matchIndex)).toString() != "NaN" ?
       <div className="git-file-editor">
-        
+           
         {chunks.map((item, i) => {  
-                          
           return (
               <span key={item + i}>{item}{
-                matchs && matchs[i] && matchs[this.props.matchIndex!] && item =="" ? 
+                matchs && matchs[i] && matchs[this.props.matchIndex!] ? 
                 <span className="editor-match">{matchs[i].substring(0, matchs[i].indexOf(matchs[this.props.matchIndex!]))}
                   <span className="editor-match-group">
                    {matchs[this.props.matchIndex!]}

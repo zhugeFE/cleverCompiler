@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-11-24 14:23:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-09 23:12:54
+ * @LastEditTime: 2021-12-16 14:45:32
  */
 
 import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined, QuestionCircleTwoTone, DownSquareTwoTone, UpSquareTwoTone, MinusSquareTwoTone } from "@ant-design/icons";
 import { IRouteComponentProps } from "@umijs/renderer-react";
-import { Button, Drawer, Modal, Select, Tabs, Tooltip } from "antd";
+import { Button, Drawer, message, Modal, Select, Tabs, Tooltip } from "antd";
 import React from "react";
 import { connect, Dispatch, ProjectInfo } from "umi";
 import style from "./styles/updateVersion.less";
@@ -17,6 +17,7 @@ import {TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo, updateTag} from
 import util from "@/utils/utils";
 import * as ReactMarkdown from 'react-markdown'
 import projectApi from '../../services/project';
+import { VersionStatus } from "@/models/common";
 
 interface Props extends IRouteComponentProps <{
   id: string;
@@ -214,15 +215,31 @@ class UpdateVersionDoc extends React.Component <Props, State> {
     })
   }
   async onUpdate () {
-    console.log(this.state.projectId);
-    console.log(this.state.rightValue);
+    const {projectId, rightValue, updateInfo} = this.state
+    for (const item of updateInfo!) {
+      if (item.id == rightValue && item.status != VersionStatus.placeOnFile) {
+        message.error("该版本为发布,暂不支持升级")
+        return
+      }
+    }
     this.setState({
       updatePendding: true
     })
-    const result = await projectApi.updateTemplateProject({projectId: this.state.projectId, versionId: this.state.rightValue})
+    const result = await projectApi.updateTemplateProject({projectId: projectId, versionId: rightValue})
     this.setState({
       updatePendding: false
     })
+    if (result.data == '更新成功') {
+      message.success({
+        content: "升级成功，2秒后自动跳转到编译页面",
+        duration: 2
+      })
+      setTimeout( ()=> {
+        this.props.history.push(`/compile/compileEdit?id=${projectId}`)
+      }, 2000 )
+    }
+    
+
   }
   render () {
     return (

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-15 14:53:19
+ * @LastEditTime: 2021-12-16 11:46:00
  */
 
 import { connect } from 'dva';
@@ -71,7 +71,9 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.onChangeReadme = this.onChangeReadme.bind(this);
     this.onChangeBuild = this.onChangeBuild.bind(this);
     this.onChangeUpdate = this.onChangeUpdate.bind(this);
-    this.onRadioChange = this.onRadioChange.bind(this)
+    this.onRadioChange = this.onRadioChange.bind(this);
+    this.afterCreateVersion = this.afterCreateVersion.bind(this);
+    this.onAddGlobalConfig = this.onAddGlobalConfig.bind(this);
   }
 
 
@@ -89,6 +91,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
   }
   componentWillUnmount () {
     if (this.delInterval) clearInterval(this.delInterval)
+    this.setState = ()=>false
   }
 
   getTemplateInfo (id: string) {

@@ -27,6 +27,7 @@ import { CurrentUser } from '@/models/user';
 export interface Props extends IRouteComponentProps<{id: string;}>{
   templateList: TemplateInstance[] | null
   customerList: Customer[] | null;
+  templateInfo: TemplateInfo | null;
   currentUser: CurrentUser | null;
   dispatch: Dispatch;
 }
@@ -46,7 +47,6 @@ interface States {
   customer: string;
   memberList: Member[] | null;
   projectInfo: ProjectInfo | null;
-  templateInfo: TemplateInfo | null;
   activeKey: string;
 }
 
@@ -67,7 +67,6 @@ class ProjectEdit extends React.Component<Props, States> {
       globalConfigList: null,
       customer: "",
       projectInfo: null,
-      templateInfo: null,
       memberList: null,
       activeKey: ""
     }
@@ -190,26 +189,25 @@ class ProjectEdit extends React.Component<Props, States> {
     this.props.dispatch({
       type: "template/getInfo",
       payload: id,
-      callback: (data: TemplateInfo) => {
+      callback: () => {
         this.setState({
-          templateInfo: data,
           showLoading: false
         })
       }
     })
   }
 
-  onTemplateSelectChange(id: string) {
+  onTemplateSelectChange(id: string) {    
     this.props.dispatch({
       type: "template/getInfo",
       payload: id,
-      callback: (data: TemplateInfo) => {
+      callback: () => {        
         this.setState({
-          templateInfo: data,
           templateId: id,
           showLoading: false
         })
-        for ( const version of data.versionList) {
+        
+        for ( const version of this.props.templateInfo!.versionList) {
           if (version.status === VersionStatus.placeOnFile) {
             this.onTemplateVersionSelectChange(version.id)
             return
@@ -220,8 +218,10 @@ class ProjectEdit extends React.Component<Props, States> {
   }
 
   onTemplateVersionSelectChange(value: string) {
-    if( this.state.templateInfo){
-      const current = this.state.templateInfo.versionList.filter( item =>item.id === value)[0]      
+    console.log(22);
+    
+    if( this.props.templateInfo){
+      const current = this.props.templateInfo.versionList.filter( item =>item.id === value)[0]      
       this.setState({
         templateVersionId: value,
         gitList: current.gitList,
@@ -525,7 +525,7 @@ class ProjectEdit extends React.Component<Props, States> {
                   onChange={this.onTemplateVersionSelectChange}
                 >
                   {
-                    this.state.templateInfo?.versionList.map( item => {
+                    this.props.templateInfo?.versionList.map( item => {
                       if (item.status === VersionStatus.placeOnFile) {
                         return <Select.Option key={item.id} value={item.id}> 
                           {item.version}
@@ -637,6 +637,7 @@ export default connect( ({ customer, template, user} : ConnectState) => {
     customerList: customer.customerList,
     templateList:template.templateList,
     currentUser: user.currentUser,
+    templateInfo: template.templateInfo!
   }
 })(withRouter(ProjectEdit))
 

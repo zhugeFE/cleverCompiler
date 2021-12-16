@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-15 14:51:18
+ * @LastEditTime: 2021-12-16 14:36:15
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -19,6 +19,7 @@ export interface TemplateVersionUpdateInfo {
   id: string;
   name: string;
   description: string;
+  status: number;
   version: string;
   gitInfo: TemplateVersionGitUpdateInfo[];
 }
@@ -293,7 +294,7 @@ const TemplateModel: TemplateModelType = {
       yield put({
         type: 'setInfo',
         payload: res.data
-      })
+      })      
       if (callback) callback()
     },
     *delTemplateInfo ({payload, callback}, {call, select, put}) {
@@ -708,7 +709,7 @@ const TemplateModel: TemplateModelType = {
       const res = util.clone(state)!
       res.currentVersion?.gitList.forEach( git => {
         git.configList.forEach( (config, i) => {
-          if( config.id = payload.id) {
+          if( config.id == payload.id) {
             git.configList[i] = payload
           }
         })
