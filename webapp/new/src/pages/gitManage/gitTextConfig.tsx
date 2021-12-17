@@ -10,6 +10,7 @@ import { connect } from 'dva';
 import GitFileEditor from './fileEditor';
 import { EditMode } from '@/models/common';
 import { GitConfig } from '@/models/git';
+import util from '@/utils/utils';
 
 interface FormData {
   filePath?: string;
@@ -110,25 +111,75 @@ class GitTextConfig extends React.Component<Props, State> {
     this.onReset()
     
   }
+  createSelectOption () {
+    if (this.state.reg && this.state.displayContent) {
+      const ignoreCase = this.state.reg.ignoreCase
+      const reg = new RegExp(this.state.reg.source, ignoreCase ? 'i' : "")
+      const matchs = this.state.displayContent.match(reg)
+      return (
+        <>
+          <Select.Option key={0} value={0}> 全部匹配 </Select.Option>
+          {
+            matchs && (matchs.length > 1) && matchs.map( (item,i) => {
+              if (i != 0) {
+                return <Select.Option key={i} value={i}>组{i}</Select.Option>
+              }
+            })
+          }
+        </>
+      )
+    }
+  }
   onReplace () {
     if (  !this.state.displayContent 
+      && this.state.formData.targetValue 
       && parseInt(String(this.state.formData.matchIndex)).toString() != "NaN"
       && !this.state.reg ) return
+
     const content =  this.state.displayContent
-    const matchs = content.match(this.state.reg!)!
+    const ignoreCase = this.state.reg?.ignoreCase
+    const isGlobal = this.state.reg?.global!
+    const reg = new RegExp(this.state.reg!.source, ignoreCase ? "i" : "")
     const matchIndex = this.state.formData.matchIndex!
-    const targetValue = parseInt(String(this.state.formData.matchIndex)).toString() != "NaN" ? (
-      matchs[0].substring(0, matchs[0].indexOf(matchs[matchIndex])) +
-      this.state.formData.targetValue +
-      matchs[0].substring(matchs[0].indexOf(matchs[matchIndex])+matchs[matchIndex!].length)
-    ) : (
-      this.state.formData.targetValue
-    )
+    const res = this.matchContent(content, reg, matchIndex, isGlobal)
+
     this.setState({
-      displayContent: content.replace(this.state.reg!, targetValue|| '')
+      displayContent: util.isArray(res) ? res.join("") : res
     })
+   
   }
   
+  matchContent (content: string, reg: RegExp, matchIndex: number, isGlobal: boolean): any {
+    if (!reg.test(content)) {return content }
+    const matchs = content.match(reg)
+    const oldVal = matchs![0] //第一个匹配的完整内容
+    const beginIndex = content.indexOf(oldVal) //匹配内容在文本内容中第一个匹配项的开始索引
+    const endIndex = beginIndex + oldVal.length //匹配内容在文本内容中第一个匹配项的结束索引
+    const chunkA = content.substring(0, beginIndex)
+    const res = oldVal.replace(matchs![matchIndex], this.state.formData.targetValue!)
+
+    if (isGlobal){      
+      return [chunkA , res , ...this.matchContent(content.substring(endIndex), reg, matchIndex, isGlobal)]
+    } else {
+      return [ chunkA , res , content.substring(endIndex)]
+    }
+    
+  }
+
+  createHightLightElement (content: string, targetValue: string) {    
+    const beginIndex = content.indexOf(targetValue)
+    const endIndex = beginIndex + targetValue.length
+    return (
+      <span className="editor-match">
+        {content.substring(0,beginIndex)}
+        <span className="editor-match-group">
+          {content.substring(beginIndex, endIndex)}
+        </span>
+        {content.substring(endIndex, content.length)}
+      </span>
+    )
+  }
+
   onReset () {
     this.setState({
       displayContent: this.state.fileContent
@@ -217,9 +268,11 @@ class GitTextConfig extends React.Component<Props, State> {
               required>
               <Select placeholder="未选择匹配">
                 {
-                  this.state.fileContent.match(this.state.reg!)?.map((item,index) => {                    
-                    return <Select.Option key={index} value={index}> {item}</Select.Option>
-                  })
+                  // (this.state.fileContent.match(this.state.reg!))?.map((item,index) => {
+                    
+                  //   return <Select.Option key={index} value={index}> 组{index}</Select.Option>
+                  // })
+                  this.createSelectOption()
                 }
               </Select>
             </Form.Item>
