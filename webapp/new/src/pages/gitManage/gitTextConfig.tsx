@@ -8,7 +8,7 @@ import styles from './styles/textConfig.less'
 import { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from 'dva';
 import GitFileEditor from './fileEditor';
-import { EditMode } from '@/models/common';
+import { EditMode, TypeMode } from '@/models/common';
 import { GitConfig } from '@/models/git';
 import util from '@/utils/utils';
 
@@ -71,6 +71,7 @@ class GitTextConfig extends React.Component<Props, State> {
     this.onReset = this.onReset.bind(this)
     this.onCancel = this.onCancel.bind(this)
     this.onBack = this.onBack.bind(this)
+    this.resetFields = this.resetFields.bind(this)
     this.onContinue = this.onContinue.bind(this)
   }
 
@@ -219,8 +220,20 @@ class GitTextConfig extends React.Component<Props, State> {
   }
   async onContinue () {
     await this.onSubmit( null, true)
-    this.form.current?.resetFields()
+    this.resetFields()
+    // this.form.current?.resetFields()
   }
+
+  resetFields () {
+    const form = this.form.current
+    form?.setFieldsValue({reg:undefined})
+    form?.setFieldsValue({description:undefined})
+    form?.setFieldsValue({global:undefined})
+    form?.setFieldsValue({ignoreCase:undefined})
+    form?.setFieldsValue({matchIndex: null})
+    form?.setFieldsValue({targetValue: undefined})
+  } 
+
   render () {
     return (
       <Modal 
@@ -228,13 +241,18 @@ class GitTextConfig extends React.Component<Props, State> {
         visible={true} 
         title={<a onClick={this.onBack}><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>} 
         width="60%" 
+        closable={false}
         footer={
           <>
           <Button onClick={this.onCancel}>取消</Button>
           <Button loading={this.state.formPending} type="primary" onClick={()=>this.onSubmit(this, false)}>保存</Button>
-          <Tooltip title="保存当前配置，并继续添加下一个配置">
-            <Button loading={this.state.formPending} type="primary" onClick={this.onContinue}>继续添加</Button>
-          </Tooltip>
+          {
+            this.props.mode != EditMode.update && (
+              <Tooltip title="保存当前配置，并继续添加下一个配置">
+                <Button loading={this.state.formPending} type="primary" onClick={this.onContinue}>继续添加</Button>
+              </Tooltip>
+            )
+          } 
           </>
         }>
         <FileTree 
@@ -268,10 +286,6 @@ class GitTextConfig extends React.Component<Props, State> {
               required>
               <Select placeholder="未选择匹配">
                 {
-                  // (this.state.fileContent.match(this.state.reg!))?.map((item,index) => {
-                    
-                  //   return <Select.Option key={index} value={index}> 组{index}</Select.Option>
-                  // })
                   this.createSelectOption()
                 }
               </Select>
@@ -291,6 +305,7 @@ class GitTextConfig extends React.Component<Props, State> {
             </Form.Item>
             <Button type="primary" onClick={this.onReplace}>替换</Button>
             <Button onClick={this.onReset}>还原</Button>
+            <Button onClick={this.resetFields}>重置表单</Button>
           </Form>
           <GitFileEditor reg={this.state.reg!} matchIndex={this.state.formData.matchIndex} content={this.state.displayContent}></GitFileEditor>
         </div>
