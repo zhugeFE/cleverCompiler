@@ -5,7 +5,7 @@ import { SysInfo } from './../types/sys';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-15 17:24:52
+ * @LastEditTime: 2021-12-17 17:04:18
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -18,6 +18,7 @@ import SocketLogge from './socketLogger';
 import fsUtil from './fsUtil';
 import axios from 'axios';
 import { Repo } from '../dao/git';
+import util from './util';
 
 export const SocketEventNames  = {
   compileMessage: 'compileMessage',
@@ -108,6 +109,33 @@ class WorkFlow {
     }
   }
   
+  onReplace (content: string, reg: RegExp, targetValue: string, matchIndex: number) {
+    const ignoreCase = reg.ignoreCase
+    const isGlobal = reg.global
+    const newreg = new RegExp(reg.source, ignoreCase ? "i" : "")
+    const res = this.matchContent(content, reg, matchIndex, isGlobal, targetValue)
+
+    return util.isArray(res) ? res.join("") : res
+   
+  }
+  
+  matchContent (content: string, reg: RegExp, matchIndex: number, isGlobal: boolean, targetValue: string): any {
+    if (!reg.test(content)) {return content }
+    const matchs = content.match(reg)
+    const oldVal = matchs![0] //第一个匹配的完整内容
+    const beginIndex = content.indexOf(oldVal) //匹配内容在文本内容中第一个匹配项的开始索引
+    const endIndex = beginIndex + oldVal.length //匹配内容在文本内容中第一个匹配项的结束索引
+    const chunkA = content.substring(0, beginIndex)
+    const res = oldVal.replace(matchs![matchIndex], targetValue)
+
+    if (isGlobal){      
+      return [chunkA , res , ...this.matchContent(content.substring(endIndex), reg, matchIndex, isGlobal, targetValue)]
+    } else {
+      return [ chunkA , res , content.substring(endIndex)]
+    }
+    
+  }
+
   async runReplacement (socket,  gitName: string, configList): Promise<void> {
     let text = ''
     let regex: {
@@ -134,16 +162,7 @@ class WorkFlow {
           SocketLogge(socket, SocketEventNames.compileMessage, gitName, `warning 匹配失败：${item.filePath} => ${Reg}`)
         } else {
           SocketLogge(socket, SocketEventNames.compileMessage, gitName, `Step: 执行文字替换 ${Reg} => ${item.targetValue}`)
-          const matchs = text.match(Reg)
-          const targetValue = parseInt(String(regex.matchIndex)).toString() != "NaN" ? (
-            matchs[0].substring(0, matchs[0].indexOf(matchs[regex.matchIndex])) + item.targetValue +
-            matchs[0].substring(matchs[0].indexOf(matchs[regex.matchIndex])+matchs[regex.matchIndex].length)
-
-          ) : (
-            item.targetValue
-          )
-          
-          text = text.replace(Reg, targetValue)
+          text = this.onReplace(text, Reg, item.targetValue, regex.matchIndex)
           fs.writeFileSync(fileDir, text, 'utf8')
         }
       }

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-09-13 11:53:25
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-10-18 11:15:13
+ * @LastEditTime: 2021-12-17 17:02:20
  */
 import * as _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,6 +20,12 @@ class Util {
   }
   uuid (): string {
     return uuidv4()
+  }
+  type (obj: any): string {
+    return Object.prototype.toString.call(obj)
+  }
+  isArray (obj: any): boolean {
+    return this.type(obj) === '[object Array]'
   }
   getType (target: any): string {
     const type = Object.prototype.toString.call(target) as string
