@@ -5,7 +5,7 @@ import { SysInfo } from './../types/sys';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-17 17:04:18
+ * @LastEditTime: 2021-12-17 18:17:16
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -113,7 +113,7 @@ class WorkFlow {
     const ignoreCase = reg.ignoreCase
     const isGlobal = reg.global
     const newreg = new RegExp(reg.source, ignoreCase ? "i" : "")
-    const res = this.matchContent(content, reg, matchIndex, isGlobal, targetValue)
+    const res = this.matchContent(content, newreg, matchIndex, isGlobal, targetValue)
 
     return util.isArray(res) ? res.join("") : res
    
