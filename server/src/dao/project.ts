@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-09 23:09:44
+ * @LastEditTime: 2021-12-20 15:42:08
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -14,7 +14,6 @@ import pool from "./pool";
 import logger from "../utils/logger";
 import templateDao from './template';
 import { CompileGitParams } from '../types/git';
-import { string } from '@hapi/joi';
 
 class Project {
    // 项目列表
@@ -86,7 +85,7 @@ class Project {
       params.configList.map( async config => {
         const configId = util.uuid()
         GlobalConfigMap[config.id] = configId
-        globalConfigDataList.push([configId, projectId , config.id, config.targetValue])
+        globalConfigDataList.push([configId, projectId , config.id, config.targetValue,config.isHidden, config.visable])
        })
 
       if (globalConfigDataList.length) {
@@ -106,7 +105,7 @@ class Project {
       params.gitList.map(  git => {
         git.configList.map( config => {
           const configId = util.uuid()
-          configDataList.push([configId,config.targetValue,config.id, GlobalConfigMap[config.globalConfigId], gitMap[git.id]] )
+          configDataList.push([configId,config.targetValue,config.id, GlobalConfigMap[config.globalConfigId], gitMap[git.id],config.isHidden,config.visable] )
         })
       })
 
@@ -129,11 +128,11 @@ class Project {
   }
 
   async insertConfig (conn, data: string[][]): Promise<void> {
-    const sql = `INSERT INTO project_config (id, target_value, template_config_id, global_config_id, project_git_id) VALUES ?`
+    const sql = `INSERT INTO project_config (id, target_value, template_config_id, global_config_id, project_git_id, is_hidden, visable) VALUES ?`
     await pool.writeInTransaction(conn,sql, [data])
   }
   async insetGlobalConfig (conn, data: string[][]): Promise<void> {
-    const sql = `INSERT INTO project_global_config (id, project_id, template_global_config_id ,target_value) VALUES ?`
+    const sql = `INSERT INTO project_global_config (id, project_id, template_global_config_id ,target_value,is_hidden, visable) VALUES ?`
     await pool.writeInTransaction(conn,sql, [data])
   }
 
@@ -151,7 +150,7 @@ class Project {
 
   async projectCompileInfo (id: string): Promise<ProjectInfo>{
     const projectData = await this.getProjectById(id)
-    const globalConfig = await this.getGlobalConfigByProjectIdReturnPid(id)
+    const globalConfig = await this.getGlobalConfigByProjectId(id)
     const gitList = await this.getProjectGitReturnPid(id)
     const data: ProjectInfo = {
       ...projectData,
@@ -225,7 +224,7 @@ class Project {
       data.globalConfigList.map( config => {
         const globalConfigId = util.uuid()
         globalConfigMap[config.id] = globalConfigId
-        globalConfigData.push([globalConfigId, data.id, config.id, config.targetValue])
+        globalConfigData.push([globalConfigId, data.id, config.id, config.targetValue, config.isHidden, config.visable])
       })
       if ( globalConfigData.length) {
         await this.insetGlobalConfig(conn, globalConfigData)
@@ -242,7 +241,7 @@ class Project {
 
       data.gitList.map( git => {
         git.configList.map( config => {
-          configData.push([util.uuid(), config.targetValue, config.id, globalConfigMap[config.globalConfigId], gitMap[git.id]])
+          configData.push([util.uuid(), config.targetValue, config.id, globalConfigMap[config.globalConfigId], gitMap[git.id], config.isHidden, config.visable])
         })
       })
 
@@ -325,7 +324,7 @@ class Project {
 
     const data = await pool.query<TemplateVersionGit>(sql, [projectId])
     await Promise.all(data.map( async item => {
-      item['configList'] = await this.getConfigByProjectGitIdReturnPid(item.pid)
+      item['configList'] = await this.getConfigByProjectGitId(item.pid)
     }))
     return data
   }
@@ -339,7 +338,8 @@ class Project {
       t.template_id as template_id, 
       t.template_version_id as template_version_id,
       p.target_value as target_value,
-      t.is_hidden as is_hidden,
+      p.is_hidden as is_hidden,
+      p.visable,
       t.type as type
     FROM
       project_global_config as p
@@ -350,24 +350,6 @@ class Project {
     return await pool.query<TemplateGlobalConfig>(sql, [projectId])
   }
 
-  async getGlobalConfigByProjectIdReturnPid (projectId: string): Promise<TemplateGlobalConfig[]>{
-    const sql =  `SELECT
-      p.id as id,
-      t.name as name,
-      t.description as description,
-      t.template_id as template_id, 
-      t.template_version_id as template_version_id,
-      p.target_value as target_value,
-      t.is_hidden as is_hidden,
-      t.type as type
-    FROM
-      project_global_config as p
-    LEFT JOIN template_global_config as t
-    ON t.id = p.template_global_config_id
-    WHERE p.project_id = ?`
-
-    return await pool.query<TemplateGlobalConfig>(sql, [projectId])
-  }
 
   //根据项目id查询局部配置
   async getConfigByProjectGitId (projectGitId: string): Promise<TemplateConfig[]>{
@@ -382,32 +364,8 @@ class Project {
       t.template_version_id as template_version_id,
       t.template_version_git_id as template_version_git_id,
       t.git_source_config_id as git_source_config_id,
-      t.is_hidden as is_hidden,
-      p.target_value as target_value   
-    FROM
-      project_config as p
-    LEFT JOIN template_config AS t
-    ON t.id = p.template_config_id
-    LEFT JOIN source_config AS s ON s.id = t.git_source_config_id 
-    WHERE
-      p.project_git_id = ?`
-
-    return await pool.query<TemplateConfig>(sql, [projectGitId])
-  }
-
-  async getConfigByProjectGitIdReturnPid (projectGitId: string): Promise<TemplateConfig[]>{
-    const sql =  `SELECT
-      p.id as id,
-      s.type_id as type_id,
-      s.reg as reg,
-      s.file_path as file_path,
-      s.description as description,
-      p.global_config_id as global_config_id,
-      t.template_id as template_id,
-      t.template_version_id as template_version_id,
-      t.template_version_git_id as template_version_git_id,
-      t.git_source_config_id as git_source_config_id,
-      t.is_hidden as is_hidden,
+      p.is_hidden as is_hidden,
+      p.visable,
       p.target_value as target_value   
     FROM
       project_config as p
@@ -420,7 +378,6 @@ class Project {
     return await pool.query<TemplateConfig>(sql, [projectGitId])
   }
  
-
   async getCompileGitData (gitIds: string[]): Promise<CompileGitParams[]> {
     const sql =  `SELECT
       p.id,
