@@ -241,7 +241,7 @@ const GitModel: GitModelType = {
       if (res.status === -1) return 
       if (callback) callback(res.data)
     },
-    *queryCommits ({payload, callback}, {call}) {
+    *queryCommits ({payload, callback}, {call}) {      
       const res = yield call(gitService.queryCommits, payload)
       if (res.status === -1) return 
       if (callback) callback(res.data)

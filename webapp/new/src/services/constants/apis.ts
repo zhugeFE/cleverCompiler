@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-09 19:01:33
+ * @LastEditTime: 2021-12-20 10:46:53
  */
 export default {
   user: {
@@ -26,7 +26,7 @@ export default {
     getBranchUpdateInfo: '/git/version/updateInfo',
     queryBranch: '/git/{{gitId}}/branchs',
     queryTags: '/git/{{gitId}}/tags',
-    queryCommits: '/git/{{gitId}}/commits',
+    queryCommits: '/git/{{gitId}}/{{branch}}/commits',
     createVersion: '/git/version/add',
     fileCat: '/git/cat',
     addConfig: '/git/config/add',

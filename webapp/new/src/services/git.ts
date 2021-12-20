@@ -48,10 +48,11 @@ class GitService {
     })
   }
 
-  async queryCommits (gitId: string) {
+  async queryCommits (param: {gitId: string, branch: string}) {    
     return request(apis.git.queryCommits, {
       params: {
-        gitId
+        gitId: param.gitId,
+        branch: param.branch
       }
     })
   }

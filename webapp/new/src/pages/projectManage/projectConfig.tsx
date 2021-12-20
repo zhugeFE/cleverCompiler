@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-06 14:30:36
+ * @LastEditTime: 2021-12-20 13:58:10
  */
 
 import { TypeMode } from "@/models/common";
 import { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
-import { Button, Table, Tabs } from "antd";
+import { Button, Empty, Table, Tabs } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
@@ -203,7 +203,9 @@ class ProjectConfig extends React.Component <Props, States> {
           <Tabs type="card" 
           className={styles.cardBg} 
           >
-            <Tabs.TabPane tab="引导页">引导页面</Tabs.TabPane>
+             <Tabs.TabPane tab="引导页" className={styles.initTabs}>
+              <Empty></Empty>
+            </Tabs.TabPane>
           </Tabs>
         ) : (
           <Tabs

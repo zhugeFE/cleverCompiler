@@ -58,7 +58,7 @@ class GitTextConfig extends React.Component<Props, State> {
         filePath: props.configInfo?.filePath || "",
         description: props.configInfo?.description || "",
         targetValue: props.configInfo?.targetValue || "",
-        matchIndex: props.configInfo ? JSON.parse(props.configInfo.reg)['matchIndex'] : "",
+        matchIndex: props.configInfo ? JSON.parse(props.configInfo.reg)['matchIndex'] : undefined,
         reg: props.configInfo ? JSON.parse(props.configInfo.reg)['source'] : "",
         global: props.configInfo ? JSON.parse(props.configInfo.reg)['global'] : false,
         ignoreCase: props.configInfo ? JSON.parse(props.configInfo.reg)['ignoreCase'] : false
@@ -104,6 +104,14 @@ class GitTextConfig extends React.Component<Props, State> {
     
     try {
       reg =  new RegExp(formData.reg || '', `${formData.global ? 'g' : ''}${formData.ignoreCase ? 'i' : ''}`)
+      if (reg.test(this.state.displayContent)) {
+        formData.matchIndex = 0
+        this.form.current?.setFieldsValue({matchIndex: 0})
+      } 
+      if (!changedValues['reg'] || !reg.test(this.state.displayContent)) {
+        formData.matchIndex = null
+        this.form.current?.setFieldsValue({matchIndex: undefined})
+      }
       this.setState({
         formData,
         reg
@@ -230,7 +238,7 @@ class GitTextConfig extends React.Component<Props, State> {
     form?.setFieldsValue({description:undefined})
     form?.setFieldsValue({global:undefined})
     form?.setFieldsValue({ignoreCase:undefined})
-    form?.setFieldsValue({matchIndex: null})
+    form?.setFieldsValue({matchIndex: undefined})
     form?.setFieldsValue({targetValue: undefined})
   } 
 

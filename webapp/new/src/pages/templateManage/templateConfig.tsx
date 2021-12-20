@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-15 14:52:25
+ * @LastEditTime: 2021-12-20 13:56:22
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
-import { Button, message, Select, Skeleton, Table, Tabs } from 'antd';
+import { Button, Empty, message, Select, Skeleton, Table, Tabs } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -431,8 +431,11 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             onCancel={this.hideAddGitSource} />
           }
         { !this.props.activeKey ? (
-          <Tabs type={this.props.mode == VersionStatus.normal ? 'editable-card' : 'card'} className={styles.cardBg} onEdit={this.onEdit}>
-            <Tabs.TabPane tab="引导页">引导页面</Tabs.TabPane>
+          <Tabs type='card' className={styles.cardBg} >
+            <Tabs.TabPane tab="引导页" className={styles.initTabs}>
+              <Empty></Empty>
+              <Button type="primary" onClick={this.add}>添加git</Button>
+            </Tabs.TabPane>
           </Tabs>
         ) : (
           <Tabs

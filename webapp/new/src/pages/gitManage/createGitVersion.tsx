@@ -60,7 +60,7 @@ class CreateGitVersion extends React.Component<Props, States> {
       form: {
         option: '',
         description: '',
-        source: 'commit',
+        source: 'tag',
         repoId: '',
         branch: '',
         tag: '',
@@ -98,7 +98,7 @@ class CreateGitVersion extends React.Component<Props, States> {
     if (this.props.mode != 'init') {
       this.getBranchList(this.props.repoId!)
       this.getTags(this.props.repoId!)
-      this.getCommits(this.props.repoId!)
+      // this.getCommits(this.props.repoId!)
     }
     
   }
@@ -141,11 +141,14 @@ class CreateGitVersion extends React.Component<Props, States> {
       }
     })
   }
-  getCommits (id: string) {
+  getCommits (id: string, branch: string) {
     this.props.dispatch({
       type: 'git/queryCommits',
-      payload: id,
-      callback: (list: GitCommit[]) => {
+      payload: {
+        gitId: id,
+        branch
+      },
+      callback: (list: GitCommit[]) => {        
         this.setState({
           commits: list
         })
@@ -156,12 +159,17 @@ class CreateGitVersion extends React.Component<Props, States> {
     return new RegExp(value.toLowerCase()).test(optionData.title.toLowerCase())
   }
   onChangeForm (chanedValue: any, values: FormData) {
+    
     if( chanedValue['repoId']) {
       this.getBranchList(chanedValue['repoId'])
       this.getTags(chanedValue['repoId'])
-      this.getCommits(chanedValue['repoId'])
+    }
+    if (chanedValue['branch']) {
+      this.getCommits(values['repoId'] || this.props.repoId!, chanedValue['branch'])
+      this.createGitForm.current?.setFieldsValue({commit:""})
     }
     if (chanedValue['branchName'] ) {
+      
       let version
       if (values.originBranchId) {
         version = '1.0.0-' + chanedValue['branchName']
@@ -259,7 +267,7 @@ class CreateGitVersion extends React.Component<Props, States> {
   }
   render () {
     const source = this.state.form.source
-    const branchDisplay = source === 'branch' ? 'flex' : 'none'
+    const branchDisplay = source === 'commit' ? 'flex' : 'none'
     const tagDisplay = source === 'tag' ? 'flex' : 'none'
     const commitDisplay = source === 'commit' ? 'flex' : 'none'
     if ( !this.state.gitList && this.props.mode == 'init' ){
@@ -347,7 +355,7 @@ class CreateGitVersion extends React.Component<Props, States> {
             <Radio.Group>
               <Radio.Button value="tag">tag</Radio.Button>
               <Radio.Button value="commit">commit</Radio.Button>
-              <Radio.Button value="branch">branch</Radio.Button>
+              {/* <Radio.Button value="branch">branch</Radio.Button> */}
             </Radio.Group>
           </Form.Item>
           <Form.Item label="branch" name="branch" style={{display: branchDisplay}} required>
