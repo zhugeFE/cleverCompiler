@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-16 14:13:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 15:58:23
+ * @LastEditTime: 2021-12-20 16:34:11
  */
 import { SysInfo } from './../types/sys';
 import * as Socket from "socket.io";
@@ -130,9 +130,9 @@ class SocketUtil{
             const doc = await GitService.getTemplateDoc(ctx.projectId)
             const fileName = util.createFileName(ctx.userId)
             const res = await new WorkFlowUtil(workDir).pack(socket, fileName, packGitData, doc)
-            compileResult.push(res ? "打包成功" : "打包失败")
-            compileInstance.file =  res ? fileName : ""
-            SocketLogge(socket, SocketEventNames.result,'result',`Step: ${res ? "打包成功" : "打包失败"}`)
+            compileResult.push(res)
+            compileInstance.file =  res != 'fail' ? fileName : ""
+            SocketLogge(socket, SocketEventNames.result,'result',res)
             SocketLogge(socket, SocketEventNames.download,'download',fileName)
           }
         }
@@ -166,10 +166,10 @@ class SocketUtil{
         const res = await new WorkFlowUtil(workDir).pack(socket, fileName, gitData, doc )
         const data = {
           id: compileId,
-          compileResult: res ? "打包成功" : "打包失败",
-          file: res ? fileName : ""
+          compileResult: res,
+          file: res != 'fail' ? fileName : ""
         }
-        SocketLogge(socket, SocketEventNames.result,'result',`Step: ${res ? "打包成功" : "打包失败"}`)
+        SocketLogge(socket, SocketEventNames.result,'result',`Step: 打包结束`)
         SocketLogge(socket, SocketEventNames.download,'download',fileName)
 
         CompileDao.updateProjectCompile(data)

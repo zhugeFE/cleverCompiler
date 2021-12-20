@@ -5,7 +5,7 @@ import { SysInfo } from './../types/sys';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-17 18:17:16
+ * @LastEditTime: 2021-12-20 16:31:54
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -296,17 +296,23 @@ class WorkFlow {
     await fsUtil.mkdir(tmpPath)
 
     SocketLogge(socket, SocketEventNames.result,'result','Step: tmp文件创建成功')
-    for ( let i = 0 ; i < gitData.length; i++) {
-      logger.info(gitData[i])
-      const fileDir =  `${gitData[i].name}${gitData[i].outputName}`
-      logger.info(fileDir)
-      const oldPath =  path.resolve( this.workDir, fileDir)
-      const newPath = path.resolve( tmpPath, gitData[i].name)
-      SocketLogge(socket, SocketEventNames.result,'result',`Step: 正在拷贝${oldPath} 到 ${newPath}`)
-      await fsUtil.rename(oldPath, newPath)
-      SocketLogge(socket, SocketEventNames.result,'result',`Step: 拷贝成功 ${oldPath} 到 ${newPath}`)
+    let oldPath
+    let newPath
+    try {
+      for ( let i = 0 ; i < gitData.length; i++) {
+        logger.info(gitData[i])
+        const fileDir =  `${gitData[i].name}${gitData[i].outputName}`
+        logger.info(fileDir)
+        oldPath =  path.resolve( this.workDir, fileDir)
+        newPath = path.resolve( tmpPath, gitData[i].name)
+        SocketLogge(socket, SocketEventNames.result,'result',`Step: 正在拷贝${oldPath} 到 ${newPath}`)
+        await fsUtil.rename(oldPath, newPath)
+        SocketLogge(socket, SocketEventNames.result,'result',`Step: 拷贝成功 ${oldPath} 到 ${newPath}`)
+      }
+    } catch (e) {
+      SocketLogge(socket, SocketEventNames.result,'result',`Step: 拷贝失败 ${oldPath} 到 ${newPath}`)
     }
-
+    
     SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始写入配置文件`)
     fs.writeFileSync( path.resolve(tmpPath, 'build.md') , doc.buildDoc)
     fs.writeFileSync( path.resolve(tmpPath, 'update.md') , doc.updateDoc)
@@ -316,21 +322,64 @@ class WorkFlow {
     return tmpPath
   }
 
-  async pack (socket, fileName: string, gitData: CompileGitData[], doc: CompileDoc): Promise<boolean> {
+  async pack (socket, fileName: string, gitData: CompileGitData[], doc: CompileDoc): Promise<string> {
+    const failList = []
+    let res 
     try {
+      //在workdir下创建一个tmp文件
+      SocketLogge(socket, SocketEventNames.result,'result','Step: 创建tmp临时文件')
+      const tmpPath = path.resolve(this.workDir, "tmp")
+      const exist = await fsUtil.pathExist(tmpPath)
+      if (exist){
+        await new DashUtil(tmpPath).exec('rm -rf ./*', socket,SocketEventNames.result, 'result')
+      }
+      await fsUtil.mkdir(tmpPath)
+
+      SocketLogge(socket, SocketEventNames.result,'result','Step: tmp文件创建成功')
+      let oldPath
+      let newPath
+      let name 
+      try {
+        for ( let i = 0 ; i < gitData.length; i++) {
+          logger.info(gitData[i])
+          name = gitData[i].name
+          const fileDir =  `${gitData[i].name}${gitData[i].outputName}`
+          logger.info(fileDir)
+          oldPath =  path.resolve( this.workDir, fileDir)
+          newPath = path.resolve( tmpPath, gitData[i].name)
+          SocketLogge(socket, SocketEventNames.result,'result',`Step: 正在拷贝${oldPath} 到 ${newPath}`)
+          await fsUtil.rename(oldPath, newPath)
+          SocketLogge(socket, SocketEventNames.result,'result',`Step: 拷贝成功 ${oldPath} 到 ${newPath}`)
+        }
+      } catch (e) {
+        SocketLogge(socket, SocketEventNames.result,'result',`Step: 拷贝失败 ${oldPath} 到 ${newPath}`)
+        failList.push(name)
+      }
       
-      const tmpPath = await this.buildTmpProject(socket, gitData, doc)
+      SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始写入配置文件`)
+      fs.writeFileSync( path.resolve(tmpPath, 'build.md') , doc.buildDoc)
+      fs.writeFileSync( path.resolve(tmpPath, 'update.md') , doc.updateDoc)
+      fs.writeFileSync( path.resolve(tmpPath, 'readme.md') , doc.readmeDoc)
+      SocketLogge(socket, SocketEventNames.result,'result',`Step: 写入配置文件成功`)
+
+      // const tmpPath = await this.buildTmpProject(socket, gitData, doc)
       const savePath = path.resolve(this.workDir, `${fileName}.tar.gz`)
 
       SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始打包文件`)
       
       await new DashUtil(tmpPath).exec(`tar czvf ${savePath} ./`, socket,SocketEventNames.result, 'result')
-
-      return true
-    } catch(err) {
+      if (failList.length) {
+        res = `打包成功：${gitData.length - failList.length}/${gitData.length} \n 失败git：${failList.toString()}`
+        SocketLogge(socket, SocketEventNames.result,'result',res)
+      } else {
+        SocketLogge(socket, SocketEventNames.result,'result',`全部打包成功`)
+      }
+      return res
+    } catch (err) {
       SocketLogge(socket, SocketEventNames.result,'result',`打包失败：${err.message}`)
-      return false
+      return "fail"
     }
+    
   }
 }
 
