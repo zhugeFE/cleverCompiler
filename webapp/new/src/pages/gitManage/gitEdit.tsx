@@ -73,7 +73,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
       this.getGitInfo(this.props.match.params.id)
     }
   }
-  componentDidUpdate () {
+  componentDidUpdate () {    
     this.delInterval = setInterval( () => this.initDelInterval(this.props.currentVersion), 1000)
   }
   componentWillUnmount () {
@@ -363,14 +363,14 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       onChange={this.onChangeOutputName} 
                       placeholder="填写项目根目录下的绝对路径：（例：/dist）" 
                       disabled={this.props.currentVersion.status != VersionStatus.normal} 
-                      defaultValue={this.props.currentVersion.outputName}></Input> 
+                      value={this.props.currentVersion.outputName}></Input> 
                   </div> : null}
                 </Description>
                 <Description label="是否发布到git">
                   <Radio.Group 
                     onChange={this.onRadioChange} 
                     disabled={this.props.currentVersion?.status != VersionStatus.normal}  
-                    defaultValue={this.props.currentVersion?.publicType}>
+                    value={this.props.currentVersion?.publicType}>
                     <Radio id="0" value={0}>是</Radio>
                     <Radio id="1" value={1}>否</Radio>
                   </Radio.Group>
@@ -389,7 +389,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                         disabled={this.props.currentVersion?.status != VersionStatus.normal} 
                         onChange={this.selectPubliceGit} 
                         placeholder="选择发布代码库"
-                        defaultValue={this.props.currentVersion.publicGit}>
+                        value={this.props.currentVersion.publicGit}>
                         {
                           this.state.gitList?.map(item => {
                             return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>

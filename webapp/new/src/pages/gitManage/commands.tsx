@@ -14,7 +14,6 @@ interface Props {
   closeEnable: boolean;
 }
 interface State {
-  tags: string[];
   inputVisible: boolean;
   value: string;
 }
@@ -23,7 +22,6 @@ class Commands extends React.Component<Props, State> {
   constructor (props: Props) {
     super(props)
     this.state = {
-      tags: this.props.tags,
       inputVisible: false,
       value: ''
     }
@@ -35,15 +33,14 @@ class Commands extends React.Component<Props, State> {
   }
   onEnterTag () {
     const value = this.state.value.trim()
-    let tags = util.clone(this.state.tags)
+    let tags = util.clone(this.props.tags)
     if (value) {
       tags = (tags || []).concat([value])
     }
     this.setState({
-      tags,
       value: ''
     }, () => {
-      this.onChange()
+      this.onChange(tags)
     })
   }
   onBlurInput () {
@@ -65,19 +62,15 @@ class Commands extends React.Component<Props, State> {
     })
   }
   onDel (i: number) {
-    let tags = util.clone(this.state.tags)
+    let tags = util.clone(this.props.tags)
     tags.splice(i, 1)
-    this.setState({
-      tags
-    }, () => {
-      this.onChange()
-    })
+    this.onChange(tags)
   }
-  onChange () {
+  onChange (tags: string[]) {
     this.props.dispatch({
       type: 'git/updateVersion',
       payload: {
-        compileOrders: JSON.stringify(this.state.tags)
+        compileOrders: JSON.stringify(tags)
       }
     })
   }
@@ -85,7 +78,7 @@ class Commands extends React.Component<Props, State> {
     return (
       <div className="commands">
         {
-          this.state.tags?.map((tag, i) => {
+          this.props.tags?.map((tag, i) => {
             return (
               <Tag key={`${tag}_${i}`} 
                 color="blue" 

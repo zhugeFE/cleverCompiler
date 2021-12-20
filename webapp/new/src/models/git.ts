@@ -499,7 +499,7 @@ const GitModel: GitModelType = {
           res.currentBranch = branch
         }
       })      
-      res!.currentVersion! = res!.currentBranch!.versionList[0]
+      res!.currentVersion! = res!.currentBranch!.versionList[0]      
       return res
     },
     setVersion (state, {payload}): GitModelState {

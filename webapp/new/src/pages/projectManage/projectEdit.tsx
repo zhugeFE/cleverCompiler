@@ -217,9 +217,7 @@ class ProjectEdit extends React.Component<Props, States> {
     })
   }
 
-  onTemplateVersionSelectChange(value: string) {
-    console.log(22);
-    
+  onTemplateVersionSelectChange(value: string) {    
     if( this.props.templateInfo){
       const current = this.props.templateInfo.versionList.filter( item =>item.id === value)[0]     
       current.gitList.forEach(git => {

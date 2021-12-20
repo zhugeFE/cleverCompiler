@@ -211,9 +211,7 @@ class CreateGitVersion extends React.Component<Props, States> {
     })    
   }
   onCommit () {
-    const source = this.state.form.source as 'branch' | 'tag' | 'commit'
-    console.log(!this.state.form[source]);
-    
+    const source = this.state.form.source as 'branch' | 'tag' | 'commit'    
     if (!this.props.gitId && !this.state.form.repoId || !this.state.form[source] || !this.state.version || !this.state.form.description){
       message.error({
         content: "数据填写不完整",
