@@ -339,12 +339,12 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <Tag color="#f50">{ this.props.currentVersion?.publishTime ? util.dateTimeFormat(new Date(this.props.currentVersion!.publishTime)) : "-"}</Tag>
                   </Tooltip>
                 </Description>
-                <Description label="git地址"  className={styles.gitAddr}>
-                  <a>{this.props.gitInfo.gitRepo}</a>
-                </Description>
-                <Description label="git来源" className={styles.gitAddr}>
-                  <a>{`${this.props.gitInfo.name}(${this.props.currentVersion?.sourceType}：${this.props.currentVersion?.sourceValue})`}</a>
-                </Description>
+                <Description label="git地址" labelWidth={labelWidth} display="block"  className={styles.gitAddr}>
+                    <a>{this.props.gitInfo.gitRepo}</a>
+                  </Description>
+                <Description label="git来源" labelWidth={labelWidth} display="block" className={styles.gitAddr}>
+                    <a>{`${this.props.gitInfo.name}(${this.props.currentVersion?.sourceType}：${this.props.currentVersion?.sourceValue})`}</a>
+                  </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className={styles.gitConfigs}>
                   <GitConfigPanel></GitConfigPanel>
                   <Button 

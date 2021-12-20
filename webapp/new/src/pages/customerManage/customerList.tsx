@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:43:12
+ * @LastEditTime: 2021-12-20 17:08:22
  */
 import { Customer } from '@/models/customer';
 import { Button, Form, Input, Table } from 'antd';
@@ -121,7 +121,7 @@ class CustomerList extends React.Component<Props, States> {
         title: '名称',
         dataIndex: 'name',
         fixed: 'left',
-        width: 250,
+        ellipsis: true,
         render(text: string, record: Customer) {
           return <div> {text || '-' || record.name} </div>;
         },
@@ -129,7 +129,7 @@ class CustomerList extends React.Component<Props, States> {
       {
         title: '联系方式',
         dataIndex: 'tel',
-        width: 200,
+        ellipsis: true,
         render(text: string, record: Customer) {
           return <div>{ text || '-' }</div>
         }
@@ -137,7 +137,7 @@ class CustomerList extends React.Component<Props, States> {
       {
         title: '描述',
         dataIndex: 'description',
-        width: 280,
+        ellipsis: true,
         render(text: string, record: Customer) {
           return <div> {text || '-' || record.description} </div>;
         },
@@ -145,14 +145,14 @@ class CustomerList extends React.Component<Props, States> {
       {
         title: '项目',
         dataIndex: 'prjectId',
-        width: 250,
+        ellipsis: true,
         render(text: string, record: Customer) {
           return <div> {text || '-' || record.projectId} </div>;
         },
       },
       {
         title: '创建者',
-        width: 250,
+        ellipsis: true,
         dataIndex: 'creatorName',
         render(text: string, record: Customer) {
           return <div> {text || '-' || record.creatorName} </div>;
@@ -161,6 +161,7 @@ class CustomerList extends React.Component<Props, States> {
       {
         title: '操作',
         dataIndex: 'handle',
+        width: "30%",
         fixed: 'right',
         render: (text, record: Customer) => {
           return (

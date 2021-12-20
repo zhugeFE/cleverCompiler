@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-09 18:35:48
+ * @LastEditTime: 2021-12-20 17:05:35
  */
 import { ConnectState } from '@/models/connect';
 import { ProjectInstance } from '@/models/project';
@@ -118,7 +118,6 @@ class ProjectList extends React.Component<Props, States> {
         dataIndex: 'name',
         fixed: 'left',
         ellipsis:true,
-        width: 100,
         render(text: string, record: ProjectInstance) {
           return text || '-' || record.name
         },
@@ -126,7 +125,6 @@ class ProjectList extends React.Component<Props, States> {
       {
         title: '编译类型',
         dataIndex: 'compileType',
-        width: 50,
         render(text: string) {
           return compileType[Number(text)] || '-' 
         },
@@ -135,14 +133,12 @@ class ProjectList extends React.Component<Props, States> {
         title: '上次编译时间',
         dataIndex: 'lastCompileTime',
         ellipsis: true,
-        width: 60,
         render(text: string) {
           return text ? util.dateTimeFormat(new Date(text)) : '-'
         },
       },
       {
         title: '上次编译结果',
-        width: 100,
         ellipsis: true,
         dataIndex: 'lastCompileResult',
         render(text: string, record: ProjectInstance) {
@@ -151,7 +147,6 @@ class ProjectList extends React.Component<Props, States> {
       },
       {
         title: '上次编译人',
-        width: 80,
         ellipsis: true,
         dataIndex: 'compileUser',
         render(text: string, record: ProjectInstance) {
@@ -160,7 +155,7 @@ class ProjectList extends React.Component<Props, States> {
       },
       {
         title: '创建时间',
-        width: 80,
+        ellipsis: true,
         dataIndex: 'createTime',
         render(text: string) {
           return util.dateTimeFormat(new Date(text)) || '-'
@@ -169,7 +164,7 @@ class ProjectList extends React.Component<Props, States> {
       {
         title: '操作',
         dataIndex: 'handle',
-        width: 150,
+        width: "40%",
         fixed: 'right',
         render: (text, record: ProjectInstance) => {
           return (

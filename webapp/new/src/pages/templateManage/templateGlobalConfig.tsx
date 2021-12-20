@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-14 17:10:20
+ * @LastEditTime: 2021-12-20 17:10:37
  */
 
 import * as React from 'react';
@@ -138,10 +138,9 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
 
   render() {
     const columns: ColumnProps<TemplateGlobalConfig>[] = [
-      { title: '名称', width:150, ellipsis: true, dataIndex: 'name', fixed: 'left' },
+      { title: '名称', ellipsis: true, dataIndex: 'name', fixed: 'left' },
       {
         title: '类型',
-        width: 60,
         dataIndex: 'type',
         render(value) {
           if (value === 0) return <span>文本</span>;
@@ -149,17 +148,16 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
           if (value === 2) return <span>json</span>;
         },
       },
-      {title: '目标内容', width: 200, ellipsis: true, dataIndex: 'targetValue', render: (text: string, record) => {
+      {title: '目标内容', ellipsis: true, dataIndex: 'targetValue', render: (text: string, record) => {
         if (record.type == TypeMode.text) {
           return record.targetValue
         }else {
           return JSON.parse(record.targetValue)['originalFilename']
         }
       }},
-      { title: '描述', width: 100, ellipsis:true, dataIndex: 'description' },
+      { title: '描述', ellipsis:true, dataIndex: 'description' },
       {
         title: '是否隐藏',
-        width: 100,
         dataIndex: 'isHidden',
         render(value: any) {
           return <>{value ? '是' : '否'}</>;
@@ -167,7 +165,7 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
       },
       {
         title: '操作',
-        width:300,
+        width: "30%",
         render: (value: any, record: TemplateGlobalConfig) => {
           return (
             <div>

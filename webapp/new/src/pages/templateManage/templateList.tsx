@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 19:27:14
+ * @LastEditTime: 2021-12-20 17:09:34
  */
 import { Table, Button, Form, Input } from 'antd';
 import { connect } from 'dva';
@@ -160,7 +160,6 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         title: '名称',
         dataIndex: 'name',
         fixed: 'left',
-        width: 250,
         ellipsis: true,
         render(text: string, record: TemplateInstance) {
           return text || '-' || record.name
@@ -169,7 +168,6 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       {
         title: '描述',
         dataIndex: 'description',
-        width: "20%",
         ellipsis: true,
         render(text: string, record: TemplateInstance) {
           return text || '-' || record.description
@@ -178,7 +176,6 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       {
         title: '最新版本号',
         dataIndex: 'version',
-        width: 120,
         ellipsis: true,
         render(text: string) {
           return text || '-';
@@ -186,7 +183,6 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       },
       {
         title: '更新时间',
-        width: 200,
         ellipsis: true,
         dataIndex: 'createTime',
         // defaultSortOrder: 'descend',
@@ -195,20 +191,21 @@ class TemplateList extends React.Component<TemplateListProps, State> {
           return util.dateTimeFormat(new Date(text)) || '-'
         },
       },
-      {
-        title: '文档地址',
-        dataIndex: 'versionId',
-        width:100,
-        render(text: string) {
-          return (
-            <a href={`?id=${text}type=readmeDoc`}> 说明文档 </a>
-          )
-        },
-      },
+      // {
+      //   title: '文档地址',
+      //   dataIndex: 'versionId',
+      //   width:100,
+      //   render(text: string) {
+      //     return (
+      //       <a href={`?id=${text}type=readmeDoc`}> 说明文档 </a>
+      //     )
+      //   },
+      // },
       {
         title: '操作',
         dataIndex: 'handle',
-        fixed: 'right',
+        width: "40%",
+        fixed: 'right',      
         render: (text, record: TemplateInstance) => {
           return (
             <div>

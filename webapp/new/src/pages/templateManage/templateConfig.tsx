@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 14:17:32
+ * @LastEditTime: 2021-12-20 17:11:35
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -298,10 +298,9 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
   render() {
     this.props.globalConfigList?.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
     const columns: ColumnProps<TemplateConfig>[] = [
-      { title: '文件位置', width: 150, ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
+      { title: '文件位置', ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
       {
         title: '默认值',
-        width: 200,
         ellipsis: true,
         render: (record: TemplateConfig) => {
           if (record.typeId == TypeMode.text) {
@@ -313,7 +312,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       },
       {
         title: "全局配置",
-        width: 150,
         ellipsis: true,
         render: (record: TemplateConfig) => {
           return (
@@ -341,10 +339,9 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           )
         }
       },
-      { title: '描述', width: 100, dataIndex: 'description' , ellipsis: true },
+      { title: '描述',  dataIndex: 'description' , ellipsis: true },
       {
         title: '类型',
-        width: 60,
         dataIndex: 'typeId',
         render(value) {
           if (value === 0) return <span>文本</span>;
@@ -354,7 +351,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       },
       {
         title: '匹配规则',
-        width: 150,
         ellipsis: true,
         dataIndex: 'reg',
         render(value) {
@@ -369,7 +365,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       },
       {
         title: '操作',
-        width:150,
+        width: "20%",
         fixed: 'right',
         render: (value: any, record: TemplateConfig) => {
           return (
