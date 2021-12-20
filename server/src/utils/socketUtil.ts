@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-16 14:13:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 14:07:23
+ * @LastEditTime: 2021-12-20 15:58:23
  */
 import { SysInfo } from './../types/sys';
 import * as Socket from "socket.io";
@@ -137,6 +137,7 @@ class SocketUtil{
           }
         }
 
+        compileInstance.config = JSON.stringify(compileList)
         compileInstance.compileResult = JSON.stringify(compileResult)
   
         CompileDao.updateProjectCompile(compileInstance)
