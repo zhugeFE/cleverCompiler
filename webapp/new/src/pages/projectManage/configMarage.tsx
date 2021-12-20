@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-18 14:25:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-06 14:28:30
+ * @LastEditTime: 2021-12-20 15:47:54
  */
 import { TypeMode } from "@/models/common";
 import { TemplateConfig } from "@/models/template";
@@ -97,6 +97,20 @@ class ConfigMarage extends React.Component<Props,State> {
           );
           return <span>{reg.toString()}</span>;
         },
+      },
+      {
+        title: '是已显示',
+        dataIndex: 'visable',
+        width: 70,
+        filters: [
+          {text: "是", value:"1"},
+          {text: "否", value:"0"}
+        ],
+        filtered: true,
+        onFilter: (value, record: TemplateConfig) => record.visable == value,
+        render(value: any) {
+          return <>{value ? '是' : '否'}</>;
+        },
       }      
     ];
     return (
@@ -110,7 +124,6 @@ class ConfigMarage extends React.Component<Props,State> {
         onOk={this.onOk}
       >
         <Table
-          
           columns={columns}
           rowKey="id"
           dataSource={this.props.dataSource}

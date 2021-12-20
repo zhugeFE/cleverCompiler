@@ -131,7 +131,7 @@ class ProjectEdit extends React.Component<Props, States> {
     gitList?.map( git => {
       git.configList.map( config => {
         if (data.includes(config.id)) {
-          config.isHidden = Number(!config.isHidden)
+          config.visable = Number(!config.visable)
         }
       })
     })
@@ -144,7 +144,7 @@ class ProjectEdit extends React.Component<Props, States> {
     const globalConfigList = util.clone(this.state.globalConfigList)
     globalConfigList?.map( config => {
       if (data.includes(config.id)) {
-        config.isHidden = Number(!config.isHidden)
+        config.visable = Number(!config.visable)
       }
     })
     this.setState({
@@ -221,7 +221,15 @@ class ProjectEdit extends React.Component<Props, States> {
     console.log(22);
     
     if( this.props.templateInfo){
-      const current = this.props.templateInfo.versionList.filter( item =>item.id === value)[0]      
+      const current = this.props.templateInfo.versionList.filter( item =>item.id === value)[0]     
+      current.gitList.forEach(git => {
+        git.configList.forEach(config => {
+          config.visable = Number(!config.isHidden)
+        })
+      }) 
+      current.globalConfigList.forEach( config => {
+        config.visable = Number(!config.isHidden)
+      })
       this.setState({
         templateVersionId: value,
         gitList: current.gitList,
@@ -254,7 +262,7 @@ class ProjectEdit extends React.Component<Props, States> {
   }
 
   onClickCancel () {
-    location.reload()
+    this.props.history.goBack();
   }
 
   updateProject (projectId: string) {
@@ -361,9 +369,7 @@ class ProjectEdit extends React.Component<Props, States> {
     this.props.dispatch({
       type:"project/addProject",
       payload: form,
-      callback: (data: ProjectInfo)=>{
-        this.props.match.params.id = data.id
-        // this.props.history.replace(`/compile/project/edit/${data.id}`)
+      callback: ()=>{
         this.props.history.goBack();
         message.success("上传成功")
       }

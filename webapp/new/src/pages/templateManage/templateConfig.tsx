@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 13:56:22
+ * @LastEditTime: 2021-12-20 14:17:32
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -434,7 +434,10 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           <Tabs type='card' className={styles.cardBg} >
             <Tabs.TabPane tab="引导页" className={styles.initTabs}>
               <Empty></Empty>
-              <Button type="primary" onClick={this.add}>添加git</Button>
+              {
+                this.props.mode == VersionStatus.normal &&
+                <Button type="primary" onClick={this.add}>添加git</Button>
+              }
             </Tabs.TabPane>
           </Tabs>
         ) : (

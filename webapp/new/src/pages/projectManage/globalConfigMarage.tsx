@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-18 14:25:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-06 14:30:23
+ * @LastEditTime: 2021-12-20 15:46:14
  */
 import { TypeMode } from "@/models/common";
 import { TemplateGlobalConfig } from "@/models/template";
@@ -79,14 +79,14 @@ class GlobalConfigMarage extends React.Component<Props,State> {
       }},        
       { title: '描述', dataIndex: 'description' },
       {
-        title: '是否隐藏',
-        dataIndex: 'isHidden',
+        title: '是已显示',
+        dataIndex: 'visable',
         filters: [
           {text: "是", value:"1"},
           {text: "否", value:"0"}
         ],
         filtered: true,
-        onFilter: (value, record: TemplateGlobalConfig) => record.isHidden == value,
+        onFilter: (value, record: TemplateGlobalConfig) => record.visable == value,
         render(value: any) {
           return <>{value ? '是' : '否'}</>;
         },

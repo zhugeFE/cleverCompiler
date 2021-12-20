@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 13:58:10
+ * @LastEditTime: 2021-12-20 15:32:49
  */
 
 import { TypeMode } from "@/models/common";
@@ -69,6 +69,7 @@ class ProjectConfig extends React.Component <Props, States> {
     this.props.onUpdateConfigHidden(data)
     this.hideConfigManage()
   }
+
   hideConfigManage () {
     this.setState({
       showMarageConfig: false
@@ -98,6 +99,9 @@ class ProjectConfig extends React.Component <Props, States> {
     return configList.filter( item => item.isHidden == isHidden)
   }
 
+  visableSourceData (configList: TemplateConfig[]): TemplateConfig[] {
+    return configList.filter( item => item.visable == 1)
+  }
   render () {
     
     const columns: ColumnProps<TemplateConfig>[] = [
@@ -155,9 +159,17 @@ class ProjectConfig extends React.Component <Props, States> {
         width: 100,
         render: (value: any, record: TemplateConfig) => {
           return (
-            <Button
-              disabled={!!record.globalConfigId || this.props.disabled}
-              onClick={this.onClickConfig.bind(this, record)}>编辑</Button>
+            <div>
+              <Button
+                disabled={!!record.globalConfigId || this.props.disabled}
+                onClick={this.onClickConfig.bind(this, record)}>编辑</Button>
+              {
+              record.isHidden == 1 &&
+              <Button
+                disabled={!!record.globalConfigId || this.props.disabled}
+                onClick={() => {this.props.onUpdateConfigHidden([record.id])}}>隐藏</Button>
+              }
+            </div>
           );
         },
       },
@@ -203,7 +215,7 @@ class ProjectConfig extends React.Component <Props, States> {
           <Tabs type="card" 
           className={styles.cardBg} 
           >
-             <Tabs.TabPane tab="引导页" className={styles.initTabs}>
+            <Tabs.TabPane tab="引导页" className={styles.initTabs}>
               <Empty></Empty>
             </Tabs.TabPane>
           </Tabs>
@@ -223,7 +235,7 @@ class ProjectConfig extends React.Component <Props, States> {
                   <Table
                     columns={columns}
                     rowKey="id"
-                    dataSource={this.filterSourceData(item.configList, 0)}
+                    dataSource={this.visableSourceData(item.configList)}
                     pagination={{
                       pageSize: 3,
                       showTotal(totle: number) {

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-16 14:36:15
+ * @LastEditTime: 2021-12-20 15:30:14
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -137,6 +137,7 @@ export interface TemplateConfig {
   filePath: string; // 原始文件路径
   globalConfigId: string; //全局配置id
   file?: File;
+  visable?: number; //配置是否可见
 }
 
 export interface UpdateConfigParam {
@@ -167,6 +168,7 @@ export interface TemplateGlobalConfig {
   isHidden: number; //是否隐藏配置项
   type: number;
   file?: File;
+  visable?: number; //是否可见配置
 }
 
 

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-06 14:30:53
+ * @LastEditTime: 2021-12-20 15:45:03
  */
 import { TemplateGlobalConfig } from "@/models/template";
 import { ColumnProps  } from "antd/lib/table";
@@ -90,6 +90,10 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
       return configList.filter( item => item.isHidden == isHidden)
     }
 
+
+    visableSourceData (configList: TemplateGlobalConfig[]): TemplateGlobalConfig[] {
+      return configList.filter( item => item.visable == 1)
+    }
     render () {
       const columns: ColumnProps<TemplateGlobalConfig>[] = [
         { title: '名称', dataIndex: 'name', fixed: 'left' },
@@ -112,24 +116,19 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
         }},        
         { title: '描述', dataIndex: 'description' },
         {
-          title: '是否隐藏',
-          dataIndex: 'isHidden',
-          filters: [
-            {text: "是", value:"1"},
-            {text: "否", value:"0"}
-          ],
-          filtered: true,
-          onFilter: (value, record: TemplateGlobalConfig) => record.isHidden == value,
-          render(value: any) {
-            return <>{value ? '是' : '否'}</>;
-          },
-        },
-        {
           title: '操作',
           render: (value: any, record: TemplateGlobalConfig) => {
             return (
-              <Button onClick={this.onEdit.bind(this, record)} disabled={this.props.disabled}>编辑</Button>
-            );
+              <div>
+                <Button onClick={this.onEdit.bind(this, record)} disabled={this.props.disabled}>编辑</Button>
+                {
+                  record.isHidden == 1 &&
+                  <Button
+                    disabled={this.props.disabled}
+                    onClick={() => {this.props.onUpdateConfigHidden([record.id])}}>隐藏</Button>
+                }
+              </div>
+          );
           },
         },
       ];
@@ -165,7 +164,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
             bordered
             columns={columns}
             rowKey="id"
-            dataSource={this.filterSourceData(this.props.globalConfigList, 0)}
+            dataSource={this.visableSourceData(this.props.globalConfigList)}
             pagination={{
               pageSize: 3,
               showTotal(totle: number) {
