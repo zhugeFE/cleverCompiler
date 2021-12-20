@@ -48,8 +48,8 @@ class GitService {
   async getTagsById (repoId: string | number): Promise<GitTag[]> {
     return await gitDao.getTagsById(repoId)
   }
-  async getCommitsById (repoId: string | number): Promise<GitCommit[]> {
-    return await gitDao.getCommitsById(repoId)
+  async getCommitsById (repoId: string | number, branch: string): Promise<GitCommit[]> {
+    return await gitDao.getCommitsById(repoId, branch)
   }
   async addVersion (param: GitCreateVersionParam, creatorId: string): Promise<GitInfo> {
     return await gitDao.addVersion(param, creatorId)

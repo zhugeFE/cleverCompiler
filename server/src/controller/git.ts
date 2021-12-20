@@ -64,8 +64,8 @@ router.get('/:id/tags', (req: Request, res: Response, next: NextFunction) => {
   })
   .catch(next)
 })
-router.get('/:id/commits', (req: Request, res: Response, next: NextFunction) => {
-  gitService.getCommitsById(req.params.id)
+router.get('/:id/:branch/commits', (req: Request, res: Response, next: NextFunction) => {
+  gitService.getCommitsById(req.params.id, req.params.branch)
   .then((commits: GitCommit[]) => {
     res.json(new ApiResult(ResponseStatus.success, commits))
   })

@@ -85,8 +85,8 @@ class GitDao {
     })
   }
 
-  async getCommitsById (id: string | number): Promise<GitCommit[]> {
-    const res = await gitUtil.ajax<any[]>(`projects/${id}/repository/commits`, 'GET')
+  async getCommitsById (id: string | number, branch): Promise<GitCommit[]> {
+    const res = await gitUtil.ajax<any[]>(`projects/${id}/repository/commits?ref_name=${branch}`, 'GET')
     return res.map(item => {
       return {
         id: item.id,
@@ -329,7 +329,8 @@ class GitDao {
       v.build_doc,
       v.update_doc,
       v.source_type,
-      v.source_value from source_version as v where v.branch_id = ?`
+      v.source_value
+      from source_version as v where v.branch_id = ?`
     const versionList = await pool.query<GitVersion>(sql, [branchId])
     if ( versionList.length) {
       for (const item of versionList){
@@ -355,7 +356,8 @@ class GitDao {
       v.build_doc,
       v.update_doc,
       v.source_type,
-      v.source_value from source_version as v where v.id = ?`
+      v.source_value
+      from source_version as v where v.id = ?`
     const versionList = await pool.query<GitVersion>(sql, [versionId])
     logger.info('versionList ====>', versionList)
     if ( versionList.length) {
