@@ -1,3 +1,4 @@
+import { TemplateVersion } from './../types/template';
 import { BranchUpdateDocInfo, GitInfoBranch, UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
 import { GitList, UpdateGitStatus } from './../types/git';
 import pool from './pool'
@@ -238,9 +239,9 @@ class GitDao {
       let branchId = param.branchId
       const createBranchSql = `INSERT INTO source_branch(id, name, description, create_time, source_id, creator) VALUES(?,?,?,?,?,?)`
       const createVersionSql = `INSERT INTO source_version ( id, source_id, version, branch_id,
-        description, publish_time, status, compile_orders, source_type, source_value, creator_id,output_name, public_type, public_git )
+        description, publish_time, status, compile_orders, source_type, source_value, creator_id,output_name, public_type, public_git, build_doc )
       VALUES
-        ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 
       if (branchId == "") {
         branchId = util.uuid()
@@ -262,11 +263,11 @@ class GitDao {
         infoBranch = info.branchList.filter( item => item.id == branchId)
       }
       if (infoBranch.length) {
-        let lastVersionInfo
+        let lastVersionInfo: GitVersion
         if (param.originVersionId) {
           lastVersionInfo = infoBranch[0].versionList.filter(item => item.id == param.originVersionId)[0]
         } else {
-          lastVersionInfo = infoBranch[0].versionList[0]
+          lastVersionInfo  = infoBranch[0].versionList[0]
         }
         await pool.writeInTransaction(connect, createVersionSql, [
           versionId,
@@ -282,7 +283,8 @@ class GitDao {
           creatorId,
           lastVersionInfo ? lastVersionInfo.outputName : '',
           lastVersionInfo ? lastVersionInfo.publicType : 1,
-          lastVersionInfo ? lastVersionInfo.publicGit : null
+          lastVersionInfo ? lastVersionInfo.publicGit : null,
+          lastVersionInfo ? `${lastVersionInfo.buildDoc}\n # <${lastVersionInfo.name}>更新内容\n  ${lastVersionInfo.buildUpdateDoc}` : null
           ])
         if (lastVersionInfo) {
           await Promise.all(lastVersionInfo.configs.map(config => {

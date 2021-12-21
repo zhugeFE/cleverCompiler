@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-16 14:35:37
+ * @LastEditTime: 2021-12-21 15:05:35
  */
 import { ChangeGitVersionParams, HistoryVersion, TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo } from './../types/template';
 import { PoolConnection } from 'mysql';
@@ -560,13 +560,13 @@ class TemplateDao {
       const gitVersionDoc = await this.getGitDocByGitVersionID(params.gitSourceVersionId)
       const versionDoc = await this.getVersionDocByID(params.templateVersionId)
       const Merge = {
-        buildDpc: `${versionDoc.buildDoc}\n# ${gitVersionDoc.name}\n${gitVersionDoc.buildDoc}`,
+        buildDoc: `${versionDoc.buildDoc}\n# ${gitVersionDoc.name}\n${gitVersionDoc.buildDoc}`,
         readmeDoc: `${versionDoc.readmeDoc}\n# ${gitVersionDoc.name}\n${gitVersionDoc.readmeDoc}`,
         updateDoc: `${versionDoc.updateDoc}\n# ${gitVersionDoc.name}\n${gitVersionDoc.updateDoc}`
       }
       await this.updateVersion({
         id: params.templateVersionId,
-        buildDoc: Merge.buildDpc,
+        buildDoc: Merge.buildDoc,
         readmeDoc: Merge.readmeDoc,
         updateDoc: Merge.updateDoc
       } as TemplateVersion, connect)
@@ -912,8 +912,6 @@ class TemplateDao {
         SELECT 
         git_source.NAME,
         version,
-        update_doc,
-        build_doc,
         source_version.description,
         source_version.publish_time,
         git_source_id,
@@ -934,6 +932,7 @@ class TemplateDao {
         source_id,
         version,
         build_doc,
+        build_update_doc,
         update_doc
       FROM
         source_version 
