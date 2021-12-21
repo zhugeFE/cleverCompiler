@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-24 14:23:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-16 14:45:32
+ * @LastEditTime: 2021-12-21 16:10:43
  */
 
 import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined, QuestionCircleTwoTone, DownSquareTwoTone, UpSquareTwoTone, MinusSquareTwoTone } from "@ant-design/icons";
@@ -64,13 +64,24 @@ class UpdateVersionDoc extends React.Component <Props, State> {
         projectId: this.props.location.query.source as string
       })
     }
+
     this.getVersionUpdateInfo(this.props.match.params.id)
   }
 
   onLeftSelect (value: string) {
+    const data = this.queryGetlistByGitId(value)    
+    data.map ( left => {
+      for( const version of left.historyVersion) {              
+        if (version.version == left.version){
+          left['updateDoc'] = `${version['updateDoc']}` 
+          left['buildDoc'] = `${version['buildDoc']}`
+          left['buildUpdateDoc'] = `${version['buildUpdateDoc']}`
+        }
+      }
+    })  
     this.setState({
       leftValue: value,
-      leftGitList: this.queryGetlistByGitId(value)
+      leftGitList: data
     })
   }
   queryGetlistByGitId (value: string): TemplateVersionGitUpdateInfo[]  {
@@ -87,6 +98,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
   }
   onRightSelect (value: string) {
     const data = this.queryGetlistByGitId(value)
+    
     let leftVersion 
     let rightVersion
     let compareResult: any
@@ -99,53 +111,44 @@ class UpdateVersionDoc extends React.Component <Props, State> {
         rightVersion = item.version
       }
     }    
-    const compare = Number(leftVersion?.split('.').join("")) - Number(rightVersion?.split('.').join(""))
+    const compare = Number(leftVersion?.split('.').join("")) - Number(rightVersion?.split('.').join(""))    
     if (compare == 0) {
       compareResult = <MinusSquareTwoTone />
     } else if ( compare > 0) {
-      compareResult = <UpSquareTwoTone />
-    } else  {
       compareResult = <DownSquareTwoTone />
+    } else  {
+      compareResult = <UpSquareTwoTone />
     }
     const leftGitNameList = this.state.leftGitList.map(item => item.name)
     data.map( (right,index) => {
       if (!leftGitNameList.includes(right.name)){
-        const git = data.splice(index,1)[0]
-        git['tag'] = updateTag.add
-        git['updateDoc'] += "# 此git为新增\n" 
-        data.push(git)
+        right['tag'] = updateTag.add
       } else {
-        this.state.leftGitList.map(left => {
-          const leftVersion = Number(left.version.split(".").join(""))
-          const rightVersion = Number(right.version.split(".").join(""))
-  
+        const rightVersion = Number(right.version.split("-")[0].split(".").join(""))
+
+        this.state.leftGitList.map(left => {          
+          const leftVersion = Number(left.version.split("-")[0].split(".").join(""))
+
           if ( left.name == right.name && leftVersion == rightVersion) {
             right['tag'] = updateTag.normal
-          }
+          }          
           if (left.name == right.name && leftVersion < rightVersion) {
-            
-            right['tag'] = updateTag.up
-            let flag = 0
-            for( const version of right.historyVersion) {              
-              if (version.version == right.version){
-                flag = 0
-              }
-              if (flag) {                
-                right['updateDoc'] = `${right['updateDoc']}\n${version['updateDoc']}` 
-                right['buildDoc'] = `${right['buildDoc']}\n${version['buildDoc']}`
-              }
-              if (version.version == left.version){
-                flag = 1
-              }
-            }
-            
+            right['tag'] = updateTag.up            
           }
           if (left.name == right.name && leftVersion > rightVersion) {
             right['tag'] = updateTag.down
           }
         })
       }
+      for( const version of right.historyVersion) {              
+        if (version.version == right.version){
+          right['updateDoc'] = `${version['updateDoc']}` 
+          right['buildDoc'] = `${version['buildDoc']}`
+          right['buildUpdateDoc'] = `${version['buildUpdateDoc']}`
+        }
+      }
     })
+    
     if (data.length < this.state.leftGitList.length) {
       const rightGitNameList = data.map(item => item.name)
       this.state.leftGitList.map((left,index) => {
@@ -154,9 +157,10 @@ class UpdateVersionDoc extends React.Component <Props, State> {
             name: left.name,
             version: left.version,
             description: left.description,
-            updateDoc: "# 此git已移除\n" + left.updateDoc,
+            updateDoc: "# 此git已移除\n",
             publishTime: left.publishTime,
-            buildDoc: "# 此git 已移除\n" + left.buildDoc,
+            buildDoc: "# 此git 已移除\n" ,
+            buildUpdateDoc: '此git已移除',
             gitSourceBranchId: left.gitSourceBranchId,
             historyVersion: left.historyVersion,
             branchName: left.branchName,
@@ -192,18 +196,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
       }
     })
   }
-  // checkGitItem (git: TemplateVersionGitUpdateInfo) {
-  //   Modal.info({
-  //     title: `${git.name}-${git.branchName}-${git.version} 更新信息`,
-  //     content:(
-  //       <div>
-  //         <p>{`更新时间：${new Date(git.publishTime).toLocaleDateString()}`}</p>
-  //         <ReactMarkdown children={git.updateDoc}></ReactMarkdown>
-  //       </div>
-  //     ),
-  //     onOk(){}
-  //   })
-  // }
+
   onOpenDrawer (git: TemplateVersionGitUpdateInfo) {
     this.setState({
       currentGit: git
@@ -366,6 +359,15 @@ class UpdateVersionDoc extends React.Component <Props, State> {
                   this.state.currentGit && (
                     <div>
                       <ReactMarkdown children={this.state.currentGit.buildDoc}></ReactMarkdown>
+                    </div>
+                  )
+                }
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="部署更新文档" tabKey="2" key="2">
+                {
+                  this.state.currentGit && (
+                    <div>
+                      <ReactMarkdown children={this.state.currentGit.buildUpdateDoc}></ReactMarkdown>
                     </div>
                   )
                 }

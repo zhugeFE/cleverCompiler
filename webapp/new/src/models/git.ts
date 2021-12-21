@@ -313,7 +313,7 @@ const GitModel: GitModelType = {
       })
       if (callback) callback(true)
     },
-    *updateVersion ({payload}, {call, put, select}) {
+    * updateVersion ({payload}, {call, put, select}) {
       yield put({
         type: 'setUpdateLoading',
         loading: true
@@ -321,8 +321,10 @@ const GitModel: GitModelType = {
       const currentState = yield select((conn: ConnectState) => conn.git)
       const param = util.clone(payload)
       param.id = currentState.currentVersion.id
+
       let res = yield call(gitService.updateVersion, param)
       if (res && res.status === -1) return
+
       yield put({
         type: '_updateVersion',
         param: payload

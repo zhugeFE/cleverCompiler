@@ -38,6 +38,7 @@ interface State {
 
 class GitEdit extends React.Component<GitEditProps, State> {
   delInterval?: NodeJS.Timeout;
+  outputInput= React.createRef<Input>()
   constructor (props: GitEditProps) {
     super(props)
     this.state = {
@@ -46,7 +47,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
       delTimeout: 0,
       savePercent: 100,
       delTooltip: '',
-
       gitList: null,
       queryGitData: false,
     }
@@ -58,6 +58,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onAddConfig = this.onAddConfig.bind(this)
     this.onChangeReadme = this.onChangeReadme.bind(this)
     this.onChangeBuild = this.onChangeBuild.bind(this)
+    this.onChangeBuildUpdate = this.onChangeBuildUpdate.bind(this)
     this.onChangeUpdate = this.onChangeUpdate.bind(this)
     this.onCancelAddVersion = this.onCancelAddVersion.bind(this)
     this.onChangeOutputName = this.onChangeOutputName.bind(this)
@@ -74,6 +75,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     }
   }
   componentDidUpdate () {    
+    this.outputInput.current?.setValue(this.props.currentVersion.outputName)
     this.delInterval = setInterval( () => this.initDelInterval(this.props.currentVersion), 1000)
   }
   componentWillUnmount () {
@@ -246,6 +248,14 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
+
+  onChangeBuildUpdate (content: string) {
+    const buildUpdateDoc = content
+    this.updateVersion({
+      buildUpdateDoc
+    })
+  }
+
   onChangeUpdate (content: string) {    
     const updateDoc = content
     this.updateVersion({
@@ -272,6 +282,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
       type: 'git/updateVersion',
       payload: param
     })
+    
   }
 
   render () {
@@ -358,12 +369,13 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 <Description label="输出文件" display="flex" labelWidth={labelWidth} style={{marginBottom:10}}>
                   {this.props.currentVersion ? <div className={!this.props.currentVersion.outputName ? styles.nullValue : ""}>
                     <Input 
+                      ref={this.outputInput}
                       style={{width: 350}} 
                       autoComplete="off"
                       onChange={this.onChangeOutputName} 
                       placeholder="填写项目根目录下的绝对路径：（例：/dist）" 
                       disabled={this.props.currentVersion.status != VersionStatus.normal} 
-                      value={this.props.currentVersion.outputName}></Input> 
+                      defaultValue={this.props.currentVersion.outputName}></Input> 
                   </div> : null}
                 </Description>
                 <Description label="是否发布到git">
@@ -403,8 +415,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
                   <Tabs.TabPane tab="使用文档" key="readme">
                     {this.props.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.props.currentVersion.readmeDoc}></Markdown> : null}
                   </Tabs.TabPane>
-                  <Tabs.TabPane tab="部署文档" key="build">
+                  <Tabs.TabPane tab="完整部署文档" key="build1">
                     {this.props.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.props.currentVersion.buildDoc}></Markdown> : null}
+                  </Tabs.TabPane>
+                  <Tabs.TabPane tab="部署更新文档" key="build2">
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuildUpdate} content={this.props.currentVersion.buildUpdateDoc}></Markdown> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
                     {this.props.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.props.currentVersion.updateDoc}></Markdown> : null}

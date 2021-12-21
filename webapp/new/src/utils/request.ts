@@ -3,10 +3,37 @@
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
 import { extend, RequestOptionsInit } from 'umi-request';
+import Request from 'umi-request';
 import { notification } from 'antd';
 import util from './utils';
 
+// const pendingFetch = new Map();
+
+// const CancelToken = Request.CancelToken;
+// let cancel
  
+// const generateFetchKey = (config: {method: string, url: string}): string => {
+//   const { method, url} = config
+//   return [ method , url].join("&")
+// }
+// const addPendingFetch = (config: {method: string, url: string}): void => {
+//   const fetchKey = generateFetchKey(config)  
+//   new CancelToken(function executor(c) {
+//     if (!pendingFetch.has(fetchKey)) {      
+//       pendingFetch.set(fetchKey,c)
+//     }
+//   })
+// }
+
+// const removePendingFetch = (config: {method: string, url: string}): void => {
+//   const fetchKey = generateFetchKey(config)
+//   if (pendingFetch.has(fetchKey)) {    
+//     cancel = pendingFetch.get(fetchKey)
+//     cancel(fetchKey)
+//     pendingFetch.delete(fetchKey)
+//   }
+// }
+
  enum ResponseStatus {
    success = 200,
    exists = 201,
@@ -14,7 +41,7 @@ import util from './utils';
    sysNotInit,
    sysInited,
    notLoggin,
-   paramError
+   paramError,
  }
  
  export interface InterfaceApiResult<T> {
@@ -131,9 +158,10 @@ import util from './utils';
   * 配置request请求时的默认参数
   */
  const req = extend({
-   errorHandler, // 默认错误处理
-   credentials: 'include', // 默认请求是否带上cookie
+   errorHandler, // 默认错误处理,
+   credentials: 'include', // 默认请求是否带上cookie,
  });
+
  
  async function request<T> (url: string, options?: RequestOptionsInit): Promise<InterfaceApiResult<T>> {
    try {
@@ -151,10 +179,29 @@ import util from './utils';
          delete option.params![key]
        })
      }
-     const res = await req(url, util.mergeObject({
-       prefix: '/api'
-     }, options || {}))
-     return responseErrorHandler<T>(res)
+      // req.interceptors.request.use(
+      //   (url: string, options:RequestOptionsInit) => {
+      //     removePendingFetch({method: options.method || 'get', url: url})
+      //     addPendingFetch({method: options.method || 'get', url: url})
+      //     return {
+      //       url,
+      //       options: {
+      //         ...options,
+      //         interceptors: true,
+      //       },
+            
+      //     };
+      //   },
+      //   {global: true}
+      // )
+  
+      const res = await req(url, util.mergeObject({
+        prefix: '/api'
+      }, options || {}))
+
+
+    
+    return responseErrorHandler<T>(res)
    } catch (e) {
      return {
        status: -1

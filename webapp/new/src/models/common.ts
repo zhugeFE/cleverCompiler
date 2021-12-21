@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:58:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 19:53:08
+ * @LastEditTime: 2021-12-20 18:48:15
  */
 export enum VersionStatus {
   deprecated = 0, // 已废弃
@@ -34,6 +34,7 @@ export interface Version {
   compileOrders: string[]; // 编译命令组
   readmeDoc: string; // 介绍文档
   buildDoc: string; // 部署文档
+  buildUpdateDoc: string; //部署更新文档
   updateDoc: string; // 更新文档
 }
 export interface Config {

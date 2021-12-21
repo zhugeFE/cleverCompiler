@@ -4,14 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-11-23 17:31:08
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-16 15:50:30
+ * @LastEditTime: 2021-12-21 15:09:58
  */
 
 import { LeftOutlined } from '@ant-design/icons';
 import { IRouteComponentProps } from '@umijs/renderer-react';
 import { Dispatch } from 'dva';
 import React from 'react';
-import { BranchUpdateDocInfo, connect, VersionUpdateDocInfo } from 'umi';
+import { BranchUpdateDocInfo, connect } from 'umi';
 import style from "./styles/versionUpdate.less";
 import * as ReactMarkdown from 'react-markdown'
 import { Collapse, Skeleton } from 'antd';

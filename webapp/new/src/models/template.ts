@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 15:30:14
+ * @LastEditTime: 2021-12-21 15:11:17
  */
 
 import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -29,6 +29,7 @@ export interface HistoryVersion {
   version: string;
   sourceId: string;
   buildDoc: string;
+  buildUpdateDoc: string;
   updateDoc: string;
 }
 
@@ -37,6 +38,7 @@ export interface TemplateVersionGitUpdateInfo {
   version: string;
   updateDoc: string;
   buildDoc: string;
+  buildUpdateDoc: string;
   description: string;
   publishTime: string;
   gitSourceBranchId: string;

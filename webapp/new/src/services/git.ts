@@ -91,23 +91,28 @@ class GitService {
   }
 
   async updateVersion (data: GitUpdateVersionParam) {
-    for (const timer in updateVersionTimer) {
-      clearTimeout(Number(timer))
-      updateVersionTimer[timer]()
-      delete updateVersionTimer[timer]
-    }
-    const d = await new Promise((resolve) => {
-      const timer = setTimeout(() => {
-        const res = request(apis.git.updateVersion, {
-          method: 'post',
-          data
-        })
-        delete updateVersionTimer[Number(timer)]
-        resolve(res)
-      }, 500)
-      updateVersionTimer[Number(timer)] = resolve
+    // for (const timer in updateVersionTimer) {
+    //   clearTimeout(Number(timer))
+    //   updateVersionTimer[timer]()
+    //   delete updateVersionTimer[timer]
+    // }
+    // const d = await new Promise((resolve) => {
+    //   const timer = setTimeout(() => {
+    //     const res = request(apis.git.updateVersion, {
+    //       method: 'post',
+    //       data
+    //     })
+    //     delete updateVersionTimer[Number(timer)]
+    //     resolve(res)
+    //   }, 1000)
+    //   updateVersionTimer[Number(timer)] = resolve
+    // })
+    // return d
+    const res = request(apis.git.updateVersion, {
+      method: 'post',
+      data
     })
-    return d
+    return res
   }
 
   async deleteVersion (versionId: string) {

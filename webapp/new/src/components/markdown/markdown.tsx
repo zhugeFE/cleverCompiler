@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-13 22:36:45
+ * @LastEditTime: 2021-12-20 19:34:01
  */
 import * as React from 'react'
 import * as ReactMarkdown from 'react-markdown'
@@ -22,14 +22,12 @@ enum Mode {
   edit = 'edit'
 }
 interface State {
-  content: string,
   mode: Mode
 }
 class Markdown extends React.Component<Props, State> {
   constructor (props: Props, state: State) {
-    super(props, state)
+    super(props)
     this.state = {
-      content: this.props.content || '# empty content',
       mode: Mode.preview
     }
     this.onChange = this.onChange.bind(this)
@@ -43,9 +41,6 @@ class Markdown extends React.Component<Props, State> {
     })
   }
   onChange (e: {target: {value: string}}) {
-    this.setState({
-      content: e.target.value
-    })
     if (this.props.onChange) {
       this.props.onChange(e.target.value)
     }
@@ -69,12 +64,12 @@ class Markdown extends React.Component<Props, State> {
             <Input.TextArea 
               className="markdown-editor" 
               autoSize={{maxRows: 30, minRows: 10}}
-              value={this.state.content} onChange={this.onChange}></Input.TextArea>
+              value={this.props.content} onChange={this.onChange}></Input.TextArea>
           )
         } else {
           return (
             <div className="markdown-preview">
-              <ReactMarkdown children={this.state.content}></ReactMarkdown>
+              <ReactMarkdown children={this.props.content}></ReactMarkdown>
             </div>
           )
         }
