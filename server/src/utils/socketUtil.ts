@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-16 14:13:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 16:34:11
+ * @LastEditTime: 2021-12-21 22:49:11
  */
 import { SysInfo } from './../types/sys';
 import * as Socket from "socket.io";
@@ -106,9 +106,9 @@ class SocketUtil{
           const fileName = util.createFileName(ctx.userId)
           //传入 publicDoc， buildDoc， updateDoc
           const res = await new WorkFlowUtil(workDir).pack(socket, fileName, gitData, doc)
-          compileResult.push(res ? "打包成功" : "打包失败")
-          compileInstance.file =  res ? fileName : ""
-          SocketLogge(socket, SocketEventNames.result,'result',`Step: ${res ? "打包成功" : "打包失败"}`)
+          compileResult.push(res)
+          compileInstance.file =  res != 'fail' ? fileName : ""
+          SocketLogge(socket, SocketEventNames.result,'result',`Step: 打包结束`)
           SocketLogge(socket, SocketEventNames.download,'download',fileName)
         }
 
@@ -132,7 +132,7 @@ class SocketUtil{
             const res = await new WorkFlowUtil(workDir).pack(socket, fileName, packGitData, doc)
             compileResult.push(res)
             compileInstance.file =  res != 'fail' ? fileName : ""
-            SocketLogge(socket, SocketEventNames.result,'result',res)
+            SocketLogge(socket, SocketEventNames.result,'result',`Step: 打包结束`)
             SocketLogge(socket, SocketEventNames.download,'download',fileName)
           }
         }
