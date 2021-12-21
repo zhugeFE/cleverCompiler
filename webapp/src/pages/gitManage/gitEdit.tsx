@@ -1,11 +1,10 @@
-import { Dispatch } from '@/.umi/core/umiExports'
+import type { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
 import { VersionStatus } from '@/models/common'
-import { GitInfo, GitInfoBranch, GitList, GitVersion } from '@/models/git'
+import type { GitInfo, GitInfoBranch, GitList, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
-import * as _ from 'lodash'
 import { LeftOutlined } from '@ant-design/icons'
-import { IRouteComponentProps } from '@umijs/renderer-react'
+import type { IRouteComponentProps } from '@umijs/renderer-react'
 import { Button, Tabs, Tag, Spin, Tooltip, Progress, Input, Select, message, Radio } from 'antd'
 import { connect } from 'dva'
 import React from 'react'
@@ -17,7 +16,7 @@ import styles from './styles/gitEdit.less'
 import Commands from './commands'
 import Markdown from '@/components/markdown/markdown'
 import SlidePanel from './leftPanel'
-import { ConnectState } from '@/models/connect'
+import type { ConnectState } from '@/models/connect'
 export interface GitEditProps extends IRouteComponentProps<{
   id: string;
 }>{
@@ -100,8 +99,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
       })
       return
     }
-    let delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() - version!.publishTime)
-    let delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
+    const delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() - version!.publishTime)
+    const delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
     if (delTimeout <= 0) {
       clearInterval(this.initDelInterval as unknown as number)
     }
@@ -289,12 +288,12 @@ class GitEdit extends React.Component<GitEditProps, State> {
     const labelWidth = 75
     if (!this.props.gitInfo && this.props.match.params.id != 'createGit') {
       return (
-        <Spin className={styles.gitEditLoading} tip="git详情获取中..." size="large"></Spin>
+        <Spin className={styles.gitEditLoading} tip="git详情获取中..." size="large" />
       )
     }
     return (
       <div className={styles.gitEditPanel}>
-        {this.state.showAddConfig && <GitAddConfig onClose={this.onCancelConfig}></GitAddConfig>}
+        {this.state.showAddConfig && <GitAddConfig onClose={this.onCancelConfig} />}
         <div className={styles.gitPanelTop}>
           <a onClick={() => {this.props.history.goBack()}}><LeftOutlined/>返回</a>
           <span style={{marginLeft: '20px'}}>
@@ -329,15 +328,17 @@ class GitEdit extends React.Component<GitEditProps, State> {
               size="small"
               strokeWidth={2}
               format={percent => percent === 100 ? 'saved' : 'saving'}
-              ></Progress>
+               />
           </span>
         </div>
         {           
           this.props.match.params.id !== 'createGit' ? (
             <div className={styles.gitPanelCenter}>
-              <SlidePanel>
-              </SlidePanel>
+              <SlidePanel />
               <div className={styles.gitDetail}>
+                {
+                  this.props.currentVersion.status == VersionStatus.deprecated && <div className={styles.mark}> 已废弃 </div>
+                }
                 <Description label="项目名称" labelWidth={labelWidth}>
                   {this.props.gitInfo.name} 
                   <Tooltip title={this.props.currentBranch?.description} placement="bottom">
@@ -357,7 +358,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <a>{`${this.props.gitInfo.name}(${this.props.currentVersion?.sourceType}：${this.props.currentVersion?.sourceValue})`}</a>
                   </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className={styles.gitConfigs}>
-                  <GitConfigPanel></GitConfigPanel>
+                  <GitConfigPanel />
                   <Button 
                     className={styles.btnAddConfigItem} 
                     disabled={this.props.currentVersion?.status !== VersionStatus.normal}
@@ -375,7 +376,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       onChange={this.onChangeOutputName} 
                       placeholder="填写项目根目录下的绝对路径：（例：/dist）" 
                       disabled={this.props.currentVersion.status != VersionStatus.normal} 
-                      defaultValue={this.props.currentVersion.outputName}></Input> 
+                      defaultValue={this.props.currentVersion.outputName} /> 
                   </div> : null}
                 </Description>
                 <Description label="是否发布到git">
@@ -413,16 +414,16 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 }
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.props.currentVersion.readmeDoc}></Markdown> : null}
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.props.currentVersion.readmeDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="完整部署文档" key="build1">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.props.currentVersion.buildDoc}></Markdown> : null}
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.props.currentVersion.buildDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署更新文档" key="build2">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuildUpdate} content={this.props.currentVersion.buildUpdateDoc}></Markdown> : null}
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuildUpdate} content={this.props.currentVersion.buildUpdateDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.props.currentVersion.updateDoc}></Markdown> : null}
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.props.currentVersion.updateDoc} /> : null}
                   </Tabs.TabPane>
                 </Tabs>
               </div>
@@ -433,7 +434,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 mode='init'
                 title="创建初始版本"
                 onCancel={this.onCancelAddVersion}
-                afterAdd={this.afterCreateGit}></CreateGitVersion>
+                afterAdd={this.afterCreateGit} />
             </div>
           )
         }
