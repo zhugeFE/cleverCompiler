@@ -59,11 +59,12 @@ class GitFileEditor extends React.Component<Props, State> {
   matchContent (content: string, reg: RegExp, matchIndex: number, isGlobal: boolean): any {
     if (!reg.test(content)) {return content }
     const matchs = content.match(reg)
+    if (!matchs) return content
     const oldVal = matchs![0] //第一个匹配的完整内容
     const beginIndex = content.indexOf(oldVal) //匹配内容在文本内容中第一个匹配项的开始索引
     const endIndex = beginIndex + oldVal.length //匹配内容在文本内容中第一个匹配项的结束索引
     const chunkA = content.substring(0, beginIndex)
-    const res = this.createHightLightElement(oldVal, matchs![matchIndex])
+    const res = this.createHightLightElement(oldVal, matchs[matchIndex])
 
     if (isGlobal){
       return [chunkA , res , ...this.matchContent(content.substring(endIndex), reg, matchIndex, isGlobal)]

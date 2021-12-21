@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Modal, Form, Input, Checkbox, Button, message, Tooltip, Select } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import FileTree from './fileTree';
-import { FormInstance } from 'antd/lib/form';
+import type { FormInstance } from 'antd/lib/form';
 import configStyles from './styles/gitAddConfig.less'
 import styles from './styles/textConfig.less'
-import { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from 'dva';
 import GitFileEditor from './fileEditor';
-import { EditMode, TypeMode } from '@/models/common';
-import { GitConfig } from '@/models/git';
+import { EditMode } from '@/models/common';
+import type { GitConfig } from '@/models/git';
 import util from '@/utils/utils';
 
 interface FormData {
@@ -32,9 +32,9 @@ interface Props {
   gitId: string;
   gitVersionId: string;
   configInfo?: GitConfig;
-  onCancel (): void;
-  onSubmit (data: TextConfigParam, isContinue: boolean): void;
-  onBack? (): void;
+  onCancel: () => void;
+  onSubmit: (data: TextConfigParam, isContinue: boolean) => void;
+  onBack?: () => void;
   dispatch: Dispatch;
 }
 interface State {
@@ -44,6 +44,7 @@ interface State {
   reg?: RegExp;
   displayContent: string;
   formPending: boolean;
+  regGroups: number[];
 }
 class GitTextConfig extends React.Component<Props, State> {
   form: React.RefObject<FormInstance> = React.createRef();
@@ -58,12 +59,13 @@ class GitTextConfig extends React.Component<Props, State> {
         filePath: props.configInfo?.filePath || "",
         description: props.configInfo?.description || "",
         targetValue: props.configInfo?.targetValue || "",
-        matchIndex: props.configInfo ? JSON.parse(props.configInfo.reg)['matchIndex'] : undefined,
-        reg: props.configInfo ? JSON.parse(props.configInfo.reg)['source'] : "",
-        global: props.configInfo ? JSON.parse(props.configInfo.reg)['global'] : false,
-        ignoreCase: props.configInfo ? JSON.parse(props.configInfo.reg)['ignoreCase'] : false
+        matchIndex: props.configInfo ? JSON.parse(props.configInfo.reg).matchIndex : 0,
+        reg: props.configInfo ? JSON.parse(props.configInfo.reg).source : "",
+        global: props.configInfo ? JSON.parse(props.configInfo.reg).global : false,
+        ignoreCase: props.configInfo ? JSON.parse(props.configInfo.reg).ignoreCase : false
       },
-      displayContent: ''
+      displayContent: '',
+      regGroups: [0]
     }
     this.onSelectFile = this.onSelectFile.bind(this)
     this.onChange = this.onChange.bind(this)
@@ -73,6 +75,7 @@ class GitTextConfig extends React.Component<Props, State> {
     this.onBack = this.onBack.bind(this)
     this.resetFields = this.resetFields.bind(this)
     this.onContinue = this.onContinue.bind(this)
+    this.onChangeReg = this.onChangeReg.bind(this)
   }
 
   componentDidMount () {
@@ -81,7 +84,7 @@ class GitTextConfig extends React.Component<Props, State> {
       const {configInfo} = this.props
       if (configInfo?.reg) {
         this.setState({
-          reg : new RegExp(JSON.parse(configInfo.reg)['source'] || '', `${JSON.parse(configInfo.reg)['global'] ? 'g' : ''}${JSON.parse(configInfo.reg)['ignoreCase'] ? 'i' : ''}`),
+          reg : new RegExp(JSON.parse(configInfo.reg).source || '', `${JSON.parse(configInfo.reg).global ? 'g' : ''}${JSON.parse(configInfo.reg).ignoreCase ? 'i' : ''}`),
         })
       }
     }
@@ -100,44 +103,14 @@ class GitTextConfig extends React.Component<Props, State> {
     })
   }
   onChange (changedValues: FormData, formData: FormData) {
-    let reg = null
-    
+    let reg
     try {
-      reg =  new RegExp(formData.reg || '', `${formData.global ? 'g' : ''}${formData.ignoreCase ? 'i' : ''}`)
-      if (reg.test(this.state.displayContent)) {
-        formData.matchIndex = 0
-        this.form.current?.setFieldsValue({matchIndex: 0})
-      } 
-      if (!changedValues['reg'] || !reg.test(this.state.displayContent)) {
-        formData.matchIndex = null
-        this.form.current?.setFieldsValue({matchIndex: undefined})
-      }
-      this.setState({
-        formData,
-        reg
-      })
-    } catch(err) {}
-    this.onReset()
-    
-  }
-  createSelectOption () {
-    if (this.state.reg && this.state.displayContent) {
-      const ignoreCase = this.state.reg.ignoreCase
-      const reg = new RegExp(this.state.reg.source, ignoreCase ? 'i' : "")
-      const matchs = this.state.displayContent.match(reg)
-      return (
-        <>
-          <Select.Option key={0} value={0}> 全部匹配 </Select.Option>
-          {
-            matchs && (matchs.length > 1) && matchs.map( (item,i) => {
-              if (i != 0) {
-                return <Select.Option key={i} value={i}>组{i}</Select.Option>
-              }
-            })
-          }
-        </>
-      )
-    }
+      reg = new RegExp((formData.reg || '') as string, `${formData.global ? 'g' : ''}${formData.ignoreCase ? 'i' : ''}`)
+    } catch (e) {}
+    this.setState({
+      formData,
+      reg
+    })
   }
   onReplace () {
     if (  !this.state.displayContent 
@@ -147,10 +120,10 @@ class GitTextConfig extends React.Component<Props, State> {
 
     const content =  this.state.displayContent
     const ignoreCase = this.state.reg?.ignoreCase
-    const isGlobal = this.state.reg?.global!
+    const isGlobal = this.state.reg?.global
     const reg = new RegExp(this.state.reg!.source, ignoreCase ? "i" : "")
     const matchIndex = this.state.formData.matchIndex!
-    const res = this.matchContent(content, reg, matchIndex, isGlobal)
+    const res = this.matchContent(content, reg, matchIndex, isGlobal!)
 
     this.setState({
       displayContent: util.isArray(res) ? res.join("") : res
@@ -226,6 +199,21 @@ class GitTextConfig extends React.Component<Props, State> {
   onBack () {
     if (this.props.onBack) this.props.onBack()
   }
+  onChangeReg (e: { target: { value: string | RegExp; }; }) {
+    try {
+      const reg = new RegExp(e.target.value)
+      const matchLength = this.state.displayContent.match(reg)?.length
+      if (matchLength) {
+        const groups = []
+        for (let i = 0; i < matchLength; i++) {
+          groups.push(i)
+        }
+        this.setState({
+          regGroups: groups
+        })
+      }
+    } catch (err) {}
+  }
   async onContinue () {
     await this.onSubmit( null, true)
     this.resetFields()
@@ -234,12 +222,12 @@ class GitTextConfig extends React.Component<Props, State> {
 
   resetFields () {
     const form = this.form.current
-    form?.setFieldsValue({reg:undefined})
-    form?.setFieldsValue({description:undefined})
-    form?.setFieldsValue({global:undefined})
-    form?.setFieldsValue({ignoreCase:undefined})
-    form?.setFieldsValue({matchIndex: undefined})
-    form?.setFieldsValue({targetValue: undefined})
+    form?.setFieldsValue({reg:''})
+    form?.setFieldsValue({description:''})
+    form?.setFieldsValue({global:false})
+    form?.setFieldsValue({ignoreCase:false})
+    form?.setFieldsValue({matchIndex: 0})
+    form?.setFieldsValue({targetValue: ''})
   } 
 
   render () {
@@ -267,7 +255,7 @@ class GitTextConfig extends React.Component<Props, State> {
           defauleSelect={this.state.filePath}
           onSelect={this.onSelectFile} 
           versionId={this.props.gitVersionId}
-          gitId={this.props.gitId}></FileTree>
+          gitId={this.props.gitId} />
         <div className={[configStyles.gitCmLeftPanel, styles.gitTextConfig].join(' ')}>
           <Form ref={this.form}
             layout="inline"
@@ -278,7 +266,7 @@ class GitTextConfig extends React.Component<Props, State> {
                 required: true,
                 message: '匹配规则不能为空'
               }]}>
-              <Input autoComplete="off"></Input>
+              <Input autoComplete="off" onChange={this.onChangeReg}/>
             </Form.Item>
             <Form.Item valuePropName="checked" name="global">
               <Checkbox>全局</Checkbox>
@@ -294,12 +282,16 @@ class GitTextConfig extends React.Component<Props, State> {
               required>
               <Select placeholder="未选择匹配">
                 {
-                  this.createSelectOption()
+                  this.state.regGroups.map(index => {
+                    return <Select.Option key={index} value={index}>{
+                      index === 0 ? '全部匹配' : `组${index}($${index})`
+                    }</Select.Option>
+                  })
                 }
               </Select>
             </Form.Item>
             <Form.Item label="替换为" name="targetValue"  required>
-              <Input autoComplete="off"></Input>
+              <Input autoComplete="off" />
             </Form.Item>
         
             
@@ -309,13 +301,13 @@ class GitTextConfig extends React.Component<Props, State> {
                 required: true,
                 message: '描述信息不能为空'
               }]}>
-              <Input autoComplete="off"></Input>
+              <Input autoComplete="off" />
             </Form.Item>
             <Button type="primary" onClick={this.onReplace}>替换</Button>
             <Button onClick={this.onReset}>还原</Button>
             <Button onClick={this.resetFields}>重置表单</Button>
           </Form>
-          <GitFileEditor reg={this.state.reg!} matchIndex={this.state.formData.matchIndex} content={this.state.displayContent}></GitFileEditor>
+          <GitFileEditor reg={this.state.reg!} matchIndex={this.state.formData.matchIndex} content={this.state.displayContent} />
         </div>
       </Modal>
     )
