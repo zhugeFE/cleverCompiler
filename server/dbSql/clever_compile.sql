@@ -11,7 +11,7 @@
  Target Server Version : 80025
  File Encoding         : 65001
 
- Date: 08/12/2021 17:22:22
+ Date: 21/12/2021 16:19:58
 */
 
 SET NAMES utf8mb4;
@@ -113,6 +113,8 @@ CREATE TABLE `project_config` (
   `global_config_id` varchar(50) DEFAULT NULL COMMENT '全局配置id',
   `project_git_id` varchar(50) DEFAULT NULL COMMENT '项目git',
   `template_config_id` varchar(50) DEFAULT NULL COMMENT '配置局部id',
+  `is_hidden` int DEFAULT NULL COMMENT '是否隐藏',
+  `visable` int DEFAULT NULL COMMENT '配置可见',
   PRIMARY KEY (`id`),
   KEY `project_config_ibfk_3` (`global_config_id`),
   KEY `proejct_config_ibfk_4` (`project_git_id`),
@@ -147,6 +149,8 @@ CREATE TABLE `project_global_config` (
   `project_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '工程id',
   `target_value` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `template_global_config_id` varchar(50) DEFAULT NULL COMMENT '模版全局配置id',
+  `is_hidden` int DEFAULT NULL COMMENT '是否隐藏',
+  `visable` int DEFAULT NULL COMMENT '配置是否可见',
   PRIMARY KEY (`id`),
   KEY `project_global_config_ibfk_2` (`project_id`),
   KEY `project_global_config_ibfk_3` (`template_global_config_id`),
@@ -223,6 +227,7 @@ CREATE TABLE `source_version` (
   `branch_id` varchar(50) DEFAULT NULL COMMENT '分支id',
   `public_type` int DEFAULT NULL COMMENT '0 git 1 下载',
   `public_git` int DEFAULT NULL,
+  `build_update_doc` text COMMENT '部署更新文档',
   PRIMARY KEY (`id`),
   KEY `source_id` (`source_id`),
   KEY `creator_id` (`creator_id`),
