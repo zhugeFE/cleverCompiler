@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 15:42:08
+ * @LastEditTime: 2021-12-22 17:54:45
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -82,7 +82,7 @@ class Project {
         params.shareMember,
         userId
       ])
-      params.configList.map( async config => {
+      params.configList.map( config => {
         const configId = util.uuid()
         GlobalConfigMap[config.id] = configId
         globalConfigDataList.push([configId, projectId , config.id, config.targetValue,config.isHidden, config.visable])
@@ -92,7 +92,7 @@ class Project {
         await this.insetGlobalConfig(conn, globalConfigDataList)
       }
 
-      params.gitList.map( async git => {
+      params.gitList.map( git => {
         const gitId = util.uuid()
         gitMap[git.id] = gitId
         gitDataList.push([gitId, git.name, projectId, git.id])

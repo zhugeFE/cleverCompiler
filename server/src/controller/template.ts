@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 14:08:59
+ * @LastEditTime: 2021-12-27 18:48:06
  */
 import { ChangeGitVersionParams, TemplateConfig, TemplateVersionUpdateInfo } from './../types/template';
 import {Router, Response, Request, NextFunction} from 'express'
@@ -86,6 +86,7 @@ router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
 
 router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
   templateService.addVersion( req.body as CreateTemplateVersionParams, req.session.currentUser.id)
+  // templateService.addVersion( req.body as CreateTemplateVersionParams, 'f975eb7e-cea4-4a1d-b515-7e6da94b1899')
   .then((version: TemplateVersion) => { 
     res.json(new ApiResult(ResponseStatus.success, version))
   })

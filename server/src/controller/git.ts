@@ -86,6 +86,7 @@ router.post('/version/updateInfo', (req: Request, res: Response, next: NextFunct
 
 router.post('/version/add', (req: Request, res: Response, next: NextFunction) => {
   gitService.addVersion(req.body as GitCreateVersionParam, req.session.currentUser.id)
+  // gitService.addVersion(req.body as GitCreateVersionParam, 'f975eb7e-cea4-4a1d-b515-7e6da94b1899')
   .then((data: GitInfo) => {
     res.json(new ApiResult(ResponseStatus.success, data))
   })
@@ -154,6 +155,7 @@ router.get('/cat', (req: Request, res: Response, next: NextFunction) => {
   .catch(next)
 })
 router.post('/config/add', (req: Request, res: Response, next: NextFunction) => {
+  
   const saveFilePath = path.resolve(__dirname, '../../file')
   const form = new IncomingForm({keepExtensions:true, uploadDir:saveFilePath})
   form.parse(req, (err, fields, files) => {
@@ -172,6 +174,16 @@ router.post('/config/add', (req: Request, res: Response, next: NextFunction) => 
       targetValue: JSON.stringify(files) !== '{}' ? JSON.stringify({newFilename: files['files']['newFilename'], originalFilename: files['files']['originalFilename']}) : fields["targetValue"] as string,
       description: fields['description'] as string
     })
+    // gitService.addConfig({
+    //   sourceId: req.body.sourceId,
+    //   branchId: req.body.branchId,
+    //   versionId: req.body.versionId,
+    //   typeId: req.body.typeId,
+    //   reg: req.body.reg,
+    //   filePath: req.body.filePath,
+    //   targetValue: req.body.targetValue,
+    //   description: req.body.description
+    // })
     .then((config: GitConfig) => {
       res.json(new ApiResult(ResponseStatus.success, config))
     })
