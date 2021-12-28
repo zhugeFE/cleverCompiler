@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-27 18:48:06
+ * @LastEditTime: 2021-12-29 00:05:44
  */
 import { ChangeGitVersionParams, TemplateConfig, TemplateVersionUpdateInfo } from './../types/template';
 import {Router, Response, Request, NextFunction} from 'express'
@@ -201,7 +201,7 @@ router.post('/config/globalConfig/update', (req: Request, res: Response, next: N
     res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
     return
   }
-  templateService.updateConfigGlobalConfig({id: req.body.id, globalConfig: req.body.globalConfig})
+  templateService.updateConfigGlobalConfig({id: req.body.id, globalConfig: req.body.globalConfigId})
   .then ( () => {
     res.json(new ApiResult(ResponseStatus.success))
   })
@@ -233,6 +233,14 @@ router.post('/globalconfig/add', (req: Request, res: Response , next: NextFuncti
       templateVersionId: fields['templateVersionId'] as string,
       type: Number(fields['type'] as string),
     })
+    // templateService.addGlobalConfig({
+    //   name: req.body.name,
+    //   targetValue:  req.body.targetValue,
+    //   description: req.body.description,
+    //   templateId: req.body.templateId, 
+    //   templateVersionId: req.body.templateVersionId,
+    //   type: req.body.type,
+    // })
     .then((config: TemplateGlobalConfig) => {
       res.json(new ApiResult(ResponseStatus.success, config))
     })
