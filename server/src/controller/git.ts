@@ -174,16 +174,16 @@ router.post('/config/add', (req: Request, res: Response, next: NextFunction) => 
       targetValue: JSON.stringify(files) !== '{}' ? JSON.stringify({newFilename: files['files']['newFilename'], originalFilename: files['files']['originalFilename']}) : fields["targetValue"] as string,
       description: fields['description'] as string
     })
-    gitService.addConfig({
-      sourceId: req.body.sourceId,
-      branchId: req.body.branchId,
-      versionId: req.body.versionId,
-      typeId: req.body.typeId,
-      reg: req.body.reg,
-      filePath: req.body.filePath,
-      targetValue: req.body.targetValue,
-      description: req.body.description
-    })
+    // gitService.addConfig({
+    //   sourceId: req.body.sourceId,
+    //   branchId: req.body.branchId,
+    //   versionId: req.body.versionId,
+    //   typeId: req.body.typeId,
+    //   reg: req.body.reg,
+    //   filePath: req.body.filePath,
+    //   targetValue: req.body.targetValue,
+    //   description: req.body.description
+    // })
     .then((config: GitConfig) => {
       res.json(new ApiResult(ResponseStatus.success, config))
     })
