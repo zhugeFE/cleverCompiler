@@ -4,13 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 15:32:49
+ * @LastEditTime: 2021-12-29 17:36:19
  */
 
 import { TypeMode } from "@/models/common";
-import { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
+import type { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
 import { Button, Empty, Table, Tabs } from "antd";
-import { ColumnProps } from "antd/lib/table";
+import type { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
 import styles from './styles/projectConfig.less';
@@ -24,9 +24,9 @@ interface Props {
   globalConfigList: TemplateGlobalConfig[];
   activeKey: string;
   gitList: TemplateVersionGit[];
-  onUpdateConfigHidden(data: string[]): void;
-  onChangeActiveKey(activeKey: string): void;
-  onUpdateConfig(config: TemplateConfig): void;
+  onUpdateConfigHidden: (data: string[]) => void;
+  onChangeActiveKey: (activeKey: string) => void;
+  onUpdateConfig: (config: TemplateConfig) => void;
 }
 
 interface States {
@@ -114,7 +114,7 @@ class ProjectConfig extends React.Component <Props, States> {
           if ( record.globalConfigId) {
             return "-"
           }else {
-            return record.typeId == TypeMode.text ? record.targetValue : JSON.parse(record.targetValue)['originalFilename']
+            return record.typeId == TypeMode.text ? record.targetValue : JSON.parse(record.targetValue).originalFilename
           }
         },
       },
@@ -175,7 +175,7 @@ class ProjectConfig extends React.Component <Props, States> {
       },
     ];
     return (
-      <div>
+      <div className="projectPanel">
         {
           this.state.currentConfig && (
             this.state.currentConfig.typeId == TypeMode.text ? (
@@ -185,13 +185,13 @@ class ProjectConfig extends React.Component <Props, States> {
                 gitVersionId={this.props.gitList[0].gitSourceVersionId}
                 onCancel={this.onCancelEditConfig}
                 onSubmit={this.afterUpdateConfig}
-              ></TextConfigEdit>
+               />
             ) : (
               <FileConfigEdit
                 config={this.state.currentConfig}
                 onCancel={this.onCancelEditConfig}
                 onSubmit={this.afterUpdateConfig}
-              ></FileConfigEdit>
+               />
             )
           )
         }
@@ -206,9 +206,7 @@ class ProjectConfig extends React.Component <Props, States> {
             }
             onAddConfig={this.updateConfigList}
             onCancel={this.hideConfigManage}
-        > 
-
-        </ConfigMarage>}
+         />}
           
         
         { !this.props.gitList.length ? (
@@ -216,7 +214,7 @@ class ProjectConfig extends React.Component <Props, States> {
           className={styles.cardBg} 
           >
             <Tabs.TabPane tab="引导页" className={styles.initTabs}>
-              <Empty></Empty>
+              <Empty />
             </Tabs.TabPane>
           </Tabs>
         ) : (
