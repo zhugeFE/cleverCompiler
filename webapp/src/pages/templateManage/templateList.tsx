@@ -4,16 +4,16 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 17:09:34
+ * @LastEditTime: 2021-12-30 14:39:53
  */
 import { Table, Button, Form, Input } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
 import styles from './styles/templateList.less';
-import { ColumnProps } from 'antd/lib/table';
-import { TemplateInstance } from '@/models/template';
-import { Dispatch, IRouteComponentProps } from 'umi';
-import { ConnectState } from '@/models/connect';
+import type { ColumnProps } from 'antd/lib/table';
+import type { TemplateInstance } from '@/models/template';
+import type { Dispatch, IRouteComponentProps } from 'umi';
+import type { ConnectState } from '@/models/connect';
 import { withRouter } from 'react-router';
 import util from '@/utils/utils';
 import CopyTemplate from './copyTemplate';
@@ -112,7 +112,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
     }, 300)
   }
   rowSelectChange (selectedRowKeys: React.Key[], selectedRows: TemplateInstance[]) {
-    var arr = selectedRowKeys.map(item => String(item))
+    const arr = selectedRowKeys.map(item => String(item))
     this.setState({
       selectedRowKeys: arr
     })
@@ -284,7 +284,6 @@ class TemplateList extends React.Component<TemplateListProps, State> {
           columns={columns}
           dataSource={showList}
           pagination={{
-            pageSize: 5,
             showTotal(totle: number) {
               return `总记录数${totle}`;
             },

@@ -4,18 +4,18 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 17:05:35
+ * @LastEditTime: 2021-12-30 14:40:32
  */
-import { ConnectState } from '@/models/connect';
-import { ProjectInstance } from '@/models/project';
+import type { ConnectState } from '@/models/connect';
+import type { ProjectInstance } from '@/models/project';
 import util from '@/utils/utils';
 import { Button, Form, Input, Table } from 'antd';
-import { ColumnProps } from 'antd/lib/table';
+import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import React from 'react';
-import { CurrentUser } from '@/models/user';
+import type { CurrentUser } from '@/models/user';
 import { withRouter } from 'react-router-dom';
-import { Dispatch, IRouteComponentProps } from 'umi';
+import type { Dispatch, IRouteComponentProps } from 'umi';
 import styles from "./styles/projectList.less";
 
 interface Props extends IRouteComponentProps{
@@ -209,7 +209,6 @@ class ProjectList extends React.Component<Props, States> {
           columns={columns}
           dataSource={showList}
           pagination={{
-            pageSize: 10,
             showTotal(totle: number) {
               return `总记录数${totle}`;
             },
@@ -221,7 +220,7 @@ class ProjectList extends React.Component<Props, States> {
 }
 
 
-export default connect( ( { project, user } : ConnectState) => {
+export default connect( ( { project, user }: ConnectState) => {
   return {
     projectList: project.projectList,
     currentUser: user.currentUser,

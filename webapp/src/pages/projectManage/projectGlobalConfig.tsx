@@ -4,14 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 15:45:03
+ * @LastEditTime: 2021-12-30 14:40:50
  */
-import { TemplateGlobalConfig } from "@/models/template";
-import { ColumnProps  } from "antd/lib/table";
+import type { TemplateGlobalConfig } from "@/models/template";
+import type { ColumnProps  } from "antd/lib/table";
 import { Button, Table } from 'antd';
 import { connect } from "dva";
 import React from "react";
-import { Dispatch } from "umi";
+import type { Dispatch } from "umi";
 import TextGlobalConfig from "./TextGlobalConfig";
 import FileGlobalConfig from "./FileGlobalConfig";
 import styles from "./styles/projectGlobalConfig.less"
@@ -23,8 +23,8 @@ import GlobalConfigMarage from "./globalConfigMarage";
 export interface Props {
   disabled?: boolean;
   globalConfigList: TemplateGlobalConfig[];
-  onUpdateConfigHidden(data: string[]): void;
-  onUpdateConfig (config: TemplateGlobalConfig): void;
+  onUpdateConfigHidden: (data: string[]) => void;
+  onUpdateConfig: (config: TemplateGlobalConfig) => void;
   dispatch: Dispatch;
 }
 
@@ -111,7 +111,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           if (record.type == TypeMode.text) {
             return record.targetValue
           }else {
-            return JSON.parse(record.targetValue)['originalFilename']
+            return JSON.parse(record.targetValue).originalFilename
           }
         }},        
         { title: '描述', dataIndex: 'description' },
@@ -141,13 +141,13 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
                   globalConfig={this.state.currentGlobalConfig}
                   onCancel={this.onCancelConfig}
                   onSubmit={this.afterUpdateConfig}
-                ></TextGlobalConfig>
+                 />
               ) : (
                 <FileGlobalConfig
                   globalConfig={this.state.currentGlobalConfig}
                   onCancel={this.onCancelConfig}
                   onSubmit={this.afterUpdateConfig}
-                ></FileGlobalConfig>
+                 />
               )
             )
           }
@@ -166,7 +166,6 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
             rowKey="id"
             dataSource={this.visableSourceData(this.props.globalConfigList)}
             pagination={{
-              pageSize: 3,
               showTotal(totle: number) {
                 return `总记录数${totle}`;
               },

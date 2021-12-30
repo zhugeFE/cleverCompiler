@@ -1,11 +1,11 @@
-import { ConnectState } from '@/models/connect'
-import { GitInstance } from '@/models/git'
+import type { ConnectState } from '@/models/connect'
+import type { GitInstance } from '@/models/git'
 import { Button, Form, Input, message, Table } from 'antd'
-import { ColumnProps } from 'antd/lib/table'
+import type { ColumnProps } from 'antd/lib/table'
 import { connect } from 'dva'
 import React from 'react'
 import { withRouter } from 'react-router'
-import { Dispatch, IRouteComponentProps } from 'umi'
+import type { Dispatch, IRouteComponentProps } from 'umi'
 import styles from './styles/gitList.less'
 
 interface GitListProps extends IRouteComponentProps{
@@ -81,7 +81,7 @@ class GitList extends React.Component<GitListProps, State> {
     }, 300)
   }
   rowSelectChange (selectedRowKeys: React.Key[], selectedRows: GitInstance[]) {
-    var arr = selectedRowKeys.map(item => String(item))
+    const arr = selectedRowKeys.map(item => String(item))
     this.setState({
       selectedRowKeys: arr
     })
@@ -246,12 +246,12 @@ class GitList extends React.Component<GitListProps, State> {
           columns={columns} 
           dataSource={showList}
           rowClassName={ (record) => record.enable ? "" : styles.disable}
-          pagination={{pageSize: 5, showTotal(totle: number) {
+          pagination={{ showTotal(totle: number) {
             return (
               `总记录数${totle}`
             )
           }}}
-        ></Table>
+         />
       </div>
     )
   }

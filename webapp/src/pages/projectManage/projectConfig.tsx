@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-29 17:36:19
+ * @LastEditTime: 2021-12-30 14:40:39
  */
 
 import { TypeMode } from "@/models/common";
@@ -235,7 +235,6 @@ class ProjectConfig extends React.Component <Props, States> {
                     rowKey="id"
                     dataSource={this.visableSourceData(item.configList)}
                     pagination={{
-                      pageSize: 3,
                       showTotal(totle: number) {
                         return `总记录数${totle}`;
                       },

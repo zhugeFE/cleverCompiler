@@ -4,20 +4,20 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 17:10:37
+ * @LastEditTime: 2021-12-30 15:01:36
  */
 
 import * as React from 'react';
 import {Button, message, Table } from 'antd';
-import { ColumnProps } from 'antd/lib/table';
+import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
-import { TemplateGlobalConfig } from '@/models/template';
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { TemplateGlobalConfig } from '@/models/template';
 import UpdateTextGlobalConfig from './addTemplateGlobalTextConfig';
 import UpdateFileGlobalConfig from './addTemplateGlobalFileConfig';
 import { EditMode, TypeMode, VersionStatus } from '@/models/common';
 import styles from './styles/templateGlobalConfig.less';
-import { ConnectState } from '@/models/connect';
+import type { ConnectState } from '@/models/connect';
 
 
 export interface GitConfigPanelProps {
@@ -106,9 +106,9 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
 
   afterEditConfig (formData: any) {
     const form = new FormData()
-    for (let key of Object.keys(formData)) {
+    for (const key of Object.keys(formData)) {
       if (key == 'file') {
-        form.append("files", formData[key]['file'])
+        form.append("files", formData[key].file)
       } else {
         form.append(key, formData[key])
       }
@@ -136,32 +136,104 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
     })
   }
 
+  filterFunc = (key: string) => {
+    const textList: string[] = []
+    const data = []
+    for (const item of this.props.globalConfigList) {
+      if ( !textList.includes(item[key])){
+        textList.push(item[key])
+        if ( key =='targetValue' && item.type == 1) {
+          data.push({
+            text: JSON.parse(item[key]).originalFilename,
+            value: item[key]
+          })
+        } else {
+          data.push ({
+            text: item[key],
+            value: item[key]
+          }) 
+        }
+      }
+    }
+    return data
+  }
+
   render() {
     const columns: ColumnProps<TemplateGlobalConfig>[] = [
-      { title: '名称', ellipsis: true, dataIndex: 'name', fixed: 'left' },
+      { 
+        title: '名称', 
+        ellipsis: true, 
+        dataIndex: 'name', 
+        fixed: 'left', 
+        filters: this.filterFunc('name'),
+        filterMode: 'tree',
+        onFilter: (value: string, record: TemplateGlobalConfig) => record.name.indexOf(value) == 0,
+        filterSearch: true,
+      },
       {
         title: '类型',
         dataIndex: 'type',
         render(value) {
           if (value === 0) return <span>文本</span>;
           if (value === 1) return <span>文件</span>;
-          if (value === 2) return <span>json</span>;
         },
+        filters: [
+          {
+            text: "文本",
+            value: 0
+          },
+          {
+            text: "文件",
+            value: 1
+          }
+        ],
+        filterMode: 'tree',
+        onFilter: (value: number, record: TemplateGlobalConfig) => record.type == value,
+        filterSearch: true,
       },
-      {title: '目标内容', ellipsis: true, dataIndex: 'targetValue', render: (text: string, record) => {
-        if (record.type == TypeMode.text) {
-          return record.targetValue
-        }else {
-          return JSON.parse(record.targetValue)['originalFilename']
-        }
+      {
+        title: '目标内容', 
+        ellipsis: true, 
+        dataIndex: 'targetValue',
+        filters: this.filterFunc("targetValue"),
+        filterMode: 'tree',
+        onFilter: (value: string, record: TemplateGlobalConfig) => record.targetValue.indexOf(value) == 0,
+        filterSearch: true, 
+        render: (text: string, record) => {
+          if (record.type == TypeMode.text) {
+            return record.targetValue
+          }else {
+            return JSON.parse(record.targetValue).originalFilename
+          }
       }},
-      { title: '描述', ellipsis:true, dataIndex: 'description' },
+      { 
+        title: '描述', 
+        ellipsis:true, 
+        dataIndex: 'description', 
+        filters: this.filterFunc('description'),
+        filterMode: 'tree',
+        onFilter: (value: string, record: TemplateGlobalConfig) => record.description.indexOf(value) == 0,
+        filterSearch: true,
+      },
       {
         title: '是否隐藏',
         dataIndex: 'isHidden',
         render(value: any) {
           return <>{value ? '是' : '否'}</>;
         },
+        filters: [
+          {
+            text: "是",
+            value: 1
+          },
+          {
+            text: "否",
+            value: 0
+          }
+        ],
+        filterMode: 'tree',
+        onFilter: (value: number, record: TemplateGlobalConfig) => record.isHidden == value,
+        filterSearch: true,
       },
       {
         title: '操作',
@@ -199,7 +271,7 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
                 globalConfig={this.state.currentGlobalConfig}
                 onCancel={this.onCancelEditConfig}
                 onSubmit={this.afterEditConfig}
-              ></UpdateTextGlobalConfig>
+               />
             ) : (
               <UpdateFileGlobalConfig
                 mode={EditMode.update}
@@ -208,7 +280,7 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
                 globalConfig={this.state.currentGlobalConfig}
                 onCancel={this.onCancelEditConfig}
                 onSubmit={this.afterEditConfig}
-              ></UpdateFileGlobalConfig>
+               />
             )
           )
         }
@@ -219,7 +291,6 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
           dataSource={this.props.globalConfigList}
           rowClassName={ (record) => record.isHidden ? styles.disable : ""}
           pagination={{
-            pageSize: 3,
             showTotal(totle: number) {
               return `总记录数${totle}`;
             },

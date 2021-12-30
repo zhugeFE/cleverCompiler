@@ -4,16 +4,16 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 17:11:35
+ * @LastEditTime: 2021-12-30 15:08:22
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
 import { Button, Empty, message, Select, Skeleton, Table, Tabs } from 'antd';
-import { ColumnProps } from 'antd/lib/table';
+import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
-import { GitInfo, GitVersion } from '../../models/git';
-import {
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { GitInfo, GitVersion } from '../../models/git';
+import type {
   TemplateConfig,
   TemplateGlobalConfig,
   TemplateVersion,
@@ -24,7 +24,7 @@ import AddTemplateGitSourse from './addTemplateGitSourse';
 import { EditMode, TypeMode, VersionStatus } from '@/models/common';
 import UpdateTextConfig from "./updateTextConfig";
 import UpdateFileConfig from "./updateFileConfig";
-import { ConnectState } from '@/models/connect';
+import type { ConnectState } from '@/models/connect';
 
 export interface ConfigPanelProps {
   mode: VersionStatus;
@@ -48,7 +48,7 @@ interface State {
 }
 
 class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
-  globalConfigMap: { [propName: string]: TemplateGlobalConfig } = {};
+  globalConfigMap: Record<string, TemplateGlobalConfig> = {};
   constructor(props: ConfigPanelProps) {
     super(props);
     this.state = {
@@ -119,11 +119,11 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     if (currentVersion) {
       currentVersion.gitList.map( git => {
         if ( git.id === this.props.activeKey){
-          data['id'] = git.id
-          data['gitSourceVersionId'] = versionData?.id
-          data['configList'] = []
+          data.id = git.id
+          data.gitSourceVersionId = versionData?.id
+          data.configList = []
           versionData?.configs.map( config => {
-            data['configList'].push({
+            data.configList.push({
               templateId: git.templateId,
               templateVersionId: git.templateVersionId,
               templateVersionGitId: git.id,
@@ -264,9 +264,9 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
 
   afterUpdateConfig (formData: any){
     const form = new FormData()
-    for (let key of Object.keys(formData)) {
+    for (const key of Object.keys(formData)) {
       if (key == 'file') {
-        form.append("files", formData[key]['file'])
+        form.append("files", formData[key].file)
       } else {
         form.append(key, formData[key])
       }
@@ -295,10 +295,16 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     })
   }
 
+
   render() {
     this.props.globalConfigList?.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
     const columns: ColumnProps<TemplateConfig>[] = [
-      { title: '文件位置', ellipsis: true, dataIndex: 'filePath', fixed: 'left' },
+      { 
+        title: '文件位置',
+        ellipsis: true, 
+        dataIndex: 'filePath', 
+        fixed: 'left', 
+      },
       {
         title: '默认值',
         ellipsis: true,
@@ -306,7 +312,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           if (record.typeId == TypeMode.text) {
             return record.targetValue
           }else {
-            return JSON.parse(record.targetValue)['originalFilename']
+            return JSON.parse(record.targetValue).originalFilename
           }
         },
       },
@@ -397,11 +403,11 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                 res = <UpdateTextConfig
                   mode={EditMode.update}
                   config={currentConfig}
-                  gitId={this.props.gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0]['gitSourceId']}
-                  gitVersionId={this.props.gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0]['gitSourceVersionId']}
+                  gitId={this.props.gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0].gitSourceId}
+                  gitVersionId={this.props.gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0].gitSourceVersionId}
                   onCancel={this.onCancelUpdateConfig}
                   onSubmit={this.afterUpdateConfig}
-                ></UpdateTextConfig>
+                 />
                 break
               case TypeMode.file:
                 res = <UpdateFileConfig
@@ -409,7 +415,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                   config={currentConfig}
                   onCancel={this.onCancelUpdateConfig}
                   onSubmit={this.afterUpdateConfig}
-                ></UpdateFileConfig>
+                 />
                 break
               default:
                 console.warn('无法识别的配置类型', currentConfig.typeId)
@@ -429,7 +435,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         { !this.props.activeKey ? (
           <Tabs type='card' className={styles.cardBg} >
             <Tabs.TabPane tab="引导页" className={styles.initTabs}>
-              <Empty></Empty>
+              <Empty />
               {
                 this.props.mode == VersionStatus.normal &&
                 <Button type="primary" onClick={this.add}>添加git</Button>
@@ -458,7 +464,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                           {
                             !this.props.gitInfo ? (
                               <Select.Option value="" >
-                                <Skeleton active></Skeleton>
+                                <Skeleton active />
                               </Select.Option>
                             ): 
                             this.props.gitInfo.branchList.map( item => (
@@ -484,7 +490,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                           {
                             !this.state.currentBranch ? (
                               <Select.Option value="" >
-                                <Skeleton active></Skeleton>
+                                <Skeleton active />
                               </Select.Option>
                             ): 
                               this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].versionList.map( item => (
@@ -508,7 +514,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                     dataSource={item.configList}
                     rowClassName={ (record) => record.isHidden ? styles.disable : ""}
                     pagination={{
-                      pageSize: 3,
                       showTotal(totle: number) {
                         return `总记录数${totle}`;
                       },
