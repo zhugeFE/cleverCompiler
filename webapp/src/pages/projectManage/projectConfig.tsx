@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-30 14:40:39
+ * @LastEditTime: 2021-12-30 22:50:56
  */
 
 import { TypeMode } from "@/models/common";
@@ -175,7 +175,7 @@ class ProjectConfig extends React.Component <Props, States> {
       },
     ];
     return (
-      <div className="projectPanel">
+      <div className={styles.projectPanel}>
         {
           this.state.currentConfig && (
             this.state.currentConfig.typeId == TypeMode.text ? (
