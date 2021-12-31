@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-30 15:01:36
+ * @LastEditTime: 2021-12-31 18:08:09
  */
 
 import * as React from 'react';
-import {Button, message, Table } from 'antd';
+import {Button, Input, message, Select, Table } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -23,12 +23,17 @@ import type { ConnectState } from '@/models/connect';
 export interface GitConfigPanelProps {
   mode: VersionStatus;
   globalConfigList: TemplateGlobalConfig[];
+  onAddGlobalConfig: () => void;
   dispatch: Dispatch;
 }
 interface State {
   showGlobalConfig: boolean;
   mode: string;
   currentGlobalConfig: TemplateGlobalConfig | null ;
+  filterType: string;
+  filterValue: string;
+  searchVaild: boolean;
+  selectedRowKeys: string[]
 }
 class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
   constructor(props: GitConfigPanelProps) {
@@ -36,11 +41,19 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
     this.state = {
       showGlobalConfig: false,
       mode: "add",
-      currentGlobalConfig: null
+      currentGlobalConfig: null,
+      filterType: "name",
+      filterValue: '',
+      searchVaild: true,
+      selectedRowKeys: []
     };
     
     this.afterEditConfig = this.afterEditConfig.bind(this)
     this.onCancelEditConfig = this.onCancelEditConfig.bind(this)
+    this.onChangeFilterConfig = this.onChangeFilterConfig.bind(this)
+    this.onChangeFilterType = this.onChangeFilterType.bind(this)
+    this.onBatchOption = this.onBatchOption.bind(this)
+    this.rowSelectChange = this.rowSelectChange.bind(this)
   }
   
 
@@ -136,39 +149,63 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
     })
   }
 
-  filterFunc = (key: string) => {
-    const textList: string[] = []
-    const data = []
-    for (const item of this.props.globalConfigList) {
-      if ( !textList.includes(item[key])){
-        textList.push(item[key])
-        if ( key =='targetValue' && item.type == 1) {
-          data.push({
-            text: JSON.parse(item[key]).originalFilename,
-            value: item[key]
+
+  onChangeFilterType (value: string) {
+    this.setState({
+      filterType: value
+    })    
+  }
+  onChangeFilterConfig (e: { target: { value: any } }) {
+     // 防抖处理 300ms
+     if ( !this.state.searchVaild ) {
+      return 
+    } 
+    this.setState({
+      searchVaild: false
+    })
+    setTimeout(() => {
+      this.setState({
+        searchVaild: true,
+        filterValue: e.target.value
+      })
+    }, 300)
+  }
+  
+  rowSelectChange (selectedRowKeys: React.Key[]) {
+    const arr = selectedRowKeys.map(item => String(item))
+    this.setState({
+      selectedRowKeys: arr
+    })
+  }
+  onBatchOption (order: string) {
+    if (this.state.selectedRowKeys.length == 0) return
+    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 0 : 1}})
+    this.props.dispatch({
+      type: 'template/updateGlobalConfigStatus',
+      payload: data,
+      callback: (res: boolean) => {
+        if (res) {
+          message.success({
+            content: "状态修改成功",
+            duration: 0.5
           })
         } else {
-          data.push ({
-            text: item[key],
-            value: item[key]
-          }) 
+          message.error({
+            content: "状态修改失败",
+            duration: 0.5
+          })
         }
       }
-    }
-    return data
+    })
   }
-
+  
   render() {
     const columns: ColumnProps<TemplateGlobalConfig>[] = [
       { 
         title: '名称', 
         ellipsis: true, 
         dataIndex: 'name', 
-        fixed: 'left', 
-        filters: this.filterFunc('name'),
-        filterMode: 'tree',
-        onFilter: (value: string, record: TemplateGlobalConfig) => record.name.indexOf(value) == 0,
-        filterSearch: true,
+        fixed: 'left'
       },
       {
         title: '类型',
@@ -176,29 +213,12 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         render(value) {
           if (value === 0) return <span>文本</span>;
           if (value === 1) return <span>文件</span>;
-        },
-        filters: [
-          {
-            text: "文本",
-            value: 0
-          },
-          {
-            text: "文件",
-            value: 1
-          }
-        ],
-        filterMode: 'tree',
-        onFilter: (value: number, record: TemplateGlobalConfig) => record.type == value,
-        filterSearch: true,
+        }
       },
       {
         title: '目标内容', 
         ellipsis: true, 
         dataIndex: 'targetValue',
-        filters: this.filterFunc("targetValue"),
-        filterMode: 'tree',
-        onFilter: (value: string, record: TemplateGlobalConfig) => record.targetValue.indexOf(value) == 0,
-        filterSearch: true, 
         render: (text: string, record) => {
           if (record.type == TypeMode.text) {
             return record.targetValue
@@ -209,31 +229,14 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
       { 
         title: '描述', 
         ellipsis:true, 
-        dataIndex: 'description', 
-        filters: this.filterFunc('description'),
-        filterMode: 'tree',
-        onFilter: (value: string, record: TemplateGlobalConfig) => record.description.indexOf(value) == 0,
-        filterSearch: true,
+        dataIndex: 'description'
       },
       {
         title: '是否隐藏',
         dataIndex: 'isHidden',
         render(value: any) {
           return <>{value ? '是' : '否'}</>;
-        },
-        filters: [
-          {
-            text: "是",
-            value: 1
-          },
-          {
-            text: "否",
-            value: 0
-          }
-        ],
-        filterMode: 'tree',
-        onFilter: (value: number, record: TemplateGlobalConfig) => record.isHidden == value,
-        filterSearch: true,
+        }
       },
       {
         title: '操作',
@@ -259,6 +262,41 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         },
       },
     ];
+    const filterType = [
+      {
+        text: "名称",
+        value: "name"
+      },
+      {
+        text: "类型",
+        value: "type"
+      },
+      {
+        text: "是否隐藏",
+        value: "isHidden"
+      },
+      {
+        text: "目标内容",
+        value: "targetValue"
+      },
+      {
+        text: "描述",
+        value: "description"
+      }
+    ]
+    const data = this.props.globalConfigList.filter( item => {
+      if ( this.state.filterType == 'targetValue' && item.type == 1) {
+        return JSON.parse(item.targetValue).originalFilename.includes(this.state.filterValue)
+      } else if ( this.state.filterType == 'type'){
+        const content = item[this.state.filterType] ? "文件" : "文本"        
+        return content.includes(this.state.filterValue)
+      } else if ( this.state.filterType == 'isHidden') {
+        const content = item[this.state.filterType] ? "是" : "否"        
+        return content.includes(this.state.filterValue)
+      } else {                
+        return item[this.state.filterType]?.includes(this.state.filterValue)
+      }
+    })
     return (
       <div>
         {
@@ -284,11 +322,46 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
             )
           )
         }
+        <div className={styles.templateFilterPanel}>
+          <Input.Group compact>
+            <Select defaultValue={filterType[0].value}
+               onChange={this.onChangeFilterType}
+            >
+              {
+                filterType.map( item => <Select.Option key={item.value} value={item.value}>{item.text}</Select.Option>)
+              }
+            </Select>
+            <Input
+              onChange={this.onChangeFilterConfig}
+              placeholder='输入筛选内容'
+              style={{width: "300px"}}
+            />
+            <Button 
+              className={styles.btnAddConfigItem} 
+              type='primary'
+              disabled={this.props.mode !== VersionStatus.normal}
+              onClick={this.props.onAddGlobalConfig}>添加配置项</Button>
+            <Button 
+              className={styles.btn}
+              disabled={!this.state.selectedRowKeys.length}
+              type="primary" 
+              onClick={this.onBatchOption.bind(this, 'enable')}>批量启用</Button>
+            <Button 
+              className={styles.btn}
+              danger 
+              disabled={!this.state.selectedRowKeys.length}
+              onClick={this.onBatchOption.bind(this, 'disable')}>批量禁用</Button>
+          </Input.Group>
+        </div>
         <Table
           bordered
           columns={columns}
+          rowSelection={{
+            type: "checkbox",
+            onChange: this.rowSelectChange
+          }}
           rowKey="id"
-          dataSource={this.props.globalConfigList}
+          dataSource={data}
           rowClassName={ (record) => record.isHidden ? styles.disable : ""}
           pagination={{
             showTotal(totle: number) {

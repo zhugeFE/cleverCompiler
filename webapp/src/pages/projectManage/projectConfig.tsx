@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-30 22:50:56
+ * @LastEditTime: 2021-12-31 18:24:56
  */
 
 import { TypeMode } from "@/models/common";
 import type { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
-import { Button, Empty, Table, Tabs } from "antd";
+import { Button, Empty, Input, Select, Table, Tabs } from "antd";
 import type { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
@@ -30,8 +30,11 @@ interface Props {
 }
 
 interface States {
-  currentConfig: TemplateConfig | null,
-  showMarageConfig: boolean,
+  currentConfig: TemplateConfig | null;
+  showMarageConfig: boolean;
+  filterType: string;
+  filterValue: string;
+  searchVaild: boolean;
 }
 
 class ProjectConfig extends React.Component <Props, States> {
@@ -40,6 +43,9 @@ class ProjectConfig extends React.Component <Props, States> {
     this.state = {
       currentConfig: null,
       showMarageConfig: false,
+      filterType: "filePath",
+      filterValue: '',
+      searchVaild: true,
     }
     this.onCancelEditConfig = this.onCancelEditConfig.bind(this)
     this.onClickConfig = this.onClickConfig.bind(this)
@@ -49,6 +55,8 @@ class ProjectConfig extends React.Component <Props, States> {
     this.filterSourceData = this.filterSourceData.bind(this)
     this.hideConfigManage = this.hideConfigManage.bind(this)
     this.updateConfigList = this.updateConfigList.bind(this)
+    this.onChangeFilterConfig = this.onChangeFilterConfig.bind(this)
+    this.onChangeFilterType = this.onChangeFilterType.bind(this)
   }
 
 
@@ -102,6 +110,45 @@ class ProjectConfig extends React.Component <Props, States> {
   visableSourceData (configList: TemplateConfig[]): TemplateConfig[] {
     return configList.filter( item => item.visable == 1)
   }
+
+
+  onChangeFilterType (value: string) {
+    this.setState({
+      filterType: value
+    })    
+  }
+  onChangeFilterConfig (e: { target: { value: any } }) {
+     // 防抖处理 300ms
+     if ( !this.state.searchVaild ) {
+      return 
+    } 
+    this.setState({
+      searchVaild: false
+    })
+    setTimeout(() => {
+      this.setState({
+        searchVaild: true,
+        filterValue: e.target.value
+      })
+    }, 300)
+  }
+
+  filterData (data: TemplateConfig[]) {    
+    return data.filter( item => {
+      if ( this.state.filterType == 'targetValue' && item.typeId == 1) {
+        return JSON.parse(item.targetValue).originalFilename.includes(this.state.filterValue)
+      } else if ( this.state.filterType == 'type'){
+        const content = item[this.state.filterType] ? "文件" : "文本"        
+        return content.includes(this.state.filterValue)
+      } else if ( this.state.filterType == 'isHidden') {
+        const content = item[this.state.filterType] ? "是" : "否"        
+        return content.includes(this.state.filterValue)
+      } else {                
+        return item[this.state.filterType]?.includes(this.state.filterValue)
+      }
+    })
+  }
+
   render () {
     
     const columns: ColumnProps<TemplateConfig>[] = [
@@ -174,6 +221,28 @@ class ProjectConfig extends React.Component <Props, States> {
         },
       },
     ];
+    const filterType = [
+      {
+        text: "文件位置",
+        value: "filePath"
+      },
+      {
+        text: "类型",
+        value: "type"
+      },
+      {
+        text: "匹配规则",
+        value: "reg"
+      },
+      {
+        text: "默认值",
+        value: "targetValue"
+      },
+      {
+        text: "描述",
+        value: "description"
+      }
+    ]
     return (
       <div className={styles.projectPanel}>
         {
@@ -224,16 +293,30 @@ class ProjectConfig extends React.Component <Props, States> {
             activeKey={this.props.activeKey}
             onChange={this.onChangeTabs}
             >
-            {this.props.gitList.map((item, index) => {
+            {this.props.gitList.map((item) => {
               return (
                 <Tabs.TabPane className={styles.tabPanel} tab={`${item.name}-${item.version}`} key={item.id}>
-                  <div className={styles.tabHandle}>
-                    <Button size="small" onClick={this.onClickConfigMarage}>配置项管理</Button>
+                  <div style={{marginBottom: 10}}>
+                    <Input.Group compact>
+                      <Select defaultValue={filterType[0].value}
+                        onChange={this.onChangeFilterType}
+                      >
+                        {
+                          filterType.map( type => <Select.Option key={type.value} value={type.value}>{type.text}</Select.Option>)
+                        }
+                      </Select>
+                      <Input
+                        onChange={this.onChangeFilterConfig}
+                        placeholder='输入筛选内容'
+                        style={{width: "300px"}}
+                      />
+                      <Button onClick={this.onClickConfigMarage}>配置项管理</Button>
+                    </Input.Group>
                   </div>
                   <Table
                     columns={columns}
                     rowKey="id"
-                    dataSource={this.visableSourceData(item.configList)}
+                    dataSource={this.visableSourceData(this.filterData(item.configList))}
                     pagination={{
                       showTotal(totle: number) {
                         return `总记录数${totle}`;

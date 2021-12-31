@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-30 15:08:22
+ * @LastEditTime: 2021-12-31 18:27:04
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
-import { Button, Empty, message, Select, Skeleton, Table, Tabs } from 'antd';
+import { Button, Empty, Input, message, Select, Skeleton, Table, Tabs } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -44,6 +44,10 @@ interface State {
   currentConfig: TemplateConfig | null;
   activeKey: string;
   gitInfo: GitInfo | null;
+  selectedRowKeys: string[];
+  filterType: string;
+  filterValue: string;
+  searchVaild: boolean;
 
 }
 
@@ -58,8 +62,12 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       currentConfig: null,
       activeKey: "",
       gitInfo: null,
-
+      selectedRowKeys: [],
+      filterType: "filePath",
+      filterValue: '',
+      searchVaild: true,
     };
+    this.rowSelectChange = this.rowSelectChange.bind(this);
     this.onEdit = this.onEdit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.remove = this.remove.bind(this);
@@ -68,6 +76,9 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.afterUpdateConfig = this.afterUpdateConfig.bind(this);
     this.selectGitVersion = this.selectGitVersion.bind(this);
     this.selectGitBranch = this.selectGitBranch.bind(this);
+    this.onBatchOption = this.onBatchOption.bind(this);
+    this.onChangeFilterConfig = this.onChangeFilterConfig.bind(this);
+    this.onChangeFilterType = this.onChangeFilterType.bind(this);
   }
 
   componentDidMount () {
@@ -295,6 +306,71 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     })
   }
 
+  rowSelectChange (selectedRowKeys: React.Key[], selectedRows: TemplateInstance[]) {
+    const arr = selectedRowKeys.map(item => String(item))
+    this.setState({
+      selectedRowKeys: arr
+    })
+  }
+
+  onBatchOption (order: string) {
+    if (this.state.selectedRowKeys.length == 0) return
+    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 0 : 1}})
+    this.props.dispatch({
+      type: 'template/updateGlobalConfigStatus',
+      payload: data,
+      callback: (res: boolean) => {
+        if (res) {
+          message.success({
+            content: "状态修改成功",
+            duration: 0.5
+          })
+        } else {
+          message.error({
+            content: "状态修改失败",
+            duration: 0.5
+          })
+        }
+      }
+    })
+  }
+
+  filterData (data: TemplateConfig[]) {    
+    return data.filter( item => {
+      if ( this.state.filterType == 'targetValue' && item.typeId == 1) {
+        return JSON.parse(item.targetValue).originalFilename.includes(this.state.filterValue)
+      } else if ( this.state.filterType == 'type'){
+        const content = item[this.state.filterType] ? "文件" : "文本"        
+        return content.includes(this.state.filterValue)
+      } else if ( this.state.filterType == 'isHidden') {
+        const content = item[this.state.filterType] ? "是" : "否"        
+        return content.includes(this.state.filterValue)
+      } else {                
+        return item[this.state.filterType]?.includes(this.state.filterValue)
+      }
+    })
+  }
+
+  onChangeFilterType (value: string) {
+    this.setState({
+      filterType: value
+    })    
+  }
+  onChangeFilterConfig (e: { target: { value: any } }) {
+     // 防抖处理 300ms
+     if ( !this.state.searchVaild ) {
+      return 
+    } 
+    this.setState({
+      searchVaild: false
+    })
+    setTimeout(() => {
+      this.setState({
+        searchVaild: true,
+        filterValue: e.target.value
+      })
+    }, 300)
+  }
 
   render() {
     this.props.globalConfigList?.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
@@ -370,6 +446,13 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         },
       },
       {
+        title: '是否隐藏',
+        dataIndex: 'isHidden',
+        render(value: any) {
+          return <>{value ? '是' : '否'}</>;
+        }
+      },
+      {
         title: '操作',
         width: "20%",
         fixed: 'right',
@@ -393,6 +476,33 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     ];
     const gitList = this.props.gitList;
     const {currentConfig} = this.state;
+    const filterType = [
+      {
+        text: "文件位置",
+        value: "filePath"
+      },
+      {
+        text: "类型",
+        value: "type"
+      },
+      {
+        text: "是否隐藏",
+        value: "isHidden"
+      },
+      {
+        text: "默认值",
+        value: "targetValue"
+      },
+      {
+        text: "匹配规则",
+        value: "reg"
+      },
+      {
+        text: "描述",
+        value: "description"
+      }
+    ]
+
     return (
       <div className={styles.templateConfigPanel}>
         {
@@ -453,65 +563,96 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
               return (
                 
                 <Tabs.TabPane className={styles.tabPanel}  tab={`${item.name}-${item.branchName}-${item.version}`} key={item.id}>
-                  {
-                    this.props.mode == VersionStatus.normal &&  (
-                      <div>
-                        <Select 
-                          placeholder={"切换branch"}
-                          size="small" 
-                          className={styles.tabHandle} 
-                          onChange={this.selectGitBranch}>
-                          {
-                            !this.props.gitInfo ? (
-                              <Select.Option value="" >
-                                <Skeleton active />
-                              </Select.Option>
-                            ): 
-                            this.props.gitInfo.branchList.map( item => (
-                              <Select.Option 
-                                className={styles.VersionDesc}
-                                key={item.id}
-                                value={item.id}
+                  <div className={styles.templateFilterPanel}>
+                    <Input.Group compact>
+                      <Select defaultValue={filterType[0].value}
+                        onChange={this.onChangeFilterType}
+                      >
+                        {
+                          filterType.map( item => <Select.Option key={item.value} value={item.value}>{item.text}</Select.Option>)
+                        }
+                      </Select>
+                      <Input
+                        onChange={this.onChangeFilterConfig}
+                        placeholder='输入筛选内容'
+                        style={{width: "300px"}}
+                      />
+                      <Button 
+                        className={styles.btnAddConfigItem} 
+                        type='primary'
+                        disabled={this.props.mode !== VersionStatus.normal}
+                        onClick={this.props.onAddGlobalConfig}>添加配置项</Button>
+                      <Button 
+                        className={styles.btn}
+                        disabled={!this.state.selectedRowKeys.length}
+                        type="primary" 
+                        onClick={this.onBatchOption.bind(this, 'enable')}>批量启用</Button>
+                      <Button 
+                        className={styles.btn}
+                        danger 
+                        disabled={!this.state.selectedRowKeys.length}
+                        onClick={this.onBatchOption.bind(this, 'disable')}>批量禁用</Button>
+                         {
+                          this.props.mode == VersionStatus.normal &&  (
+                            <div>
+                              <Select 
+                                placeholder={"切换branch"}
+                                onChange={this.selectGitBranch}>
+                                {
+                                  !this.props.gitInfo ? (
+                                    <Select.Option value="" >
+                                      <Skeleton active />
+                                    </Select.Option>
+                                  ): 
+                                  this.props.gitInfo.branchList.map( item => (
+                                    <Select.Option 
+                                      className={styles.VersionDesc}
+                                      key={item.id}
+                                      value={item.id}
+                                    >
+                                      {this.props.gitInfo?.name} - {item.name}
+                                      <div>
+                                        {item.description}
+                                      </div>
+                                    </Select.Option>
+                                  ))   
+                                }
+                              </Select>
+                              <Select
+                                placeholder={"切换version"}
+                                onChange={this.selectGitVersion}
                               >
-                                {this.props.gitInfo?.name} - {item.name}
-                                <div>
-                                  {item.description}
-                                </div>
-                              </Select.Option>
-                            ))   
-                          }
-                        </Select>
-                        <Select
-                          placeholder={"切换version"}
-                          size="small"
-                          className={styles.tabHandle}
-                          onChange={this.selectGitVersion}
-                        >
-                          {
-                            !this.state.currentBranch ? (
-                              <Select.Option value="" >
-                                <Skeleton active />
-                              </Select.Option>
-                            ): 
-                              this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].versionList.map( item => (
-                              item.status == VersionStatus.placeOnFile && 
-                              <Select.Option className={styles.versionDesc} key={item.id} value={item.id}>
-                                {this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].name} -{item.name}
-                                <div>
-                                  {item.description}
-                                </div>
-                              </Select.Option>
-                            ))   
-                          }
-                        </Select>
-                      </div>
-                    )
-                  }
-                  
+                                {
+                                  !this.state.currentBranch ? (
+                                    <Select.Option value="" >
+                                      <Skeleton active />
+                                    </Select.Option>
+                                  ): 
+                                    this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].versionList.map( item => (
+                                    item.status == VersionStatus.placeOnFile && 
+                                    <Select.Option className={styles.versionDesc} key={item.id} value={item.id}>
+                                      {this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].name} -{item.name}
+                                      <div>
+                                        {item.description}
+                                      </div>
+                                    </Select.Option>
+                                  ))   
+                                }
+                              </Select>
+                          </div>
+                        )
+                      }
+                    </Input.Group>
+                  </div>
+                          
                   <Table
                     columns={columns}
                     rowKey="id"
-                    dataSource={item.configList}
+                    rowSelection={{
+                      type: "checkbox",
+                      onChange: this.rowSelectChange
+                    }}
+                    dataSource={this.filterData(item.configList)}
                     rowClassName={ (record) => record.isHidden ? styles.disable : ""}
                     pagination={{
                       showTotal(totle: number) {

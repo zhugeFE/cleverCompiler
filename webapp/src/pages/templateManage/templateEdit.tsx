@@ -4,17 +4,18 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-16 11:46:00
+ * @LastEditTime: 2021-12-31 17:07:06
  */
 
 import { connect } from 'dva';
 import React from 'react';
 import styles from './styles/templateEdit.less';
 import { withRouter } from 'react-router';
-import { IRouteComponentProps } from '@umijs/renderer-react';
-import { Dispatch, GitInfoBranch } from '@/.umi/plugin-dva/connect';
-import { Button, message, Progress, Radio, RadioChangeEvent, Spin, Tabs, Tag, Tooltip } from 'antd';
-import {
+import type { IRouteComponentProps } from '@umijs/renderer-react';
+import type { Dispatch, GitInfoBranch } from '@/.umi/plugin-dva/connect';
+import type { RadioChangeEvent} from 'antd';
+import { Button, message, Progress, Radio, Spin, Tabs, Tag, Tooltip } from 'antd';
+import type {
   TemplateInfo,
   TemplateVersion,
 } from '@/models/template';
@@ -29,7 +30,7 @@ import CreateTemplateVersion from './createTemplateVersion';
 import TemplateAddGlobalConfig from './addTemplateGlobalConfig';
 import TemplateGlobalConfigComponent from './templateGlobalConfig';
 import { publicType, VersionStatus } from '@/models/common';
-import { ConnectState } from '@/models/connect';
+import type { ConnectState } from '@/models/connect';
 
 export interface TemplateEditProps extends IRouteComponentProps<{
     id: string;
@@ -118,8 +119,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       })
       return
     }
-    let delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() -  new Date(version!.publishTime).getTime())
-    let delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
+    const delTimeout = 24 * 60 * 60 * 1000 - (new Date().getTime() -  new Date(version!.publishTime).getTime())
+    const delTooltip = `可删除倒计时：${util.timeFormat(delTimeout)}`
     if (delTimeout <= 0) {
       clearInterval(this.initDelInterval as unknown as number)
     }
@@ -228,7 +229,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
   render() {
     const labelWidth = 75;
     if (!this.props.templateInfo && this.props.match.params.id != 'createTemplate') {
-      return <Spin className={styles.gitEditLoading} tip="git详情获取中..." size="large"></Spin>;
+      return <Spin className={styles.gitEditLoading} tip="git详情获取中..." size="large" />;
     }
     return (
       <div className={styles.gitEditPanel}>
@@ -236,7 +237,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
           this.state.showAddGlobalConfig ? (
               <TemplateAddGlobalConfig            
                 onClose={this.onCancelGlobalConfig}
-              ></TemplateAddGlobalConfig>
+               />
           ): null
         }
         <div className={styles.gitPanelTop}>
@@ -280,7 +281,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                 size="small"
                 strokeWidth={2}
                 format={(percent) => (percent === 100 ? 'saved' : 'saving')}
-              ></Progress>
+               />
             }
 
           </span>
@@ -313,15 +314,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                     
                     {/* 全局配置组件 */}
                     <TemplateGlobalConfigComponent
-                      //全局配置项
-                      // onSubmit={this.afterUpdateGlobalConfig}
-                      // afterUpdateGlobalConfigStatus={this.afterUpdateGlobalConfigStatus}
-                      // afterDelConfig={this.afterDelGlobalConfig}
-                      />
-                    <Button 
-                      className={styles.btnAddConfigItem}
-                      disabled={this.props.currentVersion?.status !== VersionStatus.normal} 
-                      onClick={this.onAddGlobalConfig}>添加配置项</Button>
+                      onAddGlobalConfig={this.onAddGlobalConfig}
+                    />
 
                 </Description>
 
@@ -354,7 +348,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                         <Markdown
                           DisabledEdit={true}
                           content={this.props.currentVersion.readmeDoc}
-                        ></Markdown>
+                         />
                       )
                     }
                   </Tabs.TabPane>
@@ -365,7 +359,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                           // onChange={this.onChangeBuild}
                           DisabledEdit={true}
                           content={this.props.currentVersion.buildDoc}
-                        ></Markdown>
+                         />
                       )
                     }
                   </Tabs.TabPane>
@@ -376,7 +370,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                           // onChange={this.onChangeUpdate}
                           DisabledEdit={true}
                           content={this.props.currentVersion.updateDoc}
-                        ></Markdown>
+                         />
                       )
                     }
                   </Tabs.TabPane>

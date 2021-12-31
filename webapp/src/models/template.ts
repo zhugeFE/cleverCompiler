@@ -7,11 +7,11 @@
  * @LastEditTime: 2021-12-21 15:11:17
  */
 
-import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
+import type { Effect, Reducer } from '@/.umi/plugin-dva/connect';
 import templateService from '@/services/template';
 import util from '@/utils/utils';
-import { Version } from './common';
-import { ConnectState } from './connect';
+import type { Version } from './common';
+import type { ConnectState } from './connect';
 
 
 
@@ -320,7 +320,7 @@ const TemplateModel: TemplateModelType = {
       const res = yield call( templateService.updateTemplateStatus, payload as UpdateTemplateStatus[])
       if (res.status === -1) return
       const templateList: TemplateInstance[] = util.clone( yield select( (_: {template: {templateList: TemplateInstance[]}}) => _.template.templateList))
-      let payloadMap = {}
+      const payloadMap = {}
       payload.map( (item: UpdateTemplateStatus) => {
         payloadMap[item.id] = item.enable
       })

@@ -358,11 +358,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <a>{`${this.props.gitInfo.name}(${this.props.currentVersion?.sourceType}：${this.props.currentVersion?.sourceValue})`}</a>
                   </Description>
                 <Description label="配置项" labelWidth={labelWidth} display="flex" className={styles.gitConfigs}>
-                  <GitConfigPanel />
-                  <Button 
-                    className={styles.btnAddConfigItem} 
-                    disabled={this.props.currentVersion?.status !== VersionStatus.normal}
-                    onClick={this.onAddConfig}>添加配置项</Button>
+                  <GitConfigPanel onAddConfig={this.onAddConfig} />
                 </Description>
                 <Description label="编译命令" display="flex" labelWidth={labelWidth} style={{marginBottom:10}}>
                   {this.props.currentVersion && <Commands/>}
@@ -399,6 +395,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       display="flex">
                       <Select 
                         style={{width:250}} 
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                          option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
                         disabled={this.props.currentVersion?.status != VersionStatus.normal} 
                         onChange={this.selectPubliceGit} 
                         placeholder="选择发布代码库"

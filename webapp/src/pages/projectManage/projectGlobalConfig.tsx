@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-30 14:40:50
+ * @LastEditTime: 2021-12-31 18:22:59
  */
 import type { TemplateGlobalConfig } from "@/models/template";
 import type { ColumnProps  } from "antd/lib/table";
-import { Button, Table } from 'antd';
+import { Button, Input, Select, Table } from 'antd';
 import { connect } from "dva";
 import React from "react";
 import type { Dispatch } from "umi";
@@ -31,6 +31,9 @@ export interface Props {
 interface States {
   currentGlobalConfig: TemplateGlobalConfig | null;
   showGlobalConfigMarage: boolean;
+  filterType: string;
+  filterValue: string;
+  searchVaild: boolean;
 }
 
 class ProjectGlobalConfig  extends React.Component<Props, States> {
@@ -38,7 +41,10 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
       super(prop)
       this.state = {
         currentGlobalConfig: null,
-        showGlobalConfigMarage: false
+        showGlobalConfigMarage: false,
+        filterType: "name",
+        filterValue: '',
+        searchVaild: true,
       }
       this.onCancelConfig = this.onCancelConfig.bind(this)
       this.afterUpdateConfig = this.afterUpdateConfig.bind(this)
@@ -46,6 +52,8 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
       this.hideConfigManage = this.hideConfigManage.bind(this)
       this.updateConfigList = this.updateConfigList.bind(this)
       this.onClickConfigMarage = this.onClickConfigMarage.bind(this)
+      this.onChangeFilterConfig = this.onChangeFilterConfig.bind(this)
+      this.onChangeFilterType = this.onChangeFilterType.bind(this)
     }
 
     onCancelConfig() {
@@ -94,6 +102,41 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
     visableSourceData (configList: TemplateGlobalConfig[]): TemplateGlobalConfig[] {
       return configList.filter( item => item.visable == 1)
     }
+
+    onChangeFilterType (value: string) {
+      this.setState({
+        filterType: value
+      })    
+    }
+    onChangeFilterConfig (e: { target: { value: any } }) {
+       // 防抖处理 300ms
+       if ( !this.state.searchVaild ) {
+        return 
+      } 
+      this.setState({
+        searchVaild: false
+      })
+      setTimeout(() => {
+        this.setState({
+          searchVaild: true,
+          filterValue: e.target.value
+        })
+      }, 300)
+    }
+
+    filterData (data: TemplateGlobalConfig[]) {    
+      return data.filter( item => {
+        if ( this.state.filterType == 'targetValue' && item.type == 1) {
+          return JSON.parse(item.targetValue).originalFilename.includes(this.state.filterValue)
+        } else if ( this.state.filterType == 'type'){
+          const content = item[this.state.filterType] ? "文件" : "文本"        
+          return content.includes(this.state.filterValue)
+        } else {                
+          return item[this.state.filterType]?.includes(this.state.filterValue)
+        }
+      })
+    }
+
     render () {
       const columns: ColumnProps<TemplateGlobalConfig>[] = [
         { title: '名称', dataIndex: 'name', fixed: 'left' },
@@ -132,6 +175,24 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           },
         },
       ];
+      const filterType = [
+        {
+          text: "名称",
+          value: "name"
+        },
+        {
+          text: "类型",
+          value: "type"
+        },
+        {
+          text: "目标内容",
+          value: "targetValue"
+        },
+        {
+          text: "描述",
+          value: "description"
+        }
+      ]
       return (
         <div className={styles.projectGlobalConfigPanel}>
           {
@@ -160,18 +221,36 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
             onAddConfig={this.updateConfigList}
             onCancel={this.hideConfigManage}
           /> 
+          <div className={styles.projectFilterPanel}>
+            <Input.Group compact>
+              <Select defaultValue={filterType[0].value}
+                onChange={this.onChangeFilterType}
+              >
+                {
+                  filterType.map( item => <Select.Option key={item.value} value={item.value}>{item.text}</Select.Option>)
+                }
+              </Select>
+              <Input
+                onChange={this.onChangeFilterConfig}
+                placeholder='输入筛选内容'
+                style={{width: "300px"}}
+              />
+              <Button 
+                className={styles.btnAddConfigItem} 
+                type='primary'
+                onClick={this.onClickConfigMarage}>添加配置项</Button>
+            </Input.Group>
+          </div>
           <Table
             bordered
             columns={columns}
             rowKey="id"
-            dataSource={this.visableSourceData(this.props.globalConfigList)}
+            dataSource={this.visableSourceData(this.filterData(this.props.globalConfigList))}
             pagination={{
               showTotal(totle: number) {
                 return `总记录数${totle}`;
               },
             }}/>
-          <Button onClick={this.onClickConfigMarage}>配置项管理</Button>
-
         </div>
       )
     }
