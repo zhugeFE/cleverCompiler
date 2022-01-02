@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 14:05:50
+ * @LastEditTime: 2022-01-02 23:10:19
  */
 import type { TemplateGlobalConfig } from "@/models/template";
 import type { ColumnProps  } from "antd/lib/table";
@@ -236,7 +236,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
                 style={{width: "300px"}}
               />
               <Button 
-                className={styles.btnAddConfigItem} 
+                className={styles.btn} 
                 type='primary'
                 onClick={this.onClickConfigMarage}>配置项管理</Button>
             </Input.Group>

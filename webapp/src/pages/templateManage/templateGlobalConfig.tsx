@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 13:48:45
+ * @LastEditTime: 2022-01-02 17:08:46
  */
 
 import * as React from 'react';
@@ -12,7 +12,7 @@ import {Button, Input, message, Select, Table } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';
-import type { TemplateGlobalConfig } from '@/models/template';
+import type { TemplateGlobalConfig, TemplateVersionGit } from '@/models/template';
 import UpdateTextGlobalConfig from './addTemplateGlobalTextConfig';
 import UpdateFileGlobalConfig from './addTemplateGlobalFileConfig';
 import { EditMode, TypeMode, VersionStatus } from '@/models/common';
@@ -23,6 +23,7 @@ import type { ConnectState } from '@/models/connect';
 export interface GitConfigPanelProps {
   mode: VersionStatus;
   globalConfigList: TemplateGlobalConfig[];
+  gitList: TemplateVersionGit[];
   onAddGlobalConfig: () => void;
   dispatch: Dispatch;
 }
@@ -245,6 +246,24 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         }
       },
       {
+        title: "引用",
+        render: (record: TemplateGlobalConfig) => {
+          let gitCount = 0
+          let configCount = 0
+          this.props.gitList.forEach( git => {
+            let flag = false
+            git.configList.forEach( config => {
+              if (config.globalConfigId == record.id) {
+                configCount += 1
+                flag = true
+              }
+            })
+            if (flag) gitCount++
+          })
+          return `git: ${gitCount}  config: ${configCount}`
+        }
+      },
+      {
         title: '操作',
         width: "30%",
         render: (value: any, record: TemplateGlobalConfig) => {
@@ -381,6 +400,7 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
 export default connect( ({template}: ConnectState) => {
   return {
     mode: template.currentVersion?.status!,
+    gitList: template.currentVersion?.gitList!,
     globalConfigList: template.currentVersion?.globalConfigList!,
   }
 })(GlobalConfigPanel);

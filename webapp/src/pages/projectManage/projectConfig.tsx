@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-31 18:24:56
+ * @LastEditTime: 2022-01-02 23:09:27
  */
 
 import { TypeMode } from "@/models/common";
@@ -310,7 +310,7 @@ class ProjectConfig extends React.Component <Props, States> {
                         placeholder='输入筛选内容'
                         style={{width: "300px"}}
                       />
-                      <Button onClick={this.onClickConfigMarage}>配置项管理</Button>
+                      <Button className={styles.btn} onClick={this.onClickConfigMarage}>配置项管理</Button>
                     </Input.Group>
                   </div>
                   <Table
