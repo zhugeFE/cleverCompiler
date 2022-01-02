@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 12:35:00
+ * @LastEditTime: 2022-01-02 13:01:27
  */
 
 import pool from './pool'
@@ -14,6 +14,7 @@ import {
 } from "../types/customer"
 import util from '../utils/util'
 import _ = require('lodash')
+import logger from '../utils/logger'
 class Customer {
   //客户列表
   async customerList (): Promise<ProjectCustomer[]>{
@@ -26,7 +27,7 @@ class Customer {
       u.NAME AS creator_name 
     FROM
       customer AS c
-      LEFT JOIN USER AS u ON u.id = c.creator_id`
+      LEFT JOIN user AS u ON u.id = c.creator_id`
     return await pool.query<ProjectCustomer>(sql)
   }
 
