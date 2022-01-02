@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 13:01:27
+ * @LastEditTime: 2022-01-02 13:31:55
  */
 
 import pool from './pool'
@@ -14,7 +14,6 @@ import {
 } from "../types/customer"
 import util from '../utils/util'
 import _ = require('lodash')
-import logger from '../utils/logger'
 class Customer {
   //客户列表
   async customerList (): Promise<ProjectCustomer[]>{

@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-31 14:38:35
+ * @LastEditTime: 2022-01-02 13:33:19
  */
-import { ChangeGitVersionParams, TemplateConfig, TemplateVersionUpdateInfo } from './../types/template';
+import { ChangeGitVersionParams, TemplateConfig, TemplateVersionUpdateInfo, UpdateConfigStatus } from './../types/template';
 import {Router, Response, Request, NextFunction} from 'express'
 import templateService from '../service/template'
 import { ApiResult, ResponseStatus } from '../types/apiResult'
@@ -185,11 +185,11 @@ router.post('/config/update', (req: Request, res: Response, next: NextFunction) 
 })
 
 router.post('/config/status/update', (req: Request, res: Response, next: NextFunction) => {
-  if (!req.body.id) {
-    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+  if (!req.body.configList.length) {
+    res.json(new ApiResult(ResponseStatus.fail, "数据为空"))
     return
   }
-  templateService.updateConfigStatus({id: req.body.id, status: req.body.status})
+  templateService.updateConfigStatus(req.body.configList as UpdateConfigStatus[])
   .then ( () => {
     res.json(new ApiResult(ResponseStatus.success))
   })
@@ -249,11 +249,11 @@ router.post('/globalconfig/add', (req: Request, res: Response , next: NextFuncti
 })
 
 router.post('/globalconfig/status/update', (req: Request, res: Response, next: NextFunction) => {
-  if (!req.body.id) {
-    res.json(new ApiResult(ResponseStatus.fail, 'id不存在'))
+  if (!req.body.configList.length) {
+    res.json(new ApiResult(ResponseStatus.fail, "数据为空"))
     return
   }
-  templateService.updateGlobalConfigStatus({id: req.body.id, status: req.body.status})
+  templateService.updateGlobalConfigStatus(req.body.configList as UpdateConfigStatus[])
   .then (() => {
     res.json(new ApiResult(ResponseStatus.success))
   })

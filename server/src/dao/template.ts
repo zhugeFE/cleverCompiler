@@ -1,10 +1,11 @@
+import { UpdateConfigStatus } from './../types/template';
 /*
  * @Descripttion:
  * @version:
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-21 15:05:35
+ * @LastEditTime: 2022-01-02 13:46:34
  */
 import { ChangeGitVersionParams, HistoryVersion, TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo } from './../types/template';
 import { PoolConnection } from 'mysql';
@@ -736,12 +737,21 @@ class TemplateDao {
     return list.length > 0 ? list[0] : null
   }
 
-  async updateConfigStatus(config: {id: string; status: number}): Promise<void> {
+  async updateConfigStatus(configList: UpdateConfigStatus[]): Promise<void> {
     const sql = `update template_config set is_hidden = ? where id = ?`
-    await pool.query(sql, [
-      config.status,
-      config.id
-    ])
+    const conn = await pool.beginTransaction()
+    try {
+      for ( const config of configList) {
+        await pool.writeInTransaction(conn,sql, [
+          config.status,
+          config.id
+        ])
+      }
+      await pool.commit(conn)
+    }catch(e){
+      pool.rollback(conn)
+      throw(e)
+    } 
   }
 
   async updateConfigGlobalConfig(config: {id: string; globalConfig: string}): Promise<void> {
@@ -845,12 +855,21 @@ class TemplateDao {
     return await this.getGlobalConfigById(config.id)
   }
 
-  async updateGlobalConfigStatus(config: {id: string; status: number}): Promise<void> {
+  async updateGlobalConfigStatus(configList: UpdateConfigStatus[]): Promise<void> {
     const sql = `update template_global_config set is_hidden = ? where id = ?`
-    await pool.query(sql, [
-      config.status,
-      config.id
-    ])
+    const conn = await pool.beginTransaction()
+      try {
+        for ( const config of configList) {
+          await pool.writeInTransaction(conn,sql, [
+            config.status,
+            config.id
+          ])
+        }
+        await pool.commit(conn)
+      }catch(e){
+        pool.rollback(conn)
+        throw(e)
+      } 
   }
 
   async deleteGlobalConfigById(configId: string): Promise<void> {

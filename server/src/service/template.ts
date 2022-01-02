@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-07 14:08:51
+ * @LastEditTime: 2022-01-02 13:33:44
  */
 import {
   ChangeGitVersionParams,
@@ -20,7 +20,8 @@ import {
   TemplateVersion, 
   TemplateVersionGit, 
   UpdateConfigParam, 
-  UpdateTemplateStatus} from "../types/template"
+  UpdateTemplateStatus,
+  UpdateConfigStatus} from "../types/template"
 import templateDao from "../dao/template"
 
 class TemplateService {
@@ -80,8 +81,8 @@ class TemplateService {
   async updateConfig(config: UpdateConfigParam): Promise<TemplateConfig> {
     return await templateDao.updateConfig(config)
   }
-  async updateConfigStatus (config: {id: string; status: number}): Promise<void> {
-    await templateDao.updateConfigStatus(config)
+  async updateConfigStatus (configList: UpdateConfigStatus[]): Promise<void> {
+    await templateDao.updateConfigStatus(configList)
   } 
 
   async updateConfigGlobalConfig (config: {id: string; globalConfig: string}): Promise <void>{
@@ -98,8 +99,8 @@ class TemplateService {
     return await templateDao.updateGlobalConfig(config)
   }
 
-  async updateGlobalConfigStatus(config: {id: string; status: number}): Promise<void> {
-    await templateDao.updateGlobalConfigStatus(config)
+  async updateGlobalConfigStatus(configList: UpdateConfigStatus[]): Promise<void> {
+    await templateDao.updateGlobalConfigStatus(configList)
   } 
   async deleteGlobalConfigById(configId: string): Promise<void> {
     await templateDao.deleteGlobalConfigById(configId)

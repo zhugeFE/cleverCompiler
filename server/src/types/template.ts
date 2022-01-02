@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-21 15:57:32
+ * @LastEditTime: 2022-01-02 13:25:50
  */
 import { Version } from "./common";
 
@@ -22,6 +22,11 @@ export interface TemplateInstance {
 export interface TemplateInfo {
   id: string;
   version: string;
+}
+
+export interface UpdateConfigStatus {
+  id: string;
+  status: number;
 }
 
 export interface TemplateInfo extends TemplateInstance {
