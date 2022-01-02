@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-21 15:11:17
+ * @LastEditTime: 2022-01-02 13:54:06
  */
 
 import type { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -324,7 +324,7 @@ const TemplateModel: TemplateModelType = {
       payload.map( (item: UpdateTemplateStatus) => {
         payloadMap[item.id] = item.enable
       })
-      templateList.map( (template, index) => {
+      templateList.map( (template) => {
         if (Object.keys(payloadMap).includes(template.id)) {
           template.enable = payloadMap[template.id]
         } 
@@ -553,11 +553,14 @@ const TemplateModel: TemplateModelType = {
     },
     _updateGlobalConfigStatus (state, {payload}): TemplateModelState {
       const res = util.clone(state)!
-      res.currentVersion?.globalConfigList.forEach( (item) => {
-        if (item.id == payload.id) {
-          item.isHidden = payload.status
-        }
+      payload.configList.forEach( (config: { id: string; status: number; }) => {
+        res.currentVersion?.globalConfigList.forEach( (item) => {
+          if (item.id == config.id) {
+            item.isHidden = config.status
+          }
+        })
       })
+      
       res.templateInfo?.versionList.forEach( (item,index) => {
         if (item.id == res.currentVersion!.id) {
           res.templateInfo!.versionList[index] = res.currentVersion!
@@ -679,13 +682,16 @@ const TemplateModel: TemplateModelType = {
     },
     _updateConfigStatus( state, {payload}): TemplateModelState {
       const res = util.clone(state)!
-      res.currentVersion?.gitList.forEach( git => {
-        git.configList.forEach( config => {
-          if (config.id == payload.id) {
-            config.isHidden = payload.status
-          }
+      payload.configList.forEach( (config: { id: string; status: number; }) => {
+        res.currentVersion?.gitList.forEach( git => {
+          git.configList.forEach( item => {
+            if (item.id == config.id) {
+              item.isHidden = config.status
+            }
+          })
         })
       })
+      
       res.templateInfo?.versionList.forEach( (item,i) => {
         if (item.id == res.currentVersion!.id) {
           res.templateInfo!.versionList[i] =  res.currentVersion!

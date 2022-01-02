@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-31 18:08:09
+ * @LastEditTime: 2022-01-02 13:48:45
  */
 
 import * as React from 'react';
@@ -89,8 +89,12 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         this.props.dispatch({
           type: 'template/updateGlobalConfigStatus',
           payload: {
-            id: config.id,
-            status: Number(!config.isHidden)
+            configList: [
+              {
+                id: config.id,
+                status: Number(!config.isHidden)
+              }
+            ]
           },
           callback: (res: boolean) => {
             if (res) {
@@ -179,10 +183,12 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
   }
   onBatchOption (order: string) {
     if (this.state.selectedRowKeys.length == 0) return
-    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 0 : 1}})
+    const data = this.state.selectedRowKeys.map( item => { return {id: item, status: order === 'hidden' ? 1 : 0}})
     this.props.dispatch({
       type: 'template/updateGlobalConfigStatus',
-      payload: data,
+      payload: {
+        configList: data
+      },
       callback: (res: boolean) => {
         if (res) {
           message.success({
@@ -345,12 +351,12 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
               className={styles.btn}
               disabled={!this.state.selectedRowKeys.length}
               type="primary" 
-              onClick={this.onBatchOption.bind(this, 'enable')}>批量启用</Button>
+              onClick={this.onBatchOption.bind(this, 'display')}>批量显示</Button>
             <Button 
               className={styles.btn}
               danger 
               disabled={!this.state.selectedRowKeys.length}
-              onClick={this.onBatchOption.bind(this, 'disable')}>批量禁用</Button>
+              onClick={this.onBatchOption.bind(this, 'hidden')}>批量隐藏</Button>
           </Input.Group>
         </div>
         <Table

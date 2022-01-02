@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-31 18:27:04
+ * @LastEditTime: 2022-01-02 13:49:59
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -232,8 +232,12 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         this.props.dispatch({
           type: 'template/updateConfigStatus',
           payload: {
-            id: config.id,
-            status: Number(!config.isHidden)
+            configList: [
+              {
+                id: config.id,
+                status: Number(!config.isHidden)
+              }
+            ]
           },
           callback: (res: boolean) => {
             if (res) {
@@ -306,7 +310,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     })
   }
 
-  rowSelectChange (selectedRowKeys: React.Key[], selectedRows: TemplateInstance[]) {
+  rowSelectChange (selectedRowKeys: React.Key[]) {
     const arr = selectedRowKeys.map(item => String(item))
     this.setState({
       selectedRowKeys: arr
@@ -315,10 +319,12 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
 
   onBatchOption (order: string) {
     if (this.state.selectedRowKeys.length == 0) return
-    const data = this.state.selectedRowKeys.map( item => { return {id: item, enable: order === 'disable' ? 0 : 1}})
+    const data = this.state.selectedRowKeys.map( item => { return {id: item, status: order === 'hidden' ? 1 : 0}})
     this.props.dispatch({
-      type: 'template/updateGlobalConfigStatus',
-      payload: data,
+      type: 'template/updateConfigStatus',
+      payload: {
+        configList: data
+      },
       callback: (res: boolean) => {
         if (res) {
           message.success({
@@ -559,7 +565,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             onChange={this.onChange}
             activeKey={this.props.activeKey}
             onEdit={this.onEdit}>
-            {gitList.map((item, index) => {
+            {gitList.map((item) => {
               return (
                 
                 <Tabs.TabPane className={styles.tabPanel}  tab={`${item.name}-${item.branchName}-${item.version}`} key={item.id}>
@@ -569,7 +575,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                         onChange={this.onChangeFilterType}
                       >
                         {
-                          filterType.map( item => <Select.Option key={item.value} value={item.value}>{item.text}</Select.Option>)
+                          filterType.map( filteritem => <Select.Option key={filteritem.value} value={filteritem.value}>{filteritem.text}</Select.Option>)
                         }
                       </Select>
                       <Input
@@ -578,20 +584,15 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                         style={{width: "300px"}}
                       />
                       <Button 
-                        className={styles.btnAddConfigItem} 
-                        type='primary'
-                        disabled={this.props.mode !== VersionStatus.normal}
-                        onClick={this.props.onAddGlobalConfig}>添加配置项</Button>
-                      <Button 
                         className={styles.btn}
                         disabled={!this.state.selectedRowKeys.length}
                         type="primary" 
-                        onClick={this.onBatchOption.bind(this, 'enable')}>批量启用</Button>
+                        onClick={this.onBatchOption.bind(this, 'display')}>批量显示</Button>
                       <Button 
                         className={styles.btn}
                         danger 
                         disabled={!this.state.selectedRowKeys.length}
-                        onClick={this.onBatchOption.bind(this, 'disable')}>批量禁用</Button>
+                        onClick={this.onBatchOption.bind(this, 'hidden')}>批量隐藏</Button>
                          {
                           this.props.mode == VersionStatus.normal &&  (
                             <div>
@@ -604,15 +605,15 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                                       <Skeleton active />
                                     </Select.Option>
                                   ): 
-                                  this.props.gitInfo.branchList.map( item => (
+                                  this.props.gitInfo.branchList.map( branch => (
                                     <Select.Option 
                                       className={styles.VersionDesc}
-                                      key={item.id}
-                                      value={item.id}
+                                      key={branch.id}
+                                      value={branch.id}
                                     >
-                                      {this.props.gitInfo?.name} - {item.name}
+                                      {this.props.gitInfo?.name} - {branch.name}
                                       <div>
-                                        {item.description}
+                                        {branch.description}
                                       </div>
                                     </Select.Option>
                                   ))   
@@ -628,12 +629,12 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                                       <Skeleton active />
                                     </Select.Option>
                                   ): 
-                                    this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].versionList.map( item => (
-                                    item.status == VersionStatus.placeOnFile && 
-                                    <Select.Option className={styles.versionDesc} key={item.id} value={item.id}>
-                                      {this.props.gitInfo?.branchList.filter(item => item.id == this.state.currentBranch)[0].name} -{item.name}
+                                    this.props.gitInfo?.branchList.filter(branch => branch.id == this.state.currentBranch)[0].versionList.map( branch => (
+                                      branch.status == VersionStatus.placeOnFile && 
+                                    <Select.Option className={styles.versionDesc} key={branch.id} value={branch.id}>
+                                      {this.props.gitInfo?.branchList.filter(info => info.id == this.state.currentBranch)[0].name} -{branch.name}
                                       <div>
-                                        {item.description}
+                                        {branch.description}
                                       </div>
                                     </Select.Option>
                                   ))   
