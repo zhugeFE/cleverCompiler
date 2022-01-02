@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-05 18:40:48
+ * @LastEditTime: 2022-01-02 12:35:00
  */
 
 import pool from './pool'
@@ -27,7 +27,7 @@ class Customer {
     FROM
       customer AS c
       LEFT JOIN USER AS u ON u.id = c.creator_id`
-    return await pool.query(sql)
+    return await pool.query<ProjectCustomer>(sql)
   }
 
   //客户新建
