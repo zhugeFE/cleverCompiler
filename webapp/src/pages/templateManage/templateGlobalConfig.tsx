@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 17:08:46
+ * @LastEditTime: 2022-01-03 23:46:15
  */
 
 import * as React from 'react';
-import {Button, Input, message, Select, Table } from 'antd';
+import {Button, Input, message, Select, Table, Tag } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -18,6 +18,8 @@ import UpdateFileGlobalConfig from './addTemplateGlobalFileConfig';
 import { EditMode, TypeMode, VersionStatus } from '@/models/common';
 import styles from './styles/templateGlobalConfig.less';
 import type { ConnectState } from '@/models/connect';
+import CheckableTag from 'antd/lib/tag/CheckableTag';
+import e from 'express';
 
 
 export interface GitConfigPanelProps {
@@ -25,6 +27,8 @@ export interface GitConfigPanelProps {
   globalConfigList: TemplateGlobalConfig[];
   gitList: TemplateVersionGit[];
   onAddGlobalConfig: () => void;
+  signArr: string[];
+  setSignArr: (data: string[]) => void;
   dispatch: Dispatch;
 }
 interface State {
@@ -58,6 +62,14 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
   }
   
 
+  onSign (e, config: TemplateGlobalConfig) {
+    if (e.target.innerText == '取消标记') {
+      this.props.setSignArr(this.props.signArr.filter( item => item != config.id))
+    }else {
+      this.props.setSignArr([...this.props.signArr, config.id])
+    }
+    e.target.innerText = e.target.innerText == "标记" ? "取消标记" : "标记"
+  }
   onEdit(config: TemplateGlobalConfig , type: string){
     switch(type){
       case "edit": {
@@ -260,7 +272,11 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
             })
             if (flag) gitCount++
           })
-          return `git: ${gitCount}  config: ${configCount}`
+          return (
+            <>
+              {`git: ${gitCount}  config: ${configCount}`}
+            </>
+          )
         }
       },
       {
@@ -282,6 +298,7 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
               <Button type="primary" danger style={{ marginLeft: '5px' }} onClick={this.onEdit.bind(this, record, 'delete')}>
                 删除
               </Button>
+              <Button type="primary" style={{ marginLeft: '5px' }} onClick={(event) => this.onSign(event,record)}>标记</Button>
             </div>
           );
         },

@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 13:49:59
+ * @LastEditTime: 2022-01-04 00:18:31
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
-import { Button, Empty, Input, message, Select, Skeleton, Table, Tabs } from 'antd';
+import { Badge, Button, Empty, Input, message, Select, Skeleton, Table, Tabs, Tag } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -25,6 +25,7 @@ import { EditMode, TypeMode, VersionStatus } from '@/models/common';
 import UpdateTextConfig from "./updateTextConfig";
 import UpdateFileConfig from "./updateFileConfig";
 import type { ConnectState } from '@/models/connect';
+import { divide } from 'lodash';
 
 export interface ConfigPanelProps {
   mode: VersionStatus;
@@ -35,6 +36,7 @@ export interface ConfigPanelProps {
   activeKey: string;
   gitInfo: GitInfo | null;
   currentVersion: TemplateVersion;
+  signArr: string[];
   dispatch: Dispatch;
 }
 interface State {
@@ -79,6 +81,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     this.onBatchOption = this.onBatchOption.bind(this);
     this.onChangeFilterConfig = this.onChangeFilterConfig.bind(this);
     this.onChangeFilterType = this.onChangeFilterType.bind(this);
+    this.countSignGlobalConfig = this.countSignGlobalConfig.bind(this);
   }
 
   componentDidMount () {
@@ -378,6 +381,16 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     }, 300)
   }
 
+  countSignGlobalConfig(data: TemplateConfig[]) {
+    let count = 0 
+    data.forEach(config => {
+      if (this.props.signArr.includes(config.globalConfigId)) {
+        count++
+      }
+    })
+    return count
+  }
+
   render() {
     this.props.globalConfigList?.map((item: any) => (this.globalConfigMap[String(item.id)] = item))
     const columns: ColumnProps<TemplateConfig>[] = [
@@ -568,7 +581,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             {gitList.map((item) => {
               return (
                 
-                <Tabs.TabPane className={styles.tabPanel}  tab={`${item.name}-${item.branchName}-${item.version}`} key={item.id}>
+                <Tabs.TabPane className={styles.tabPanel}  tab={ <Badge count={this.countSignGlobalConfig(item.configList)}><div>{`${item.name}-${item.branchName}-${item.version}`}</div></Badge> } key={item.id}>
                   <div className={styles.templateFilterPanel}>
                     <Input.Group compact>
                       <Select defaultValue={filterType[0].value}
@@ -654,7 +667,12 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                       onChange: this.rowSelectChange
                     }}
                     dataSource={this.filterData(item.configList)}
-                    rowClassName={ (record) => record.isHidden ? styles.disable : ""}
+                    rowClassName={ (record) => {
+                      const className = []                      
+                      className.push( record.isHidden ? styles.disable : "" )
+                      className.push( this.props.signArr.includes(record.globalConfigId) ?  styles.sign: "" )                      
+                      return className.join("")
+                    }}
                     pagination={{
                       showTotal(totle: number) {
                         return `总记录数${totle}`;

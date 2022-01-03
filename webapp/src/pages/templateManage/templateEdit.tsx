@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-31 19:53:28
+ * @LastEditTime: 2022-01-04 00:02:23
  */
 
 import { connect } from 'dva';
@@ -50,6 +50,7 @@ interface State {
   delTooltip: string;
   currentBranch: GitInfoBranch | null;
   publicType: number;
+  signArr: string[];
 }
 
 class TemplateEdit extends React.Component<TemplateEditProps, State> {
@@ -64,6 +65,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
       delTooltip: '',
       updateTimeout: 0,
       publicType: 0,
+      signArr: []
     };
 
     this.onDeleteVersion = this.onDeleteVersion.bind(this);
@@ -75,6 +77,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.onRadioChange = this.onRadioChange.bind(this);
     this.afterCreateVersion = this.afterCreateVersion.bind(this);
     this.onAddGlobalConfig = this.onAddGlobalConfig.bind(this);
+    this.setSignArr = this.setSignArr.bind(this)
   }
 
 
@@ -93,6 +96,13 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
   componentWillUnmount () {
     if (this.delInterval) clearInterval(this.delInterval)
     this.setState = ()=>false
+  }
+
+  setSignArr (data: string[]) {
+    
+    this.setState({
+      signArr: data
+    })
   }
 
   getTemplateInfo (id: string) {
@@ -315,6 +325,8 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                     {/* 全局配置组件 */}
                     <TemplateGlobalConfigComponent
                       onAddGlobalConfig={this.onAddGlobalConfig}
+                      signArr={this.state.signArr}
+                      setSignArr={this.setSignArr}
                     />
 
                 </Description>
@@ -325,7 +337,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                   display="flex"
                   className={styles.gitConfigs}>
                   {/* 配置组件 */}
-                  <TemplateConfigPanel/>
+                  <TemplateConfigPanel signArr={this.state.signArr}/>
                 </Description>
 
                 <Description
