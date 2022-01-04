@@ -1,11 +1,12 @@
 import * as React from 'react'
-import { Modal, Form, Input, Radio, Select, Spin, FormInstance, message } from 'antd'
+import type { FormInstance} from 'antd';
+import { Modal, Form, Input, Radio, Select, Spin, message } from 'antd'
 import { VersionStatus } from '@/models/common';
-import { GitBranch, GitCommit, GitCreateVersionParam, GitInfo, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
+import type { GitBranch, GitCommit, GitCreateVersionParam, GitInfo, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
 import util from '@/utils/utils';
 import { connect } from 'dva';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
-import { ConnectState } from '@/models/connect';
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { ConnectState } from '@/models/connect';
 import { VersionType } from "@/models/common";
 import style from "./styles/createGitVersion.less";
 
@@ -32,8 +33,8 @@ interface Props {
   title?: string;
   versionList?: GitVersion[];
   dispatch: Dispatch;
-  onCancel? (): void;
-  afterAdd? (): void;
+  onCancel?: () => void;
+  afterAdd?: () => void;
 }
 interface States {
   show: boolean;
@@ -110,7 +111,7 @@ class CreateGitVersion extends React.Component<Props, States> {
     this.props.dispatch({
       type: 'git/queryRemoteGitList',
       callback: (list: GitList[]) => {
-        let gitListMap = this.props.gitList.map(item => item.repoId)
+        const gitListMap = this.props.gitList.map(item => item.repoId)
         list = list.filter( item => !gitListMap.includes(Number(item.id)))
         this.setState({
           gitList: list
@@ -160,19 +161,19 @@ class CreateGitVersion extends React.Component<Props, States> {
   }
   onChangeForm (chanedValue: any, values: FormData) {
     
-    if( chanedValue['repoId']) {
-      this.getBranchList(chanedValue['repoId'])
-      this.getTags(chanedValue['repoId'])
+    if( chanedValue.repoId) {
+      this.getBranchList(chanedValue.repoId)
+      this.getTags(chanedValue.repoId)
     }
-    if (chanedValue['branch']) {
-      this.getCommits(values['repoId'] || this.props.repoId!, chanedValue['branch'])
+    if (chanedValue.branch) {
+      this.getCommits(values.repoId || this.props.repoId!, chanedValue.branch)
       this.createGitForm.current?.setFieldsValue({commit:""})
     }
-    if (chanedValue['branchName'] ) {
+    if (chanedValue.branchName ) {
       
       let version
       if (values.originBranchId) {
-        version = '1.0.0-' + chanedValue['branchName']
+        version = '1.0.0-' + chanedValue.branchName
       } else {
         version = '1.0.0'
       }
@@ -180,7 +181,7 @@ class CreateGitVersion extends React.Component<Props, States> {
         version
       })
     }
-    if (chanedValue['originBranchId']) {
+    if (chanedValue.originBranchId) {
       if (values.branchName) {
         this.setState({
           version: '1.0.0-' + values.branchName
@@ -189,11 +190,11 @@ class CreateGitVersion extends React.Component<Props, States> {
       values.originVersionId = "" 
       this.createGitForm.current?.setFieldsValue({"originVersionId":""})
     }
-    if (chanedValue['option']) {      
+    if (chanedValue.option) {      
       const splitArr = this.props.versionList![0].name!.split('-')
       const str = splitArr[0].split('.');
-      str[chanedValue['option']] = Number(str[chanedValue['option']]) + 1 + '';
-      switch (chanedValue['option']) {
+      str[chanedValue.option] = Number(str[chanedValue.option]) + 1 + '';
+      switch (chanedValue.option) {
         case '0': {
           str[1] = '0';
           str[2] = '0';
@@ -270,7 +271,7 @@ class CreateGitVersion extends React.Component<Props, States> {
     const commitDisplay = source === 'commit' ? 'flex' : 'none'
     if ( !this.state.gitList && this.props.mode == 'init' ){
       return(
-        <Spin className={style.gitEditLoading} tip="git列表获取中..." size="large"></Spin>
+        <Spin className={style.gitEditLoading} tip="git列表获取中..." size="large" />
       )
     }
     return (
@@ -327,11 +328,11 @@ class CreateGitVersion extends React.Component<Props, States> {
             this.props.mode == 'init' || this.props.mode == 'branch' ? (
               <>
                 <Form.Item label="分支名称" name="branchName" required>
-                  <Input autoComplete="off"></Input>
+                  <Input autoComplete="off" />
                 </Form.Item>
                 
                 <Form.Item label="分支描述" name="branchDesc" required>
-                  <Input autoComplete="off"></Input>
+                  <Input autoComplete="off" />
                 </Form.Item>
               </>
             ) : null
@@ -425,7 +426,7 @@ class CreateGitVersion extends React.Component<Props, States> {
           </Form.Item>
 
           <Form.Item label="版本描述" name="description" required>
-            <Input autoComplete="off"></Input>
+            <Input autoComplete="off" />
           </Form.Item>
      
           
