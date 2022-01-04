@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 15:32:34
+ * @LastEditTime: 2022-01-04 15:54:25
  */
 import * as childProcess from 'child_process'
 import * as _ from 'lodash';
@@ -53,7 +53,7 @@ class DashUtil {
       // const args = arr.length > 1 ? arr.slice(1, arr.length) : []
       const p = childProcess.exec(command, {
         cwd: this.workdir,
-        maxBuffer: 5000 * 1024,
+        maxBuffer: 1024 * 1024 * 1024,
         env: {
           PATH: process.env.PATH
         }
