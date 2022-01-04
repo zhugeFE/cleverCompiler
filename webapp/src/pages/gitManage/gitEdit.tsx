@@ -73,8 +73,10 @@ class GitEdit extends React.Component<GitEditProps, State> {
       this.getGitInfo(this.props.match.params.id)
     }
   }
-  componentDidUpdate () {    
-    this.outputInput.current?.setValue(this.props.currentVersion.outputName)
+  componentDidUpdate (pre: GitEditProps) {
+    // if (pre.currentVersion.outputName != this.props.currentVersion.outputName) {
+    //   this.outputInput.current?.setValue(this.props.currentVersion.outputName)
+    // }    
     this.delInterval = setInterval( () => this.initDelInterval(this.props.currentVersion), 1000)
   }
   componentWillUnmount () {
@@ -372,7 +374,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       onChange={this.onChangeOutputName} 
                       placeholder="填写项目根目录下的绝对路径：（例：/dist）" 
                       disabled={this.props.currentVersion.status != VersionStatus.normal} 
-                      defaultValue={this.props.currentVersion.outputName} /> 
+                      value={this.props.currentVersion.outputName} /> 
                   </div> : null}
                 </Description>
                 <Description label="是否发布到git">

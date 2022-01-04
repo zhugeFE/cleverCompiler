@@ -1,11 +1,9 @@
-import { UpdateGitStatus } from './../models/git';
-import { GitCreateVersionParam, GitTextConfigParam, GitUpdateVersionParam, GitConfig } from '@/models/git';
+import type { UpdateGitStatus } from './../models/git';
+import type { GitCreateVersionParam, GitTextConfigParam, GitUpdateVersionParam, GitConfig } from '@/models/git';
 import request from '@/utils/request';
 import apis from './constants/apis';
 
-let updateVersionTimer: {
-  [timer: number]: any
-} = {}
+const updateVersionTimer: Record<number, any> = {}
 
 class GitService {
   async queryRemoteGitList() {

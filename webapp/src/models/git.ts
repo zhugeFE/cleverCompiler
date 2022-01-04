@@ -275,7 +275,6 @@ const GitModel: GitModelType = {
     },
     *addConfig ({payload, callback}, {call, put}) {
       const res = yield call(gitService.addConfig, payload)
-      console.log(res);
       
       if (res.status === -1) {
         callback(false)
@@ -405,7 +404,6 @@ const GitModel: GitModelType = {
       const {config} = p as unknown as {
         config: GitConfig;
       }
-      console.log(p);
       
       const res = util.clone(state)
       res!.currentVersion!.configs.push(config)
@@ -419,7 +417,6 @@ const GitModel: GitModelType = {
           res.currentGit!.branchList[i] = res.currentBranch!
         }
       })
-      console.log(res?.currentVersion?.configs);
       
       return res!
     },
