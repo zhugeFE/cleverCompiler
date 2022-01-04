@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 13:24:03
+ * @LastEditTime: 2022-01-04 14:51:16
  */
 import type { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -20,9 +20,9 @@ import util from '@/utils/utils'
 import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled } from '@ant-design/icons'
 import { download } from '@/utils/download'
 import { publicType } from '@/models/common'
+import { wsserver } from '../../../config/proxy'
 
-
-const socket = SocketIO("ws:127.0.0.1:3000", {transports:["websocket"]})
+const socket = SocketIO(wsserver.ws, {transports:["websocket"]})
 
 interface Props extends IRouteComponentProps<{
   id: string;
