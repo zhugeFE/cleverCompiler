@@ -4,23 +4,26 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:33:27
+ * @LastEditTime: 2022-01-04 13:04:46
  */
-import { ConnectState } from '@/models/connect'
+import type { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
-import { CheckboxValueType } from 'antd/lib/checkbox/Group'
+import type { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import TextArea from 'antd/lib/input/TextArea'
 import React from 'react'
 import { withRouter } from 'react-router-dom'
-import { connect, CurrentUser, Dispatch, IRouteComponentProps, ProjectCompileGitParams, ProjectCompileParams } from 'umi'
+import type { CurrentUser, Dispatch, IRouteComponentProps, ProjectCompileGitParams, ProjectCompileParams } from 'umi';
+import { connect } from 'umi'
 import SocketIO from "socket.io-client"
 import styles from "./styles/compileEdit.less"
 import util from '@/utils/utils'
 import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled } from '@ant-design/icons'
-import proxy from "../../../config/proxy"
 import { download } from '@/utils/download'
 import { publicType } from '@/models/common'
-const socket = SocketIO(proxy.dev['/api/'].target, {transports:["websocket"]})
+import {wsserver} from '../../../config/proxy'
+
+
+const socket = SocketIO(wsserver.ws, {transports:["websocket"]})
 
 interface Props extends IRouteComponentProps<{
   id: string;
@@ -265,9 +268,9 @@ class CompileEdit extends React.Component<Props, States> {
     })
   }
 
-  returnSpin (status: string, gitId:string): JSX.Element {
+  returnSpin (status: string, gitId: string): JSX.Element {
     if (status === 'executing') {
-      return <Spin style={{marginLeft:10, color:"#55efc4", fontSize:24}}></Spin>
+      return <Spin style={{marginLeft:10, color:"#55efc4", fontSize:24}} />
     }
     if (status === 'success') {
       return <CheckCircleFilled style={{marginLeft:10, color:"#55efc4", fontSize:24}} />
@@ -337,7 +340,7 @@ class CompileEdit extends React.Component<Props, States> {
                 </Form.Item>
 
                 <Form.Item label="描述">
-                  <TextArea rows={5} value={this.state.description} onChange={this.TextAreaChange}></TextArea>
+                  <TextArea rows={5} value={this.state.description} onChange={this.TextAreaChange} />
                 </Form.Item>
 
                 <Form.Item label="编译结果" className={styles.tabsForm}>
