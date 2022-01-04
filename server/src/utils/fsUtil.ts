@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-17 15:53:27
+ * @LastEditTime: 2022-01-04 19:57:35
  */
 import * as fs from 'fs'
 import * as pt from 'path'
@@ -59,8 +59,9 @@ class FsUtil {
   }
   async getDirTree (targetPath: string, parentDir?: string): Promise<DirNode[]> {
     const res: DirNode[] = []
-    const children = fs.readdirSync(targetPath)
-    const exclude = ['^\\.']
+    const children = await this.readDir(targetPath)
+    // const exclude = ['^\\.']
+    const exclude = []
     const ignorePath = pt.resolve(targetPath, '.gitignore')
     const exist = await this.pathExist(ignorePath)
     if (exist) {
@@ -83,13 +84,14 @@ class FsUtil {
       return match
     }
     for (let i = 0; i < children.length; i++) {
-      const child = children[i]
+      const child = children[i].split('/').pop()
       const childPath = pt.resolve(targetPath, child)
       const stat = fs.statSync(childPath)
       const relativePath = parentDir ? pt.join(parentDir, child) : child
       if (matchIgnore(child)) {
         // nothing
-      } else if (stat.isDirectory()) {
+      } else 
+      if (stat.isDirectory()) {
         res.unshift({
           name: child,
           filePath: relativePath,
