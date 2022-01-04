@@ -1,10 +1,10 @@
    
-import { Effect, Reducer } from '@/.umi/plugin-dva/connect';
-import { TextConfigParam } from '@/pages/gitManage/gitTextConfig';
+import type { Effect, Reducer } from '@/.umi/plugin-dva/connect';
+import type { TextConfigParam } from '@/pages/gitManage/gitTextConfig';
 import gitService from '@/services/git';
-import { ConfigType, Version } from './common';
+import type { ConfigType, Version } from './common';
 import util from '@/utils/utils';
-import { ConnectState } from './connect';
+import type { ConnectState } from './connect';
 
 
 export interface GitList {
@@ -22,9 +22,7 @@ export interface VersionUpdateDocInfo {
 
 export interface GitSelectParams {
   git: GitList[];
-  version:{
-    [propName:string]:string[]
-  }
+  version: Record<string, string[]>
 }
 export interface UpdateGitStatus {
   id: string;
@@ -277,6 +275,8 @@ const GitModel: GitModelType = {
     },
     *addConfig ({payload, callback}, {call, put}) {
       const res = yield call(gitService.addConfig, payload)
+      console.log(res);
+      
       if (res.status === -1) {
         callback(false)
         return
@@ -322,7 +322,7 @@ const GitModel: GitModelType = {
       const param = util.clone(payload)
       param.id = currentState.currentVersion.id
 
-      let res = yield call(gitService.updateVersion, param)
+      const res = yield call(gitService.updateVersion, param)
       if (res && res.status === -1) return
 
       yield put({
@@ -405,6 +405,8 @@ const GitModel: GitModelType = {
       const {config} = p as unknown as {
         config: GitConfig;
       }
+      console.log(p);
+      
       const res = util.clone(state)
       res!.currentVersion!.configs.push(config)
       res?.currentBranch?.versionList.forEach((item, i) => {
@@ -417,6 +419,8 @@ const GitModel: GitModelType = {
           res.currentGit!.branchList[i] = res.currentBranch!
         }
       })
+      console.log(res?.currentVersion?.configs);
+      
       return res!
     },
     _updateConfig(state, p): GitModelState {
@@ -517,10 +521,10 @@ const GitModel: GitModelType = {
         res.currentBranch = payload.branchList[0]
       }
       else if (res.currentGit && res.currentGit?.branchList.length != payload.branchList.length) {    
-        res.currentGit!["branchList"] = payload.branchList
+        res.currentGit!.branchList = payload.branchList
         res.currentBranch = payload.branchList[0]
       } else {
-        res.currentGit!["branchList"] = payload.branchList
+        res.currentGit!.branchList = payload.branchList
         res.currentGit?.branchList.forEach( item => {
           if( item.id == res.currentBranch!.id) {
             res.currentBranch = item
@@ -573,7 +577,7 @@ const GitModel: GitModelType = {
     },
     _updateGitStatus (state, {payload}): GitModelState {
       const res = util.clone(state)!
-      let payloadMap = {}
+      const payloadMap = {}
       payload.map( (item: UpdateGitStatus) => {
         payloadMap[item.id] = item.enable
       })

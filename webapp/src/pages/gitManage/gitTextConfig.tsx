@@ -172,6 +172,7 @@ class GitTextConfig extends React.Component<Props, State> {
       message.error('请选择目标文件')
       return;
     }
+    
     const form = await this.form.current?.validateFields()
     if (!this.props.onSubmit) return
     this.setState({
@@ -290,7 +291,10 @@ class GitTextConfig extends React.Component<Props, State> {
                 }
               </Select>
             </Form.Item>
-            <Form.Item label="替换为" name="targetValue"  required>
+            <Form.Item label="替换为" name="targetValue"  rules={[{
+                required: true,
+                message: '替换值不能为空'
+              }]}>
               <Input autoComplete="off" />
             </Form.Item>
         
