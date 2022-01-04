@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 14:50:44
+ * @LastEditTime: 2022-01-04 14:56:15
  */
 /**
  * 在生产环境 代理是无法生效的，所以这里没有生产环境的配置
@@ -24,5 +24,5 @@ export default {
 };
 
 export const wsserver = {
-  ws: 'ws:localhost:3000'
+  ws: 'ws://localhost:3000'
 }
