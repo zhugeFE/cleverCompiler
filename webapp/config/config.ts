@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-12-21 22:48:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 13:03:40
+ * @LastEditTime: 2022-01-04 13:23:45
  */
 // https://umijs.org/config/
 import { defineConfig } from 'umi';
