@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-03 23:46:15
+ * @LastEditTime: 2022-01-04 10:23:04
  */
 
 import * as React from 'react';
@@ -63,12 +63,13 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
   
 
   onSign (e, config: TemplateGlobalConfig) {
+    let data = []
     if (e.target.innerText == '取消标记') {
-      this.props.setSignArr(this.props.signArr.filter( item => item != config.id))
+      data = this.props.signArr.filter( item => item != config.id)
     }else {
-      this.props.setSignArr([...this.props.signArr, config.id])
+      data = [...this.props.signArr, config.id]
     }
-    e.target.innerText = e.target.innerText == "标记" ? "取消标记" : "标记"
+    this.props.setSignArr(data)
   }
   onEdit(config: TemplateGlobalConfig , type: string){
     switch(type){
@@ -298,7 +299,7 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
               <Button type="primary" danger style={{ marginLeft: '5px' }} onClick={this.onEdit.bind(this, record, 'delete')}>
                 删除
               </Button>
-              <Button type="primary" style={{ marginLeft: '5px' }} onClick={(event) => this.onSign(event,record)}>标记</Button>
+              <Button type="primary" style={{ marginLeft: '5px' }} onClick={(event) => this.onSign(event,record)}>{this.props.signArr.includes(record.id) ? "取消标记" : "标记"}</Button>
             </div>
           );
         },
