@@ -288,7 +288,7 @@ class GitDao {
           ])
         if (lastVersionInfo) {
           await Promise.all(lastVersionInfo.configs.map(config => {
-            return this.addConfig({
+            return  this.addConfig({
               sourceId: config.sourceId, 
               branchId: branchId,
               versionId: versionId, 
