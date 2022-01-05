@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 10:23:04
+ * @LastEditTime: 2022-01-05 11:03:33
  */
 
 import * as React from 'react';
-import {Button, Input, message, Select, Table, Tag } from 'antd';
+import {Button, Input, message, Select, Table } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -18,8 +18,6 @@ import UpdateFileGlobalConfig from './addTemplateGlobalFileConfig';
 import { EditMode, TypeMode, VersionStatus } from '@/models/common';
 import styles from './styles/templateGlobalConfig.less';
 import type { ConnectState } from '@/models/connect';
-import CheckableTag from 'antd/lib/tag/CheckableTag';
-import e from 'express';
 
 
 export interface GitConfigPanelProps {
