@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-31 17:37:52
+ * @LastEditTime: 2022-01-05 10:16:12
  */
 import * as React from 'react'
 import styles from './styles/gitConfig.less'
@@ -121,6 +121,8 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
     }, 300)
   }
  
+  
+
   render () {
     const filterType = [
       {

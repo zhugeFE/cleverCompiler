@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 00:18:31
+ * @LastEditTime: 2022-01-05 10:39:14
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -344,8 +344,24 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     })
   }
 
-  filterData (data: TemplateConfig[]) {    
-    return data.filter( item => {
+  filterData (data: TemplateConfig[]) {   
+    const preData = util.clone(data)
+    const newData = []
+    const signArr = this.props.signArr
+    if (signArr.length ) {
+      signArr.forEach( sign => {
+        preData.forEach( (config, index) => {
+          if (config.globalConfigId == sign){
+            newData.push(config)
+            preData.splice(index,1)
+          }
+        })
+      })
+      newData.push(...preData)
+    } else {
+      newData.push(...preData)
+    }
+    return newData.filter( item => {
       if ( this.state.filterType == 'targetValue' && item.typeId == 1) {
         return JSON.parse(item.targetValue).originalFilename.includes(this.state.filterValue)
       } else if ( this.state.filterType == 'type'){
@@ -389,6 +405,22 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       }
     })
     return count
+  }
+
+  returnActiveKey (): string {
+    const data = this.props.currentVersion.gitList
+    let resStr = this.props.activeKey
+    if (this.props.signArr.length > 0) {
+      for (const git of data) {
+        for (const config of git.configList){
+          if (this.props.signArr.includes(config.globalConfigId)) {
+            resStr = git.id
+            return resStr
+          }
+        }
+      }
+    }
+    return resStr
   }
 
   render() {
@@ -576,7 +608,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             type={this.props.mode == VersionStatus.normal ? 'editable-card' : 'card'}
             className={styles.cardBg}
             onChange={this.onChange}
-            activeKey={this.props.activeKey}
+            activeKey={this.returnActiveKey()}
             onEdit={this.onEdit}>
             {gitList.map((item) => {
               return (
