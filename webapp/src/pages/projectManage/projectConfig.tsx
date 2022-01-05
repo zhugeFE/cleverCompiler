@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 23:09:27
+ * @LastEditTime: 2022-01-05 11:18:10
  */
 
 import { TypeMode } from "@/models/common";
 import type { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
-import { Button, Empty, Input, Select, Table, Tabs } from "antd";
+import { Badge, Button, Empty, Input, Select, Table, Tabs } from "antd";
 import type { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
@@ -23,6 +23,7 @@ interface Props {
   disabled?: boolean;
   globalConfigList: TemplateGlobalConfig[];
   activeKey: string;
+  signArr: string[];
   gitList: TemplateVersionGit[];
   onUpdateConfigHidden: (data: string[]) => void;
   onChangeActiveKey: (activeKey: string) => void;
@@ -133,8 +134,24 @@ class ProjectConfig extends React.Component <Props, States> {
     }, 300)
   }
 
-  filterData (data: TemplateConfig[]) {    
-    return data.filter( item => {
+  filterData (data: TemplateConfig[]) {  
+    const preData = util.clone(data)
+    const newData = []
+    const signArr = this.props.signArr
+    if (signArr.length ) {
+      signArr.forEach( sign => {
+        preData.forEach( (config, index) => {
+          if (config.globalConfigId == sign){
+            newData.push(config)
+            preData.splice(index,1)
+          }
+        })
+      })
+      newData.push(...preData)
+    } else {
+      newData.push(...preData)
+    }  
+    return newData.filter( item => {
       if ( this.state.filterType == 'targetValue' && item.typeId == 1) {
         return JSON.parse(item.targetValue).originalFilename.includes(this.state.filterValue)
       } else if ( this.state.filterType == 'type'){
@@ -147,6 +164,32 @@ class ProjectConfig extends React.Component <Props, States> {
         return item[this.state.filterType]?.includes(this.state.filterValue)
       }
     })
+  }
+
+  countSignGlobalConfig(data: TemplateConfig[]) {
+    let count = 0 
+    data.forEach(config => {
+      if (this.props.signArr.includes(config.globalConfigId)) {
+        count++
+      }
+    })
+    return count
+  }
+
+  returnActiveKey (): string {
+    const data = this.props.gitList
+    let resStr = this.props.activeKey
+    if (this.props.signArr.length > 0) {
+      for (const git of data) {
+        for (const config of git.configList){
+          if (this.props.signArr.includes(config.globalConfigId)) {
+            resStr = git.id
+            return resStr
+          }
+        }
+      }
+    }
+    return resStr
   }
 
   render () {
@@ -290,12 +333,12 @@ class ProjectConfig extends React.Component <Props, States> {
           <Tabs
             type="card"
             className={styles.cardBg}
-            activeKey={this.props.activeKey}
+            activeKey={this.returnActiveKey()}
             onChange={this.onChangeTabs}
             >
             {this.props.gitList.map((item) => {
               return (
-                <Tabs.TabPane className={styles.tabPanel} tab={`${item.name}-${item.version}`} key={item.id}>
+                <Tabs.TabPane className={styles.tabPanel} tab={ <Badge count={this.countSignGlobalConfig(item.configList)}><div>{`${item.name}-${item.branchName}-${item.version}`}</div></Badge> } key={item.id}>
                   <div style={{marginBottom: 10}}>
                     <Input.Group compact>
                       <Select defaultValue={filterType[0].value}
@@ -316,6 +359,11 @@ class ProjectConfig extends React.Component <Props, States> {
                   <Table
                     columns={columns}
                     rowKey="id"
+                    rowClassName={ (record) => {
+                      const className = []                      
+                      className.push( this.props.signArr.includes(record.globalConfigId) ?  styles.sign: "" )                      
+                      return className.join("")
+                    }}
                     dataSource={this.visableSourceData(this.filterData(item.configList))}
                     pagination={{
                       showTotal(totle: number) {

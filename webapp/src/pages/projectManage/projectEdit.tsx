@@ -8,21 +8,21 @@
 import LeftOutlined from '@ant-design/icons/lib/icons/LeftOutlined';
 import { Button, Col, Input, message, Radio, Row, Select, Spin } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
 import React from 'react';
-import { TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersionGit } from "@/models/template"
-import { Member, ProjectInfo } from "@/models/project"
-import { IRouteComponentProps } from '@umijs/renderer-react';
+import type { TemplateConfig, TemplateGlobalConfig, TemplateInfo, TemplateInstance, TemplateVersionGit } from "@/models/template"
+import type { Member, ProjectInfo } from "@/models/project"
+import type { IRouteComponentProps } from '@umijs/renderer-react';
 import { withRouter } from 'react-router';
 import { connect } from 'dva';
-import { Customer } from "@/models/customer";
+import type { Customer } from "@/models/customer";
 import styles from './styles/projectEdit.less';
 import { compileType, EditMode, publicType, TypeMode, VersionStatus } from '@/models/common';
 import ProjectGlobalConfig from './projectGlobalConfig';
 import ProjectConfig from './projectConfig';
-import { ConnectState } from '@/models/connect';
+import type { ConnectState } from '@/models/connect';
 import util from '@/utils/utils';
-import { CurrentUser } from '@/models/user';
+import type { CurrentUser } from '@/models/user';
 
 export interface Props extends IRouteComponentProps<{id: string;}>{
   templateList: TemplateInstance[] | null
@@ -48,6 +48,7 @@ interface States {
   memberList: Member[] | null;
   projectInfo: ProjectInfo | null;
   activeKey: string;
+  signArr: string[];
 }
 
 class ProjectEdit extends React.Component<Props, States> {
@@ -68,7 +69,8 @@ class ProjectEdit extends React.Component<Props, States> {
       customer: "",
       projectInfo: null,
       memberList: null,
-      activeKey: ""
+      activeKey: "",
+      signArr: []
     }
     this.onShareSelectChange = this.onShareSelectChange.bind(this)
     this.onTemplateSelectChange = this.onTemplateSelectChange.bind(this)
@@ -82,6 +84,7 @@ class ProjectEdit extends React.Component<Props, States> {
     this.onChangeActiveKey = this.onChangeActiveKey.bind(this)
     this.onUpdateConfigHidden = this.onUpdateConfigHidden.bind(this)
     this.onUpdateGlobalConfigHidden = this.onUpdateGlobalConfigHidden.bind(this)
+    this.setSignArr = this.setSignArr.bind(this)
   }
 
   async componentDidMount () {
@@ -155,7 +158,7 @@ class ProjectEdit extends React.Component<Props, States> {
     
     await this.props.dispatch({
       type: "customer/getCustomerList",
-      callback: (data: Customer[]) => {
+      callback: () => {
       }
     })
 
@@ -274,11 +277,11 @@ class ProjectEdit extends React.Component<Props, States> {
     // 全局配置内容
     globalConfigList?.forEach(item => {
       if(item.file) {
-        const uid = item.file['file']['uid']
-        const originalFilename = item.file['file']['name']
+        const uid = item.file.file.uid
+        const originalFilename = item.file.file.name
         const newFileName = `${uid}.${originalFilename.split('.')[1]}`
         item.targetValue = JSON.stringify({newFilename: newFileName, originalFilename: originalFilename})
-        form.append(newFileName, item.file['file'])
+        form.append(newFileName, item.file.file)
         delete item.file
       }
     })
@@ -287,11 +290,11 @@ class ProjectEdit extends React.Component<Props, States> {
     gitList?.forEach (git => {
       git.configList.forEach( config => {
         if (config.file) {
-          const uid = config.file['file']['uid']
-          const originalFilename = config.file['file']['name']
+          const uid = config.file.file.uid
+          const originalFilename = config.file.file.name
           const newFileName = `${uid}.${originalFilename.split('.')[1]}`
           config.targetValue = JSON.stringify({newFilename: newFileName , originalFilename: originalFilename})
-          form.append(newFileName, config.file['file'])
+          form.append(newFileName, config.file.file)
           delete config.file
         }
       })
@@ -331,11 +334,11 @@ class ProjectEdit extends React.Component<Props, States> {
 
     globalConfigList?.forEach(item => {
       if(item.file) {
-        const uid = item.file['file']['uid']
-        const originalFilename = item.file['file']['name']
+        const uid = item.file.file.uid
+        const originalFilename = item.file.file.name
         const newFileName = `${uid}.${originalFilename.split('.')[1]}`
         item.targetValue = JSON.stringify({newFilename: newFileName, originalFilename: originalFilename})
-        form.append(newFileName, item.file['file'])
+        form.append(newFileName, item.file.file)
         delete item.file
       }
     })
@@ -343,11 +346,11 @@ class ProjectEdit extends React.Component<Props, States> {
     gitList?.forEach (git => {
       git.configList.forEach( config => {
         if (config.file) {
-          const uid = config.file['file']['uid']
-          const originalFilename = config.file['file']['name']
+          const uid = config.file.file.uid
+          const originalFilename = config.file.file.name
           const newFileName = `${uid}.${originalFilename.split('.')[1]}`
           config.targetValue = JSON.stringify({newFilename: newFileName , originalFilename: originalFilename})
-          form.append(newFileName, config.file['file'])
+          form.append(newFileName, config.file.file)
           delete config.file
         }
       })
@@ -429,11 +432,18 @@ class ProjectEdit extends React.Component<Props, States> {
     })
   }
 
+  setSignArr (data: string[]) {
+    
+    this.setState({
+      signArr: data
+    })
+  }
+
   render() {
     
     if (this.state.showLoading ) {
       return (
-        <Spin className={styles.loading} tip="项目配置详情获取中..." size="large"></Spin>
+        <Spin className={styles.loading} tip="项目配置详情获取中..." size="large" />
       )
     }
 
@@ -459,7 +469,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 disabled={this.state.mode == EditMode.update ||  (this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false)}
                 style={{width: 300}} onChange={(event) => {
                   this.onChangeEdit('name', event)
-                }} defaultValue={this.state.name}></Input>
+                }} defaultValue={this.state.name} />
             </Col>
           </Row>
 
@@ -565,6 +575,9 @@ class ProjectEdit extends React.Component<Props, States> {
               <ProjectGlobalConfig   
                 disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                 globalConfigList={this.state.globalConfigList?.length ? this.state.globalConfigList : []}
+                signArr={this.state.signArr}
+                setSignArr={this.setSignArr}
+                gitList={this.state.gitList!}
                 onUpdateConfig={this.afterUpdateGlobalConfig}
                 onUpdateConfigHidden={this.onUpdateGlobalConfigHidden}
                 />
@@ -582,6 +595,7 @@ class ProjectEdit extends React.Component<Props, States> {
                   gitList={this.state.gitList?.length ? this.state.gitList : []}
                   onUpdateConfigHidden={this.onUpdateConfigHidden}
                   onChangeActiveKey={this.onChangeActiveKey}
+                  signArr={this.state.signArr}
                   />
             </Col>
           </Row>
@@ -619,7 +633,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.description}
                 rows={10} onChange={(event) => {
                   this.onChangeEdit('description', event)
-                }}></TextArea>
+                }} />
             </Col>
           </Row>
           {
@@ -636,7 +650,7 @@ class ProjectEdit extends React.Component<Props, States> {
   }
 }
 
-export default connect( ({ customer, template, user} : ConnectState) => {
+export default connect( ({ customer, template, user}: ConnectState) => {
   return {
     customerList: customer.customerList,
     templateList:template.templateList,

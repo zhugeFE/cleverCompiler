@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 23:10:19
+ * @LastEditTime: 2022-01-05 11:07:51
  */
-import type { TemplateGlobalConfig } from "@/models/template";
+import type { TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
 import type { ColumnProps  } from "antd/lib/table";
 import { Button, Input, Select, Table } from 'antd';
 import { connect } from "dva";
@@ -22,7 +22,10 @@ import GlobalConfigMarage from "./globalConfigMarage";
 
 export interface Props {
   disabled?: boolean;
+  signArr: string[];
+  gitList: TemplateVersionGit[];
   globalConfigList: TemplateGlobalConfig[];
+  setSignArr: (data: string[]) => void;
   onUpdateConfigHidden: (data: string[]) => void;
   onUpdateConfig: (config: TemplateGlobalConfig) => void;
   dispatch: Dispatch;
@@ -136,7 +139,15 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
         }
       })
     }
-
+    onSign (e, config: TemplateGlobalConfig) {
+      let data = []
+      if (e.target.innerText == '取消标记') {
+        data = this.props.signArr.filter( item => item != config.id)
+      }else {
+        data = [...this.props.signArr, config.id]
+      }
+      this.props.setSignArr(data)
+    }
     render () {
       const columns: ColumnProps<TemplateGlobalConfig>[] = [
         { title: '名称', dataIndex: 'name', fixed: 'left' },
@@ -159,6 +170,28 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
         }},        
         { title: '描述', dataIndex: 'description' },
         {
+          title: "引用",
+          render: (record: TemplateGlobalConfig) => {
+            let gitCount = 0
+            let configCount = 0
+            this.props.gitList.forEach( git => {
+              let flag = false
+              git.configList.forEach( config => {
+                if (config.globalConfigId == record.id) {
+                  configCount += 1
+                  flag = true
+                }
+              })
+              if (flag) gitCount++
+            })
+            return (
+              <>
+                {`git: ${gitCount}  config: ${configCount}`}
+              </>
+            )
+          }
+        },
+        {
           title: '操作',
           render: (value: any, record: TemplateGlobalConfig) => {
             return (
@@ -170,6 +203,8 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
                     disabled={this.props.disabled}
                     onClick={() => {this.props.onUpdateConfigHidden([record.id])}}>隐藏</Button>
                 }
+                <Button type="primary" style={{ marginLeft: '5px' }} onClick={(event) => this.onSign(event,record)}>{this.props.signArr.includes(record.id) ? "取消标记" : "标记"}</Button>
+
               </div>
           );
           },
