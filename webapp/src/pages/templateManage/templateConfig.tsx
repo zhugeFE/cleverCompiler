@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 10:39:14
+ * @LastEditTime: 2022-01-05 14:09:21
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -642,6 +642,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                           this.props.mode == VersionStatus.normal &&  (
                             <div>
                               <Select 
+                                className={styles.btn}
                                 placeholder={"切换branch"}
                                 onChange={this.selectGitBranch}>
                                 {
@@ -665,6 +666,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                                 }
                               </Select>
                               <Select
+                                className={styles.btn}
                                 placeholder={"切换version"}
                                 onChange={this.selectGitVersion}
                               >

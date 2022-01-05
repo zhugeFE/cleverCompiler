@@ -1,5 +1,6 @@
 import * as React from 'react'
 import type { FormInstance} from 'antd';
+import { Skeleton} from 'antd';
 import { Modal, Form, Input, Radio, Select, Spin, message } from 'antd'
 import { VersionStatus } from '@/models/common';
 import type { GitBranch, GitCommit, GitCreateVersionParam, GitInfo, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
@@ -49,6 +50,9 @@ interface States {
     tag: boolean;
     commit: boolean;
   };
+  tagPending: boolean;
+  commitPending: boolean;
+  branchPending: boolean;
 }
 
 class CreateGitVersion extends React.Component<Props, States> {
@@ -79,7 +83,10 @@ class CreateGitVersion extends React.Component<Props, States> {
         branch: false,
         tag: false,
         commit: false
-      }
+      },
+      tagPending: false,
+      commitPending: false,
+      branchPending: false
     }
     this.onCommit = this.onCommit.bind(this)
     this.onCancel = this.onCancel.bind(this)
@@ -120,29 +127,40 @@ class CreateGitVersion extends React.Component<Props, States> {
     })
   }
   getBranchList (id: string) {
+    this.setState({
+      branchPending: true
+    })
     this.props.dispatch({
       type: 'git/queryBranchs',
       payload: id,
       callback: (list: GitBranch[]) => {
         this.setState({
-          branchList: list
+          branchList: list,
+          branchPending: false
         })
       }
     })
   }
 
   getTags (id: string) {
+    this.setState({
+      tagPending: true
+    })
     this.props.dispatch({
       type: 'git/queryTags',
       payload: id,
-      callback: (list: GitTag[]) => {
+      callback: (list: GitTag[]) => {        
         this.setState({
-          tags: list
+          tags: list,
+          tagPending: false
         })
       }
     })
   }
   getCommits (id: string, branch: string) {
+    this.setState({
+      commitPending: true
+    })
     this.props.dispatch({
       type: 'git/queryCommits',
       payload: {
@@ -151,7 +169,8 @@ class CreateGitVersion extends React.Component<Props, States> {
       },
       callback: (list: GitCommit[]) => {        
         this.setState({
-          commits: list
+          commits: list,
+          commitPending: false
         })
       }
     })
@@ -342,6 +361,7 @@ class CreateGitVersion extends React.Component<Props, States> {
             <Form.Item label="git来源" name="repoId" required>
               <Select 
                 showSearch
+                allowClear
                 filterOption={this.filterGitRep}>
                 {
                   this.state.gitList!.map(item => 
@@ -358,7 +378,7 @@ class CreateGitVersion extends React.Component<Props, States> {
             </Radio.Group>
           </Form.Item>
           <Form.Item label="branch" name="branch" style={{display: branchDisplay}} required>
-            <Select showSearch={true}>
+            <Select showSearch={true} allowClear loading={this.state.branchPending}>
               {
                 this.state.branchList.map(branch => {
                   return (
@@ -371,7 +391,7 @@ class CreateGitVersion extends React.Component<Props, States> {
             </Select>
           </Form.Item>
           <Form.Item label="tag" name="tag" style={{display: tagDisplay}} required>
-            <Select showSearch={true}>
+            <Select showSearch={true} allowClear loading={this.state.tagPending}>
             {
               this.state.tags.map(tag => {
                 return (
@@ -384,9 +404,13 @@ class CreateGitVersion extends React.Component<Props, States> {
             </Select>
           </Form.Item>
           <Form.Item label="commit" name="commit" style={{display: commitDisplay}} required>
-            <Select showSearch={true} filterOption={this.onFilterCommit}>
+            <Select showSearch={true} filterOption={this.onFilterCommit} allowClear loading={this.state.commitPending}>
             {
-              this.state.commits.map(commit => {
+              this.state.commitPending ? (
+                <Select.Option value="" >
+                  <Skeleton active />
+                </Select.Option>
+              ): this.state.commits.map(commit => {
                 return (
                   <Select.Option value={commit.id} key={commit.id} title={commit.message}>
                     {commit.message}
