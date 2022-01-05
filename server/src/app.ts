@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 22:51:30
+ * @LastEditTime: 2022-01-05 16:44:25
  */
 import * as express from 'express'
 import config from './config'
