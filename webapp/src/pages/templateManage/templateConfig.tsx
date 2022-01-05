@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 14:09:21
+ * @LastEditTime: 2022-01-05 15:11:37
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -182,7 +182,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
   }
 
   //删除gitSource
-  remove(targetKey: string) {
+  remove(targetKey: string) {    
     this.props.dispatch({
       type: 'template/delVersionGit',
       payload: targetKey,

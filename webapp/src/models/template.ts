@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:55:58
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 13:54:06
+ * @LastEditTime: 2022-01-05 15:22:41
  */
 
 import type { Effect, Reducer } from '@/.umi/plugin-dva/connect';
@@ -522,7 +522,7 @@ const TemplateModel: TemplateModelType = {
       res.templateList = payload
       return res
     },
-    setInfo (state, {payload}): TemplateModelState {
+    setInfo (state, {payload}): TemplateModelState {      
       const res = util.clone(state)!
       res.templateInfo = payload
       res.currentVersion = payload.versionList[0]
@@ -640,14 +640,27 @@ const TemplateModel: TemplateModelType = {
       return res
     },
     _delVersionGit (state, {payload}): TemplateModelState {
-      const res = util.clone(state)!
+      
+      const res = util.clone(state)! as TemplateModelState
+      
       res.currentVersion?.gitList.forEach( (item,i) => {
         if (item.id == payload) {
           res.currentVersion?.gitList.splice(i,1)
-          res.currentGitId = res.currentVersion?.gitList.length ? res.currentVersion.gitList[i-1].id : ""
+          if (res.currentVersion?.gitList.length) {
+            if (i-1 >= 0) {
+              res.currentGitId = res.currentVersion.gitList[i-1].id
+            } else {
+              res.currentGitId = res.currentVersion.gitList[0].id
+            }
+          }
+          else {
+            res.currentGitId = ""
+          }
         }
-      })
+      }) 
+           
       res.templateInfo?.versionList.forEach( (item,i) => {
+
         if ( item.id == res.currentVersion!.id) {
           res.templateInfo!.versionList[i] = res.currentVersion!
         }
