@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 11:18:10
+ * @LastEditTime: 2022-01-05 11:23:06
  */
 
 import { TypeMode } from "@/models/common";
@@ -223,9 +223,13 @@ class ProjectConfig extends React.Component <Props, States> {
         title: '类型',
         width: 60,
         dataIndex: 'typeId',
-        render(value) {
-          if (value === 0) return <span>文本</span>;
-          if (value === 1) return <span>文件</span>;
+        render: (value) =>{
+          switch (value) {
+            case 1 :
+              return <span>文件</span>;
+            default :
+            return <span>文本</span>;
+          }
         },
       },
       {
