@@ -4,19 +4,19 @@
  * @Author: Adxiong
  * @Date: 2021-08-10 18:48:36
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-15 10:46:28
+ * @LastEditTime: 2022-01-05 14:56:41
  */
 import { Form, message, Modal, Select } from 'antd';
 import React from 'react';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from 'dva';
 import util from '@/utils/utils';
-import {
+import type {
   CreateTemplateVersionGitParams,
   TemplateVersionGit,
 } from '@/models/template';
-import { GitInfo, GitInstance } from '@/models/git';
-import { ConnectState } from '@/models/connect';
+import type { GitInfo, GitInstance } from '@/models/git';
+import type { ConnectState } from '@/models/connect';
 import { VersionStatus } from '@/models/common';
 import styles from './styles/addGitSource.less'
 const { Option } = Select;
@@ -32,7 +32,7 @@ interface Props {
   existGits: TemplateVersionGit[];
   gitList: GitInstance[];
   gitInfo: GitInfo;
-  onCancel(): void;
+  onCancel: () => void;
   dispatch: Dispatch;
 }
 
@@ -155,7 +155,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
               </Form.Item>
               <Form.Item label="git源分支" name="branch" >
                 <Select>
-                  {gitInfo?.branchList.map((item) => (
+                  {gitList.length && gitInfo?.branchList.map((item) => (
                     <Option value={item.id} key={item.id} title={item.name}>
                       {item.name}
                       <div className={styles.versionDesc}>{item.description}</div>
