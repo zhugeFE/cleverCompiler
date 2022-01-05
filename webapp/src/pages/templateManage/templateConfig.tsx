@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 15:11:37
+ * @LastEditTime: 2022-01-05 15:24:50
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
-import { Badge, Button, Empty, Input, message, Select, Skeleton, Table, Tabs, Tag } from 'antd';
+import { Badge, Button, Empty, Input, message, Select, Skeleton, Table, Tabs } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';

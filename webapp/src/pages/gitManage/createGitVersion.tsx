@@ -406,11 +406,7 @@ class CreateGitVersion extends React.Component<Props, States> {
           <Form.Item label="commit" name="commit" style={{display: commitDisplay}} required>
             <Select showSearch={true} filterOption={this.onFilterCommit} allowClear loading={this.state.commitPending}>
             {
-              this.state.commitPending ? (
-                <Select.Option value="" >
-                  <Skeleton active />
-                </Select.Option>
-              ): this.state.commits.map(commit => {
+             this.state.commits.map(commit => {
                 return (
                   <Select.Option value={commit.id} key={commit.id} title={commit.message}>
                     {commit.message}
