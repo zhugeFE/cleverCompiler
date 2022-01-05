@@ -4,15 +4,17 @@
  * @Author: Adxiong
  * @Date: 2021-11-06 08:50:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-10 16:55:12
+ * @LastEditTime: 2022-01-05 19:23:25
  */
 import { EditMode } from '@/models/common';
-import { GitConfig } from '@/models/git';
+import type { GitConfig } from '@/models/git';
 import { InboxOutlined, LeftOutlined } from '@ant-design/icons';
-import { Button, Form, FormInstance, Input, message, Modal, Tooltip } from 'antd';
+import type { FormInstance} from 'antd';
+import { Button, Form, Input, message, Modal, Tooltip } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
-import { connect, Dispatch } from 'dva';
+import type { Dispatch } from 'dva';
+import { connect } from 'dva';
 import React from 'react';
 import FileTree from "./fileTree";
 import configStyles from './styles/gitAddConfig.less'
@@ -23,9 +25,9 @@ interface Props {
   gitId: string;
   gitVersionId: string;
   configInfo?: GitConfig;
-  onBack? (): void;
-  onCancel (): void;
-  onSubmit(form: FormData, isContinue: boolean): void;
+  onBack?: () => void;
+  onCancel: () => void;
+  onSubmit: (form: FormData, isContinue: boolean) => void;
   dispatch: Dispatch;
 }
 
@@ -60,6 +62,8 @@ class GitFileConfig extends React.Component<Props, State> {
     this.onCancel = this.onCancel.bind(this)
     this.onSelectFile = this.onSelectFile.bind(this)
     this.onFormChange = this.onFormChange.bind(this)
+    this.onContinue = this.onContinue.bind(this)
+    this.resetFields = this.resetFields.bind(this)
   }
 
   onBack () {
@@ -108,9 +112,13 @@ class GitFileConfig extends React.Component<Props, State> {
   }
   async onContinue () {
     await this.onSubmit( null, true)
-    this.gitFileForm.current?.resetFields()
+    this.resetFields()
   }
   
+  resetFields () {
+    const form = this.gitFileForm.current
+    form?.setFieldsValue({description:''})
+  }
   render () {
     return (
       <Modal
@@ -136,7 +144,7 @@ class GitFileConfig extends React.Component<Props, State> {
           defauleSelect={this.props.configInfo?.filePath}
           versionId={this.props.gitVersionId}
           onSelect={this.onSelectFile}
-        ></FileTree>
+         />
         <div className={styles.gitFileConfig}>
           <Form
             ref={this.gitFileForm}
@@ -145,10 +153,10 @@ class GitFileConfig extends React.Component<Props, State> {
             onValuesChange={this.onFormChange}
           >
             <Form.Item required label="目标文件" name="filePath" className={styles.long}>
-              <Input autoComplete="off"></Input>
+              <Input autoComplete="off" />
             </Form.Item>
             <Form.Item required label="描述" name="description" className={styles.long}>
-              <TextArea rows={6}></TextArea>
+              <TextArea rows={6} />
             </Form.Item>
             <Form.Item required label="上传文件" valuePropName="file" name="file">
               <Dragger 
