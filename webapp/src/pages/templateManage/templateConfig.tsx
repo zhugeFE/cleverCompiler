@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 15:24:50
+ * @LastEditTime: 2022-01-06 11:01:55
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -25,7 +25,6 @@ import { EditMode, TypeMode, VersionStatus } from '@/models/common';
 import UpdateTextConfig from "./updateTextConfig";
 import UpdateFileConfig from "./updateFileConfig";
 import type { ConnectState } from '@/models/connect';
-import { divide } from 'lodash';
 
 export interface ConfigPanelProps {
   mode: VersionStatus;
@@ -100,17 +99,20 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
     });
   }
   
-  onChange(activeKey: string) {
+  onChange(activeKey: string) {    
     this.setState({
       currentBranch: ""
     })
     this.getGitInfo(activeKey)
+    this.setCurrentGitId(activeKey)
+  }
+
+  setCurrentGitId (activeKey: string) {
     this.props.dispatch({
       type: "template/setCurrentGitId",
       payload: activeKey
     })
   }
-
   selectGitBranch (value: string) {
     this.setState({
       currentBranch: value
@@ -357,7 +359,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
           }
         })
       })
-      newData.push(...preData)
     } else {
       newData.push(...preData)
     }
@@ -405,22 +406,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       }
     })
     return count
-  }
-
-  returnActiveKey (): string {
-    const data = this.props.currentVersion.gitList
-    let resStr = this.props.activeKey
-    if (this.props.signArr.length > 0) {
-      for (const git of data) {
-        for (const config of git.configList){
-          if (this.props.signArr.includes(config.globalConfigId)) {
-            resStr = git.id
-            return resStr
-          }
-        }
-      }
-    }
-    return resStr
   }
 
   render() {
@@ -564,8 +549,8 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                 res = <UpdateTextConfig
                   mode={EditMode.update}
                   config={currentConfig}
-                  gitId={this.props.gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0].gitSourceId}
-                  gitVersionId={this.props.gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0].gitSourceVersionId}
+                  gitId={gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0].gitSourceId}
+                  gitVersionId={gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0].gitSourceVersionId}
                   onCancel={this.onCancelUpdateConfig}
                   onSubmit={this.afterUpdateConfig}
                  />
@@ -584,7 +569,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             return res
           })())
         }
-        
         {
           //显示添加git
           this.state.showAddGitSource && <AddTemplateGitSourse 
@@ -608,12 +592,14 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             type={this.props.mode == VersionStatus.normal ? 'editable-card' : 'card'}
             className={styles.cardBg}
             onChange={this.onChange}
-            activeKey={this.returnActiveKey()}
+            defaultActiveKey={this.props.activeKey}
             onEdit={this.onEdit}>
             {gitList.map((item) => {
+              const count = this.countSignGlobalConfig(item.configList)
+              if (count > 0 || !this.props.signArr.length)
               return (
                 
-                <Tabs.TabPane className={styles.tabPanel}  tab={ <Badge count={this.countSignGlobalConfig(item.configList)}><div>{`${item.name}-${item.branchName}-${item.version}`}</div></Badge> } key={item.id}>
+                <Tabs.TabPane className={styles.tabPanel}  tab={ <Badge count={count}><div>{`${item.name}-${item.branchName}-${item.version}`}</div></Badge> } key={item.id}>
                   <div className={styles.templateFilterPanel}>
                     <Input.Group compact>
                       <Select defaultValue={filterType[0].value}
