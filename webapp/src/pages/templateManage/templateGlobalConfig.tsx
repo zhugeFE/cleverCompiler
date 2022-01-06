@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 11:03:33
+ * @LastEditTime: 2022-01-06 17:53:54
  */
 
 import * as React from 'react';
@@ -297,7 +297,7 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
               <Button type="primary" danger style={{ marginLeft: '5px' }} onClick={this.onEdit.bind(this, record, 'delete')}>
                 删除
               </Button>
-              <Button type="primary" style={{ marginLeft: '5px' }} onClick={(event) => this.onSign(event,record)}>{this.props.signArr.includes(record.id) ? "取消标记" : "标记"}</Button>
+              <Button type="primary" style={{ marginLeft: '5px' }} onClick={(event) => this.onSign(event,record)}>{this.props.signArr.includes(record.id) ? "关闭引用" : "查看引用"}</Button>
             </div>
           );
         },
