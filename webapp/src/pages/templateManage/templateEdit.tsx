@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 00:02:23
+ * @LastEditTime: 2022-01-06 17:44:27
  */
 
 import { connect } from 'dva';
@@ -296,9 +296,9 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
 
           </span>
         </div>
-      
         {
-          this.props.templateInfo?.versionList.length ? (
+          this.props.match.params.id != 'createTemplate'
+              ? (
             <div className={styles.gitPanelCenter}>
               <TimeLinePanel/>
               <div className={styles.gitDetail}>
