@@ -477,6 +477,7 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>客户</Col>
             <Col span={wrapperCol}>
               <Select
+                showSearch
                 defaultValue={this.state.customer}
                 placeholder="请选择"
                 style={{ width: 200 }}
@@ -495,7 +496,8 @@ class ProjectEdit extends React.Component<Props, States> {
           <Row className={styles.rowMargin}>
             <Col span={labelCol}>编译类型：</Col>
             <Col span={wrapperCol}>
-              <Select 
+              <Select
+                showSearch
                 defaultValue={this.state.compileType}
                 placeholder="请选择"
                 style={{width: 200}}
@@ -515,6 +517,7 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>模板：</Col>
             <Col span={wrapperCol} className={styles.colFlex}>
               <Select
+                showSearch
                 defaultValue={this.state.templateId}
                 placeholder="请选择"
                 disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
@@ -533,6 +536,7 @@ class ProjectEdit extends React.Component<Props, States> {
               {
                 this.state.templateVersionId && 
                 <Select
+                  showSearch
                   value={this.state.templateVersionId}
                   disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                   style={{width: 200}}
