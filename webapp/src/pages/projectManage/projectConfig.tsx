@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 11:23:06
+ * @LastEditTime: 2022-01-06 11:31:27
  */
 
 import { TypeMode } from "@/models/common";
@@ -147,7 +147,6 @@ class ProjectConfig extends React.Component <Props, States> {
           }
         })
       })
-      newData.push(...preData)
     } else {
       newData.push(...preData)
     }  
@@ -337,12 +336,14 @@ class ProjectConfig extends React.Component <Props, States> {
           <Tabs
             type="card"
             className={styles.cardBg}
-            activeKey={this.returnActiveKey()}
+            defaultActiveKey={this.props.activeKey}
             onChange={this.onChangeTabs}
             >
             {this.props.gitList.map((item) => {
+              const count = this.countSignGlobalConfig(item.configList)
+              if (count > 0 || !this.props.signArr.length)
               return (
-                <Tabs.TabPane className={styles.tabPanel} tab={ <Badge count={this.countSignGlobalConfig(item.configList)}><div>{`${item.name}-${item.branchName}-${item.version}`}</div></Badge> } key={item.id}>
+                <Tabs.TabPane className={styles.tabPanel} tab={ <Badge count={count}><div>{`${item.name}-${item.branchName}-${item.version}`}</div></Badge> } key={item.id}>
                   <div style={{marginBottom: 10}}>
                     <Input.Group compact>
                       <Select defaultValue={filterType[0].value}
