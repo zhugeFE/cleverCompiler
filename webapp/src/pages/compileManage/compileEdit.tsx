@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 14:51:16
+ * @LastEditTime: 2022-01-06 17:34:10
  */
 import type { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
@@ -309,7 +309,7 @@ class CompileEdit extends React.Component<Props, States> {
           <Form.Item 
             label="配置名称"
           >
-             <Select onChange={this.selectProject} value={this.state.projectId}> 
+             <Select onChange={this.selectProject} value={this.state.projectId} showSearch> 
                 {
                   this.state.projectList?.map( item => {
                     return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>

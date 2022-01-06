@@ -89,7 +89,7 @@ class GitTextConfig extends React.Component<Props, State> {
       }
     }
   }
-  onSelectFile (filePath: string) {
+  onSelectFile (filePath: string) {    
     this.props.dispatch({
       type: 'git/getFileContent',
       payload: filePath,
