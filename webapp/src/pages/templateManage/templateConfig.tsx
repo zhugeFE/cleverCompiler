@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-06 11:01:55
+ * @LastEditTime: 2022-01-07 17:59:03
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
@@ -271,7 +271,6 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             })
           }
         })
-        return 
       }
     }
   }
@@ -549,8 +548,8 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
                 res = <UpdateTextConfig
                   mode={EditMode.update}
                   config={currentConfig}
-                  gitId={gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0].gitSourceId}
-                  gitVersionId={gitList.filter(git => currentConfig.templateVersionGitId == git.id)[0].gitSourceVersionId}
+                  gitId={gitList.filter(git => this.props.activeKey == git.id)[0].gitSourceId}
+                  gitVersionId={gitList.filter(git => this.props.activeKey == git.id)[0].gitSourceVersionId}
                   onCancel={this.onCancelUpdateConfig}
                   onSubmit={this.afterUpdateConfig}
                  />
