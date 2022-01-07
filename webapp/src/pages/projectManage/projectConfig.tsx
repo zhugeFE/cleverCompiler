@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-06 11:31:27
+ * @LastEditTime: 2022-01-07 18:03:26
  */
 
 import { TypeMode } from "@/models/common";
@@ -296,8 +296,8 @@ class ProjectConfig extends React.Component <Props, States> {
             this.state.currentConfig.typeId == TypeMode.text ? (
               <TextConfigEdit
                 config={this.state.currentConfig}
-                gitId={this.props.gitList[0].gitSourceId}
-                gitVersionId={this.props.gitList[0].gitSourceVersionId}
+                gitId={this.props.gitList.filter(item => item.id == this.props.activeKey)[0].gitSourceId}
+                gitVersionId={this.props.gitList.filter(item => item.id == this.props.activeKey)[0].gitSourceVersionId}
                 onCancel={this.onCancelEditConfig}
                 onSubmit={this.afterUpdateConfig}
                />
