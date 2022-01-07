@@ -4,17 +4,15 @@
  * @Author: Adxiong
  * @Date: 2021-08-06 16:01:47
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-15 14:56:09
+ * @LastEditTime: 2022-01-07 11:14:23
  */
 
 import request from "@/utils/request";
 import api from "./constants/apis";
-import { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus, ChangeGitVersionParams } from "@/models/template";
+import type { TemplateCreateParam, CreateTemplateVersionParams, TemplateVersion, CreateTemplateGlobalConfigParams, TemplateGlobalConfig, CreateTemplateVersionGitParams, UpdateConfigParam, UpdateTemplateStatus, ChangeGitVersionParams } from "@/models/template";
 
 
-let updateVersionTimer: {
-  [timer: number]: any
-} = {}
+// const updateVersionTimer: Record<number, any> = {}
 
 class TemplateService {
   async queryTemplateList () {
@@ -100,7 +98,7 @@ class TemplateService {
     })
   }
 
-  async delVersion (id : string) {
+  async delVersion (id: string) {
     return request(api.template.delVersion , {
       method:"delete",
       params:{
@@ -110,23 +108,27 @@ class TemplateService {
   }
 
   async updateVersion ( data: TemplateVersion) {
-    for (const timer in updateVersionTimer) {
-      clearTimeout(Number(timer))
-      updateVersionTimer[timer]()
-      delete updateVersionTimer[timer]
-    }
-    const d = await new Promise((resolve) => {
-      const timer = setTimeout(() => {
-        const res = request(api.template.updateVersion, {
-          method:"post",
-          data
-        })
-        delete updateVersionTimer[Number(timer)]
-        resolve(res)
-      }, 500)
-      updateVersionTimer[Number(timer)] = resolve
+    // for (const timer in updateVersionTimer) {
+    //   clearTimeout(Number(timer))
+    //   updateVersionTimer[timer]()
+    //   delete updateVersionTimer[timer]
+    // }
+    // const d = await new Promise((resolve) => {
+    //   const timer = setTimeout(() => {
+    //     const res = request(api.template.updateVersion, {
+    //       method:"post",
+    //       data
+    //     })
+    //     delete updateVersionTimer[Number(timer)]
+    //     resolve(res)
+    //   }, 500)
+    //   updateVersionTimer[Number(timer)] = resolve
+    // })
+    // return d
+    return request(api.template.updateVersion, {
+      method:"post",
+      data
     })
-    return d
   }
 
 
@@ -145,7 +147,7 @@ class TemplateService {
   }
   
 
-  async delVersionGit (id : string) {
+  async delVersionGit (id: string) {
     return request(api.template.delVersionGit , {
       method:"delete",
       params:{

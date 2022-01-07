@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-04 15:09:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-06 17:44:27
+ * @LastEditTime: 2022-01-07 11:26:02
  */
 
 import { connect } from 'dva';
@@ -14,7 +14,7 @@ import { withRouter } from 'react-router';
 import type { IRouteComponentProps } from '@umijs/renderer-react';
 import type { Dispatch, GitInfoBranch } from '@/.umi/plugin-dva/connect';
 import type { RadioChangeEvent} from 'antd';
-import { Button, message, Progress, Radio, Spin, Tabs, Tag, Tooltip } from 'antd';
+import { message, Progress, Radio, Spin, Tabs, Tag, Tooltip } from 'antd';
 import type {
   TemplateInfo,
   TemplateVersion,
@@ -55,6 +55,7 @@ interface State {
 
 class TemplateEdit extends React.Component<TemplateEditProps, State> {
   delInterval?: NodeJS.Timeout;
+  deboundtimerId?: NodeJS.Timeout;
   constructor(prop: TemplateEditProps) {
     super(prop);
     this.state = {
@@ -78,6 +79,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     this.afterCreateVersion = this.afterCreateVersion.bind(this);
     this.onAddGlobalConfig = this.onAddGlobalConfig.bind(this);
     this.setSignArr = this.setSignArr.bind(this)
+    this.updateVersion = this.updateVersion.bind(this)
   }
 
 
@@ -140,38 +142,50 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
     })
   }
   
-  updateVersion(param: object) {
+  debounce (fn: (param: Record<string, string | number>) => void, wait: number = 500) {
+    return (obj: Record<string, string | number>) => {
+      if (this.deboundtimerId) {
+        clearTimeout(this.deboundtimerId)
+      }
+      this.deboundtimerId = setTimeout(() => { 
+        fn(obj)      
+      }, wait);
+    }
+  }
+
+  updateVersion(param: Record<string, string | number>) {
     this.props.dispatch({
       type: 'template/updateVersion',
       payload: param,
     })
   }
-  //修改操作文档，同步更新状态
+  //修改操作文档，更新状态
   onChangeReadme(content: string) {
     const readmeDoc = content
-    this.updateVersion({
-      readmeDoc
-    })
+    this.debounce(this.updateVersion)({readmeDoc})
   }
-  //操作部署文档，同步更新状态
+
+  //操作部署文档，更新状态
   onChangeBuild(content: string) {
     const buildDoc = content
-    this.updateVersion({
-      buildDoc
-    })
+    this.debounce(this.updateVersion)({buildDoc})
   }
-  //修改更新文档，同步更新状态
+  
+  onChangeBuildUpdate (content: string) {
+    const buildUpdateDoc = content
+    this.debounce(this.updateVersion)({buildUpdateDoc})
+  }
+
+  //修改更新文档，更新状态
   onChangeUpdate(content: string) {
     const updateDoc = content
-    this.updateVersion({
-      updateDoc
-    })
+    this.debounce(this.updateVersion)({updateDoc})
   }
 
   onRadioChange (e: RadioChangeEvent) {
-    const publicType = e.target.value
+    const publictype = e.target.value
     this.updateVersion({
-      publicType
+      publictype
     })
   }
 
@@ -358,19 +372,33 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                     {
                       this.props.currentVersion && (
                         <Markdown
+                          key={this.props.currentGitId}
                           DisabledEdit={true}
                           content={this.props.currentVersion.readmeDoc}
                          />
                       )
                     }
                   </Tabs.TabPane>
-                  <Tabs.TabPane tab="部署文档" key="build">
+                  <Tabs.TabPane tab="完整部署文档" key="build1">
                     {
                       this.props.currentVersion && (
                         <Markdown
                           // onChange={this.onChangeBuild}
+                          key={this.props.currentGitId}
                           DisabledEdit={true}
                           content={this.props.currentVersion.buildDoc}
+                         />
+                      )
+                    }
+                  </Tabs.TabPane>
+                  <Tabs.TabPane tab="部署更新文档" key="build2">
+                    {
+                      this.props.currentVersion && (
+                        <Markdown
+                          // onChange={this.onChangeBuild}
+                          key={this.props.currentGitId}
+                          DisabledEdit={true}
+                          content={this.props.currentVersion.buildUpdateDoc}
                          />
                       )
                     }
@@ -380,6 +408,7 @@ class TemplateEdit extends React.Component<TemplateEditProps, State> {
                       this.props.currentVersion && (
                         <Markdown
                           // onChange={this.onChangeUpdate}
+                          key={this.props.currentGitId}
                           DisabledEdit={true}
                           content={this.props.currentVersion.updateDoc}
                          />
