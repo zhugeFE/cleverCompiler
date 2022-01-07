@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 19:34:01
+ * @LastEditTime: 2022-01-07 11:08:56
  */
 import * as React from 'react'
 import * as ReactMarkdown from 'react-markdown'
@@ -15,7 +15,8 @@ import { EditOutlined, FileMarkdownOutlined, FullscreenOutlined } from '@ant-des
 interface Props {
   content: string;
   DisabledEdit?: boolean;
-  onChange ?(content: string): void;
+  key: string;
+  onChange?: (content: string) => void;
 }
 enum Mode {
   preview = 'preview',
@@ -25,12 +26,19 @@ interface State {
   mode: Mode
 }
 class Markdown extends React.Component<Props, State> {
-  constructor (props: Props, state: State) {
+  constructor (props: Props) {
     super(props)
     this.state = {
       mode: Mode.preview
     }
     this.onChange = this.onChange.bind(this)
+  }
+  componentDidUpdate(pre: Props) {
+    if (pre.key != this.props.key) {
+      this.setState({
+        mode: Mode.preview
+      })
+    }
   }
   onTogleMode () {
     if( this.props.DisabledEdit ) {
@@ -64,12 +72,12 @@ class Markdown extends React.Component<Props, State> {
             <Input.TextArea 
               className="markdown-editor" 
               autoSize={{maxRows: 30, minRows: 10}}
-              value={this.props.content} onChange={this.onChange}></Input.TextArea>
+              defaultValue={this.props.content} onChange={this.onChange} />
           )
         } else {
           return (
             <div className="markdown-preview">
-              <ReactMarkdown children={this.props.content}></ReactMarkdown>
+              <ReactMarkdown children={this.props.content} />
             </div>
           )
         }

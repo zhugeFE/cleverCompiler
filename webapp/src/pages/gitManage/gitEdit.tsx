@@ -38,6 +38,7 @@ interface State {
 class GitEdit extends React.Component<GitEditProps, State> {
   delInterval?: NodeJS.Timeout;
   outputInput= React.createRef<Input>()
+  deboundtimerId?: NodeJS.Timeout 
   constructor (props: GitEditProps) {
     super(props)
     this.state = {
@@ -64,6 +65,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onDeleteBranch = this.onDeleteBranch.bind(this)
     this.selectPubliceGit = this.selectPubliceGit.bind(this)
     this.onRadioChange = this.onRadioChange.bind(this)
+    this.updateVersion = this.updateVersion.bind(this)
   }
 
   componentDidMount () {
@@ -73,10 +75,10 @@ class GitEdit extends React.Component<GitEditProps, State> {
       this.getGitInfo(this.props.match.params.id)
     }
   }
-  componentDidUpdate (pre: GitEditProps) {
-    // if (pre.currentVersion.outputName != this.props.currentVersion.outputName) {
-    //   this.outputInput.current?.setValue(this.props.currentVersion.outputName)
-    // }    
+  componentDidUpdate (pre: GitEditProps) {    
+    if (pre.currentVersion && pre.currentVersion.outputName != this.props.currentVersion.outputName) {
+      this.outputInput.current?.setValue(this.props.currentVersion.outputName)
+    }    
     this.delInterval = setInterval( () => this.initDelInterval(this.props.currentVersion), 1000)
   }
   componentWillUnmount () {
@@ -181,11 +183,20 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.props.history.goBack()
   }
 
+  debounce (fn: (param: Record<string, string | number>) => void, wait: number = 500) {
+    return (obj: Record<string, string | number>) => {
+      if (this.deboundtimerId) {
+        clearTimeout(this.deboundtimerId)
+      }
+      this.deboundtimerId = setTimeout(() => { 
+        fn(obj)      
+      }, wait);
+    }
+  }
+
   onChangeOutputName (event: any) {    
     const outputName = event.target.value
-    this.updateVersion({
-      outputName
-    })
+    this.debounce(this.updateVersion)({outputName})
   }
 
   afterAddConfig (isContonue: boolean) {
@@ -237,31 +248,23 @@ class GitEdit extends React.Component<GitEditProps, State> {
   }
   onChangeReadme (content: string) {
     const readmeDoc = content
-    this.updateVersion({
-      readmeDoc
-    })
+    this.debounce(this.updateVersion)({readmeDoc})
   }
 
   onChangeBuild (content: string) {
     const buildDoc = content
-    this.updateVersion({
-      buildDoc
-    })
+    this.debounce(this.updateVersion)({buildDoc})
   }
 
 
   onChangeBuildUpdate (content: string) {
     const buildUpdateDoc = content
-    this.updateVersion({
-      buildUpdateDoc
-    })
+    this.debounce(this.updateVersion)({buildUpdateDoc})
   }
 
   onChangeUpdate (content: string) {    
     const updateDoc = content
-    this.updateVersion({
-      updateDoc
-    })
+    this.debounce(this.updateVersion)({updateDoc})
   }
 
   selectPubliceGit (id: number) {
@@ -278,12 +281,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
 
-  updateVersion (param: object) {
+  updateVersion (param: Record<string, string | number>) {
     this.props.dispatch({
       type: 'git/updateVersion',
       payload: param
     })
-    
   }
 
   render () {
@@ -374,7 +376,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       onChange={this.onChangeOutputName} 
                       placeholder="填写项目根目录下的绝对路径：（例：/dist）" 
                       disabled={this.props.currentVersion.status != VersionStatus.normal} 
-                      value={this.props.currentVersion.outputName} /> 
+                      defaultValue={this.props.currentVersion.outputName} /> 
                   </div> : null}
                 </Description>
                 <Description label="是否发布到git">
@@ -417,16 +419,16 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 }
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeReadme} content={this.props.currentVersion.readmeDoc} /> : null}
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeReadme} key={this.props.currentVersion.id} content={this.props.currentVersion.readmeDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="完整部署文档" key="build1">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuild} content={this.props.currentVersion.buildDoc} /> : null}
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuild} key={this.props.currentVersion.id} content={this.props.currentVersion.buildDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署更新文档" key="build2">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuildUpdate} content={this.props.currentVersion.buildUpdateDoc} /> : null}
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuildUpdate} key={this.props.currentVersion.id} content={this.props.currentVersion.buildUpdateDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeUpdate} content={this.props.currentVersion.updateDoc} /> : null}
+                    {this.props.currentVersion ? <Markdown onChange={this.onChangeUpdate} key={this.props.currentVersion.id} content={this.props.currentVersion.updateDoc} /> : null}
                   </Tabs.TabPane>
                 </Tabs>
               </div>
