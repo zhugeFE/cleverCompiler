@@ -419,16 +419,40 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 }
                 <Tabs defaultActiveKey="readme" style={{margin: '10px 15px'}}>
                   <Tabs.TabPane tab="使用文档" key="readme">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeReadme} key={this.props.currentVersion.id} content={this.props.currentVersion.readmeDoc} /> : null}
+                    {
+                    this.props.currentVersion ? 
+                      <Markdown
+                        DisabledEdit={this.props.currentVersion.status != VersionStatus.normal}
+                        onChange={this.onChangeReadme} 
+                        key={this.props.currentVersion.id} 
+                        content={this.props.currentVersion.readmeDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="完整部署文档" key="build1">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuild} key={this.props.currentVersion.id} content={this.props.currentVersion.buildDoc} /> : null}
+                    {
+                    this.props.currentVersion ? 
+                    <Markdown 
+                      onChange={this.onChangeBuild} 
+                      DisabledEdit={this.props.currentVersion.status != VersionStatus.normal}
+                      key={this.props.currentVersion.id} 
+                      content={this.props.currentVersion.buildDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署更新文档" key="build2">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeBuildUpdate} key={this.props.currentVersion.id} content={this.props.currentVersion.buildUpdateDoc} /> : null}
+                    {
+                    this.props.currentVersion ? 
+                    <Markdown 
+                      onChange={this.onChangeBuildUpdate} 
+                      DisabledEdit={this.props.currentVersion.status != VersionStatus.normal}
+                      key={this.props.currentVersion.id} 
+                      content={this.props.currentVersion.buildUpdateDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
-                    {this.props.currentVersion ? <Markdown onChange={this.onChangeUpdate} key={this.props.currentVersion.id} content={this.props.currentVersion.updateDoc} /> : null}
+                    {
+                    this.props.currentVersion ? 
+                    <Markdown 
+                      onChange={this.onChangeUpdate} 
+                      DisabledEdit={this.props.currentVersion.status != VersionStatus.normal}
+                      key={this.props.currentVersion.id} 
+                      content={this.props.currentVersion.updateDoc} /> : null}
                   </Tabs.TabPane>
                 </Tabs>
               </div>
