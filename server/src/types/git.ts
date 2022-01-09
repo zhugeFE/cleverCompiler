@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-24 16:00:55
+ * @LastEditTime: 2022-01-07 18:49:58
  */
 import { Version } from './common';
 
@@ -57,6 +57,9 @@ export interface GitTag {
   commit: GitCommit;
 }
 export interface GitCreateVersionParam {
+  dispatch: boolean; // 'dispatch' 派生
+  projectName: string;
+  dir: string;
   gitId: string; // git id（这里指编译平台里面的id）
   repoId: string;
   version: string; // 版本号

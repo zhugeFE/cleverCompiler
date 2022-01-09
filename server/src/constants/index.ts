@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-15 18:53:01
+ * @LastEditTime: 2022-01-09 23:05:35
  */
 enum ConfigType {
   str,
@@ -15,6 +15,7 @@ enum SysStatus {
   inited
 }
 enum RoleType {
+  admin,
   yunwei,
   supportor,
   developer,

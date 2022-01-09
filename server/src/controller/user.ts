@@ -1,7 +1,15 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2022-01-04 14:50:02
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2022-01-09 19:18:50
+ */
 import {Router, Response, Request, NextFunction} from 'express'
 import userService from '../service/user';
 import { ResponseStatus, ApiResult } from '../types/apiResult';
-import { LoginParam } from '../types/user';
+import { LoginParam, RegistParam } from '../types/user';
 import * as Joi from '@hapi/joi'
 const router = Router()
 
@@ -12,6 +20,23 @@ router.get('/getCurrent', (req: Request, res: Response) => {
     res.json(new ApiResult(ResponseStatus.notLoggin, null, '系统未登录'))
   }
 })
+router.post('/regist', (req: Request, res: Response, next: NextFunction) => {
+  const param: RegistParam = req.body
+  const validation: Joi.ValidationResult = Joi.object({
+    username: Joi.string().required(),
+    password: Joi.string().required(),
+    email: Joi.string().required()
+  }).validate(param)
+  if (validation.error) {
+    res.json(new ApiResult(ResponseStatus.paramError, null, '参数错误'))
+    return
+  }
+  userService.regist(param)
+    .then(result => {
+      res.json(result)
+    }).catch(next)
+})
+
 router.post('/login', (req: Request, res: Response, next: NextFunction) => {
   const param: LoginParam = req.body
   const validation: Joi.ValidationResult = Joi.object({

@@ -4,10 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-04 16:17:20
+ * @LastEditTime: 2022-01-09 19:31:40
  */
 import * as childProcess from 'child_process'
-import * as _ from 'lodash';
 import logger from './logger';
 import * as path from 'path';
 import fsUtil from './fsUtil';

@@ -1,10 +1,9 @@
-import { TemplateVersion } from './../types/template';
-import { BranchUpdateDocInfo, GitInfoBranch, UpdateConfigParam, VersionUpdateDocInfo } from './../types/git';
+import { BranchUpdateDocInfo, GitInfoBranch, UpdateConfigParam, VersionUpdateDocInfo, GitVersion, GitBranch } from './../types/git';
 import { GitList, UpdateGitStatus } from './../types/git';
 import pool from './pool'
 import sysDao from './sys'
 import axios from 'axios'
-import { GitInstance, GitInfo, GitBranch, GitTag, GitCommit, GitCreateVersionParam, GitVersion, GitCreateConfigParam, GitConfig } from '../types/git';
+import { GitInstance, GitInfo, GitTag, GitCommit, GitCreateVersionParam, GitCreateConfigParam, GitConfig } from '../types/git';
 import logger from '../utils/logger';
 import util from '../utils/util';
 import { VersionStatus } from '../types/common';
@@ -205,8 +204,40 @@ class GitDao {
     const connect = await pool.beginTransaction()
     const versionId = util.uuid()
     try {
-      // 判断是否为初始版本
-      if ( param.repoId !== "" && param.gitId == "") {
+      const sql = `
+          INSERT INTO git_source ( id, \`NAME\`, git, git_id, description, \`ENABLE\`,creator_id )
+          VALUES
+            (?, ?, ?, ?, ?, ?, ?)
+        `
+      const createBranchSql = `INSERT INTO source_branch(id, name, description, create_time, source_id, creator) VALUES(?,?,?,?,?,?)`
+      const createVersionSql = `INSERT INTO source_version ( id, source_id, version, branch_id,
+        description, publish_time, status, compile_orders, source_type, source_value, creator_id,output_name, public_type, public_git, build_doc )
+      VALUES
+        ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+
+      if ( param.dispatch) {
+        //派生版本创建
+        const originGitInfo: GitInfo = await this.getInfo(param.gitId)
+        let originVersionInfo: GitVersion 
+        
+        for (let i = 0 ; i < originGitInfo.branchList.length ; i++) {
+          const versionlist = originGitInfo.branchList[i].versionList
+          for (let j = 0 ; j < versionlist.length; j ++) {
+            if (versionlist[j].id == param.originVersionId) {
+              originVersionInfo = versionlist[j]
+              break
+            }
+          }
+        }
+        originVersionInfo.configs.forEach ( (item ,i ) => {
+          if (!item.filePath.startsWith(param.dir)){
+            originVersionInfo.configs.splice(i,1)
+          }
+        })
+        
+
+      }
+      else if ( param.repoId !== "" && param.gitId == "") { // 判断是否为初始版本
         // 初始版本的话，从git获取库信息，存入git_source中
         const sysInfo = await sysDao.getSysInfo()
         const res = await axios({
@@ -219,11 +250,7 @@ class GitDao {
         }) as {
           data: Repo;
         }
-        const sql = `
-          INSERT INTO git_source ( id, \`NAME\`, git, git_id, description, \`ENABLE\`,creator_id )
-          VALUES
-            (?, ?, ?, ?, ?, ?, ?)
-        `
+        
         gitId = util.uuid() //编译平台里的gitid
         await pool.writeInTransaction(connect, sql, [
           gitId,
@@ -237,11 +264,6 @@ class GitDao {
       }
       //需新建分支
       let branchId = param.branchId
-      const createBranchSql = `INSERT INTO source_branch(id, name, description, create_time, source_id, creator) VALUES(?,?,?,?,?,?)`
-      const createVersionSql = `INSERT INTO source_version ( id, source_id, version, branch_id,
-        description, publish_time, status, compile_orders, source_type, source_value, creator_id,output_name, public_type, public_git, build_doc )
-      VALUES
-        ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 
       if (branchId == "") {
         branchId = util.uuid()
@@ -308,6 +330,7 @@ class GitDao {
       throw(err)
     }
   }
+
   async getBranchById (branchId: string): Promise<GitInfoBranch> {
     const sql = `select * from _branch where id = ?`
     const branch = await pool.query<GitInfoBranch>(sql, [branchId])

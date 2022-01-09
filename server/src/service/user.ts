@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-09-03 22:51:17
+ * @LastEditTime: 2022-01-09 19:20:21
  */
 import { ApiResult, ResponseStatus } from "../types/apiResult"
-import { User, LoginParam } from '../types/user';
+import { User, LoginParam, RegistParam } from '../types/user';
 import userDao from "../dao/user";
 import logger from '../utils/logger';
 
@@ -24,6 +24,14 @@ const userService = {
       const result = new ApiResult(ResponseStatus.fail, null, '用户名或密码错误')
       logger.error('登录失败', param)
       return result
+    }
+  },
+  async regist (param: RegistParam): Promise<ApiResult> {
+    try {
+      await userDao.regist(param)
+      return new ApiResult(ResponseStatus.success) 
+    } catch (e) {
+      return new ApiResult(ResponseStatus.fail, null, '注册失败')
     }
   }
 }

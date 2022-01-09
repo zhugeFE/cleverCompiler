@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Adxiong
+ * @Date: 2022-01-04 14:50:02
+ * @LastEditors: Adxiong
+ * @LastEditTime: 2022-01-09 19:22:32
+ */
 import pool from './pool'
 import { PoolConnection } from 'mysql'
 import { SysInfo, ConfigType, Role } from '../types/sys';
@@ -81,6 +89,7 @@ class SysDao {
   async initRole (conn: PoolConnection): Promise<void> {
     const sql = 'insert into role(id, name) values(?,?)'
     const roles = [
+      '管理员',
       '运维',
       '技术支持',
       '研发',
