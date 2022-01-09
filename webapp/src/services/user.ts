@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2022-01-04 14:50:02
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-09 17:55:55
+ * @LastEditTime: 2022-01-10 00:08:12
  */
 import request from '@/utils/request';
 import apis from './constants/apis';
@@ -20,6 +20,9 @@ export interface RegistParam {
   email: string;
 }
 class UserServices {
+  async list () {
+    return request(apis.user.list)
+  }
   async login (data: LoginParam) {
     return request(apis.user.login, {
       data,

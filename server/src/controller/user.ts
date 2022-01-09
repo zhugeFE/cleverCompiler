@@ -4,14 +4,28 @@
  * @Author: Adxiong
  * @Date: 2022-01-04 14:50:02
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-09 19:18:50
+ * @LastEditTime: 2022-01-10 00:32:22
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import userService from '../service/user';
 import { ResponseStatus, ApiResult } from '../types/apiResult';
-import { LoginParam, RegistParam } from '../types/user';
+import { LoginParam, RegistParam, User } from '../types/user';
 import * as Joi from '@hapi/joi'
+import { RoleType } from '../constants';
 const router = Router()
+
+
+router.get('/list', (req: Request, res: Response, next: NextFunction) => {  
+  if (req.session.currentUser.roleId === RoleType.admin) {
+    userService.query()
+    .then ( (data: User[]) => {
+      res.json( new ApiResult(ResponseStatus.success, data))
+    })
+    .catch (next)
+  } else {
+    res.json( new ApiResult(ResponseStatus.fail, null, "权限不够"))
+  }
+})
 
 router.get('/getCurrent', (req: Request, res: Response) => {
   if (req.session.currentUser) {

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-09 23:05:48
+ * @LastEditTime: 2022-01-10 00:24:08
  */
 import pool from './pool'
 import { User, LoginParam, Member, RegistParam } from '../types/user';
@@ -14,6 +14,21 @@ import util from '../utils/util';
 import { RoleType } from '../constants';
 
 class UserDao {
+  async query (): Promise<User[]> {
+    const sql = `select user.id, 
+    user.name, 
+    user.email, 
+    role.id as roleId, 
+    role.name as roleName 
+      from user 
+    left join user_role 
+      on user_role.user_id = user.id 
+    left join role 
+      on user_role.role_id = role.id
+    where user.name != 'admin'`
+    const users = await pool.query<User>(sql, []) as User[]
+    return users
+  }
   async getUserById (userId: string): Promise<User[]> {
     const sql = `select user.id, 
         user.name, 
@@ -26,6 +41,7 @@ class UserDao {
         left join role 
           on user_role.role_id = role.id
         where user.id = ?`
+        
     const users = await pool.query<User>(sql, [userId]) as User[]
     return users
   }

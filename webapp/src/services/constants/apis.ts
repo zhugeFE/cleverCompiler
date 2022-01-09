@@ -4,10 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-09 17:55:02
+ * @LastEditTime: 2022-01-10 00:08:03
  */
 export default {
   user: {
+    list: '/user/list',
     getCurrent: '/user/getCurrent',
     login: '/user/login',
     regist: '/user/regist',

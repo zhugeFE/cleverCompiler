@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-09 19:20:21
+ * @LastEditTime: 2022-01-10 00:07:08
  */
 import { ApiResult, ResponseStatus } from "../types/apiResult"
 import { User, LoginParam, RegistParam } from '../types/user';
@@ -12,6 +12,9 @@ import userDao from "../dao/user";
 import logger from '../utils/logger';
 
 const userService = {
+  async query (): Promise<User[]> {
+    return await userDao.query()
+  },
   async login (param: LoginParam): Promise<ApiResult> {
     try {
       const users: User[] = await userDao.login(param)

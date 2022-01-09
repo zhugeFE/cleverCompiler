@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-24 14:32:37
+ * @LastEditTime: 2022-01-09 23:36:27
  */
 export default [
   {
@@ -116,6 +116,21 @@ export default [
                 name: 'compile',
                 hideInMenu: false,
                 component: './compileManage/compileEdit'
+              },
+              {
+                component: './404',
+              }
+            ]
+          },
+          {
+            path: "/usermanage",
+            name: "userManage",
+            routes: [
+              {
+                path: '/usermanage/list',
+                name: 'usercenter',
+                hideInMenu: false,
+                component: './userManage/userCenter'
               },
               {
                 component: './404',

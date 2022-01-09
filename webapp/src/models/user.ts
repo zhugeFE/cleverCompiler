@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-09 19:53:18
+ * @LastEditTime: 2022-01-10 00:17:01
  */
 import userService from '@/services/user';
-import { getPageQuery } from '@/utils/utils';
+import util, { getPageQuery } from '@/utils/utils';
 import { message } from 'antd';
 import type { Effect, Reducer } from 'umi';
 import { history } from 'umi';
@@ -40,14 +40,25 @@ export type CurrentUser = {
   roleName: string
 };
 
+export type User = {
+  id: string,
+  name: string,
+  email: string,
+  roleId: string,
+  roleName: string
+};
+
+
 export type UserModelState = {
   currentUser: CurrentUser | null;
+  userList?: User[]
 };
 
 export type UserModelType = {
   namespace: 'user';
   state: UserModelState;
   effects: {
+    query: Effect;
     login: Effect;
     logout: Effect;
     regist: Effect;
@@ -55,6 +66,7 @@ export type UserModelType = {
     fetchCurrent: Effect;
   };
   reducers: {
+    saveUserList: Reducer<UserModelState>;
     saveCurrentUser: Reducer<UserModelState>;
   };
 };
@@ -67,6 +79,14 @@ const UserModel: UserModelType = {
   },
 
   effects: {
+    *query({_}, {call,put}) {
+      const res = yield call( userService.list)
+      if (res.status === -1) return
+      yield put({
+        type: 'saveUserList',
+        payload: res.data
+      })
+    },
     *login({payload}, { call, put }) {      
       const res = yield call(userService.login, payload);
       if (res.status === -1) return
@@ -109,6 +129,11 @@ const UserModel: UserModelType = {
     }
   },
   reducers: {
+    saveUserList(state, {payload}): UserModelState {
+      const res =  util.clone(state)!
+      res.userList = payload
+      return res
+    },
     saveCurrentUser(state, action) {
       return {
         ...state,
