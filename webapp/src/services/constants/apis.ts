@@ -4,12 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 10:46:53
+ * @LastEditTime: 2022-01-09 17:55:02
  */
 export default {
   user: {
     getCurrent: '/user/getCurrent',
-    login: '/user/login'
+    login: '/user/login',
+    regist: '/user/regist',
+    checkName: '/user/checkusername'
   },
   sys: {
     init: '/sys/init'

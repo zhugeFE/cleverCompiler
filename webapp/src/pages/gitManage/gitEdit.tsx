@@ -1,7 +1,7 @@
 import type { Dispatch } from '@/.umi/core/umiExports'
 import Description from '@/components/description/description'
 import { VersionStatus } from '@/models/common'
-import type { GitInfo, GitInfoBranch, GitList, GitVersion } from '@/models/git'
+import type { GitBranch, GitInfo, GitInfoBranch, GitList, GitVersion } from '@/models/git'
 import util from '@/utils/utils'
 import { LeftOutlined } from '@ant-design/icons'
 import type { IRouteComponentProps } from '@umijs/renderer-react'
@@ -33,6 +33,9 @@ interface State {
   delTooltip: string;
   gitList: GitList[] | null;
   queryGitData: boolean;
+  branchPending: boolean;
+  branchList: GitBranch[];
+  sourceType: string;
 }
 
 class GitEdit extends React.Component<GitEditProps, State> {
@@ -49,6 +52,9 @@ class GitEdit extends React.Component<GitEditProps, State> {
       delTooltip: '',
       gitList: null,
       queryGitData: false,
+      branchPending: false,
+      branchList: [],
+      sourceType: "select"
     }
 
     this.onCancelConfig = this.onCancelConfig.bind(this)
@@ -66,6 +72,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.selectPubliceGit = this.selectPubliceGit.bind(this)
     this.onRadioChange = this.onRadioChange.bind(this)
     this.updateVersion = this.updateVersion.bind(this)
+    this.RadioButtonChange = this.RadioButtonChange.bind(this)
   }
 
   componentDidMount () {
@@ -246,6 +253,23 @@ class GitEdit extends React.Component<GitEditProps, State> {
       }
     })
   }
+
+  getBranchList (id: string) {
+    this.setState({
+      branchPending: true
+    })
+    this.props.dispatch({
+      type: 'git/queryBranchs',
+      payload: id,
+      callback: (list: GitBranch[]) => {
+        this.setState({
+          branchList: list,
+          branchPending: false
+        })
+      }
+    })
+  }
+
   onChangeReadme (content: string) {
     const readmeDoc = content
     this.debounce(this.updateVersion)({readmeDoc})
@@ -269,15 +293,23 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   selectPubliceGit (id: number) {
     const publicGit = id
-    this.updateVersion({
-      publicGit
-    })
+    this.getBranchList(String(publicGit))
+    // this.updateVersion({
+    //   publicGit
+    // })
   }
 
   onRadioChange (e: any) {
     const publicType = e.target.value
     this.updateVersion({
       publicType
+    })
+  }
+
+  RadioButtonChange (e: any) {
+    const soucre = e.target.value
+    this.setState({
+      sourceType: soucre
     })
   }
 
@@ -290,6 +322,8 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   render () {
     const labelWidth = 75
+    const displaySelect = this.state.sourceType == 'select' ? " " : "none"
+    const displayInput =  this.state.sourceType == "add" ? " " : "none" 
     if (!this.props.gitInfo && this.props.match.params.id != 'createGit') {
       return (
         <Spin className={styles.gitEditLoading} tip="git详情获取中..." size="large" />
@@ -414,6 +448,30 @@ class GitEdit extends React.Component<GitEditProps, State> {
                           })
                         }
                       </Select>
+                      <div style={{display: this.props.currentVersion.publicGit ? ' ' : "none"}}>
+                        <Radio.Group onChange={this.RadioButtonChange} defaultValue={'select'}>
+                          <Radio.Button value="select">选择分支</Radio.Button>
+                          <Radio.Button value="add">新建分支</Radio.Button>
+                        </Radio.Group>
+                        <Select 
+                          style={{width:250, display:displaySelect}} 
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input, option) =>
+                            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          }
+                          disabled={this.props.currentVersion?.status != VersionStatus.normal} 
+                          onChange={this.selectPubliceGit} 
+                          placeholder="选择发布代码库"
+                          value={this.props.currentVersion.publicGit}>
+                          {
+                            this.state.gitList?.map(item => {
+                              return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
+                            })
+                          }
+                        </Select>
+                        <Input type="text" style={{display: displayInput}}/>
+                      </div>
                     </Description>
                   )
                 }

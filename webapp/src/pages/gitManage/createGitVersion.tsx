@@ -1,6 +1,5 @@
 import * as React from 'react'
 import type { FormInstance} from 'antd';
-import { Skeleton} from 'antd';
 import { Modal, Form, Input, Radio, Select, Spin, message } from 'antd'
 import { VersionStatus } from '@/models/common';
 import type { GitBranch, GitCommit, GitCreateVersionParam, GitInfo, GitInstance, GitList, GitTag, GitVersion } from '@/models/git';
@@ -10,6 +9,8 @@ import type { Dispatch } from '@/.umi/plugin-dva/connect';
 import type { ConnectState } from '@/models/connect';
 import { VersionType } from "@/models/common";
 import style from "./styles/createGitVersion.less";
+import type { IRouteComponentProps} from 'umi';
+import { withRouter } from 'umi';
 
 interface FormData {
   option: string;
@@ -23,8 +24,10 @@ interface FormData {
   tag: string;
   commit: string;
   description: string;
+  projectName?: string;
+  dir?: string;
 }
-interface Props {
+interface Props extends IRouteComponentProps {
   mode: string;
   gitList: GitInstance[]; 
   gitId?: string;
@@ -53,6 +56,8 @@ interface States {
   tagPending: boolean;
   commitPending: boolean;
   branchPending: boolean;
+  isCreateDispatch: boolean;
+  fileDirList: any[];
 }
 
 class CreateGitVersion extends React.Component<Props, States> {
@@ -86,7 +91,9 @@ class CreateGitVersion extends React.Component<Props, States> {
       },
       tagPending: false,
       commitPending: false,
-      branchPending: false
+      branchPending: false,
+      isCreateDispatch: false,
+      fileDirList: []
     }
     this.onCommit = this.onCommit.bind(this)
     this.onCancel = this.onCancel.bind(this)
@@ -101,6 +108,13 @@ class CreateGitVersion extends React.Component<Props, States> {
         })
       }
       this.getRemoteList()
+
+      if (this.props.location.query.type) {        
+        this.setState({
+          isCreateDispatch: true
+        })
+        this.getRemoteGitDir()
+      }
     }
 
     if (this.props.mode != 'init') {
@@ -114,14 +128,27 @@ class CreateGitVersion extends React.Component<Props, States> {
   componentWillUnmount() {
     this.setState = ()=>false;
   }
+  getRemoteGitDir () {    
+    this.props.dispatch({
+      type: 'git/getFileTree',
+      payload: {
+        id: this.props.location.query.gitId,
+        versionId: this.props.location.query.versionId
+      },
+      callback: (res) => {
+        this.setState({
+          fileDirList: res
+        })
+      }
+    })
+  }
   getRemoteList () {
     this.props.dispatch({
       type: 'git/queryRemoteGitList',
       callback: (list: GitList[]) => {
         const gitListMap = this.props.gitList.map(item => item.repoId)
-        list = list.filter( item => !gitListMap.includes(Number(item.id)))
         this.setState({
-          gitList: list
+          gitList:  list.filter( item => !gitListMap.includes(Number(item.id)))
         })
       }
     })
@@ -231,8 +258,18 @@ class CreateGitVersion extends React.Component<Props, States> {
     })    
   }
   onCommit () {
-    const source = this.state.form.source as 'branch' | 'tag' | 'commit'    
-    if (!this.props.gitId && !this.state.form.repoId || !this.state.form[source] || !this.state.version || !this.state.form.description){
+    const source = this.state.form.source as 'branch' | 'tag' | 'commit'   
+    if (this.state.isCreateDispatch) {
+      const {projectName, dir, branchName, branchDesc, description} = this.state.form
+      if (!projectName || !dir || !branchName || !branchDesc || !description) {
+        message.error({
+          content: "数据填写不完整",
+          duration: 0.5
+        })
+        return
+      }
+    }
+    else if (!this.props.gitId && !this.state.form.repoId || !this.state.form[source] || !this.state.version || !this.state.form.description){
       message.error({
         content: "数据填写不完整",
         duration: 0.5
@@ -240,9 +277,12 @@ class CreateGitVersion extends React.Component<Props, States> {
       return
     }
     const data: GitCreateVersionParam = {
+      dispatch: this.state.isCreateDispatch,
       gitId: this.props.gitId || "",
       repoId: this.state.form.repoId || "",
       version: this.state.version,
+      projectName: this.state.form.projectName || "",
+      dir: this.state.form.dir || "",
       source: source,
       sourceValue: this.state.form[source],
       description: this.state.form.description,
@@ -296,7 +336,7 @@ class CreateGitVersion extends React.Component<Props, States> {
     return (
       <Modal
         className={style.createGitModal}
-        title={this.props.title || '添加版本'}
+        title={this.state.isCreateDispatch ? "创建派生版本" : this.props.title || '添加版本'}
         closable={false}
         visible={this.state.show}
         cancelText="取消"
@@ -343,6 +383,30 @@ class CreateGitVersion extends React.Component<Props, States> {
               </>
             ) : null
           }
+          
+          <Form.Item 
+            style={{display: this.state.isCreateDispatch ? " " : "none"}}
+            label="项目名称" 
+            name="projectName" 
+            required> 
+            <Input autoComplete='off' />
+          </Form.Item>
+          <Form.Item 
+            style={{display: this.state.isCreateDispatch ? " " : "none"}}
+            label="目录" 
+            name="dir" 
+            required> 
+            <Select showSearch allowClear>
+             {
+              this.state.fileDirList.map( item => {
+                if (item.isDirectory) {
+                  return <Select.Option value={item.name}>{item.filePath}</Select.Option>
+                }
+              })
+             }
+            </Select>
+          </Form.Item>
+          
           {
             this.props.mode == 'init' || this.props.mode == 'branch' ? (
               <>
@@ -357,7 +421,7 @@ class CreateGitVersion extends React.Component<Props, States> {
             ) : null
           }
           {
-            this.props.mode == 'init' &&
+            this.props.mode == 'init' && !this.state.isCreateDispatch &&
             <Form.Item label="git来源" name="repoId" required>
               <Select 
                 showSearch
@@ -370,56 +434,63 @@ class CreateGitVersion extends React.Component<Props, States> {
               </Select>
             </Form.Item>
           }
-          <Form.Item label="来源" name="source" required>
-            <Radio.Group>
-              <Radio.Button value="tag">tag</Radio.Button>
-              <Radio.Button value="commit">commit</Radio.Button>
-              {/* <Radio.Button value="branch">branch</Radio.Button> */}
-            </Radio.Group>
-          </Form.Item>
-          <Form.Item label="branch" name="branch" style={{display: branchDisplay}} required>
-            <Select showSearch={true} allowClear loading={this.state.branchPending}>
-              {
-                this.state.branchList.map(branch => {
-                  return (
-                    <Select.Option value={branch.name} key={branch.name} title={branch.name}>
-                      {branch.name}
-                    </Select.Option>
-                  )
-                })
-              }
-            </Select>
-          </Form.Item>
-          <Form.Item label="tag" name="tag" style={{display: tagDisplay}} required>
-            <Select showSearch={true} allowClear loading={this.state.tagPending}>
-            {
-              this.state.tags.map(tag => {
-                return (
-                  <Select.Option value={tag.name} key={tag.name} title={tag.name}>
-                    {tag.name}
-                  </Select.Option>
-                )
-              })
-            }
-            </Select>
-          </Form.Item>
-          <Form.Item label="commit" name="commit" style={{display: commitDisplay}} required>
-            <Select showSearch={true} filterOption={this.onFilterCommit} allowClear loading={this.state.commitPending}>
-            {
-             this.state.commits.map(commit => {
-                return (
-                  <Select.Option value={commit.id} key={commit.id} title={commit.message}>
-                    {commit.message}
-                    {commit.createdAt ? (
-                      <div className="git-commit-time">{util.dateTimeFormat(new Date(commit.createdAt))}</div>
-                    ) : null}
-                  </Select.Option>
-                )
-              })
-            }
-            </Select>
-          </Form.Item>          
-    
+         
+          {
+            !this.state.isCreateDispatch && (
+              <>
+                <Form.Item label="来源" name="source" required>
+                  <Radio.Group>
+                    <Radio.Button value="tag">tag</Radio.Button>
+                    <Radio.Button value="commit">commit</Radio.Button>
+                    {/* <Radio.Button value="branch">branch</Radio.Button> */}
+                  </Radio.Group>
+                </Form.Item>
+                <Form.Item label="branch" name="branch" style={{display: branchDisplay}} required>
+                  <Select showSearch={true} allowClear loading={this.state.branchPending}>
+                    {
+                      this.state.branchList.map(branch => {
+                        return (
+                          <Select.Option value={branch.name} key={branch.name} title={branch.name}>
+                            {branch.name}
+                          </Select.Option>
+                        )
+                      })
+                    }
+                  </Select>
+                </Form.Item>
+                <Form.Item label="tag" name="tag" style={{display: tagDisplay}} required>
+                  <Select showSearch={true} allowClear loading={this.state.tagPending}>
+                  {
+                    this.state.tags.map(tag => {
+                      return (
+                        <Select.Option value={tag.name} key={tag.name} title={tag.name}>
+                          {tag.name}
+                        </Select.Option>
+                      )
+                    })
+                  }
+                  </Select>
+                </Form.Item>
+                <Form.Item label="commit" name="commit" style={{display: commitDisplay}} required>
+                  <Select showSearch={true} filterOption={this.onFilterCommit} allowClear loading={this.state.commitPending}>
+                  {
+                  this.state.commits.map(commit => {
+                      return (
+                        <Select.Option value={commit.id} key={commit.id} title={commit.message}>
+                          {commit.message}
+                          {commit.createdAt ? (
+                            <div className="git-commit-time">{util.dateTimeFormat(new Date(commit.createdAt))}</div>
+                          ) : null}
+                        </Select.Option>
+                      )
+                    })
+                  }
+                  </Select>
+                </Form.Item>      
+              </>
+            )
+          }
+
           {
             this.props.mode !== 'init' && this.props.mode !== 'branch' ? 
             <Form.Item label="版本类型" name="option" required>
@@ -459,4 +530,4 @@ export default connect(({git}: ConnectState) => {
   return {
     gitList: git.gitList
   }
-})(CreateGitVersion)
+})(withRouter(CreateGitVersion))

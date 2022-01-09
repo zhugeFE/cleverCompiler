@@ -101,6 +101,7 @@ export interface GitTag {
   commit: GitCommit;
 }
 export interface GitCreateVersionParam {
+  dispatch: boolean;
   gitId: string; // git id（这里指编译平台里面的id）
   repoId: string;
   version: string; // 版本号
@@ -112,6 +113,8 @@ export interface GitCreateVersionParam {
   branchId: string;
   originBranchId: string;
   originVersionId: string;
+  projectName: string;
+  dir: string;
 }
 
 export interface GitTextConfigParam extends TextConfigParam{

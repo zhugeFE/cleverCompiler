@@ -4,12 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-06 10:59:55
+ * @LastEditTime: 2022-01-09 19:53:18
  */
 import userService from '@/services/user';
 import { getPageQuery } from '@/utils/utils';
 import { message } from 'antd';
-import { Effect, history, Reducer } from 'umi';
+import type { Effect, Reducer } from 'umi';
+import { history } from 'umi';
 
 function afterLogin () {
   const urlParams = new URL(window.location.href);
@@ -49,6 +50,8 @@ export type UserModelType = {
   effects: {
     login: Effect;
     logout: Effect;
+    regist: Effect;
+    checkName: Effect;
     fetchCurrent: Effect;
   };
   reducers: {
@@ -64,7 +67,7 @@ const UserModel: UserModelType = {
   },
 
   effects: {
-    *login({payload}, { call, put }) {
+    *login({payload}, { call, put }) {      
       const res = yield call(userService.login, payload);
       if (res.status === -1) return
       yield put({
@@ -72,6 +75,23 @@ const UserModel: UserModelType = {
         payload: res.data,
       });
       afterLogin()
+    },
+    *regist( {payload}, {call,put}) {
+      const res =  yield call(userService.regist, payload)
+      if (res.status === -1) return
+      message.success('🎉 🎉 🎉  注册成功！')
+      yield put({
+        type: 'login',
+        payload: {
+          username: payload.email,
+          password: payload.password
+        }
+      })
+    },
+    *checkName( {payload,callback}, {call}) {
+      const res = yield call(userService.checkName, payload.name)
+      if (res.status === -1) return
+      if (callback) callback(res)
     },
     *logout({_}, {put}) {
       yield put({

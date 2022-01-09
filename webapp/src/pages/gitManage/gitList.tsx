@@ -62,6 +62,9 @@ class GitList extends React.Component<GitListProps, State> {
   onCreateGit () {
     this.props.history.push(`/manage/git/createGit`)
   }
+  onClickDispatch (git: GitInstance) {
+    this.props.history.push(`/manage/git/createGit?type=dispatch&gitId=${git.id}&versionId=${git.versionId}`)
+  }
   onSearch (changedValues: any, values: any) {
     // 防抖处理 300ms
     if ( !this.state.searchVaild ) {
@@ -196,6 +199,10 @@ class GitList extends React.Component<GitListProps, State> {
                 style={{marginRight: 5}} 
                 disabled={!record.enable}
                 onClick={this.onClickUpdateEntry.bind(this, record)}>版本更新日志</Button>
+              <Button                 
+                style={{marginRight: 5}} 
+                disabled={!record.enable}
+                onClick={this.onClickDispatch.bind(this, record)}>派生</Button>
               {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
             </div>
           )
