@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-30 14:40:32
+ * @LastEditTime: 2022-01-10 22:19:50
  */
 import type { ConnectState } from '@/models/connect';
 import type { ProjectInstance } from '@/models/project';
@@ -183,7 +183,7 @@ class ProjectList extends React.Component<Props, States> {
               <Button 
                 type="primary" 
                 style={{marginRight: 5}}
-                onClick={this.onClickEdit.bind(this, record)}>{this.props.currentUser?.id == record.creatorId ? "编辑" : "查看"}</Button>
+                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
             </div>
           );
         },

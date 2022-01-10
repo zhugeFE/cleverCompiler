@@ -466,7 +466,7 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={wrapperCol} className={styles.colFlex}> 
               <Input 
                 placeholder="请输入名称"
-                disabled={this.state.mode == EditMode.update ||  (this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false)}
+                disabled={this.state.mode == EditMode.update}
                 style={{width: 300}} onChange={(event) => {
                   this.onChangeEdit('name', event)
                 }} defaultValue={this.state.name} />
@@ -481,7 +481,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.customer}
                 placeholder="请选择"
                 style={{ width: 200 }}
-                disabled={this.state.mode == EditMode.update || (this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false)}
+                disabled={this.state.mode == EditMode.update}
                 onChange={this.onCustomerSelectChange}
               >
                 {
@@ -501,7 +501,7 @@ class ProjectEdit extends React.Component<Props, States> {
                 defaultValue={this.state.compileType}
                 placeholder="请选择"
                 style={{width: 200}}
-                disabled={this.state.mode == EditMode.update || this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
+                disabled={this.state.mode == EditMode.update}
                 onChange={this.onCompileTypeSelectChange}
               >
                 {
@@ -520,7 +520,6 @@ class ProjectEdit extends React.Component<Props, States> {
                 showSearch
                 defaultValue={this.state.templateId}
                 placeholder="请选择"
-                disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                 style={{ width: 200 }}
                 onChange={this.onTemplateSelectChange}
               >
@@ -538,7 +537,6 @@ class ProjectEdit extends React.Component<Props, States> {
                 <Select
                   showSearch
                   value={this.state.templateVersionId}
-                  disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                   style={{width: 200}}
                   onChange={this.onTemplateVersionSelectChange}
                 >
@@ -560,7 +558,6 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>发布方式</Col>
             <Col span={wrapperCol}>
               <Radio.Group
-                disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                 className={styles.radio} 
                 onChange={this.onRadioChange} 
                 value={this.state.publicType}>
@@ -577,7 +574,6 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>全局配置：</Col>
             <Col span={wrapperCol}>
               <ProjectGlobalConfig   
-                disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                 globalConfigList={this.state.globalConfigList?.length ? this.state.globalConfigList : []}
                 signArr={this.state.signArr}
                 setSignArr={this.setSignArr}
@@ -592,7 +588,6 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>项目配置：</Col>
             <Col span={wrapperCol}>
                 <ProjectConfig
-                  disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                   onUpdateConfig={this.afterUpdateConfig}
                   globalConfigList={this.state.globalConfigList!}
                   activeKey={this.state.activeKey}
@@ -611,7 +606,6 @@ class ProjectEdit extends React.Component<Props, States> {
                 mode="multiple"
                 allowClear
                 showSearch
-                disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                 style={{ width: 200 }}
                 placeholder="请选择"
                 defaultValue={this.state.shareMember.length > 0 ? this.state.shareMember : undefined }
@@ -632,7 +626,6 @@ class ProjectEdit extends React.Component<Props, States> {
             <Col span={labelCol}>描述：</Col>
             <Col span={wrapperCol}>
               <TextArea 
-                disabled={this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId != this.props.currentUser?.id : false}
                 placeholder="请输入描述内容"
                 defaultValue={this.state.description}
                 rows={10} onChange={(event) => {
@@ -640,14 +633,10 @@ class ProjectEdit extends React.Component<Props, States> {
                 }} />
             </Col>
           </Row>
-          {
-            
-            (this.state.projectInfo?.creatorId ? this.state.projectInfo?.creatorId == this.props.currentUser?.id : true )&&
-            <Row className={styles.rowMargin}>
-              <Button type="primary" onClick={this.onClickSave}>保存</Button>
-              <Button style={{marginLeft:5}} onClick={this.onClickCancel}>取消</Button>
-            </Row>
-          }
+          <Row className={styles.rowMargin}>
+            <Button type="primary" onClick={this.onClickSave}>保存</Button>
+            <Button style={{marginLeft:5}} onClick={this.onClickCancel}>取消</Button>
+          </Row>
         </div> 
       </div>
     )
