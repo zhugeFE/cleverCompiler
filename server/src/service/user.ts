@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 00:07:08
+ * @LastEditTime: 2022-01-10 10:19:31
  */
 import { ApiResult, ResponseStatus } from "../types/apiResult"
 import { User, LoginParam, RegistParam } from '../types/user';
@@ -14,6 +14,9 @@ import logger from '../utils/logger';
 const userService = {
   async query (): Promise<User[]> {
     return await userDao.query()
+  },
+  async checkName (name): Promise<boolean> {
+    return await userDao.checkName(name)
   },
   async login (param: LoginParam): Promise<ApiResult> {
     try {

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2022-01-04 14:50:02
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 00:32:22
+ * @LastEditTime: 2022-01-10 10:16:33
  */
 import {Router, Response, Request, NextFunction} from 'express'
 import userService from '../service/user';
@@ -51,6 +51,19 @@ router.post('/regist', (req: Request, res: Response, next: NextFunction) => {
     }).catch(next)
 })
 
+
+router.post('/checkName', (req: Request, res: Response, next: NextFunction) => {
+  const username: string = req.body.username
+  if (!username) {
+    res.json(new ApiResult(ResponseStatus.fail, null, '用户名不能为空'))
+    return
+  }
+  userService.checkName(username)
+  .then( (data: boolean) => {
+    res.json( new ApiResult(ResponseStatus.success, {result:data}))
+  })
+  .catch(next) 
+})
 router.post('/login', (req: Request, res: Response, next: NextFunction) => {
   const param: LoginParam = req.body
   const validation: Joi.ValidationResult = Joi.object({

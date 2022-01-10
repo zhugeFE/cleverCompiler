@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-07 09:59:03
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 00:24:08
+ * @LastEditTime: 2022-01-10 10:38:17
  */
 import pool from './pool'
 import { User, LoginParam, Member, RegistParam } from '../types/user';
@@ -12,6 +12,7 @@ import { PoolConnection } from 'mysql';
 import { SysInfo } from '../types/sys';
 import util from '../utils/util';
 import { RoleType } from '../constants';
+import logger from '../utils/logger';
 
 class UserDao {
   async query (): Promise<User[]> {
@@ -89,6 +90,13 @@ class UserDao {
   async getMemberList (): Promise<Member[]> {
     const sql = `SELECT id, name FROM \`user\``
     return await pool.query<Member>(sql, [])
+  }
+
+  async checkName (name): Promise<boolean> {
+    const sql = `select id from user where name = ?`
+    const result = await pool.query(sql, [name])
+    
+    return result.length ? false : true
   }
 }
 export default new UserDao()
