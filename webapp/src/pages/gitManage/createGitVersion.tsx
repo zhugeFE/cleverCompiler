@@ -11,6 +11,7 @@ import { VersionType } from "@/models/common";
 import style from "./styles/createGitVersion.less";
 import type { IRouteComponentProps} from 'umi';
 import { withRouter } from 'umi';
+import { result } from 'lodash';
 
 interface FormData {
   option: string;
@@ -276,10 +277,13 @@ class CreateGitVersion extends React.Component<Props, States> {
       })
       return
     }
+    const queryGitid: string = this.props.location.query.gitId as string
+    const queryVersionId: string = this.props.location.query.versionId as string
+    const repoId: string = this.props.location.query.repoId as string
     const data: GitCreateVersionParam = {
       dispatch: this.state.isCreateDispatch,
-      gitId: this.props.gitId || "",
-      repoId: this.state.form.repoId || "",
+      gitId: queryGitid || this.props.gitId || "",
+      repoId: repoId || this.state.form.repoId || "",
       version: this.state.version,
       projectName: this.state.form.projectName || "",
       dir: this.state.form.dir || "",
@@ -289,14 +293,14 @@ class CreateGitVersion extends React.Component<Props, States> {
       branchName: this.state.form.branchName,
       branchDesc: this.state.form.branchDesc,
       originBranchId: this.state.form.originBranchId,
-      originVersionId: this.state.form.originVersionId,
+      originVersionId: queryVersionId || this.state.form.originVersionId,
       branchId: this.props.branchId || ""
     }    
     this.props.dispatch({
       type: 'git/createVersion',
       payload: data,
-      callback: (res: true) => {
-        if (!res) {
+      callback: (res: { id: string; result: boolean }) => {
+        if (!res.result) {
           message.error({
             content: "创建失败",
             duration: 0.5
@@ -310,7 +314,7 @@ class CreateGitVersion extends React.Component<Props, States> {
           content: "创建成功",
           duration: 0.5
         })
-        if (this.props.afterAdd) this.props.afterAdd()
+        this.props.history.replace(`/manage/git/${res.id}`)
       }
     })
   }
@@ -398,7 +402,7 @@ class CreateGitVersion extends React.Component<Props, States> {
             required> 
             <Select showSearch allowClear>
              {
-              this.state.fileDirList.map( item => {
+              this.state.fileDirList && this.state.fileDirList.map( item => {
                 if (item.isDirectory) {
                   return <Select.Option value={item.name}>{item.filePath}</Select.Option>
                 }

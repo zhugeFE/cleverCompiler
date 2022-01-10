@@ -63,7 +63,7 @@ class GitList extends React.Component<GitListProps, State> {
     this.props.history.push(`/manage/git/createGit`)
   }
   onClickDispatch (git: GitInstance) {
-    this.props.history.push(`/manage/git/createGit?type=dispatch&gitId=${git.id}&versionId=${git.versionId}`)
+    this.props.history.push(`/manage/git/createGit?type=dispatch&gitId=${git.id}&versionId=${git.versionId}&repoId=${git.repoId}`)
   }
   onSearch (changedValues: any, values: any) {
     // 防抖处理 300ms

@@ -252,7 +252,7 @@ const GitModel: GitModelType = {
       if (res.status === -1) return 
       if (callback) callback(res.data)
     },
-    *createVersion ({payload, callback}, {call,put,select}) {
+    *createVersion ({payload, callback}, {call,put}) {
       const res = yield call(gitService.createVersion, payload)
       if (res.status === -1) {
         callback(false)
@@ -262,7 +262,10 @@ const GitModel: GitModelType = {
         type: "_createVersion",
         payload: res.data
       })
-      if (callback) callback(true)
+      if (callback) callback({
+        id: res.data.id,
+        result: true
+      })
     },
     *delConfig ({payload, callback}, {call, put}) {
       const res = yield call(gitService.delConfig, payload)

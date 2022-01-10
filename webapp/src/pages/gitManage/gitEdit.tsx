@@ -60,7 +60,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
     this.onCancelConfig = this.onCancelConfig.bind(this)
     this.afterAddConfig = this.afterAddConfig.bind(this)
     this.onDeleteVersion = this.onDeleteVersion.bind(this)
-    this.afterCreateGit = this.afterCreateGit.bind(this)
     this.onAddConfig = this.onAddConfig.bind(this)
     this.onChangeReadme = this.onChangeReadme.bind(this)
     this.onChangeBuild = this.onChangeBuild.bind(this)
@@ -212,9 +211,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
     })
   }
  
-  afterCreateGit () {        
-    this.props.history.push(`/manage/git/${this.props.gitInfo.id}`)
-  }
   onChangeVersionStatue (status: VersionStatus) {
     if (!this.props.currentVersion) return
     this.props.dispatch({
@@ -521,7 +517,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                 mode='init'
                 title="创建初始版本"
                 onCancel={this.onCancelAddVersion}
-                afterAdd={this.afterCreateGit} />
+              />
             </div>
           )
         }
