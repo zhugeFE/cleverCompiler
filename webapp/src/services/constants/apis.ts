@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 00:08:03
+ * @LastEditTime: 2022-01-10 10:19:46
  */
 export default {
   user: {
@@ -12,7 +12,7 @@ export default {
     getCurrent: '/user/getCurrent',
     login: '/user/login',
     regist: '/user/regist',
-    checkName: '/user/checkusername'
+    checkName: '/user/checkName'
   },
   sys: {
     init: '/sys/init'

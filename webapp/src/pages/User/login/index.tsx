@@ -27,7 +27,8 @@ interface State {
 
 class Login extends React.Component<LoginProps, State> {
   formRef: RefObject<FormInstance>
-
+  username = createRef()
+  timer?: NodeJS.Timeout
   constructor(props: LoginProps) {
     super(props)
 
@@ -42,6 +43,7 @@ class Login extends React.Component<LoginProps, State> {
     this.onSubmit = this.onSubmit.bind(this)
     this.changeMode = this.changeMode.bind(this)
     this.login = this.login.bind(this)
+    this.checkName = this.checkName.bind(this)
   }
 
   onSubmit(data: FormData) {
@@ -58,14 +60,30 @@ class Login extends React.Component<LoginProps, State> {
   }
 
   checkName (name: string) {
-    this.props.dispatch({
-      type: 'user/checkName',
-      payload: name,
-      callback: (res) => {
-        console.log(res);
-        
-      }
+    if( !name ) return
+    if (this.timer) {
+      clearTimeout(this.timer)
+    }
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    return new Promise( (resolve, reject) => {
+      this.timer = setTimeout( ()=> {
+        this.props.dispatch({
+          type: 'user/checkName',
+          payload: name,
+          callback: (res) => {
+            if (res.result) {            
+              resolve("用户名可用")
+            } else {
+              reject({
+                message: "用户名重复,请换一个"
+              })
+            }
+          }
+        })
+      },500)
     })
+    
+    
   }
   login(data: FormData){
     this.props.dispatch({
@@ -114,7 +132,16 @@ class Login extends React.Component<LoginProps, State> {
           wrapperCol={{ span: 24 }} 
           onFinish={this.onSubmit} 
           size="large" ref={this.formRef}>
-          <Form.Item name="username" rules={[{ required: true, message: 'Please input your username!' }]}>
+          <Form.Item               
+            name="username" rules={[
+              { required: true, message: 'Please input your username!' },
+              {
+                validateTrigger: ['onChange'],
+                validator: async (_: any, value: string) => {
+                  return this.checkName(value) 
+                }
+              }
+            ]}>
             <Input
               prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }}/>}
               autoFocus

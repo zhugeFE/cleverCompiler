@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2022-01-04 14:50:02
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 00:08:12
+ * @LastEditTime: 2022-01-10 10:20:08
  */
 import request from '@/utils/request';
 import apis from './constants/apis';
@@ -40,7 +40,7 @@ class UserServices {
  async checkName( name: string) {
    return request(apis.user.checkName, {
      data: {
-       name
+       username: name
      },
      method: 'post'
    })

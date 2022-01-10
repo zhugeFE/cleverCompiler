@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 00:17:01
+ * @LastEditTime: 2022-01-10 11:14:18
  */
 import userService from '@/services/user';
 import util, { getPageQuery } from '@/utils/utils';
@@ -79,7 +79,7 @@ const UserModel: UserModelType = {
   },
 
   effects: {
-    *query({_}, {call,put}) {
+    *query({}, {call,put}) {
       const res = yield call( userService.list)
       if (res.status === -1) return
       yield put({
@@ -108,12 +108,12 @@ const UserModel: UserModelType = {
         }
       })
     },
-    *checkName( {payload,callback}, {call}) {
-      const res = yield call(userService.checkName, payload.name)
+    *checkName( {payload,callback}, {call}) {      
+      const res = yield call(userService.checkName, payload)
       if (res.status === -1) return
-      if (callback) callback(res)
+      if (callback) callback(res.data)
     },
-    *logout({_}, {put}) {
+    *logout({}, {put}) {
       yield put({
         type: 'saveCurrentUser',
         payload: null

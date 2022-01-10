@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2022-01-09 23:23:08
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 00:32:39
+ * @LastEditTime: 2022-01-10 10:10:47
  */
 
 import React  from "react";
@@ -74,19 +74,24 @@ class UserManage extends React.Component<Props,State> {
         fixed: 'right',
         render: (text, record: User) => {
           return (
-            <div />
+            <div >
+              <Button type="primary">编辑</Button>
+            </div>
           );
         },
       },
     ]; 
     return (
       <div className="UserPage" >
-        <div className={styles.projectTopTool}> 
+        <div className={styles.userTopTool}> 
           <Form layout="inline" onValuesChange={this.onSearch}>
-            <Form.Item label="项目名称" name="projectName">
+            <Form.Item label="用户名称" name="projectName">
               <Input autoComplete="off"/>
             </Form.Item>
-            <Form.Item label="编译类型" name="compileType">
+            <Form.Item label="角色类型" name="compileType">
+              <Input autoComplete="off"/>
+            </Form.Item>
+            <Form.Item label="邮箱" name="compileType">
               <Input autoComplete="off"/>
             </Form.Item>
             <Form.Item>
