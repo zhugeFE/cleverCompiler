@@ -4,8 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-09 23:36:27
+ * @LastEditTime: 2022-01-10 22:01:33
  */
+
+
 export default [
   {
     path: '/user',
@@ -130,6 +132,7 @@ export default [
                 path: '/usermanage/list',
                 name: 'usercenter',
                 hideInMenu: false,
+                access: "adminRouterFilter",
                 component: './userManage/userCenter'
               },
               {
@@ -150,4 +153,4 @@ export default [
   {
     component: './404',
   },
-];
+] 

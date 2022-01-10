@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 11:14:18
+ * @LastEditTime: 2022-01-10 22:02:47
  */
 import userService from '@/services/user';
 import util, { getPageQuery } from '@/utils/utils';
@@ -89,7 +89,7 @@ const UserModel: UserModelType = {
     },
     *login({payload}, { call, put }) {      
       const res = yield call(userService.login, payload);
-      if (res.status === -1) return
+      if (res.status === -1) return      
       yield put({
         type: 'saveCurrentUser',
         payload: res.data,

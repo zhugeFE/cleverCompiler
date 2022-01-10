@@ -4,14 +4,14 @@
  * @Author: Adxiong
  * @Date: 2022-01-09 23:23:08
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 10:10:47
+ * @LastEditTime: 2022-01-10 22:14:05
  */
 
 import React  from "react";
 import type { User } from "@/modles/user";
 import type { ConnectState } from '@/models/connect';
 import styles from "./styles/usercenter.less"
-import { Button, Form, Input, Table } from 'antd';
+import { Form, Input, Table } from 'antd';
 import type { ColumnProps } from "antd/lib/table";
 import type {Dispatch } from 'dva';
 import { connect } from 'dva';
@@ -23,15 +23,26 @@ interface Props {
   dispatch: Dispatch
 }
 interface State {
-
+  form: {
+    userName: string;
+    email: string;
+  },
+  searchVaild: boolean;
+  selectedRowKeys: string[];
 }
 
 class UserManage extends React.Component<Props,State> {
   constructor(props: Props) {
     super(props)
     this.state = {
-
+      form: {
+        userName: "",
+        email: ""
+      },
+      searchVaild: true,
+      selectedRowKeys: []
     }
+    this.onSearch = this.onSearch.bind(this)
   }
   componentDidMount(): void {
       this.getUserList()
@@ -41,7 +52,36 @@ class UserManage extends React.Component<Props,State> {
       type: "user/query"
     })
   }
+
+  onSearch (changedValues: any , values: any) {
+    // 防抖处理 300ms
+    if ( !this.state.searchVaild ) {
+      return 
+    } 
+    this.setState({
+      searchVaild: false
+    })
+    setTimeout(() => {
+      this.setState({
+        searchVaild: true,
+        form: {
+          ...this.state.form,
+          ...values
+        }
+      })
+    }, 300)
+  }
+
   render() {
+    const formData = this.state.form
+    const showList = this.props.userList?.filter(item => {
+      try {
+        return new RegExp(formData.userName , 'i').test(item.name) && new RegExp(formData.email, 'i').test(item.email)
+      }
+      catch (err) {
+        
+      }
+    }) 
     const columns: ColumnProps<User>[] = [
       {
         title: '名称',
@@ -66,43 +106,24 @@ class UserManage extends React.Component<Props,State> {
         render(text: string) {
           return text || '-'
         },
-      },
-      {
-        title: '操作',
-        dataIndex: 'handle',
-        width: "40%",
-        fixed: 'right',
-        render: (text, record: User) => {
-          return (
-            <div >
-              <Button type="primary">编辑</Button>
-            </div>
-          );
-        },
-      },
+      }
     ]; 
     return (
       <div className="UserPage" >
         <div className={styles.userTopTool}> 
           <Form layout="inline" onValuesChange={this.onSearch}>
-            <Form.Item label="用户名称" name="projectName">
+            <Form.Item label="用户名称" name="userName">
               <Input autoComplete="off"/>
             </Form.Item>
-            <Form.Item label="角色类型" name="compileType">
+            <Form.Item label="邮箱" name="email">
               <Input autoComplete="off"/>
-            </Form.Item>
-            <Form.Item label="邮箱" name="compileType">
-              <Input autoComplete="off"/>
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" onClick={this.onCreateProject}>新建项目</Button>
             </Form.Item>
           </Form>
         </div>
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={this.props.userList}
+          dataSource={showList}
           pagination={{
             showTotal(totle: number) {
               return `总记录数${totle}`;
