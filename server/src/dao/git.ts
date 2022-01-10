@@ -215,29 +215,7 @@ class GitDao {
       VALUES
         ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 
-      if ( param.dispatch) {
-        //派生版本创建
-        const originGitInfo: GitInfo = await this.getInfo(param.gitId)
-        let originVersionInfo: GitVersion 
-        
-        for (let i = 0 ; i < originGitInfo.branchList.length ; i++) {
-          const versionlist = originGitInfo.branchList[i].versionList
-          for (let j = 0 ; j < versionlist.length; j ++) {
-            if (versionlist[j].id == param.originVersionId) {
-              originVersionInfo = versionlist[j]
-              break
-            }
-          }
-        }
-        originVersionInfo.configs.forEach ( (item ,i ) => {
-          if (!item.filePath.startsWith(param.dir)){
-            originVersionInfo.configs.splice(i,1)
-          }
-        })
-        
-
-      }
-      else if ( param.repoId !== "" && param.gitId == "") { // 判断是否为初始版本
+      if (param.dispatch ||  param.repoId !== "" && param.gitId == "") { // 判断是否为初始版本
         // 初始版本的话，从git获取库信息，存入git_source中
         const sysInfo = await sysDao.getSysInfo()
         const res = await axios({
@@ -254,7 +232,7 @@ class GitDao {
         gitId = util.uuid() //编译平台里的gitid
         await pool.writeInTransaction(connect, sql, [
           gitId,
-          res.data.name,
+          param.dispatch ? param.projectName : res.data.name,
           res.data.ssh_url_to_repo,
           res.data.id,
           res.data.description,
@@ -277,8 +255,23 @@ class GitDao {
         ]) 
       } 
       //查询配置项。插入
-      const info = await this.getInfo(gitId, connect)
+      let info 
+      if( param.dispatch) {
+        info = await this.getInfo(param.gitId, connect)
+      } else {
+        info = await this.getInfo(gitId, connect)
+      }
       let infoBranch 
+      if(param.dispatch) {
+        //派发没有发送branchid。这里查询一下
+        info.branchList.map( branch => {
+          branch.versionList.map( version => {
+            if (version.id == param.originVersionId) {
+              param.originBranchId = branch.id
+            }
+          })
+        })
+      }
       if (param.originBranchId) {
         infoBranch = info.branchList.filter(item => item.id == param.originBranchId)
       } else{
@@ -300,8 +293,8 @@ class GitDao {
           new Date().getTime(),
           VersionStatus.normal,
           JSON.stringify(lastVersionInfo ? lastVersionInfo.compileOrders : []),
-          param.source,
-          param.sourceValue,
+          param.dispatch ? lastVersionInfo.sourceType : param.source,
+          param.dispatch ? lastVersionInfo.sourceValue : param.sourceValue,
           creatorId,
           lastVersionInfo ? lastVersionInfo.outputName : '',
           lastVersionInfo ? lastVersionInfo.publicType : 1,
@@ -309,7 +302,11 @@ class GitDao {
           lastVersionInfo ? `${lastVersionInfo.buildDoc}\n # <${lastVersionInfo.name}>更新内容\n  ${lastVersionInfo.buildUpdateDoc}` : null
           ])
         if (lastVersionInfo) {
-          await Promise.all(lastVersionInfo.configs.map(config => {
+          let configs = _.clone(lastVersionInfo.configs)
+          if (param.dispatch) {
+            configs = configs.filter( item => item.filePath.startsWith(param.dir))
+          }
+          await Promise.all(configs.map(config => {
             return  this.addConfig({
               sourceId: config.sourceId, 
               branchId: branchId,
@@ -319,7 +316,7 @@ class GitDao {
               typeId: String(config.typeId), 
               filePath: config.filePath, 
               targetValue: config.targetValue
-            }, connect)
+            }, connect)            
           }))
         }
       }

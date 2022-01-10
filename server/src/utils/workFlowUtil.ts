@@ -5,7 +5,7 @@ import { SysInfo } from './../types/sys';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 16:31:54
+ * @LastEditTime: 2022-01-10 11:32:57
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -85,6 +85,7 @@ class WorkFlow {
       SocketLogge(socket, SocketEventNames.compileMessage, sourceName, err.message)
     })
     await dashUtil.exec(`git pull`, socket,SocketEventNames.compileMessage, sourceName)
+    sourceValue = sourceValue.trim()
     if (sourceValue !== currentRemoteBranchName) {
       let cmdStr = `git checkout `
       switch (sourceType) {

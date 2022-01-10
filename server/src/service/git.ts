@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-09 15:34:28
+ * @LastEditTime: 2022-01-10 11:47:24
  */
 import gitDao from '../dao/git'
 import { 
@@ -72,13 +72,14 @@ class GitService {
     await dashUtil.cd(`${gitInfo.name}`)
     await dashUtil.exec(`git checkout .`)
     await dashUtil.exec(`git clean -df`)
+    const sourceValue = version.sourceValue.trim()
     switch (version.sourceType) {
       case 'branch':
       case 'commit':
-        await dashUtil.exec(`git checkout ${version.sourceValue}`)
+        await dashUtil.exec(`git checkout ${sourceValue}`)
         break;
       case 'tag':
-        await dashUtil.exec(`git checkout tags/${version.sourceValue}`)
+        await dashUtil.exec(`git checkout tags/${sourceValue}`)
         break;
     }
     return repoDir
