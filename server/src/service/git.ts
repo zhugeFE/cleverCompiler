@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 11:47:24
+ * @LastEditTime: 2022-01-11 13:53:36
  */
 import gitDao from '../dao/git'
 import { 
@@ -57,19 +57,25 @@ class GitService {
   async initRepo (gitId: string, versionId: string, userId: string): Promise<string> {
     const gitInfo = await gitDao.getInfo(gitId)
     const workDir = path.resolve(config.compileDir, userId)
-    logger.info('初始化用户工作空间', workDir)
-    await fsUtil.mkdir(workDir)
-    const repoDir = path.resolve(workDir, gitInfo.name)
+    const workExist = await fsUtil.pathExist(workDir)
+    if (!workExist) {
+      logger.info('初始化用户工作空间', workDir)
+      await fsUtil.mkdir(workDir)
+    }
+    // 这里是以git名为文件夹名，不能直接取gitinfo里的name。稳妥做法是取gitRepo去做截取
+    const name = gitInfo.gitRepo.split('/')[1].split('.')[0]
+    const repoDir = path.resolve(workDir, name)
     const repoExist = await fsUtil.pathExist(repoDir)
     
     const dashUtil = new DashUtil(workDir)
+    
     if (!repoExist) {
       logger.info('初始化项目代码到本地')
       // 代码还没clone到本地
       await dashUtil.exec(`git clone ${gitInfo.gitRepo}`)
     }
     const version = await gitDao.getVersionById(versionId)
-    await dashUtil.cd(`${gitInfo.name}`)
+    await dashUtil.cd(`${name}`)
     await dashUtil.exec(`git checkout .`)
     await dashUtil.exec(`git clean -df`)
     const sourceValue = version.sourceValue.trim()
