@@ -17,6 +17,8 @@ import Commands from './commands'
 import Markdown from '@/components/markdown/markdown'
 import SlidePanel from './leftPanel'
 import type { ConnectState } from '@/models/connect'
+import type { RefSelectProps, SelectProps} from 'antd/lib/select';
+import { SelectValue } from 'antd/lib/select'
 export interface GitEditProps extends IRouteComponentProps<{
   id: string;
 }>{
@@ -42,6 +44,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
   delInterval?: NodeJS.Timeout;
   outputInput= React.createRef<Input>()
   deboundtimerId?: NodeJS.Timeout 
+  // publicGit = React.createRef<any>()
   constructor (props: GitEditProps) {
     super(props)
     this.state = {
@@ -84,7 +87,11 @@ class GitEdit extends React.Component<GitEditProps, State> {
   componentDidUpdate (pre: GitEditProps) {    
     if (pre.currentVersion && pre.currentVersion.outputName != this.props.currentVersion.outputName) {
       this.outputInput.current?.setValue(this.props.currentVersion.outputName)
-    }    
+    }  
+    //尝试用ref替换publicGit
+    // if (pre.currentVersion && pre.currentVersion.publicGit != this.props.currentVersion.publicGit) {
+    //   this.publicGit.current?.setValue(this.props.currentVersion.publicGit)
+    // }      
     this.delInterval = setInterval( () => this.initDelInterval(this.props.currentVersion), 1000)
   }
   componentWillUnmount () {
@@ -289,10 +296,10 @@ class GitEdit extends React.Component<GitEditProps, State> {
 
   selectPubliceGit (id: number) {
     const publicGit = id
-    this.getBranchList(String(publicGit))
-    // this.updateVersion({
-    //   publicGit
-    // })
+    // this.getBranchList(String(publicGit)) //这里获取git里的分支信息。后期可以做指定到git
+    this.updateVersion({
+      publicGit
+    })
   }
 
   onRadioChange (e: any) {
@@ -428,6 +435,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       labelWidth={labelWidth}
                       display="flex">
                       <Select 
+                        ref={this.publicGit}
                         style={{width:250}} 
                         showSearch
                         optionFilterProp="children"
@@ -437,14 +445,14 @@ class GitEdit extends React.Component<GitEditProps, State> {
                         disabled={this.props.currentVersion?.status != VersionStatus.normal} 
                         onChange={this.selectPubliceGit} 
                         placeholder="选择发布代码库"
-                        value={this.props.currentVersion.publicGit}>
+                        defaultValue={this.props.currentVersion.publicGit}>
                         {
                           this.state.gitList?.map(item => {
                             return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
                           })
                         }
                       </Select>
-                      <div style={{display: this.props.currentVersion.publicGit ? ' ' : "none"}}>
+                      {/* <div style={{display: this.props.currentVersion.publicGit ? ' ' : "none"}}>
                         <Radio.Group onChange={this.RadioButtonChange} defaultValue={'select'}>
                           <Radio.Button value="select">选择分支</Radio.Button>
                           <Radio.Button value="add">新建分支</Radio.Button>
@@ -467,7 +475,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                           }
                         </Select>
                         <Input type="text" style={{display: displayInput}}/>
-                      </div>
+                      </div> */}
                     </Description>
                   )
                 }
