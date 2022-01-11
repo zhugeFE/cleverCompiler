@@ -4,9 +4,9 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-30 14:39:53
+ * @LastEditTime: 2022-01-11 18:31:54
  */
-import { Table, Button, Form, Input } from 'antd';
+import { Table, Button, Form, Input, Space } from 'antd';
 import { connect } from 'dva';
 import React from 'react';
 import styles from './styles/templateList.less';
@@ -209,28 +209,27 @@ class TemplateList extends React.Component<TemplateListProps, State> {
         render: (text, record: TemplateInstance) => {
           return (
             <div>
-              <Button 
-                type="primary" 
-                style={{marginRight: 5}}
-                disabled={!record.enable}
-                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
-              <Button 
-                type="ghost"
-                style={{marginRight: 5}}
-                disabled={!record.enable}
-                onClick={this.onClickCopyTemplate.bind(this, record)}>拷贝</Button>
-              <Button 
-                type="ghost"
-                style={{marginRight: 5}}
-                disabled={!record.enable}
-                onClick={this.onClickUpdateEntry.bind(this, record)}>升级</Button>
-              {/* <Button 
-                type="primary"
-                danger 
-                style={{marginRight: 5}} 
-                disabled={!record.enable}
-                onClick={this.onClickDel.bind(this, record)}>删除</Button> */}
-              {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
+              <Space wrap>
+                <Button 
+                  type="primary" 
+                  disabled={!record.enable}
+                  onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+                <Button 
+                  type="ghost"
+                  disabled={!record.enable}
+                  onClick={this.onClickCopyTemplate.bind(this, record)}>拷贝</Button>
+                <Button 
+                  type="ghost"
+                  disabled={!record.enable}
+                  onClick={this.onClickUpdateEntry.bind(this, record)}>升级</Button>
+                {/* <Button 
+                  type="primary"
+                  danger 
+                  disabled={!record.enable}
+                  onClick={this.onClickDel.bind(this, record)}>删除</Button> */}
+                {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
+            
+              </Space>
             </div>
           );
         },

@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-06 17:53:54
+ * @LastEditTime: 2022-01-11 18:37:09
  */
 
 import * as React from 'react';
-import {Button, Input, message, Select, Table } from 'antd';
+import {Button, Input, message, Select, Space, Table } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -284,20 +284,28 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         render: (value: any, record: TemplateGlobalConfig) => {
           return (
             <div>
-              <Button
-                type="primary"
-                disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
-                onClick={this.onEdit.bind(this, record , 'edit')}>编辑</Button>
-              <Button 
-                style={{ marginLeft: '5px' }} 
-                disabled={this.props.mode != VersionStatus.normal}
-                onClick={this.onEdit.bind(this, record, 'hidden')}>
-               {record.isHidden ? "启用" : "隐藏"}
-              </Button>
-              <Button type="primary" danger style={{ marginLeft: '5px' }} onClick={this.onEdit.bind(this, record, 'delete')}>
-                删除
-              </Button>
-              <Button type="primary" style={{ marginLeft: '5px' }} onClick={(event) => this.onSign(event,record)}>{this.props.signArr.includes(record.id) ? "关闭引用" : "查看引用"}</Button>
+              <Space wrap>
+                <Button
+                  type="primary"
+                  disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
+                  onClick={this.onEdit.bind(this, record , 'edit')}>编辑</Button>
+                <Button 
+                  disabled={this.props.mode != VersionStatus.normal}
+                  onClick={this.onEdit.bind(this, record, 'hidden')}>
+                  {record.isHidden ? "启用" : "隐藏"}
+                </Button>
+                <Button 
+                  type="primary" 
+                  danger 
+                  onClick={this.onEdit.bind(this, record, 'delete')}>
+                  删除
+                </Button>
+                <Button 
+                  type="primary" 
+                  onClick={(event) => this.onSign(event,record)}>
+                  {this.props.signArr.includes(record.id) ? "关闭引用" : "查看引用"}
+                </Button>
+              </Space>
             </div>
           );
         },
@@ -377,21 +385,25 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
               placeholder='输入筛选内容'
               style={{width: "300px"}}
             />
-            <Button 
-              className={styles.btnAddConfigItem} 
-              type='primary'
-              disabled={this.props.mode !== VersionStatus.normal}
-              onClick={this.props.onAddGlobalConfig}>添加配置项</Button>
-            <Button 
-              className={styles.btn}
-              disabled={!this.state.selectedRowKeys.length}
-              type="primary" 
-              onClick={this.onBatchOption.bind(this, 'display')}>批量显示</Button>
-            <Button 
-              className={styles.btn}
-              danger 
-              disabled={!this.state.selectedRowKeys.length}
-              onClick={this.onBatchOption.bind(this, 'hidden')}>批量隐藏</Button>
+            <div>
+              <Space>
+                <Button 
+                  className={styles.btnAddConfigItem} 
+                  type='primary'
+                  disabled={this.props.mode !== VersionStatus.normal}
+                  onClick={this.props.onAddGlobalConfig}>添加配置项</Button>
+                <Button 
+                  className={styles.btn}
+                  disabled={!this.state.selectedRowKeys.length}
+                  type="primary" 
+                  onClick={this.onBatchOption.bind(this, 'display')}>批量显示</Button>
+                <Button 
+                  className={styles.btn}
+                  danger 
+                  disabled={!this.state.selectedRowKeys.length}
+                  onClick={this.onBatchOption.bind(this, 'hidden')}>批量隐藏</Button>
+              </Space>
+            </div>
           </Input.Group>
         </div>
         <Table

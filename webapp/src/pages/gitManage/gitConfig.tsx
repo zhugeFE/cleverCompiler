@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 10:16:12
+ * @LastEditTime: 2022-01-11 18:30:34
  */
 import * as React from 'react'
 import styles from './styles/gitConfig.less'
-import { Button, Select, Input, message, Table } from 'antd'
+import { Button, Select, Input, message, Table, Space } from 'antd'
 import type { GitConfig } from '@/models/git'
 import { connect } from 'dva'
 import type { Dispatch } from '@/.umi/plugin-dva/connect'
@@ -185,16 +185,16 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
       {title: '操作', render: (value: any, record: GitConfig) =>{
         return (
           <div>
-            <Button 
-              type="primary"
-              style={{marginLeft: '5px'}} 
-              disabled={this.props.mode != VersionStatus.normal}
-              onClick={this.onTableClick.bind(this, 'edit', record)}>编辑</Button>
-            <Button 
-              danger 
-              disabled={this.props.mode != VersionStatus.normal}
-              style={{marginLeft: '5px'}} 
-              onClick={this.onTableClick.bind(this, 'delete', record)}>删除</Button>
+            <Space wrap>
+              <Button 
+                type="primary"
+                disabled={this.props.mode != VersionStatus.normal}
+                onClick={this.onTableClick.bind(this, 'edit', record)}>编辑</Button>
+              <Button 
+                danger 
+                disabled={this.props.mode != VersionStatus.normal}
+                onClick={this.onTableClick.bind(this, 'delete', record)}>删除</Button>
+            </Space>
           </div>
         )
       }}

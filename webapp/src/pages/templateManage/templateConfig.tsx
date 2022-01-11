@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 17:29:16
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-07 17:59:03
+ * @LastEditTime: 2022-01-11 18:39:18
  */
 import * as React from 'react';
 import styles from './styles/templateConfig.less';
-import { Badge, Button, Empty, Input, message, Select, Skeleton, Table, Tabs } from 'antd';
+import { Badge, Button, Empty, Input, message, Select, Skeleton, Space, Table, Tabs } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import type { Dispatch } from '@/.umi/plugin-dva/connect';
@@ -494,16 +494,18 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
         render: (value: any, record: TemplateConfig) => {
           return (
             <div>
-              <Button   
-                disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
-                onClick={this.onChangeConfig.bind(this, record , 'edit')}>编辑</Button>
-              <Button
-                disabled={this.props.mode != VersionStatus.normal}
-                style={{ marginLeft: '5px', color: record.isHidden ? 'rgba(0,0,0,0,.5)' : '' }}
-                onClick={this.onChangeConfig.bind(this, record, 'hidden')}
-              >
-                {record.isHidden ? '启用' : '隐藏'}
-              </Button>
+              <Space wrap>
+                <Button   
+                  disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
+                  onClick={this.onChangeConfig.bind(this, record , 'edit')}>编辑</Button>
+                <Button
+                  disabled={this.props.mode != VersionStatus.normal}
+                  style={{color: record.isHidden ? 'rgba(0,0,0,0,.5)' : '' }}
+                  onClick={this.onChangeConfig.bind(this, record, 'hidden')}
+                >
+                  {record.isHidden ? '启用' : '隐藏'}
+                </Button>
+              </Space>
             </div>
           );
         },

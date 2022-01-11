@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-05 11:07:51
+ * @LastEditTime: 2022-01-11 18:39:59
  */
 import type { TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
 import type { ColumnProps  } from "antd/lib/table";
-import { Button, Input, Select, Table } from 'antd';
+import { Button, Input, Select, Space, Table } from 'antd';
 import { connect } from "dva";
 import React from "react";
 import type { Dispatch } from "umi";
@@ -196,15 +196,17 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           render: (value: any, record: TemplateGlobalConfig) => {
             return (
               <div>
-                <Button onClick={this.onEdit.bind(this, record)} disabled={this.props.disabled}>编辑</Button>
-                {
-                  record.isHidden == 1 &&
-                  <Button
-                    disabled={this.props.disabled}
-                    onClick={() => {this.props.onUpdateConfigHidden([record.id])}}>隐藏</Button>
-                }
-                <Button type="primary" style={{ marginLeft: '5px' }} onClick={(event) => this.onSign(event,record)}>{this.props.signArr.includes(record.id) ? "取消标记" : "标记"}</Button>
+                <Space wrap>
+                  <Button onClick={this.onEdit.bind(this, record)} disabled={this.props.disabled}>编辑</Button>
+                  {
+                    record.isHidden == 1 &&
+                    <Button
+                      disabled={this.props.disabled}
+                      onClick={() => {this.props.onUpdateConfigHidden([record.id])}}>隐藏</Button>
+                  }
+                  <Button type="primary" onClick={(event) => this.onSign(event,record)}>{this.props.signArr.includes(record.id) ? "取消标记" : "标记"}</Button>
 
+                </Space>
               </div>
           );
           },

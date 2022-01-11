@@ -1,6 +1,6 @@
 import type { ConnectState } from '@/models/connect'
 import type { GitInstance } from '@/models/git'
-import { Button, Form, Input, message, Table } from 'antd'
+import { Button, Form, Input, message, Space, Table } from 'antd'
 import type { ColumnProps } from 'antd/lib/table'
 import { connect } from 'dva'
 import React from 'react'
@@ -184,26 +184,24 @@ class GitList extends React.Component<GitListProps, State> {
         render: (text, record: GitInstance) => {
           return (
             <div className={styles.toHandle}>
-              <Button 
-                type="primary" 
-                style={{marginRight: 5}}
-                disabled={!record.enable}
-                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
-              {/* <Button 
-                type="primary"
-                danger 
-                style={{marginRight: 5}} 
-                disabled={!record.enable}
-                onClick={this.onClickDel.bind(this, record)}>删除</Button> */}
-              <Button                 
-                style={{marginRight: 5}} 
-                disabled={!record.enable}
-                onClick={this.onClickUpdateEntry.bind(this, record)}>版本更新日志</Button>
-              <Button                 
-                style={{marginRight: 5}} 
-                disabled={!record.enable}
-                onClick={this.onClickDispatch.bind(this, record)}>派生</Button>
-              {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
+              <Space wrap>
+                <Button 
+                  type="primary" 
+                  disabled={!record.enable}
+                  onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+                {/* <Button 
+                  type="primary"
+                  danger 
+                  disabled={!record.enable}
+                  onClick={this.onClickDel.bind(this, record)}>删除</Button> */}
+                <Button                 
+                  disabled={!record.enable}
+                  onClick={this.onClickUpdateEntry.bind(this, record)}>版本更新日志</Button>
+                <Button                 
+                  disabled={!record.enable}
+                  onClick={this.onClickDispatch.bind(this, record)}>派生</Button>
+                {record.enable ? <Button danger onClick={this.onChangeStatus.bind(this,record)}>禁用</Button> : <Button onClick={this.onChangeStatus.bind(this,record)}>启用</Button> }
+              </Space>
             </div>
           )
         }

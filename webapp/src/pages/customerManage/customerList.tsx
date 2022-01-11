@@ -4,17 +4,17 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 17:08:22
+ * @LastEditTime: 2022-01-11 18:39:27
  */
-import { Customer } from '@/models/customer';
-import { Button, Form, Input, Table } from 'antd';
-import { ColumnProps } from 'antd/lib/table';
+import type { Customer } from '@/models/customer';
+import { Button, Form, Input, Space, Table } from 'antd';
+import type { ColumnProps } from 'antd/lib/table';
 import React from 'react'
 import { withRouter } from 'react-router-dom';
-import { Dispatch, IRouteComponentProps } from 'umi';
+import type { Dispatch, IRouteComponentProps } from 'umi';
 import { connect } from 'dva';
 import styles from "./styles/customerList.less"
-import { ConnectState } from '@/models/connect';
+import type { ConnectState } from '@/models/connect';
 import UpdateCustomer from "./updateCustomer";
 
 export interface Props extends IRouteComponentProps{
@@ -166,25 +166,25 @@ class CustomerList extends React.Component<Props, States> {
         render: (text, record: Customer) => {
           return (
             <div>
-              <Button 
-                style={{marginRight:5}}
-                type="primary" 
-                danger 
-                onClick={this.onClickEdit.bind(this, record, 'delete')}>
-                删除
-              </Button>
+              <Space wrap>
+                <Button 
+                  type="primary" 
+                  danger 
+                  onClick={this.onClickEdit.bind(this, record, 'delete')}>
+                  删除
+                </Button>
 
-              <Button 
-                style={{marginRight:5}}
-                type="primary"  
-                onClick={this.onClickEdit.bind(this, record, "edit")}>
-                编辑
-              </Button>
-              
-              <Button
-                onClick={this.onClickEdit.bind(this, record, "info")}>
-                详情
-              </Button>
+                <Button 
+                  type="primary"  
+                  onClick={this.onClickEdit.bind(this, record, "edit")}>
+                  编辑
+                </Button>
+                
+                <Button
+                  onClick={this.onClickEdit.bind(this, record, "info")}>
+                  详情
+                </Button>
+              </Space>
             </div>
           );
         },
@@ -197,7 +197,7 @@ class CustomerList extends React.Component<Props, States> {
             <UpdateCustomer
               customerInfo={this.state.currentUpdateData}
               onCancel={this.hideUpdateCustomer}
-            ></UpdateCustomer>
+             />
           )
         }
         <div className={styles.customerTopTool}> 
@@ -224,7 +224,7 @@ class CustomerList extends React.Component<Props, States> {
                 return `总记录数${totle}`;
               },
             }}
-          ></Table>
+           />
       </div>
     )
   }

@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 22:19:50
+ * @LastEditTime: 2022-01-11 18:38:39
  */
 import type { ConnectState } from '@/models/connect';
 import type { ProjectInstance } from '@/models/project';
 import util from '@/utils/utils';
-import { Button, Form, Input, Table } from 'antd';
+import { Button, Form, Input, Space, Table } from 'antd';
 import type { ColumnProps } from 'antd/lib/table';
 import { connect } from 'dva';
 import React from 'react';
@@ -169,21 +169,20 @@ class ProjectList extends React.Component<Props, States> {
         render: (text, record: ProjectInstance) => {
           return (
             <div>
-              <Button style={{marginRight: 5}} onClick={this.onClickCompile.bind(this, record)}>
-                编译
-              </Button>
-              <Button 
-                type="ghost"
-                style={{marginRight: 5}}
-                onClick={this.onClickUpdateEntry.bind(this, record)}>升级</Button>
-              <Button 
-                type="primary" 
-                style={{marginRight: 5}}
-                onClick={this.onClickCompileLog.bind(this, record)}>编译记录</Button>
-              <Button 
-                type="primary" 
-                style={{marginRight: 5}}
-                onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+              <Space wrap>
+                <Button onClick={this.onClickCompile.bind(this, record)}>
+                  编译
+                </Button>
+                <Button 
+                  type="ghost"
+                  onClick={this.onClickUpdateEntry.bind(this, record)}>升级</Button>
+                <Button 
+                  type="primary" 
+                  onClick={this.onClickCompileLog.bind(this, record)}>编译记录</Button>
+                <Button 
+                  type="primary" 
+                  onClick={this.onClickEdit.bind(this, record)}>编辑</Button>
+              </Space>
             </div>
           );
         },

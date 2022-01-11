@@ -4,12 +4,12 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-07 18:03:26
+ * @LastEditTime: 2022-01-11 18:40:37
  */
 
 import { TypeMode } from "@/models/common";
 import type { TemplateConfig, TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
-import { Badge, Button, Empty, Input, Select, Table, Tabs } from "antd";
+import { Badge, Button, Empty, Input, Select, Space, Table, Tabs } from "antd";
 import type { ColumnProps } from "antd/lib/table";
 import { connect } from "dva";
 import React from "react"
@@ -253,15 +253,17 @@ class ProjectConfig extends React.Component <Props, States> {
         render: (value: any, record: TemplateConfig) => {
           return (
             <div>
-              <Button
-                disabled={!!record.globalConfigId || this.props.disabled}
-                onClick={this.onClickConfig.bind(this, record)}>编辑</Button>
-              {
-              record.isHidden == 1 &&
-              <Button
-                disabled={!!record.globalConfigId || this.props.disabled}
-                onClick={() => {this.props.onUpdateConfigHidden([record.id])}}>隐藏</Button>
-              }
+              <Space wrap>
+                <Button
+                  disabled={!!record.globalConfigId || this.props.disabled}
+                  onClick={this.onClickConfig.bind(this, record)}>编辑</Button>
+                {
+                  record.isHidden == 1 &&
+                  <Button
+                    disabled={!!record.globalConfigId || this.props.disabled}
+                    onClick={() => {this.props.onUpdateConfigHidden([record.id])}}>隐藏</Button>
+                } 
+              </Space>
             </div>
           );
         },
