@@ -4,13 +4,13 @@
  * @Author: Adxiong
  * @Date: 2022-01-09 23:23:08
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-10 22:14:05
+ * @LastEditTime: 2022-01-11 15:41:07
  */
 
 import React  from "react";
 import type { User } from "@/modles/user";
 import type { ConnectState } from '@/models/connect';
-import styles from "./styles/usercenter.less"
+import styles from "./styles/userCenter.less"
 import { Form, Input, Table } from 'antd';
 import type { ColumnProps } from "antd/lib/table";
 import type {Dispatch } from 'dva';
