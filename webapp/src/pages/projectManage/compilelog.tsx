@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-13 19:06:25
+ * @LastEditTime: 2022-01-13 19:29:32
  */
 import util from '@/utils/utils'
 import { Button, Table, Tooltip } from 'antd'
@@ -124,7 +124,7 @@ class Compilelog extends React.Component<Props, States> {
         render: (text: string, record: ProjectCompile)=>{
           return (
             record.file ? 
-            <Tooltip title={ <Paragraph copyable>${location.host}/api/download?filePath=${record.file}</Paragraph>}>
+            <Tooltip title={ <Paragraph copyable>{location.host}/api/download?filePath={record.file}</Paragraph>}>
               <Button onClick={()=>download(record.file, record.projectName)}>下载</Button> 
             </Tooltip> : "-"
           )
