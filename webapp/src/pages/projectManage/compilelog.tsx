@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-13 17:07:12
+ * @LastEditTime: 2022-01-13 17:54:11
  */
 import util from '@/utils/utils'
 import { Button, Table, Tooltip } from 'antd'
@@ -15,6 +15,7 @@ import React from 'react'
 import type { IRouteComponentProps, Member, ProjectCompile } from 'umi'
 import { LeftOutlined } from '@ant-design/icons'
 import { download } from '@/utils/download'
+import Paragraph from 'antd/lib/typography/Paragraph';
 
 interface Props extends IRouteComponentProps< {
   id: string;
@@ -123,7 +124,7 @@ class Compilelog extends React.Component<Props, States> {
         render: (text: string, record: ProjectCompile)=>{
           return (
             record.file ? 
-            <Tooltip title={`${location.host}/api/download?filePath=${record.file}`}>
+            <Tooltip title={ <Paragraph>`${location.host}/api/download?filePath=${record.file}`</Paragraph>}>
               <Button onClick={()=>download(record.file, record.projectName)}>下载</Button> 
             </Tooltip> : "-"
           )
