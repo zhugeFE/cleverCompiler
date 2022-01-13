@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-13 14:55:53
+ * @LastEditTime: 2022-01-13 15:23:49
  */
 
 import * as React from 'react';
@@ -242,18 +242,15 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         dataIndex: 'name', 
         fixed: 'left',
         sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
-          const reg = /[a-zA-Z0-9]/
-          if (reg.test(rowA.name) || reg.test(rowB.name)) {
-            if (rowA.name > rowB.name) {
-              return 1
-            } else if (rowA.name < rowB.name) {
-              return -1
-            } else {
-              return 0
-            }
+         
+          if (rowA.name > rowB.name) {
+            return 1
+          } else if (rowA.name < rowB.name) {
+            return -1
           } else {
-            return rowA.name.localeCompare(rowB.name)
+            return 0
           }
+         
         }
       },
       {
@@ -269,18 +266,15 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         ellipsis: true, 
         dataIndex: 'targetValue',
         sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
-          const reg = /[a-zA-Z0-9]/
-          if (reg.test(rowA.targetValue) || reg.test(rowB.targetValue)) {
-            if (rowA.targetValue > rowB.targetValue) {
-              return 1
-            } else if (rowA.targetValue < rowB.targetValue) {
-              return -1
-            } else {
-              return 0
-            }
+         
+          if (rowA.targetValue > rowB.targetValue) {
+            return 1
+          } else if (rowA.targetValue < rowB.targetValue) {
+            return -1
           } else {
-            return rowA.targetValue.localeCompare(rowB.targetValue)
+            return 0
           }
+
         },
         render: (text: string, record) => {
           if (record.type == TypeMode.text) {
@@ -306,7 +300,13 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
           const rowAref = this.referenceComputer(rowA)
           const rowBref = this.referenceComputer(rowB)
-          return rowAref.localeCompare(rowBref)
+          if (rowAref > rowBref) {
+            return 1
+          } else if (rowAref < rowBref) {
+            return -1
+          } else {
+            return 0
+          }
         },
         render: (record: TemplateGlobalConfig) => {
           return this.referenceComputer(record)

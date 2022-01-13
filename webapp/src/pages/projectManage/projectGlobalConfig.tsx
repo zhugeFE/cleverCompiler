@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-13 14:57:59
+ * @LastEditTime: 2022-01-13 15:23:42
  */
 import type { TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
 import type { ColumnProps  } from "antd/lib/table";
@@ -172,17 +172,12 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           dataIndex: 'name',
           fixed: 'left',
           sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
-            const reg = /[a-zA-Z0-9]/
-            if (reg.test(rowA.name) || reg.test(rowB.name)) {
-              if (rowA.name > rowB.name) {
-                return 1
-              } else if (rowA.name < rowB.name) {
-                return -1
-              } else {
-                return 0
-              }
+            if (rowA.name > rowB.name) {
+              return 1
+            } else if (rowA.name < rowB.name) {
+              return -1
             } else {
-              return rowA.name.localeCompare(rowB.name)
+              return 0
             }
           }
         },
@@ -202,17 +197,12 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           ellipsis: true, 
           dataIndex: 'targetValue',
           sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
-            const reg = /[a-zA-Z0-9]/
-            if (reg.test(rowA.targetValue) || reg.test(rowB.targetValue)) {
-              if (rowA.targetValue > rowB.targetValue) {
-                return 1
-              } else if (rowA.targetValue < rowB.targetValue) {
-                return -1
-              } else {
-                return 0
-              }
+            if (rowA.targetValue > rowB.targetValue) {
+              return 1
+            } else if (rowA.targetValue < rowB.targetValue) {
+              return -1
             } else {
-              return rowA.targetValue.localeCompare(rowB.targetValue)
+              return 0
             }
           },
           render: (text: string, record) => {
@@ -228,7 +218,13 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
           sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
             const rowAref = this.referenceComputer(rowA)
             const rowBref = this.referenceComputer(rowB)
-            return rowAref.localeCompare(rowBref)
+            if (rowAref > rowBref) {
+              return 1
+            } else if (rowAref < rowBref) {
+              return -1
+            } else {
+              return 0
+            }
           },
           render: (record: TemplateGlobalConfig) => {
             return this.referenceComputer(record)
