@@ -5,7 +5,7 @@ import { SysInfo } from './../types/sys';
  * @Author: Adxiong
  * @Date: 2021-09-14 10:02:15
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-11 14:01:10
+ * @LastEditTime: 2022-01-13 16:23:54
  */
 import { CompileDoc, CompileGitData } from './../types/compile';
 import { TypeMode } from './../types/common';
@@ -306,7 +306,7 @@ class WorkFlow {
       try {
         for ( let i = 0 ; i < gitData.length; i++) {
           logger.info(gitData[i])
-          name = gitData[i].name.split('/')[1].split('.')[0]
+          name = gitData[i].name
           const fileDir =  `${name}${gitData[i].outputName}`
           logger.info(fileDir)
           oldPath =  path.resolve( this.workDir, fileDir)
