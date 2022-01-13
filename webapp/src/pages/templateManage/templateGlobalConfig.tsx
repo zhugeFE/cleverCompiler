@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-11 18:37:09
+ * @LastEditTime: 2022-01-13 14:55:53
  */
 
 import * as React from 'react';
@@ -57,6 +57,7 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
     this.onChangeFilterType = this.onChangeFilterType.bind(this)
     this.onBatchOption = this.onBatchOption.bind(this)
     this.rowSelectChange = this.rowSelectChange.bind(this)
+    this.referenceComputer = this.referenceComputer.bind(this)
   }
   
 
@@ -216,6 +217,22 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
       }
     })
   }
+
+  referenceComputer (record: TemplateGlobalConfig) {
+    let gitCount = 0
+    let configCount = 0
+    this.props.gitList.forEach( git => {
+      let flag = false
+      git.configList.forEach( config => {
+        if (config.globalConfigId == record.id) {
+          configCount += 1
+          flag = true
+        }
+      })
+      if (flag) gitCount++
+    })
+    return `git: ${gitCount} config: ${configCount}`
+  }
   
   render() {
     const columns: ColumnProps<TemplateGlobalConfig>[] = [
@@ -223,7 +240,21 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         title: '名称', 
         ellipsis: true, 
         dataIndex: 'name', 
-        fixed: 'left'
+        fixed: 'left',
+        sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
+          const reg = /[a-zA-Z0-9]/
+          if (reg.test(rowA.name) || reg.test(rowB.name)) {
+            if (rowA.name > rowB.name) {
+              return 1
+            } else if (rowA.name < rowB.name) {
+              return -1
+            } else {
+              return 0
+            }
+          } else {
+            return rowA.name.localeCompare(rowB.name)
+          }
+        }
       },
       {
         title: '类型',
@@ -237,6 +268,20 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
         title: '目标内容', 
         ellipsis: true, 
         dataIndex: 'targetValue',
+        sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
+          const reg = /[a-zA-Z0-9]/
+          if (reg.test(rowA.targetValue) || reg.test(rowB.targetValue)) {
+            if (rowA.targetValue > rowB.targetValue) {
+              return 1
+            } else if (rowA.targetValue < rowB.targetValue) {
+              return -1
+            } else {
+              return 0
+            }
+          } else {
+            return rowA.targetValue.localeCompare(rowB.targetValue)
+          }
+        },
         render: (text: string, record) => {
           if (record.type == TypeMode.text) {
             return record.targetValue
@@ -258,24 +303,13 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
       },
       {
         title: "引用",
+        sorter: (rowA: TemplateGlobalConfig , rowB: TemplateGlobalConfig) => {
+          const rowAref = this.referenceComputer(rowA)
+          const rowBref = this.referenceComputer(rowB)
+          return rowAref.localeCompare(rowBref)
+        },
         render: (record: TemplateGlobalConfig) => {
-          let gitCount = 0
-          let configCount = 0
-          this.props.gitList.forEach( git => {
-            let flag = false
-            git.configList.forEach( config => {
-              if (config.globalConfigId == record.id) {
-                configCount += 1
-                flag = true
-              }
-            })
-            if (flag) gitCount++
-          })
-          return (
-            <>
-              {`git: ${gitCount}  config: ${configCount}`}
-            </>
-          )
+          return this.referenceComputer(record)
         }
       },
       {
