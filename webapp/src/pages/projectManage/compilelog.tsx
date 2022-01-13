@@ -4,14 +4,15 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:49
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-19 11:04:28
+ * @LastEditTime: 2022-01-13 17:07:12
  */
 import util from '@/utils/utils'
-import { Button, Table } from 'antd'
-import { ColumnProps } from 'antd/lib/table'
-import { connect, Dispatch } from 'dva'
+import { Button, Table, Tooltip } from 'antd'
+import type { ColumnProps } from 'antd/lib/table'
+import type { Dispatch } from 'dva';
+import { connect } from 'dva'
 import React from 'react'
-import { IRouteComponentProps, Member, ProjectCompile } from 'umi'
+import type { IRouteComponentProps, Member, ProjectCompile } from 'umi'
 import { LeftOutlined } from '@ant-design/icons'
 import { download } from '@/utils/download'
 
@@ -69,7 +70,7 @@ class Compilelog extends React.Component<Props, States> {
       UserMap[item.id] = item.name
     })
 
-    const columns : ColumnProps<ProjectCompile>[] =[
+    const columns: ColumnProps<ProjectCompile>[] =[
       {
         title: '名称',
         dataIndex: 'projectName',
@@ -120,8 +121,11 @@ class Compilelog extends React.Component<Props, States> {
         title: "下载",
         dataIndex:"file",
         render: (text: string, record: ProjectCompile)=>{
-          return(
-            record.file ? <Button onClick={()=>download(record.file, record.projectName)}>下载</Button> : "-"
+          return (
+            record.file ? 
+            <Tooltip title={`${location.host}/api/download?filePath=${record.file}`}>
+              <Button onClick={()=>download(record.file, record.projectName)}>下载</Button> 
+            </Tooltip> : "-"
           )
         }
       }
@@ -147,8 +151,7 @@ class Compilelog extends React.Component<Props, States> {
               `总记录数${totle}`
             )
           }}}
-        >
-        </Table>
+         />
       </div>
     )
   }

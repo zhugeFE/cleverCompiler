@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-13 15:38:21
+ * @LastEditTime: 2022-01-13 17:05:29
  */
 import type { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs, Tooltip } from 'antd'
@@ -388,7 +388,7 @@ class CompileEdit extends React.Component<Props, States> {
                   {/* <Button type="primary"  style={{marginRight:10}} onClick={this.onPack}>打包</Button> */}
                   {
                     this.state.downloadAddr && 
-                    <Tooltip title={`${location.host}/download?filePath=${this.state.downloadAddr}`}>
+                    <Tooltip title={`${location.host}/api/download?filePath=${this.state.downloadAddr}`}>
                       <Button    
                         onClick={ () => this.onDownLoad()}
                       >
