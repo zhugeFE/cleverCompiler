@@ -4,10 +4,10 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-06 17:34:10
+ * @LastEditTime: 2022-01-13 15:38:21
  */
 import type { ConnectState } from '@/models/connect'
-import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs } from 'antd'
+import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs, Tooltip } from 'antd'
 import type { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import TextArea from 'antd/lib/input/TextArea'
 import React from 'react'
@@ -388,13 +388,14 @@ class CompileEdit extends React.Component<Props, States> {
                   {/* <Button type="primary"  style={{marginRight:10}} onClick={this.onPack}>打包</Button> */}
                   {
                     this.state.downloadAddr && 
-                    <Button 
-                      onClick={ 
-                        () => this.onDownLoad()
-                      }
-                    >
-                      下载
-                    </Button> 
+                    <Tooltip title={`${location.host}/download?filePath=${this.state.downloadAddr}`}>
+                      <Button    
+                        onClick={ () => this.onDownLoad()}
+                      >
+                        下载
+                      </Button> 
+                    </Tooltip>
+                    
                   }
 
                 </Form.Item>
