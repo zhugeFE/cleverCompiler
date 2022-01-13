@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-16 14:13:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-11 14:02:08
+ * @LastEditTime: 2022-01-13 15:47:49
  */
 import { SysInfo } from './../types/sys';
 import * as Socket from "socket.io";
@@ -61,7 +61,7 @@ class SocketUtil{
         gitInfo.map ( git => {
           compileList.unshift({
             userId: ctx.userId,
-            gitName: git.name.split('/')[1].split(".")[0],
+            gitName: git.ssh.split('/')[1].split(".")[0],
             gitSsh: git.ssh,
             gitValue: git.gitValue,
             gitType: git.gitType,
