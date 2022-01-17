@@ -78,6 +78,7 @@ class GitService {
     await dashUtil.cd(`${name}`)
     await dashUtil.exec(`git checkout .`)
     await dashUtil.exec(`git clean -df`)
+    await dashUtil.exec(`git fetch`)
     const sourceValue = version.sourceValue.trim()
     switch (version.sourceType) {
       case 'branch':
