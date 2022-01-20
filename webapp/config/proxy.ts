@@ -16,7 +16,7 @@
 export default {
   dev: {
     '/api/': {
-      target: 'http://localhost:3000',
+      target: 'http://47.92.7.5:8888',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     }
@@ -24,5 +24,5 @@ export default {
 };
 
 export const wsserver = {
-  ws: 'ws://localhost:3000'
+  ws: 'ws://47.92.7.5:8888'
 }

@@ -267,7 +267,7 @@ class GitTextConfig extends React.Component<Props, State> {
                 required: true,
                 message: '匹配规则不能为空'
               }]}>
-              <Input autoComplete="off" onChange={this.onChangeReg}/>
+              <Input autoComplete="off" onBlur={this.onChangeReg}/>
             </Form.Item>
             <Form.Item valuePropName="checked" name="global">
               <Checkbox>全局</Checkbox>
