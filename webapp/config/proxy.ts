@@ -24,5 +24,5 @@ export default {
 };
 
 export const wsserver = {
-  ws: 'ws://47.92.7.5:8888'
+  ws: 'ws://47.92.7.5:3000'
 }
