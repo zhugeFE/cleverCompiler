@@ -412,19 +412,6 @@ class CreateGitVersion extends React.Component<Props, States> {
           </Form.Item>
           
           {
-            this.props.mode == 'init' || this.props.mode == 'branch' ? (
-              <>
-                <Form.Item label="分支名称" name="branchName" required>
-                  <Input autoComplete="off" />
-                </Form.Item>
-                
-                <Form.Item label="分支描述" name="branchDesc" required>
-                  <Input autoComplete="off" />
-                </Form.Item>
-              </>
-            ) : null
-          }
-          {
             this.props.mode == 'init' && !this.state.isCreateDispatch &&
             <Form.Item label="git来源" name="repoId" required>
               <Select 
@@ -493,6 +480,19 @@ class CreateGitVersion extends React.Component<Props, States> {
                 </Form.Item>      
               </>
             )
+          }
+          {
+            this.props.mode == 'init' || this.props.mode == 'branch' ? (
+              <>
+                <Form.Item label="分支名称" name="branchName" required>
+                  <Input autoComplete="off" />
+                </Form.Item>
+                
+                <Form.Item label="分支描述" name="branchDesc" required>
+                  <Input autoComplete="off" />
+                </Form.Item>
+              </>
+            ) : null
           }
 
           {

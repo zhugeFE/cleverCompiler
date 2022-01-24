@@ -145,6 +145,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
               templateVersionGitId: git.id,
               gitSourceConfigId: config.id,
               targetValue: config.targetValue,
+              isHidden: config.isHidden
             })
           })
         }
@@ -435,7 +436,7 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
             <Select
               disabled={this.props.mode != VersionStatus.normal || !!record.isHidden}
               defaultValue={this.globalConfigMap[record.globalConfigId]?.name || "无"}
-              style={{ width: '100px' }}
+              style={{ minWidth: '120px' }}
               optionFilterProp="children"
               showSearch
               filterOption={(input, option) =>{

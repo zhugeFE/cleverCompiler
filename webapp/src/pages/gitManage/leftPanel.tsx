@@ -7,16 +7,17 @@
  * @LastEditTime: 2021-12-14 14:58:55
  */
 
-import { GitInfo, GitInfoBranch, GitVersion } from '@/models/git';
+import type { GitInfo, GitInfoBranch, GitVersion } from '@/models/git';
 import { Button } from 'antd';
 import React from 'react';
 import BranchTree from './branchTree';
 import styles from './styles/leftPanel.less';
 import CreateGitVersion from './createGitVersion';
-import { ConnectState } from '@/models/connect';
-import { connect, Dispatch } from 'dva';
+import type { ConnectState } from '@/models/connect';
+import type { Dispatch } from 'dva';
+import { connect } from 'dva';
 import { VersionStatus } from '@/models/common';
-import { IRouteProps } from '@umijs/types';
+import type { IRouteProps } from '@umijs/types';
 
 interface Props extends IRouteProps{
   disabled: boolean;
@@ -100,13 +101,13 @@ class LeftPanel extends React.Component<Props, State> {
       return (
         <CreateGitVersion 
           mode='branch'
-          gitId={this.props.gitId} 
+          gitId={this.props.gitId}
           title='新建分支'
           gitInfo={this.props.gitInfo}
           repoId={this.props.repoId}
           versionList={this.props.versionList}
           onCancel={this.onHideAddBranch}
-          afterAdd={this.afterAdd}></CreateGitVersion>
+          afterAdd={this.afterAdd}/>
       )
     }
 
@@ -120,7 +121,7 @@ class LeftPanel extends React.Component<Props, State> {
           branchId={this.props.expandedKeys[0]}
           versionList={this.props.versionList}
           onCancel={this.onCancelAddVersion}
-          afterAdd={this.afterAdd}></CreateGitVersion>
+          afterAdd={this.afterAdd} />
       )
     }
   }
@@ -139,7 +140,7 @@ class LeftPanel extends React.Component<Props, State> {
           selectedKeys={this.props.selectedKeys}
           data={this.props.data}
           onChange={this.onChange}
-        ></BranchTree>
+         />
       </div>
     )
   }

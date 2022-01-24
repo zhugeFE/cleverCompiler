@@ -452,30 +452,6 @@ class GitEdit extends React.Component<GitEditProps, State> {
                           })
                         }
                       </Select>
-                      {/* <div style={{display: this.props.currentVersion.publicGit ? ' ' : "none"}}>
-                        <Radio.Group onChange={this.RadioButtonChange} defaultValue={'select'}>
-                          <Radio.Button value="select">选择分支</Radio.Button>
-                          <Radio.Button value="add">新建分支</Radio.Button>
-                        </Radio.Group>
-                        <Select 
-                          style={{width:250, display:displaySelect}} 
-                          showSearch
-                          optionFilterProp="children"
-                          filterOption={(input, option) =>
-                            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                          }
-                          disabled={this.props.currentVersion?.status != VersionStatus.normal} 
-                          onChange={this.selectPubliceGit} 
-                          placeholder="选择发布代码库"
-                          value={this.props.currentVersion.publicGit}>
-                          {
-                            this.state.gitList?.map(item => {
-                              return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
-                            })
-                          }
-                        </Select>
-                        <Input type="text" style={{display: displayInput}}/>
-                      </div> */}
                     </Description>
                   )
                 }
@@ -486,7 +462,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                       <Markdown
                         DisabledEdit={this.props.currentVersion.status != VersionStatus.normal}
                         onChange={this.onChangeReadme} 
-                        key={this.props.currentVersion.id} 
+                        markId={this.props.currentVersion.id} 
                         content={this.props.currentVersion.readmeDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="完整部署文档" key="build1">
@@ -495,7 +471,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <Markdown 
                       onChange={this.onChangeBuild} 
                       DisabledEdit={this.props.currentVersion.status != VersionStatus.normal}
-                      key={this.props.currentVersion.id} 
+                      markId={this.props.currentVersion.id} 
                       content={this.props.currentVersion.buildDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="部署更新文档" key="build2">
@@ -504,7 +480,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <Markdown 
                       onChange={this.onChangeBuildUpdate} 
                       DisabledEdit={this.props.currentVersion.status != VersionStatus.normal}
-                      key={this.props.currentVersion.id} 
+                      markId={this.props.currentVersion.id} 
                       content={this.props.currentVersion.buildUpdateDoc} /> : null}
                   </Tabs.TabPane>
                   <Tabs.TabPane tab="更新内容" key="update">
@@ -513,7 +489,7 @@ class GitEdit extends React.Component<GitEditProps, State> {
                     <Markdown 
                       onChange={this.onChangeUpdate} 
                       DisabledEdit={this.props.currentVersion.status != VersionStatus.normal}
-                      key={this.props.currentVersion.id} 
+                      markId={this.props.currentVersion.id} 
                       content={this.props.currentVersion.updateDoc} /> : null}
                   </Tabs.TabPane>
                 </Tabs>

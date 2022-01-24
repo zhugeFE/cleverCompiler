@@ -254,7 +254,7 @@ class TemplateDao {
       return await this.getVersionbyId(versionId)
 
     } catch ( e ) {
-      await pool.rollback(connect)
+      pool.rollback(connect)
       throw(e)
     }
   }
@@ -340,7 +340,7 @@ class TemplateDao {
             description: config.description,
             targetValue: config.targetValue,
             type: config.type,
-            isHidden: 0,
+            isHidden: config.isHidden,
           }, connect) as TemplateGlobalConfig
           globalConfigMap[config.id] = configId
         }
@@ -406,7 +406,7 @@ class TemplateDao {
       gitId,
       config.gitSourceConfigId,
       config.targetValue,
-      0,
+      config.isHidden || 0,
       globalConfigId != "" ? globalConfigId : null
     ])
   }

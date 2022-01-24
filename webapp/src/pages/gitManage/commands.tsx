@@ -4,8 +4,9 @@ import { Input, Tag } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { VersionStatus } from '@/models/common'
 import util from '@/utils/utils'
-import { ConnectState } from '@/models/connect'
-import { connect, Dispatch } from 'umi'
+import type { ConnectState } from '@/models/connect'
+import type { Dispatch } from 'umi';
+import { connect } from 'umi'
 
 interface Props {
   dispatch: Dispatch;
@@ -62,7 +63,7 @@ class Commands extends React.Component<Props, State> {
     })
   }
   onDel (i: number) {
-    let tags = util.clone(this.props.tags)
+    const tags = util.clone(this.props.tags)
     tags.splice(i, 1)
     this.onChange(tags)
   }
@@ -98,7 +99,7 @@ class Commands extends React.Component<Props, State> {
                 onBlur={this.onEnterTag}
                 onChange={this.onInput}
                 onBlurCapture={this.onBlurInput}
-                onPressEnter={this.onEnterTag}></Input>
+                onPressEnter={this.onEnterTag} />
             )
           } else {
             return (

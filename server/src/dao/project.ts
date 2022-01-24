@@ -179,7 +179,7 @@ class Project {
       project
     LEFT JOIN customer ON customer.id = project.customer 
     WHERE
-      project.  id = ?`
+      project.id = ?`
     const list = await pool.query<ProjectType>(sql, [id])
     return list.length > 0 ? list[0] : null
   }
@@ -287,6 +287,7 @@ class Project {
       t.git_source_version_id as git_source_version_id,
       p.NAME AS NAME,
       git_source.name as name,
+      source_branch.name as branch_name,
       source_version.version as version,
       p.project_id AS project_id
     FROM
@@ -294,6 +295,7 @@ class Project {
     LEFT JOIN template_version_git as t ON t.id = p.template_git_id
     LEFT JOIN git_source ON t.git_source_id = git_source.id
     LEFT JOIN source_version ON source_version.id = t.git_source_version_id
+    left join source_branch on source_branch.id = source_version.branch_id
     WHERE p.project_id = ?`
 
     const data = await pool.query<TemplateVersionGit>(sql, [projectId])

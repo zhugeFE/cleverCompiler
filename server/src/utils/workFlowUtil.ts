@@ -330,7 +330,7 @@ class WorkFlow {
 
       SocketLogge(socket, SocketEventNames.result,'result',`Step: 开始打包文件`)
       
-      await new DashUtil(tmpPath).exec(`tar czvf ${savePath} ./`, socket,SocketEventNames.result, 'result')
+      await new DashUtil(tmpPath).exec(`tar czf ${savePath} ./`, socket,SocketEventNames.result, 'result')
       if (failList.length) {
         res = `打包成功：${gitData.length - failList.length}/${gitData.length} \n 失败git：${failList.toString()}`
         SocketLogge(socket, SocketEventNames.result,'result',res)

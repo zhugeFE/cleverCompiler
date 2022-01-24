@@ -37,7 +37,7 @@ router.post('/status', (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.get('/:id/info', (req: Request, res: Response, next: NextFunction) => {
-  gitService.getInfoById(req.params.id)
+  gitService.getInfoById(req.session, req.params.id)
   .then((gitInfo: GitInfo) => {
     if (!gitInfo) {
       res.json(new ApiResult(ResponseStatus.fail, null, '数据不存在'))

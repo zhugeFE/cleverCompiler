@@ -15,7 +15,7 @@ import { EditOutlined, FileMarkdownOutlined, FullscreenOutlined } from '@ant-des
 interface Props {
   content: string;
   DisabledEdit?: boolean;
-  key: string;
+  markId: string;
   onChange?: (content: string) => void;
 }
 enum Mode {
@@ -34,7 +34,7 @@ class Markdown extends React.Component<Props, State> {
     this.onChange = this.onChange.bind(this)
   }
   componentDidUpdate(pre: Props) {
-    if (pre.key != this.props.key) {
+    if (pre.markId != this.props.markId) {
       this.setState({
         mode: Mode.preview
       })

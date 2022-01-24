@@ -33,6 +33,8 @@ class SysDao {
   async init (param: SysInfo): Promise<void> {
     const connect = await pool.beginTransaction()
     try {
+      logger.info('初始化角色元数据')
+      await this.initRole(connect)
       // 初始化系统状态及git配置信息
       logger.info('初始化系统信息')
       await this.initSys(connect, param)
@@ -41,8 +43,6 @@ class SysDao {
       await this.initConfigTypes(connect)
       logger.info('创建初始账号')
       await userDao.createUser(connect, param)
-      logger.info('初始化角色元数据')
-      await this.initRole(connect)
       logger.info('git库数据同步')
       await pool.commit(connect)
     } catch (e) {

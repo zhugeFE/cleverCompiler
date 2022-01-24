@@ -40,7 +40,21 @@ class SocketUtil{
   bindListent (): void {
     this.io.on('connect', socket => {
 
-      socket.on("startCompile", async (ctx) => {
+      socket.on("startCompile", async (ctx: {
+        gitIds: string[];
+        description: string;
+        projectId: string;
+        publicType: number;
+        userId: string;
+      }) => {
+
+        // 根据项目id，查询git列表
+
+        // 获取要编译的git列表
+        
+        // 获取全局配置列表
+
+        // 获取每个git库的配置列表与编译命令
         
         const compileInfo: ProjectInfo = await ProjectService.projectCompileInfo(ctx.projectId)
         const gitInfo: CompileGitParams[] = await ProjectService.getCompileGitData(ctx['gitIds'])

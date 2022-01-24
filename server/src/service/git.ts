@@ -38,8 +38,12 @@ class GitService {
     const gitList = await gitDao.query(userId)
     return gitList
   }
-  async getInfoById (repoId: string): Promise<GitInfo> {
+  async getInfoById (session: Express.Session, repoId: string): Promise<GitInfo> {
     const gitInfo = await gitDao.getInfo(repoId)
+    const workDir = path.resolve(config.compileDir, session.currentUser.id)
+    const name = gitInfo.gitRepo.split('/')[1].split('.')[0]
+    const repoDir = path.resolve(workDir, name)
+    session.repoDir = repoDir
     return gitInfo
   }
   async getBranchsById (repoId: string | number): Promise<GitBranch[]> {
