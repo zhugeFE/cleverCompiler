@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 18:45:22
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-11 18:31:54
+ * @LastEditTime: 2022-01-25 20:13:14
  */
 import { Table, Button, Form, Input, Space } from 'antd';
 import { connect } from 'dva';
@@ -111,7 +111,7 @@ class TemplateList extends React.Component<TemplateListProps, State> {
       })
     }, 300)
   }
-  rowSelectChange (selectedRowKeys: React.Key[], selectedRows: TemplateInstance[]) {
+  rowSelectChange (selectedRowKeys: React.Key[]) {
     const arr = selectedRowKeys.map(item => String(item))
     this.setState({
       selectedRowKeys: arr

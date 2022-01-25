@@ -83,7 +83,7 @@ class GitList extends React.Component<GitListProps, State> {
       })
     }, 300)
   }
-  rowSelectChange (selectedRowKeys: React.Key[], selectedRows: GitInstance[]) {
+  rowSelectChange (selectedRowKeys: React.Key[]) {
     const arr = selectedRowKeys.map(item => String(item))
     this.setState({
       selectedRowKeys: arr
@@ -129,7 +129,7 @@ class GitList extends React.Component<GitListProps, State> {
         fixed: 'left',
         width: 300,
         ellipsis: true,
-        render (text, record: GitInstance) {
+        render (text) {
           return text
         }
       },

@@ -4,21 +4,21 @@
  * @Author: Adxiong
  * @Date: 2021-11-18 14:25:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 15:47:54
+ * @LastEditTime: 2022-01-25 20:03:56
  */
 import { TypeMode } from "@/models/common";
-import { TemplateConfig } from "@/models/template";
+import type { TemplateConfig } from "@/models/template";
 import { message, Modal, Table } from "antd";
-import { ColumnProps } from "antd/lib/table/Column";
-import { Key } from "antd/lib/table/interface";
+import type { ColumnProps } from "antd/lib/table/Column";
+import type { Key } from "antd/lib/table/interface";
 import React from "react"
 
 interface Props {
   disabled?: boolean;
   visible: boolean;
   dataSource: TemplateConfig[]
-  onAddConfig (data: string[]): void;
-  onCancel (): void; 
+  onAddConfig: (data: string[]) => void;
+  onCancel:  () => void; 
 }
 
 interface State {
@@ -52,7 +52,7 @@ class ConfigMarage extends React.Component<Props,State> {
     this.props.onCancel()
   }
   
-  rowSelectChange (selectedRowKeys: Key[], selectedRows: TemplateConfig[]) {
+  rowSelectChange (selectedRowKeys: Key[]) {
     this.setState({
       selectedRowKeys: selectedRowKeys as string[]
     })
@@ -68,7 +68,7 @@ class ConfigMarage extends React.Component<Props,State> {
           if ( record.globalConfigId) {
             return "-"
           }else {
-            return record.typeId == TypeMode.text ? record.targetValue : JSON.parse(record.targetValue)['originalFilename']
+            return record.typeId == TypeMode.text ? record.targetValue : JSON.parse(record.targetValue).originalFilename
           }
         },
       },

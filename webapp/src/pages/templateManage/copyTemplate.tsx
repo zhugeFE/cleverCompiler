@@ -4,19 +4,21 @@
  * @Author: Adxiong
  * @Date: 2021-11-08 15:43:20
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-02 14:28:03
+ * @LastEditTime: 2022-01-25 20:11:49
  */
-import { TemplateInstance } from "@/models/template";
+import type { TemplateInstance } from "@/models/template";
 import util from "@/utils/utils";
-import { Form, FormInstance, Input, message, Modal, Select, Spin } from "antd";
-import { connect, Dispatch } from "dva";
+import type { FormInstance} from "antd";
+import { Form, Input, message, Modal, Select, Spin } from "antd";
+import type { Dispatch } from "dva";
+import { connect } from "dva";
 import React from "react";
 
 interface Props {
   templateInfo: TemplateInstance;
-  afterCopyTemplate(template: TemplateInstance): void;
-  onCancel(): void;
-  dispatch : Dispatch;
+  afterCopyTemplate: (template: TemplateInstance) => void;
+  onCancel: () => void;
+  dispatch: Dispatch;
 }
 
 export interface VersionInfo {
@@ -126,13 +128,13 @@ class CopyTemplate extends React.Component <Props, State> {
                 onValuesChange={this.onChangeForm}
               >
                 <Form.Item label="源模版名称" name="sourceName">
-                  <Input disabled></Input>
+                  <Input disabled />
                 </Form.Item>
                 <Form.Item 
                   rules={[{ required: true, message: '请填写模版名称!' }]}
                   label="新模版名称" 
                   name="name">
-                  <Input autoComplete="off"></Input>
+                  <Input autoComplete="off" />
                 </Form.Item>
                 <Form.Item 
                   label="源版本" 

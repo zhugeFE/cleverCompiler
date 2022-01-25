@@ -4,14 +4,15 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:45:38
+ * @LastEditTime: 2022-01-25 20:11:09
  */
-import { Form, FormInstance, Input, Modal } from 'antd';
+import type { FormInstance} from 'antd';
+import { Form, Input, Modal } from 'antd';
 import React from 'react';
-import { Dispatch } from '@/.umi/core/umiExports';
+import type { Dispatch } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
 import util from '@/utils/utils';
-import { TemplateGlobalConfig } from '@/models/template';
+import type { TemplateGlobalConfig } from '@/models/template';
 import { LeftOutlined } from '@ant-design/icons';
 import TextArea from 'antd/lib/input/TextArea';
 import { EditMode } from '@/models/common';
@@ -27,9 +28,9 @@ interface Props {
   templateVersionId: string;
   mode: EditMode;
   globalConfig?: TemplateGlobalConfig;
-  onSubmit (data: FormData): void;
-  onCancel(): void;
-  onBack?(): void;
+  onSubmit: (data: FormData) => void;
+  onCancel: () => void;
+  onBack?: () => void;
   dispatch: Dispatch;
 }
 
@@ -59,14 +60,13 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
   }
 
   onCommit() {
-    const { name, description, targetValue } = this.state.form
     this.templateTextForm.current?.validateFields()
     .then((form) => {
       if (!this.props.onSubmit) return
       this.props.onSubmit({
-        name: name,
-        description: description,
-        targetValue: targetValue,
+        name: form.name,
+        description: form.description,
+        targetValue: form.targetValue,
       })
     })
     .catch((err) => {
@@ -116,19 +116,19 @@ class AddTemplateGlobalTextConfig extends React.Component<Props, States> {
               label="名称" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
               name="name">
-              <Input autoComplete="off" disabled={this.props.mode != EditMode.create}></Input>
+              <Input autoComplete="off" disabled={this.props.mode != EditMode.create} />
             </Form.Item>
             <Form.Item 
               label="描述" 
               rules={[{ required: true, message: '请输入配置描述!' }]}
               name="description">
-              <TextArea rows={4}></TextArea>
+              <TextArea rows={4} />
             </Form.Item>
             <Form.Item 
               label="默认值" 
               rules={[{ required: true, message: '请输入配置值!' }]}
               name="targetValue">
-              <Input autoComplete="off"></Input>
+              <Input autoComplete="off" />
             </Form.Item>
           </Form>
       </Modal>

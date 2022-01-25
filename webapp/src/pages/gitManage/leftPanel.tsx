@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-29 17:49:55
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-14 14:58:55
+ * @LastEditTime: 2022-01-25 20:03:13
  */
 
 import type { GitInfo, GitInfoBranch, GitVersion } from '@/models/git';
@@ -152,9 +152,9 @@ export default connect( ({git}: ConnectState) => {
     expandedKeys: [git.currentBranch!.id],
     selectedKeys: [git.currentVersion!.id],
     gitInfo: git.currentGit!,
-    data: git.currentGit?.branchList!,
-    gitId: git.currentGit?.id!,
-    repoId: git.currentGit?.gitId!,
-    versionList: git.currentBranch?.versionList!
+    data: git.currentGit!.branchList!,
+    gitId: git.currentGit!.id!,
+    repoId: git.currentGit!.gitId!,
+    versionList: git.currentBranch!.versionList!
   }
 })(LeftPanel)  

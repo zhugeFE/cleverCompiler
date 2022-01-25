@@ -4,19 +4,18 @@
  * @Author: Adxiong
  * @Date: 2021-08-26 16:06:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-08-26 16:59:30
+ * @LastEditTime: 2022-01-25 20:17:55
  */
 import { Form, Input, Modal } from "antd"
 import TextArea from "antd/lib/input/TextArea"
 import { connect } from "dva"
 import React from "react"
-import { Dispatch } from "umi"
-import { Customer } from "@/models/customer"
-import util from "@/utils/utils"
+import type { Dispatch } from "umi"
+import type { Customer } from "@/models/customer"
 
 interface Props {
   customerInfo: Customer | null;
-  onCancel(): void;
+  onCancel: () => void;
   dispatch: Dispatch
 }
 
@@ -47,6 +46,7 @@ class UpdateCustomer extends React.Component <Props, States> {
     const { customerInfo } = this.props
     const data: Customer = {
       id: customerInfo!.id,
+      tel: customerInfo!.tel,
       name: customerInfo!.name,
       description: this.state.form.description,
       projectId: customerInfo!.projectId,

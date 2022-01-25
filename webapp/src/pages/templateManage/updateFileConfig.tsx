@@ -4,15 +4,16 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:54
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 11:09:48
+ * @LastEditTime: 2022-01-25 20:14:07
  */
 
 
-import { Form, FormInstance, Input, Modal } from 'antd';
+import type { FormInstance} from 'antd';
+import { Form, Input, Modal } from 'antd';
 import React from 'react';
-import { Dispatch } from '@/.umi/core/umiExports';
+import type { Dispatch } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
-import { TemplateConfig } from '@/models/template';
+import type { TemplateConfig } from '@/models/template';
 import TextArea from 'antd/lib/input/TextArea';
 import { EditMode } from '@/models/common';
 import Dragger from 'antd/lib/upload/Dragger';
@@ -29,8 +30,8 @@ interface FormData {
 interface Props {
   mode: EditMode;
   config: TemplateConfig;
-  onSubmit (data: FormData): void;
-  onCancel(): void;
+  onSubmit: (data: FormData) => void;
+  onCancel: () => void;
   dispatch: Dispatch;
 }
 
@@ -107,13 +108,13 @@ class UpdateTextConfig extends React.Component<Props, States> {
               label="文件位置" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
               name="filePath">
-              <Input disabled={this.props.mode != EditMode.create}></Input>
+              <Input disabled={this.props.mode != EditMode.create} />
             </Form.Item>
             <Form.Item 
               label="描述" 
               rules={[{ required: true, message: '请输入配置描述!' }]}
               name="description">
-              <TextArea rows={4} disabled></TextArea>
+              <TextArea rows={4} disabled />
             </Form.Item>
             <Form.Item 
               label="上传文件" 

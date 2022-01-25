@@ -3,11 +3,11 @@ import { Modal, Card, Row, Col, message } from 'antd';
 import GitTextConfig from './gitTextConfig';
 import GitFileConfig from './gitFileConfig';
 import styles from './styles/gitAddConfig.less'
-import { ConfigType, EditMode } from '@/models/common';
+import type { ConfigType} from '@/models/common';
+import { EditMode } from '@/models/common';
 import { connect } from 'dva'
-import { GitConfig } from '@/models/git';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
-import { ConnectState } from '@/models/connect';
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { ConnectState } from '@/models/connect';
 
 interface Props {
   gitId: string;
@@ -15,7 +15,7 @@ interface Props {
   branchId: string;
   configTypes: ConfigType[];
   dispatch: Dispatch;
-  onClose ?(): void;
+  onClose?: () => void;
 }
 interface State {
   type?: ConfigType;
@@ -48,9 +48,9 @@ class GitAddConfig extends React.Component<Props, State> {
 
   onSubmitForm (formData: any, isContinue: boolean) {
     const form = new FormData()
-    for (let key of Object.keys(formData)) {
+    for (const key of Object.keys(formData)) {
       if (key == 'file') {
-        form.append("files", formData[key]['file'])
+        form.append("files", formData[key].file)
       } else {
         form.append(key, formData[key])
       }
@@ -101,7 +101,7 @@ class GitAddConfig extends React.Component<Props, State> {
               gitVersionId={this.props.versionId}
               onSubmit={this.onSubmitForm}
               onBack={this.onBack}
-              onCancel={this.onCancel}></GitTextConfig>
+              onCancel={this.onCancel} />
           )
         case 'file':
           return (
@@ -112,7 +112,7 @@ class GitAddConfig extends React.Component<Props, State> {
               onSubmit={this.onSubmitForm}
               onBack={this.onBack}
               onCancel={this.onCancel}
-            ></GitFileConfig>
+             />
             // 'git file config'
           )
         case 'json':

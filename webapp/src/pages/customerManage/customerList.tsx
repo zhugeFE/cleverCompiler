@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:54:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-11 18:39:27
+ * @LastEditTime: 2022-01-25 20:17:48
  */
 import type { Customer } from '@/models/customer';
 import { Button, Form, Input, Space, Table } from 'antd';
@@ -130,7 +130,7 @@ class CustomerList extends React.Component<Props, States> {
         title: '联系方式',
         dataIndex: 'tel',
         ellipsis: true,
-        render(text: string, record: Customer) {
+        render(text: string) {
           return <div>{ text || '-' }</div>
         }
       },

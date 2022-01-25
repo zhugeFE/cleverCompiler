@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-11 18:30:34
+ * @LastEditTime: 2022-01-25 19:55:39
  */
 import * as React from 'react'
 import styles from './styles/gitConfig.less'
@@ -16,6 +16,7 @@ import { EditMode, TypeMode, VersionStatus } from '@/models/common'
 import UpdateTextConfig from "./gitTextConfig";
 import UpdateFileConfig from "./gitFileConfig";
 import type { ConnectState } from '@/models/connect'
+import type { ColumnProps } from 'antd/lib/table'
 
 export interface GitConfigPanelProps {
   store: GitConfig[],
@@ -146,7 +147,7 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
         value: "description"
       }
     ]
-    const columns = [
+    const columns: ColumnProps<GitConfig>[] = [
       {
         title: '文件位置',
         dataIndex: 'filePath', 
@@ -159,7 +160,7 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
       {
         title: '匹配规则',
         dataIndex: 'reg', 
-        render (value) {
+        render (value: string) {
           if (!value) return <span>-</span>
           const val = JSON.parse(value)
           const reg = new RegExp(val.source, `${val.global ? 'g' : ''}${val.ignoreCase ? 'i' : ''}`)
@@ -170,7 +171,7 @@ class GitConfigPanel extends React.Component<GitConfigPanelProps, State> {
       },
       {
         title: '目标内容',
-        dataIndex: 'targetValue', render: (text: string, record) => {
+        dataIndex: 'targetValue', render: (text: string, record: GitConfig) => {
           if (record.typeId == TypeMode.text) {
             return record.targetValue
           }else {

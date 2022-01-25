@@ -4,19 +4,19 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 21:22:00
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-14 17:46:19
+ * @LastEditTime: 2022-01-25 20:13:43
  */
 import * as React from 'react';
 import { Timeline, Tag, Input, Form } from 'antd';
 import TimelineItem from 'antd/lib/timeline/TimelineItem';
 import { PlusOutlined } from '@ant-design/icons';
 import * as _ from 'lodash';
-import { TemplateVersion } from '@/models/template';
+import type { TemplateVersion } from '@/models/template';
 import CreateTemplateVersion from './createTemplateVersion';
 import styles from './styles/timeline.less';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
 import { connect } from '@/.umi/plugin-dva/exports';
-import { ConnectState } from '@/models/connect';
+import type { ConnectState } from '@/models/connect';
 
 interface Props {
   currentVersion: TemplateVersion;
@@ -80,7 +80,7 @@ class TimeLinePanel extends React.Component<Props, State> {
             versionList={this.props.versionList}
             onCancel={this.hideAddVersion}
             afterAdd={this.afterAddVersion}
-          ></CreateTemplateVersion>
+          />
         )}
         <Form layout="inline" onValuesChange={this.onFilter} wrapperCol={{ span: 24 }}>
           <Form.Item name="search">
@@ -98,7 +98,7 @@ class TimeLinePanel extends React.Component<Props, State> {
                 <PlusOutlined />
               </a>
             }
-          ></TimelineItem>
+           />
           {this.props.versionList
             .filter((version) => {
               try {

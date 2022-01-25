@@ -4,16 +4,18 @@
  * @Author: Adxiong
  * @Date: 2021-11-24 14:23:33
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-21 16:10:43
+ * @LastEditTime: 2022-01-25 20:14:31
  */
 
 import { LeftOutlined, PlusOutlined, MinusOutlined, ArrowUpOutlined, ArrowDownOutlined, QuestionCircleTwoTone, DownSquareTwoTone, UpSquareTwoTone, MinusSquareTwoTone } from "@ant-design/icons";
-import { IRouteComponentProps } from "@umijs/renderer-react";
-import { Button, Drawer, message, Modal, Select, Tabs, Tooltip } from "antd";
+import type { IRouteComponentProps } from "@umijs/renderer-react";
+import { Button, Drawer, message, Select, Tabs } from "antd";
 import React from "react";
-import { connect, Dispatch, ProjectInfo } from "umi";
+import type { Dispatch} from "umi";
+import { connect } from "umi";
 import style from "./styles/updateVersion.less";
-import {TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo, updateTag} from "@/models/template";
+import type {TemplateVersionGitUpdateInfo, TemplateVersionUpdateInfo} from "@/models/template";
+import { updateTag} from "@/models/template";
 import util from "@/utils/utils";
 import * as ReactMarkdown from 'react-markdown'
 import projectApi from '../../services/project';
@@ -73,9 +75,9 @@ class UpdateVersionDoc extends React.Component <Props, State> {
     data.map ( left => {
       for( const version of left.historyVersion) {              
         if (version.version == left.version){
-          left['updateDoc'] = `${version['updateDoc']}` 
-          left['buildDoc'] = `${version['buildDoc']}`
-          left['buildUpdateDoc'] = `${version['buildUpdateDoc']}`
+          left.updateDoc = `${version.updateDoc}` 
+          left.buildDoc = `${version.buildDoc}`
+          left.buildUpdateDoc = `${version.buildUpdateDoc}`
         }
       }
     })  
@@ -99,19 +101,19 @@ class UpdateVersionDoc extends React.Component <Props, State> {
   onRightSelect (value: string) {
     const data = this.queryGetlistByGitId(value)
     
-    let leftVersion 
-    let rightVersion
+    let leftV
+    let rightV
     let compareResult: any
     for ( const item of this.state.updateInfo!) {
       
       if (item.id == this.state.leftValue) {
-        leftVersion = item.version
+        leftV= item.version
       }
       if (item.id == value) {
-        rightVersion = item.version
+        rightV= item.version
       }
     }    
-    const compare = Number(leftVersion?.split('.').join("")) - Number(rightVersion?.split('.').join(""))    
+    const compare = Number(leftV?.split('.').join("")) - Number(rightV?.split('.').join(""))    
     if (compare == 0) {
       compareResult = <MinusSquareTwoTone />
     } else if ( compare > 0) {
@@ -120,9 +122,9 @@ class UpdateVersionDoc extends React.Component <Props, State> {
       compareResult = <UpSquareTwoTone />
     }
     const leftGitNameList = this.state.leftGitList.map(item => item.name)
-    data.map( (right,index) => {
+    data.map( (right) => {
       if (!leftGitNameList.includes(right.name)){
-        right['tag'] = updateTag.add
+        right.tag = updateTag.add
       } else {
         const rightVersion = Number(right.version.split("-")[0].split(".").join(""))
 
@@ -130,21 +132,21 @@ class UpdateVersionDoc extends React.Component <Props, State> {
           const leftVersion = Number(left.version.split("-")[0].split(".").join(""))
 
           if ( left.name == right.name && leftVersion == rightVersion) {
-            right['tag'] = updateTag.normal
+            right.tag = updateTag.normal
           }          
           if (left.name == right.name && leftVersion < rightVersion) {
-            right['tag'] = updateTag.up            
+            right.tag = updateTag.up            
           }
           if (left.name == right.name && leftVersion > rightVersion) {
-            right['tag'] = updateTag.down
+            right.tag = updateTag.down
           }
         })
       }
       for( const version of right.historyVersion) {              
         if (version.version == right.version){
-          right['updateDoc'] = `${version['updateDoc']}` 
-          right['buildDoc'] = `${version['buildDoc']}`
-          right['buildUpdateDoc'] = `${version['buildUpdateDoc']}`
+          right.updateDoc = `${version.updateDoc}` 
+          right.buildDoc = `${version.buildDoc}`
+          right.buildUpdateDoc = `${version.buildUpdateDoc}`
         }
       }
     })
@@ -349,7 +351,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
                 {
                   this.state.currentGit && (
                     <div>
-                      <ReactMarkdown children={this.state.currentGit.updateDoc}></ReactMarkdown>
+                      <ReactMarkdown children={this.state.currentGit.updateDoc} />
                     </div>
                   )
                 }
@@ -358,7 +360,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
                 {
                   this.state.currentGit && (
                     <div>
-                      <ReactMarkdown children={this.state.currentGit.buildDoc}></ReactMarkdown>
+                      <ReactMarkdown children={this.state.currentGit.buildDoc} />
                     </div>
                   )
                 }
@@ -367,7 +369,7 @@ class UpdateVersionDoc extends React.Component <Props, State> {
                 {
                   this.state.currentGit && (
                     <div>
-                      <ReactMarkdown children={this.state.currentGit.buildUpdateDoc}></ReactMarkdown>
+                      <ReactMarkdown children={this.state.currentGit.buildUpdateDoc} />
                     </div>
                   )
                 }

@@ -4,27 +4,29 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 19:14:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 10:41:06
+ * @LastEditTime: 2022-01-25 20:10:52
  */
 import { EditMode } from '@/models/common';
 import { InboxOutlined, LeftOutlined } from '@ant-design/icons';
-import { Form, FormInstance, Input, Modal } from 'antd';
+import type { FormInstance} from 'antd';
+import { Form, Input, Modal } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
-import { connect, Dispatch } from 'dva';
+import type { Dispatch } from 'dva';
+import { connect } from 'dva';
 import React from 'react';
 import configStyles from './styles/templateAddConfig.less'
 import styles from './styles/fileConfig.less';
-import { TemplateGlobalConfig } from '@/models/template';
+import type { TemplateGlobalConfig } from '@/models/template';
 
 interface Props {
   mode: EditMode
   templateId: string;
   templateVersionId: string;
   globalConfig?: TemplateGlobalConfig;
-  onBack? (): void;
-  onCancel (): void;
-  onSubmit(form: FormData): void;
+  onBack?: () => void;
+  onCancel: () => void;
+  onSubmit: (form: FormData) => void;
   dispatch: Dispatch;
 }
 
@@ -119,14 +121,14 @@ class TemplateFileConfig extends React.Component<Props, State> {
               name="name" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
               className={styles.long}>
-              <Input autoComplete="off" disabled={this.props.mode != EditMode.create}></Input>
+              <Input autoComplete="off" disabled={this.props.mode != EditMode.create} />
             </Form.Item>
             <Form.Item
               label="描述" 
               name="description" 
               rules={[{ required: true, message: '请输入配置描述!' }]}
               className={styles.long}>
-              <TextArea rows={6}></TextArea>
+              <TextArea rows={6} />
             </Form.Item>
             <Form.Item 
               label="上传文件" 

@@ -4,24 +4,25 @@
  * @Author: Adxiong
  * @Date: 2021-08-12 08:30:26
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-14 16:42:07
+ * @LastEditTime: 2022-01-25 18:06:41
  */
 import * as React from 'react';
 import { Modal, Card, Row, Col, message } from 'antd';
 import AddTextConfig from './addTemplateGlobalTextConfig';
 import AddFileConfig from './addTemplateGlobalFileConfig';
 import styles from './styles/templateAddConfig.less';
-import { ConfigType, EditMode } from '@/models/common';
+import type { ConfigType} from '@/models/common';
+import { EditMode } from '@/models/common';
 import { connect } from 'dva';
-import { Dispatch } from '@/.umi/plugin-dva/connect';
-import { ConnectState } from '@/models/connect';
+import type { Dispatch } from '@/.umi/plugin-dva/connect';
+import type { ConnectState } from '@/models/connect';
 
 interface Props {
   templateId: string;
   versionId: string;
   configTypes: ConfigType[];
   dispatch: Dispatch;
-  onClose?(): void;
+  onClose?: () => void;
 }
 interface State {
   type?: ConfigType;
@@ -53,9 +54,9 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
 
   onSubmitForm (formData: any) {
     const form = new FormData()
-    for (let key of Object.keys(formData)) {
+    for (const key of Object.keys(formData)) {
       if (key == 'file') {
-        form.append("files", formData[key]['file'])
+        form.append("files", formData[key].file)
       } else {
         form.append(key, formData[key])
       }
@@ -147,7 +148,7 @@ class AddTemplateGlobalConfig extends React.Component<Props, State> {
 export default connect(({ sys, template }: ConnectState) => {
   return {
     configTypes: sys.configTypes,
-    templateId: template.templateInfo?.id!,
-    versionId: template.currentVersion?.id!
+    templateId: template.templateInfo!.id!,
+    versionId: template.currentVersion!.id!
   };
 })(AddTemplateGlobalConfig);

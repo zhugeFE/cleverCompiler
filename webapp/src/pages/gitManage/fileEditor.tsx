@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-17 18:39:00
+ * @LastEditTime: 2022-01-25 18:15:50
  */
 import util from '@/utils/utils';
 import * as React from 'react';
@@ -15,7 +15,9 @@ interface Props {
   reg: RegExp;
   matchIndex: number | null;
 }
-interface State {}
+interface State {
+
+}
 
 class GitFileEditor extends React.Component<Props, State> {
   constructor (props: Props) {
@@ -36,7 +38,7 @@ class GitFileEditor extends React.Component<Props, State> {
       const res = this.matchContent(content, reg, this.props.matchIndex!, isGlobal)
 
       return util.isArray(res) ? (
-        res.map( (item: any,i:number) => {
+        res.map( (item: any,i: number) => {
           return <span key={i}>{item}</span>
         }) 
       ): res

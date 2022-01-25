@@ -4,11 +4,11 @@
  * @Author: Adxiong
  * @Date: 2021-11-25 17:32:35
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-10 16:36:48
+ * @LastEditTime: 2022-01-25 18:14:32
  */
 
-import { GitInfoBranch } from '@/models/git';
-import { Key } from 'antd/lib/table/interface';
+import type { GitInfoBranch } from '@/models/git';
+import type { Key } from 'antd/lib/table/interface';
 import DirectoryTree from 'antd/lib/tree/DirectoryTree';
 import React from 'react';
 import style from "./styles/branchTree.less";
@@ -17,7 +17,7 @@ interface Props {
   expandedKeys: string[]
   selectedKeys: string[]
   data: GitInfoBranch[]
-  onChange(id: string[], type: string): void;
+  onChange: (id: string[], type: string) => void;
 }
 
 interface State {
@@ -67,7 +67,7 @@ class BranchTree extends React.Component <Props, State> {
     return data
 
   }
-  onSelect (selectedKeys: Key[],e:any) {
+  onSelect (selectedKeys: Key[],e: any) {
     if (e.node.isLeaf) {
       this.props.onChange( [e.node.parentId, ...selectedKeys,], 'version')
     } else {

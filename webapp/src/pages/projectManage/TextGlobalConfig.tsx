@@ -4,13 +4,14 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 20:16:18
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:52:07
+ * @LastEditTime: 2022-01-25 20:09:51
  */
-import { Form, FormInstance, Input, Modal } from 'antd';
+import type { FormInstance} from 'antd';
+import { Form, Input, Modal } from 'antd';
 import React from 'react';
-import { Dispatch } from '@/.umi/core/umiExports';
+import type { Dispatch } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
-import { TemplateGlobalConfig } from '@/models/template';
+import type { TemplateGlobalConfig } from '@/models/template';
 import TextArea from 'antd/lib/input/TextArea';
 
 interface FormData {
@@ -25,8 +26,8 @@ interface submitParams {
 
 interface Props {
   globalConfig: TemplateGlobalConfig;
-  onSubmit (data: submitParams): void;
-  onCancel(): void;
+  onSubmit: (data: submitParams) => void;
+  onCancel: () => void;
   dispatch: Dispatch;
 }
 
@@ -55,12 +56,11 @@ class TextGlobalConfig extends React.Component<Props, States> {
   }
 
   onCommit() {
-    const { targetValue } = this.state.form
     this.projectTextGlobalForm.current?.validateFields()
     .then((form) => {
       if (!this.props.onSubmit) return
       this.props.onSubmit({
-        targetValue: targetValue,
+        targetValue: form.targetValue,
       })
     })
     .catch((err) => {
@@ -97,19 +97,19 @@ class TextGlobalConfig extends React.Component<Props, States> {
               label="名称" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
               name="name">
-              <Input disabled></Input>
+              <Input disabled />
             </Form.Item>
             <Form.Item 
               label="描述" 
               rules={[{ required: true, message: '请输入配置描述!' }]}
               name="description">
-              <TextArea disabled rows={4}></TextArea>
+              <TextArea disabled rows={4} />
             </Form.Item>
             <Form.Item 
               label="默认值" 
               rules={[{ required: true, message: '请输入配置值!' }]}
               name="targetValue">
-              <Input autoComplete="off"></Input>
+              <Input autoComplete="off" />
             </Form.Item>
           </Form>
       </Modal>

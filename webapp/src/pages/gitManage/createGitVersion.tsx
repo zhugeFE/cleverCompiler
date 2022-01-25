@@ -11,7 +11,6 @@ import { VersionType } from "@/models/common";
 import style from "./styles/createGitVersion.less";
 import type { IRouteComponentProps} from 'umi';
 import { withRouter } from 'umi';
-import { result } from 'lodash';
 
 interface FormData {
   option: string;
@@ -203,7 +202,7 @@ class CreateGitVersion extends React.Component<Props, States> {
       }
     })
   }
-  onFilterCommit<GitCommit> (value: string, optionData: any): boolean {
+  onFilterCommit (value: string, optionData: any): boolean {
     return new RegExp(value.toLowerCase()).test(optionData.title.toLowerCase())
   }
   onChangeForm (chanedValue: any, values: FormData) {

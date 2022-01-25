@@ -4,15 +4,15 @@
  * @Author: Adxiong
  * @Date: 2021-11-05 20:08:04
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-06 16:55:33
+ * @LastEditTime: 2022-01-25 18:16:04
  */
 import * as React from 'react';
-import { Button, Result, Skeleton, Spin, Tree } from 'antd';
-import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
+import { Button, Result, Skeleton, Tree } from 'antd';
+import type { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import styles from './styles/fileTree.less'
 import { connect } from 'dva';
-import { Dispatch } from '@/.umi/core/umiExports';
-import { DirNode } from '@/models/common';
+import type { Dispatch } from '@/.umi/core/umiExports';
+import type { DirNode } from '@/models/common';
 interface NodeData extends DataNode {
   fileType: string;
 }
@@ -21,7 +21,7 @@ export interface FileTreeProps {
   versionId: string;
   defauleSelect?: string;
   dispatch: Dispatch;
-  onSelect? (filePath: string, fileType: string): void
+  onSelect?: (filePath: string, fileType: string) => void
 }
 interface State {
   treeData: NodeData[];
@@ -84,7 +84,7 @@ class FileTree extends React.Component<FileTreeProps, State> {
     this.queryTreeData()
   }
   
-  onSelect (selectedKeys: React.Key[], info: {
+  onSelect ( info: {
     event: 'select';
     selected: boolean;
     node: EventDataNode;
@@ -109,15 +109,15 @@ class FileTree extends React.Component<FileTreeProps, State> {
                 size="small" 
                 key="reload"
                 onClick={this.queryTreeData}>重新加载</Button>
-            ]}></Result>
+            ]} />
           }
           if (this.state.loading) {
-            return <Skeleton active></Skeleton>
+            return <Skeleton active />
           }
           return <Tree.DirectoryTree
             defaultSelectedKeys={[this.props.defauleSelect!]}
             treeData={this.state.treeData}
-            onSelect={this.onSelect}></Tree.DirectoryTree>
+            onSelect={() => this.onSelect} />
         })()}
       </div>
     )

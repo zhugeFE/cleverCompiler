@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-13 15:23:42
+ * @LastEditTime: 2022-01-25 20:08:30
  */
 import type { TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
 import type { ColumnProps  } from "antd/lib/table";
@@ -140,7 +140,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
         }
       })
     }
-    onSign (e, config: TemplateGlobalConfig) {
+    onSign (e: any, config: TemplateGlobalConfig) {
       let data = []
       if (e.target.innerText == '取消标记') {
         data = this.props.signArr.filter( item => item != config.id)

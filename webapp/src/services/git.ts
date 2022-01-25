@@ -3,7 +3,6 @@ import type { GitCreateVersionParam, GitTextConfigParam, GitUpdateVersionParam, 
 import request from '@/utils/request';
 import apis from './constants/apis';
 
-const updateVersionTimer: Record<number, any> = {}
 
 class GitService {
   async queryRemoteGitList() {

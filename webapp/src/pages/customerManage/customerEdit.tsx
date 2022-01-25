@@ -4,16 +4,17 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:49:01
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:42:54
+ * @LastEditTime: 2022-01-25 20:17:40
  */
 import { LeftOutlined } from '@ant-design/icons';
 import { Progress } from 'antd';
 import React from 'react'
 import { withRouter } from 'react-router-dom';
-import { connect, Dispatch, IRouteComponentProps } from 'umi';
+import type { Dispatch, IRouteComponentProps } from 'umi';
+import { connect } from 'umi';
 import styles from './styles/customerEdit.less'
 import AddCustomer from "./addCustomer"
-import { ConnectState } from '@/models/connect';
+import type { ConnectState } from '@/models/connect';
 
 interface Props extends IRouteComponentProps<{
   id: string;
@@ -84,7 +85,7 @@ class CustomerEdit extends React.Component<Props, States> {
                 size="small"
                 strokeWidth={2}
                 format={(percent) => (percent === 100 ? 'saved' : 'saving')}
-              ></Progress>
+              />
             }
 
           </span>

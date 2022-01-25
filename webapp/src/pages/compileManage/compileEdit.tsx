@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 14:55:07
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-13 19:29:38
+ * @LastEditTime: 2022-01-25 18:12:28
  */
 import type { ConnectState } from '@/models/connect'
 import { Button, Checkbox, Form, message, Radio, Select, Spin, Tabs, Tooltip } from 'antd'
@@ -19,7 +19,7 @@ import styles from "./styles/compileEdit.less"
 import util from '@/utils/utils'
 import { CheckCircleFilled, ClockCircleFilled, CloseCircleFilled } from '@ant-design/icons'
 import { download } from '@/utils/download'
-import { publicType } from '@/models/common'
+import { publicType as PublicType } from '@/models/common'
 import { wsserver } from '../../../config/proxy'
 import Paragraph from 'antd/lib/typography/Paragraph'
 
@@ -40,9 +40,15 @@ interface States {
   compileId: string;
   description: string;
   projectList: ProjectCompileParams[] | null;
-  compileLog: {};
-  compileStatus: {};
-  GitMap: {};
+  compileLog: {
+
+  };
+  compileStatus: {
+
+  };
+  GitMap: {
+    
+  };
   showResult: boolean;
   downloadAddr: string;
 }
@@ -130,7 +136,6 @@ class CompileEdit extends React.Component<Props, States> {
   }
 
   componentDidMount () {
-    const id: string = this.props.location.query.id as string
     this.initSocket()
     this.getProjectInfo()
     this.getCurrentUser()
@@ -327,7 +332,7 @@ class CompileEdit extends React.Component<Props, States> {
                 >
                   <Radio.Group onChange={this.onRadioChange} defaultValue={this.state.publicType}>
                     {
-                      publicType.map( item => {
+                      PublicType.map( item => {
                         return <Radio key={item.value} value={item.value}>{item.text}</Radio>
                       })
                     }
@@ -349,23 +354,23 @@ class CompileEdit extends React.Component<Props, States> {
                     <div className={styles.tarResult}>暂未开始编译</div>) : 
                     <Tabs tabPosition="left">
                       {
-                        this.state.compileGit.map( item => {
+                        this.state.compileGit.map( git => {
                           return (
                             <Tabs.TabPane 
                               tab={
                                 <span>
-                                  {item}
+                                  {git}
                                   {
-                                    this.returnSpin(this.state.compileStatus[item], this.state.GitMap[item])
+                                    this.returnSpin(this.state.compileStatus[git], this.state.GitMap[git])
                                   } 
                                 </span>} 
-                              key={item} 
+                              key={git} 
                               >
                               <div ref={this.compileLogRef}  className={styles.tabpaneContent}>
                                 {
-                                  this.state.compileLog[item] ?
-                                  this.state.compileLog[item].map((item: { message: string}, index: number) => <p key={index}>{item.message}</p>)
-                                  : `${item} 等待编译`
+                                  this.state.compileLog[git] ?
+                                  this.state.compileLog[git].map((item: { message: string}, index: number) => <p key={ index }>{item.message}</p>)
+                                  : `${git} 等待编译`
                                 }
                               </div>
                             </Tabs.TabPane>
@@ -379,7 +384,7 @@ class CompileEdit extends React.Component<Props, States> {
                   <div className={styles.tarResult} ref={this.compileTagRef}>
                     {
                       this.state.compileResult.length ?
-                      this.state.compileResult.map((item,index) => <p key={index}>{item}</p>)
+                      this.state.compileResult.map((item,index) => <p key={ index }>{item}</p>)
                       : "暂未开始打包或发布"
                     }
                   </div>

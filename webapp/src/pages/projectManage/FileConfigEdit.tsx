@@ -4,15 +4,16 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:54
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-08 19:43:33
+ * @LastEditTime: 2022-01-25 20:05:21
  */
 
 
-import { Form, FormInstance, Input, Modal } from 'antd';
+import type { FormInstance} from 'antd';
+import { Form, Input, Modal } from 'antd';
 import React from 'react';
-import { Dispatch } from '@/.umi/core/umiExports';
+import type { Dispatch } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
-import { TemplateConfig } from '@/models/template';
+import type { TemplateConfig } from '@/models/template';
 import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
 import { InboxOutlined } from '@ant-design/icons';
@@ -30,8 +31,8 @@ interface submitParams {
 
 interface Props {
   config: TemplateConfig;
-  onSubmit (data: submitParams): void;
-  onCancel(): void;
+  onSubmit: (data: submitParams) => void;
+  onCancel: () => void;
   dispatch: Dispatch;
 }
 
@@ -65,7 +66,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
     .then((form: FormData) => {
       if (!this.props.onSubmit) return
       this.props.onSubmit({
-        targetValue: JSON.stringify({originalFilename: form.file!['file'].name, newFilename: ""}),
+        targetValue: JSON.stringify({originalFilename: form.file!.file.name, newFilename: ""}),
         file: form.file!
       })
     })
@@ -108,13 +109,13 @@ class UpdateTextConfig extends React.Component<Props, States> {
               label="文件位置" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
               name="filePath">
-              <Input disabled></Input>
+              <Input disabled />
             </Form.Item>
             <Form.Item 
               label="描述" 
               rules={[{ required: true, message: '请输入配置描述!' }]}
               name="description">
-              <TextArea rows={4} disabled></TextArea>
+              <TextArea rows={4} disabled />
             </Form.Item>
             <Form.Item 
               label="上传文件" 

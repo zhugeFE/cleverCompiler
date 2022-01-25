@@ -4,14 +4,15 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 22:27:29
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-15 14:38:08
+ * @LastEditTime: 2022-01-25 20:14:21
  */
 
-import { Checkbox, Form, FormInstance, Input, Modal } from 'antd';
+import type { FormInstance} from 'antd';
+import { Checkbox, Form, Input, Modal } from 'antd';
 import React from 'react';
-import { Dispatch } from '@/.umi/core/umiExports';
+import type { Dispatch } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
-import { TemplateConfig } from '@/models/template';
+import type { TemplateConfig } from '@/models/template';
 import TextArea from 'antd/lib/input/TextArea';
 import { EditMode } from '@/models/common';
 import FileTree from "../gitManage/fileTree";
@@ -39,8 +40,8 @@ interface Props {
   config: TemplateConfig;
   gitId: string;
   gitVersionId: string;
-  onSubmit (data: TextConfig): void;
-  onCancel(): void;
+  onSubmit: (data: TextConfig) => void;
+  onCancel: () => void;
   dispatch: Dispatch;
 }
 
@@ -61,9 +62,9 @@ class UpdateTextConfig extends React.Component<Props, States> {
         filePath: props.config.filePath,
         description: props.config.description,
         targetValue: props.config.targetValue,
-        reg: JSON.parse(props.config.reg)['source'],
-        global: JSON.parse(props.config.reg)['global'],
-        ignoreCase: JSON.parse(props.config.reg)['ignoreCase']
+        reg: JSON.parse(props.config.reg).source,
+        global: JSON.parse(props.config.reg).global,
+        ignoreCase: JSON.parse(props.config.reg).ignoreCase
       },
       displayContent: ''
     };
@@ -148,7 +149,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
           defauleSelect={this.state.form.filePath}
           onSelect={this.onSelectFile} 
           versionId={this.props.gitVersionId}
-          gitId={this.props.gitId}></FileTree>
+          gitId={this.props.gitId} />
     
         <div className={[styles.gitCmLeftPanel,styles.templateTextConfig].join(' ')}>
           <Form
@@ -161,7 +162,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
                 required: true,
                 message: '匹配规则不能为空'
               }]}>
-              <Input disabled></Input>
+              <Input disabled />
             </Form.Item>
             <Form.Item valuePropName="checked" name="global">
               <Checkbox disabled>全局</Checkbox>
@@ -175,7 +176,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
               className={styles.long}
               rules={[{ required: true, message: '请输入文件位置!' }]}
               name="filePath">
-              <Input autoComplete="off" disabled={this.props.mode != EditMode.create}></Input>
+              <Input autoComplete="off" disabled={this.props.mode != EditMode.create} />
             </Form.Item>
             <div className={styles.formDivider}/>
 
@@ -184,7 +185,7 @@ class UpdateTextConfig extends React.Component<Props, States> {
               className={styles.long}
               rules={[{ required: true, message: '请输入配置描述!' }]}
               name="description">
-              <TextArea rows={4} disabled></TextArea>
+              <TextArea rows={4} disabled />
             </Form.Item>
             <div className={styles.formDivider}/>
 
@@ -193,10 +194,10 @@ class UpdateTextConfig extends React.Component<Props, States> {
               className={styles.long}
               rules={[{ required: true, message: '请输入配置值!' }]}
               name="targetValue">
-              <Input autoComplete="off"></Input>
+              <Input autoComplete="off" />
             </Form.Item>
           </Form>
-          <GitFileEditor reg={this.state.reg!} content={this.state.displayContent}></GitFileEditor>
+          <GitFileEditor reg={this.state.reg!} content={this.state.displayContent} />
          </div>
       </Modal>
     );

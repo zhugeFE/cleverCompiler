@@ -4,12 +4,13 @@
  * @Author: Adxiong
  * @Date: 2021-08-09 14:43:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-14 17:45:44
+ * @LastEditTime: 2022-01-25 20:12:02
  */
 
-import { Form, FormInstance, Input, message, Modal, Select } from 'antd';
+import type { FormInstance} from 'antd';
+import { Form, Input, message, Modal, Select } from 'antd';
 import React from 'react';
-import { Dispatch, TemplateVersion } from '@/.umi/core/umiExports';
+import type { Dispatch, TemplateVersion } from '@/.umi/core/umiExports';
 import { connect } from 'dva';
 import TextArea from 'antd/lib/input/TextArea';
 import { VersionType } from '@/models/common'
@@ -29,8 +30,8 @@ interface Props {
   title?: string;
   templateId?: string;
   versionList?: TemplateVersion[];
-  onCancel?(): void;
-  afterAdd?(): void;
+  onCancel?: () => void;
+  afterAdd?: () => void;
   dispatch: Dispatch;
 }
 
@@ -100,10 +101,10 @@ class CreateTemplateVersion extends React.Component<Props, States> {
   }
 
   onChangeForm(chanedValue: any, values: FormData) {
-    if (chanedValue['option']) {
+    if (chanedValue.option) {
       const str = this.props.versionList![0].version!.split('.');
-      str[chanedValue['option']] = Number(str[chanedValue['option']]) + 1 + '';
-      switch (chanedValue['option']) {
+      str[chanedValue.option] = Number(str[chanedValue.option]) + 1 + '';
+      switch (chanedValue.option) {
         case '0': {
           str[1] = '0';
           str[2] = '0';
@@ -147,7 +148,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
                   name="name"
                   rules={[{ required: true, message: '请输入模板名称!' }]}
                 >
-                  <Input autoComplete="off"></Input>
+                  <Input autoComplete="off" />
                 </Form.Item>
                 <Form.Item
                   label="描述"
@@ -194,7 +195,7 @@ class CreateTemplateVersion extends React.Component<Props, States> {
             rules={[{ required: true, message: '请输入版本描述!' }]}
             label="版本描述"
             name="versionDescription">
-            <TextArea rows={4}></TextArea>
+            <TextArea rows={4} />
           </Form.Item>
         </Form>
       </Modal>

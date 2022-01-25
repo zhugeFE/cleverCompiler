@@ -4,21 +4,21 @@
  * @Author: Adxiong
  * @Date: 2021-11-18 14:25:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-20 15:46:14
+ * @LastEditTime: 2022-01-25 20:06:06
  */
 import { TypeMode } from "@/models/common";
-import { TemplateGlobalConfig } from "@/models/template";
+import type { TemplateGlobalConfig } from "@/models/template";
 import { message, Modal, Table } from "antd";
-import { ColumnProps } from "antd/lib/table/Column";
-import { Key } from "antd/lib/table/interface";
+import type { ColumnProps } from "antd/lib/table/Column";
+import type { Key } from "antd/lib/table/interface";
 import React from "react"
 
 interface Props {
   disabled?: boolean;
   visible: boolean;
   dataSource: TemplateGlobalConfig[]
-  onAddConfig (data: string[]): void;
-  onCancel (): void; 
+  onAddConfig: (data: string[]) => void;
+  onCancel: () => void; 
 }
 
 interface State {
@@ -52,7 +52,7 @@ class GlobalConfigMarage extends React.Component<Props,State> {
     this.props.onCancel()
   }
   
-  rowSelectChange (selectedRowKeys: Key[], selectedRows: TemplateGlobalConfig[]) {
+  rowSelectChange (selectedRowKeys: Key[]) {
     this.setState({
       selectedRowKeys: selectedRowKeys as string[]
     })
@@ -74,7 +74,7 @@ class GlobalConfigMarage extends React.Component<Props,State> {
         if (record.type == TypeMode.text) {
           return record.targetValue
         }else {
-          return JSON.parse(record.targetValue)['originalFilename']
+          return JSON.parse(record.targetValue).originalFilename
         }
       }},        
       { title: '描述', dataIndex: 'description' },

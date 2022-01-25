@@ -4,18 +4,19 @@
  * @Author: Adxiong
  * @Date: 2021-08-26 14:39:28
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-18 10:49:58
+ * @LastEditTime: 2022-01-25 20:17:27
  */
 import { Form, Input, message, Modal } from "antd"
 import TextArea from "antd/lib/input/TextArea"
 import React from "react"
-import { connect, Dispatch } from "umi"
+import type { Dispatch } from "umi";
+import { connect } from "umi"
 
 
 interface Props {
   dispatch: Dispatch;
-  onCancel(): void;
-  afterAdd(): void;
+  onCancel: () => void;
+  afterAdd: () => void;
 }
 
 interface FormData {

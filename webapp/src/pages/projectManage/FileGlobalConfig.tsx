@@ -4,22 +4,24 @@
  * @Author: Adxiong
  * @Date: 2021-11-07 19:14:32
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-11-23 11:25:48
+ * @LastEditTime: 2022-01-25 20:05:45
  */
 import { InboxOutlined } from '@ant-design/icons';
-import { Form, FormInstance, Input, Modal } from 'antd';
+import type { FormInstance} from 'antd';
+import { Form, Input, Modal } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
-import { connect, Dispatch } from 'dva';
+import type { Dispatch } from 'dva';
+import { connect } from 'dva';
 import React from 'react';
 import configStyles from './styles/projectAddConfig.less'
 import styles from './styles/updateFileConfig.less';
-import { TemplateGlobalConfig } from '@/models/template';
+import type { TemplateGlobalConfig } from '@/models/template';
 
 interface Props {
   globalConfig: TemplateGlobalConfig;
-  onCancel (): void;
-  onSubmit(form: submitParams): void;
+  onCancel: () => void;
+  onSubmit: (form: submitParams) => void;
   dispatch: Dispatch;
 }
 
@@ -73,7 +75,7 @@ class TemplateFileConfig extends React.Component<Props, State> {
       if (!this.props.onSubmit) return
       const {form} = this.state
       this.props.onSubmit({
-        targetValue: JSON.stringify({originalFilename: form.file!['file'].name, newFilename: ""}),
+        targetValue: JSON.stringify({originalFilename: form.file!.file.name, newFilename: ""}),
         file: form.file!
       })
     })
@@ -107,14 +109,14 @@ class TemplateFileConfig extends React.Component<Props, State> {
               name="name" 
               rules={[{ required: true, message: '请输入配置名称!' }]}
               className={styles.long}>
-              <Input disabled></Input>
+              <Input disabled />
             </Form.Item>
             <Form.Item
               label="描述" 
               name="description" 
               rules={[{ required: true, message: '请输入配置描述!' }]}
               className={styles.long}>
-              <TextArea  disabled rows={6}></TextArea>
+              <TextArea  disabled rows={6} />
             </Form.Item>
             <Form.Item 
               label="上传文件" 

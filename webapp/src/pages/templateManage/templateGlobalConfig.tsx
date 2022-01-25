@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-13 15:23:49
+ * @LastEditTime: 2022-01-25 20:13:04
  */
 
 import * as React from 'react';
@@ -461,8 +461,8 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
 }
 export default connect( ({template}: ConnectState) => {
   return {
-    mode: template.currentVersion?.status!,
-    gitList: template.currentVersion?.gitList!,
-    globalConfigList: template.currentVersion?.globalConfigList!,
+    mode: template.currentVersion!.status!,
+    gitList: template.currentVersion!.gitList!,
+    globalConfigList: template.currentVersion!.globalConfigList!,
   }
 })(GlobalConfigPanel);
