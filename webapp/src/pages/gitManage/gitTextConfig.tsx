@@ -238,7 +238,7 @@ class GitTextConfig extends React.Component<Props, State> {
         visible={true} 
         title={<a onClick={this.onBack}><LeftOutlined style={{marginRight: '5px'}}/>切换类型</a>} 
         width="60%" 
-        closable={false}
+        onCancel={this.onCancel}
         footer={
           <>
           <Button onClick={this.onCancel}>取消</Button>
