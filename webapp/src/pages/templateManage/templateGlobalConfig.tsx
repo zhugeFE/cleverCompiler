@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-11 17:57:37
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-25 20:13:04
+ * @LastEditTime: 2022-01-27 16:33:16
  */
 
 import * as React from 'react';
@@ -63,11 +63,13 @@ class GlobalConfigPanel extends React.Component<GitConfigPanelProps, State> {
 
   onSign (e, config: TemplateGlobalConfig) {
     let data = []
-    if (e.target.innerText == '取消标记') {
+    if (e.target.innerText == '关闭引用') {
       data = this.props.signArr.filter( item => item != config.id)
     }else {
       data = [...this.props.signArr, config.id]
     }
+    console.log(data);
+    
     this.props.setSignArr(data)
   }
   onEdit(config: TemplateGlobalConfig , type: string){
