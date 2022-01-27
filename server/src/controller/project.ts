@@ -15,7 +15,6 @@ import { Member } from '../types/user'
 import * as path from 'path'
 import { ProjectCompile } from '../types/compile'
 import fsUtil from '../utils/fsUtil';
-import logger from '../utils/logger';
 const router = Router()
 
 //项目列表

@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-03 16:47:43
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-02 13:25:50
+ * @LastEditTime: 2022-01-27 15:41:17
  */
 import { Version } from "./common";
 
@@ -98,7 +98,7 @@ export interface CreateTemplateConfig {
   gitSourceConfigId: string; //模板版本中git项的配置项id
   targetValue: string; //配置项默认值
   isHidden: number; //是否隐藏
-  visable?: number; //是否可见
+  visible?: number; //是否可见
 }
 export interface TemplateConfig extends CreateTemplateConfig {
   id: string;
@@ -158,7 +158,7 @@ export interface TemplateGlobalConfig {
   targetValue: string;//默认值
   isHidden: number; //是否隐藏配置项
   type: number;
-  visable?: number; //配置是否可见
+  visible?: number; //配置是否可见
 }
 
 export interface UpdateTemplateGlobalConfig {

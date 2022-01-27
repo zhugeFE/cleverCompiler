@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-25 17:15:21
  * @LastEditors: Adxiong
- * @LastEditTime: 2021-12-22 17:54:45
+ * @LastEditTime: 2022-01-27 16:25:57
  */
 import { ProjectCompileParams } from './../types/project';
 import { TemplateVersionGit, TemplateGlobalConfig, TemplateConfig } from './../types/template';
@@ -85,7 +85,7 @@ class Project {
       params.configList.map( config => {
         const configId = util.uuid()
         GlobalConfigMap[config.id] = configId
-        globalConfigDataList.push([configId, projectId , config.id, config.targetValue,config.isHidden, config.visable])
+        globalConfigDataList.push([configId, projectId , config.id, config.targetValue,config.isHidden, config.visible])
        })
 
       if (globalConfigDataList.length) {
@@ -105,7 +105,7 @@ class Project {
       params.gitList.map(  git => {
         git.configList.map( config => {
           const configId = util.uuid()
-          configDataList.push([configId,config.targetValue,config.id, GlobalConfigMap[config.globalConfigId], gitMap[git.id],config.isHidden,config.visable] )
+          configDataList.push([configId,config.targetValue,config.id, GlobalConfigMap[config.globalConfigId], gitMap[git.id],config.isHidden,config.visible] )
         })
       })
 
@@ -128,11 +128,11 @@ class Project {
   }
 
   async insertConfig (conn, data: string[][]): Promise<void> {
-    const sql = `INSERT INTO project_config (id, target_value, template_config_id, global_config_id, project_git_id, is_hidden, visable) VALUES ?`
+    const sql = `INSERT INTO project_config (id, target_value, template_config_id, global_config_id, project_git_id, is_hidden, visible) VALUES ?`
     await pool.writeInTransaction(conn,sql, [data])
   }
   async insetGlobalConfig (conn, data: string[][]): Promise<void> {
-    const sql = `INSERT INTO project_global_config (id, project_id, template_global_config_id ,target_value,is_hidden, visable) VALUES ?`
+    const sql = `INSERT INTO project_global_config (id, project_id, template_global_config_id ,target_value,is_hidden, visible) VALUES ?`
     await pool.writeInTransaction(conn,sql, [data])
   }
 
@@ -187,6 +187,16 @@ class Project {
   async updateTemplateProject( projectId: string, versionId: string): Promise<boolean> {
     const projectInfo = await this.getProjectInfo(projectId)
     const templateInfo = await templateDao.getVersionbyId(versionId)
+    //config里增加visible字段
+    templateInfo.gitList.map( git => {
+      git.configList.map( config => {
+        config.visible = Number(!config.isHidden)
+      })
+    })
+    templateInfo.globalConfigList.map( config => {
+      config.visible = Number(!config.isHidden)
+    })
+
     const data = {}
     data['id'] = projectInfo.id
     data['publicType'] = templateInfo.publicType
@@ -195,7 +205,7 @@ class Project {
     data['gitList'] = templateInfo.gitList
     data['shareMember'] = projectInfo.shareMember
     data['description'] = projectInfo.description
-    data['globalConfigList'] = projectInfo.globalConfigList
+    data['globalConfigList'] = templateInfo.globalConfigList
 
     return await this.updateProject(data as UpdateProjectParams)
 
@@ -224,7 +234,7 @@ class Project {
       data.globalConfigList.map( config => {
         const globalConfigId = util.uuid()
         globalConfigMap[config.id] = globalConfigId
-        globalConfigData.push([globalConfigId, data.id, config.id, config.targetValue, config.isHidden, config.visable])
+        globalConfigData.push([globalConfigId, data.id, config.id, config.targetValue, config.isHidden, config.visible])
       })
       if ( globalConfigData.length) {
         await this.insetGlobalConfig(conn, globalConfigData)
@@ -241,7 +251,7 @@ class Project {
 
       data.gitList.map( git => {
         git.configList.map( config => {
-          configData.push([util.uuid(), config.targetValue, config.id, globalConfigMap[config.globalConfigId], gitMap[git.id], config.isHidden, config.visable])
+          configData.push([util.uuid(), config.targetValue, config.id, globalConfigMap[config.globalConfigId], gitMap[git.id], config.isHidden, config.visible])
         })
       })
 
@@ -341,7 +351,7 @@ class Project {
       t.template_version_id as template_version_id,
       p.target_value as target_value,
       p.is_hidden as is_hidden,
-      p.visable,
+      p.visible,
       t.type as type
     FROM
       project_global_config as p
@@ -367,7 +377,7 @@ class Project {
       t.template_version_git_id as template_version_git_id,
       t.git_source_config_id as git_source_config_id,
       p.is_hidden as is_hidden,
-      p.visable,
+      p.visible,
       p.target_value as target_value   
     FROM
       project_config as p
