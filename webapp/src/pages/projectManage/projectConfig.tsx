@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:19
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-11 18:40:37
+ * @LastEditTime: 2022-01-27 16:29:07
  */
 
 import { TypeMode } from "@/models/common";
@@ -108,8 +108,8 @@ class ProjectConfig extends React.Component <Props, States> {
     return configList.filter( item => item.isHidden == isHidden)
   }
 
-  visableSourceData (configList: TemplateConfig[]): TemplateConfig[] {
-    return configList.filter( item => item.visable == 1)
+  visibleSourceData (configList: TemplateConfig[]): TemplateConfig[] {    
+    return configList.filter( item => item.visible == 1)
   }
 
 
@@ -134,7 +134,7 @@ class ProjectConfig extends React.Component <Props, States> {
     }, 300)
   }
 
-  filterData (data: TemplateConfig[]) {  
+  filterData (data: TemplateConfig[]) {      
     const preData = util.clone(data)
     const newData = []
     const signArr = this.props.signArr
@@ -212,8 +212,10 @@ class ProjectConfig extends React.Component <Props, States> {
         width: 150,
         ellipsis: true,
         render: (record: TemplateConfig) => {
+          console.log(record.globalConfigId);
+          
           return (
-            record.globalConfigId ? this.props.globalConfigList.filter(item => item.id == record.globalConfigId)[0].name : "-"
+            record.globalConfigId ? this.props.globalConfigList.filter(item => item.id == record.globalConfigId)[0]?.name : "-"
           )
         }
       },
@@ -371,7 +373,7 @@ class ProjectConfig extends React.Component <Props, States> {
                       className.push( this.props.signArr.includes(record.globalConfigId) ?  styles.sign: "" )                      
                       return className.join("")
                     }}
-                    dataSource={this.visableSourceData(this.filterData(item.configList))}
+                    dataSource={this.visibleSourceData(this.filterData(item.configList))}
                     pagination={{
                       showTotal(totle: number) {
                         return `总记录数${totle}`;

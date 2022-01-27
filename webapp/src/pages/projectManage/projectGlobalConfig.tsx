@@ -4,7 +4,7 @@
  * @Author: Adxiong
  * @Date: 2021-08-27 16:13:10
  * @LastEditors: Adxiong
- * @LastEditTime: 2022-01-25 20:08:30
+ * @LastEditTime: 2022-01-27 16:29:02
  */
 import type { TemplateGlobalConfig, TemplateVersionGit } from "@/models/template";
 import type { ColumnProps  } from "antd/lib/table";
@@ -103,8 +103,8 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
     }
 
 
-    visableSourceData (configList: TemplateGlobalConfig[]): TemplateGlobalConfig[] {
-      return configList.filter( item => item.visable == 1)
+    visibleSourceData (configList: TemplateGlobalConfig[]): TemplateGlobalConfig[] {
+      return configList.filter( item => item.visible == 1)
     }
 
     onChangeFilterType (value: string) {
@@ -321,7 +321,7 @@ class ProjectGlobalConfig  extends React.Component<Props, States> {
             bordered
             columns={columns}
             rowKey="id"
-            dataSource={this.visableSourceData(this.filterData(this.props.globalConfigList))}
+            dataSource={this.visibleSourceData(this.filterData(this.props.globalConfigList))}
             pagination={{
               showTotal(totle: number) {
                 return `总记录数${totle}`;

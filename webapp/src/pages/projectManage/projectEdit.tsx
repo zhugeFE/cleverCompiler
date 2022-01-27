@@ -225,11 +225,11 @@ class ProjectEdit extends React.Component<Props, States> {
       const current = this.props.templateInfo.versionList.filter( item =>item.id === value)[0]     
       current.gitList.forEach(git => {
         git.configList.forEach(config => {
-          config.visable = Number(!config.isHidden)
+          config.visible = Number(!config.isHidden)
         })
       }) 
       current.globalConfigList.forEach( config => {
-        config.visable = Number(!config.isHidden)
+        config.visible = Number(!config.isHidden)
       })
       this.setState({
         templateVersionId: value,
