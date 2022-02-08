@@ -1,0 +1,42 @@
+@import '~antd/es/style/themes/default.less';
+
+.versionUpdatePanel {
+  display:  flex;
+  flex-direction: column;
+  align-items: center;
+  .goback{
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding-left: 10px;
+    font-size: 24px;
+  }
+  
+  .content {
+    width: 80%;
+  }
+  .versionItem {
+    width: 100%;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border-bottom: 2px solid @divider-color;
+    cursor: pointer;
+    border-radius: 15px;
+    transition: all, .2s ease-in-out;
+    &:hover{
+      background-color: rgba(255, 255, 255, .5);
+      transform: scaleY(1.05);
+    }
+    .title {
+      color: @primary-color;
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 0px;
+    }
+    .subTitle {
+      color: rgba(@black, .5);
+    }
+    
+  }
+  
+}

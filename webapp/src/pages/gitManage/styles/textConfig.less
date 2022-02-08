@@ -1,0 +1,55 @@
+@import '~antd/es/style/themes/default.less';
+.gitConfigModal {
+  height: 100%;
+  top: 0 !important;
+  :global(.ant-modal-content) {
+    width: 100%;
+    height: 80%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    :global(.ant-modal-header), :global(.ant-modal-footer) {
+      flex: none;
+    }
+    :global(.ant-modal-body) {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      flex-direction: row;
+      padding: 10px;
+      .gitCmLeftPanel {
+        flex: 1;
+        margin-left: 10px;
+      }
+    }
+  }
+}
+.gitTextConfig {
+  display: flex;
+  flex-direction: column;
+  :global(.ant-form) {
+    flex: none;
+    :global(.ant-form-item) {
+      margin-bottom: 10px;
+      :global(.ant-form-item-label) {
+        width: 100px;
+      }
+    }
+    &>:global(.ant-btn) {
+      margin-right: 10px;
+    }
+    .long {
+      width: 350px;
+    }
+    .formDivider {
+      width: 100%;
+    }
+  }
+  .gitFileEditor {
+    flex: 1;
+    overflow: auto;
+  }
+}

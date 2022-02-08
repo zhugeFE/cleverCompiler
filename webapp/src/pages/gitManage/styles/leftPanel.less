@@ -1,0 +1,20 @@
+.leftPanel {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  margin-bottom: 10px;
+  padding-top: 10px;
+  box-sizing: border-box;
+  .leftPanelTopBtns {
+    display: flex;
+    justify-content: space-around;
+    :global(.ant-btn) {
+      width: 40%;
+      height: 60px;
+      padding: 5px;
+      margin: 0 5px;
+      border-radius: 15px;
+      text-align: center;
+    }
+  }
+}

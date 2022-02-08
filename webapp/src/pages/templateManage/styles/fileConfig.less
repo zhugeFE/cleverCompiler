@@ -1,0 +1,30 @@
+@import '~antd/es/style/themes/default.less';
+.templateFileConfig {
+  :global(.ant-form) {
+    display: flex;
+    flex-direction: column;
+    :global(.ant-form-item) {
+      margin-bottom: 10px;
+      :global(.ant-form-item-label) {
+        width: 100px;
+      }
+    }
+    .long {
+      width: 450px;
+    }
+
+    :global(.ant-upload-drag-container) {
+      margin-top: 10px;
+      text-align: center;
+    }
+    :global(p.ant-upload-drag-icon .anticon) {
+      color: #40a9ff;
+      font-size: 48px;
+    }
+    :global(p.ant-upload-text) {
+      margin: 0 0 4px;
+      color: #000000d9;
+      font-size: 16px;
+    }
+  }
+}

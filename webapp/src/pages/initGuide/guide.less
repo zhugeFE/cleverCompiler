@@ -1,0 +1,33 @@
+@import '~antd/es/style/themes/default.less';
+.initGuide {
+  height: 100%;
+  overflow: auto;
+  background-color: #70a1ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  :global(.ant-form) {
+    width: 500px;
+    display: block;
+    margin: 20px auto;
+    padding: 20px 40px;
+    border-radius: 15px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    background-color: #f5f6fa;
+  }
+}
+.title{
+  text-align: center;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.formLine {
+  border-bottom: 1px dashed @border-color-split;
+  padding: 0 0 5px 10px;
+  margin-bottom: 5px;
+}
+.btnSubmit {
+  width: 100%;
+}

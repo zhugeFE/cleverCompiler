@@ -1,0 +1,61 @@
+@import '~antd/es/style/themes/default.less';
+.gitEditLoading {
+  display: block !important;
+  margin: 60px auto 0 auto !important;
+}
+.gitEditPanel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .gitPanelTop {
+    font-size: 12px;
+    flex: none;
+  }
+  .gitPanelCenter {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+
+    .gitDetail {
+      flex: 1;
+      overflow: auto;
+      padding: 0 10px;
+      position: relative;
+      .gitConfigs {
+        margin: 10px 0;
+      }
+      .gitAddr {
+        margin: 5px 0;
+      }
+      .mark{
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        color: #f40;
+        font-size: 50px;
+        text-align: center;
+        padding-top: 100px;
+        box-sizing: border-box;
+        background-color: rgba(255, 255, 255, .7);
+        z-index: 100;
+      }
+    }
+  }
+}
+
+
+.nullValue {
+  display: block;
+  :global(.ant-input) {
+    border-color: #f40;
+  }
+  &::after {
+    display: inline-block;
+    margin-left: 20px;
+    color: #f40;
+    content: "🙅‍♂️ 输出路径未填写！";
+  } 
+}
