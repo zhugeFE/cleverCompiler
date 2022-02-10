@@ -407,7 +407,7 @@ class TemplateDao {
       config.gitSourceConfigId,
       config.targetValue,
       config.isHidden || 0,
-      globalConfigId != "" ? globalConfigId : null
+      globalConfigId || null
     ])
   }
 
@@ -468,12 +468,12 @@ class TemplateDao {
       await pool.writeInTransaction(connect, updateTVGsql, [params.gitSourceVersionId, params.id])
       await pool.writeInTransaction(connect, delConfigsql, [params.id])
       for (const config of params.configList) {
-        await this.copyTemplateVersionConfig(connect, config, config.templateId, config.templateVersionId, config.templateVersionGitId, "" )
+        await this.copyTemplateVersionConfig(connect, config, config.templateId, config.templateVersionId, config.templateVersionGitId, config.globalConfigId )
       }
       await pool.commit(connect)
       return await this.getGitById(params.id)
     } catch (err) {
-      await pool.rollback(connect)
+      pool.rollback(connect)
       throw(err)
     }
   }

@@ -131,21 +131,26 @@ class GitConfigPanel extends React.Component<ConfigPanelProps, State> {
       }
     }
     const currentVersion = util.clone(this.props.currentVersion)
-    const data = {}
+    const data: Record<string, any> = {}
     if (currentVersion) {
       currentVersion.gitList.map( git => {
         if ( git.id === this.props.activeKey){
           data.id = git.id
           data.gitSourceVersionId = versionData?.id
           data.configList = []
-          versionData?.configs.map( config => {
+          versionData?.configs.map( (config) => {
+            // 从当前版本的配置列表里面查找当前配置项是否是历史存在的配置项，是的话需要继承过来隐藏等状态与值
+            const oldConfig: TemplateConfig[] = git.configList.filter(item => {
+              return item.filePath === config.filePath && item.reg === config.reg
+            })
             data.configList.push({
               templateId: git.templateId,
               templateVersionId: git.templateVersionId,
               templateVersionGitId: git.id,
               gitSourceConfigId: config.id,
               targetValue: config.targetValue,
-              isHidden: config.isHidden
+              isHidden: oldConfig.length ? oldConfig[0].isHidden : 0,
+              globalConfigId: oldConfig.length ? oldConfig[0].globalConfigId : null
             })
           })
         }

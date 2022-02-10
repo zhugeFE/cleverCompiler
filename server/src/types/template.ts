@@ -99,6 +99,7 @@ export interface CreateTemplateConfig {
   targetValue: string; //配置项默认值
   isHidden: number; //是否隐藏
   visible?: number; //是否可见
+  globalConfigId?: string; // 全局配置id
 }
 export interface TemplateConfig extends CreateTemplateConfig {
   id: string;
