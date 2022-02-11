@@ -117,7 +117,9 @@ class FileTree extends React.Component<FileTreeProps, State> {
           return <Tree.DirectoryTree
             defaultSelectedKeys={[this.props.defauleSelect!]}
             treeData={this.state.treeData}
-            onSelect={() => this.onSelect} />
+            onSelect={(keys, info) => {
+              this.onSelect(info)
+            }} />
         })()}
       </div>
     )
