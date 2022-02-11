@@ -77,7 +77,7 @@ class FsUtil {
     const matchIgnore = (itemPath: string): boolean => {
       let match = false
       exclude.forEach(reg => {
-        if (reg && new RegExp(reg).test(itemPath)) {
+        if (reg && new RegExp(reg.replace(/\./g, '\\.')).test(itemPath)) {
           match = true
         }
       })
