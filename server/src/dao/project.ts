@@ -353,7 +353,7 @@ class Project {
       t.template_version_id as template_version_id,
       p.target_value as target_value,
       p.is_hidden as is_hidden,
-      p.visable,
+      p.visable as visible,
       t.type as type
     FROM
       project_global_config as p
@@ -379,7 +379,7 @@ class Project {
       t.template_version_git_id as template_version_git_id,
       t.git_source_config_id as git_source_config_id,
       p.is_hidden as is_hidden,
-      p.visable,
+      p.visable as visible,
       p.target_value as target_value   
     FROM
       project_config as p
