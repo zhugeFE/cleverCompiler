@@ -133,7 +133,9 @@ class Project {
   }
   async insetGlobalConfig (conn, data: string[][]): Promise<void> {
     const sql = `INSERT INTO project_global_config (id, project_id, template_global_config_id ,target_value,is_hidden, visible) VALUES ?`
-    await pool.writeInTransaction(conn,sql, [data])
+    for (let i = 0; i < data.length; i++) {
+      await pool.writeInTransaction(conn,sql, data[i])
+    }
   }
 
   async getProjectInfo (id: string): Promise<ProjectInfo>{
