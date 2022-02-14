@@ -24,5 +24,5 @@ export default {
 };
 
 export const wsserver = {
-  ws: 'ws://localhost:3000'
+  ws: 'ws://47.92.7.5:3000'
 }
